@@ -134,7 +134,6 @@ public abstract class CancelableProcess
     protected synchronized final void checkCancellation(
             ProcessTools.CancelOption cancelOption) throws SarosCancellationException
     {
-
         if (isLocalCancellation())
         {
             localCancel(null, cancelOption);

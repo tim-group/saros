@@ -4,6 +4,7 @@ import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.core.ui.IJoinSession;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcceptedExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcknowledgedExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationCompletedExtension;
@@ -45,10 +46,6 @@ public class IncomingSessionNegotiation extends SessionNegotiation
     {
 
         super(invitationID, from, description, sarosContext);
-
-
-        System.out.println("IncomingSessionNegotiation.IncomingSessionNegotiation");
-
         this.sessionManager = sessionManager;
         this.remoteVersion = remoteVersion;
     }

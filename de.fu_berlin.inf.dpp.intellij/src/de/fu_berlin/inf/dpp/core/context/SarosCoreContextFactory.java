@@ -27,6 +27,8 @@ import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.communication.chat.muc.MultiUserChatService;
 import de.fu_berlin.inf.dpp.communication.chat.single.SingleUserChatService;
 import de.fu_berlin.inf.dpp.core.invitation.hooks.SessionNegotiationHookManager;
+import de.fu_berlin.inf.dpp.core.observables.*;
+import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.net.*;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
@@ -39,10 +41,6 @@ import de.fu_berlin.inf.dpp.net.upnp.IUPnPAccess;
 import de.fu_berlin.inf.dpp.net.upnp.IUPnPService;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPAccessImpl;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPServiceImpl;
-import de.fu_berlin.inf.dpp.core.observables.InvitationProcessObservable;
-import de.fu_berlin.inf.dpp.core.observables.ProjectNegotiationObservable;
-import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
-import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
 import org.picocontainer.BindKey;
@@ -124,7 +122,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(ITransmitter.class, XMPPTransmitter.class),
 
             // Observables
-            //  Component.create(FileReplacementInProgressObservable.class),
+            Component.create(FileReplacementInProgressObservable.class),
             Component.create(InvitationProcessObservable.class),
             Component.create(ProjectNegotiationObservable.class),
             //    Component.create(IsInconsistentObservable.class),
@@ -138,6 +136,9 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             //   Component.create(CancelProjectSharingHandler.class),
               Component.create(InvitationHandler.class),
               Component.create(LeaveAndKickHandler.class),
+
+            Component.create(RemoteProgressManager.class),
+
     };
 
     @Override

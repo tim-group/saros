@@ -1,13 +1,19 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
+import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.MonitorConverter;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
+
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.FileListDiff;
+import de.fu_berlin.inf.dpp.invitation.FileListFactory;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -76,6 +82,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             .getLogger(IncomingProjectNegotiation.class);
 
     private ISubMonitor monitor;
+
     private IAddProjectToSessionWizard addIncomingProjectUI;
 
     private List<ProjectNegotiationData> projectInfos;
@@ -124,7 +131,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         this.sarosSession = sarosSession;
         this.processID = processID;
         this.projectInfos = projectInfos;
-        this.localProjects = new HashMap<String, IProject>();
+        this.localProjects = MockInitializer.createProjectList();
         this.jid = peer;
     }
 
@@ -159,7 +166,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     }
 
     public synchronized void setProjectInvitationUI(
-            de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard addIncomingProjectUI)
+           IAddProjectToSessionWizard addIncomingProjectUI)
     {
         this.addIncomingProjectUI = addIncomingProjectUI;
     }
@@ -194,6 +201,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         Exception exception = null;
 
+
         createCollectors();
 
         try
@@ -215,13 +223,16 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             fileTransferManager
                     .addFileTransferListener(archiveTransferListener);
 
+
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
                     useVersionControl, this.monitor.newChild(10));
+
 
             transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
                     peer, ProjectNegotiationMissingFilesExtension.PROVIDER
                     .create(new ProjectNegotiationMissingFilesExtension(
                             sessionID, processID, missingFiles)));
+
 
             awaitActivityQueueingActivation(this.monitor.getMain());
 
@@ -229,6 +240,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             // all resources from that project
             for (Entry<String, IProject> entry : localProjects.entrySet())
             {
+                if(entry.getKey()==null || entry.getValue()==null)
+                    continue;
+
                 sarosSession.addProjectOwnership(entry.getKey(),
                         ResourceAdapterFactory.create(entry.getValue()), jid);
                 sarosSession.enableQueuing(entry.getKey());
@@ -260,6 +274,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             for (String projectID : localProjects.keySet())
             {
                 IProject iProject = localProjects.get(projectID);
+                if(iProject==null)
+                    continue;
+
                 if (isPartialRemoteProject(projectID))
                 {
                     List<IPath> paths = getRemoteFileList(projectID).getPaths();
@@ -662,6 +679,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     @Override
     public synchronized boolean remoteCancel(String errorMsg)
     {
+        System.out.println("IncomingProjectNegotiation.remoteCancel");
+
         if (!super.remoteCancel(errorMsg))
         {
             return false;
@@ -685,6 +704,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     public synchronized boolean localCancel(String errorMsg,
             CancelOption cancelOption)
     {
+        System.out.println("IncomingProjectNegotiation.localCancel");
+//        if(true)
+//        throw new RuntimeException("Why??????????????????????");
+
         if (!super.localCancel(errorMsg, cancelOption))
         {
             return false;
@@ -731,7 +754,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         try
         {
-            localFileList = FileListFactory.createFileList(currentLocalProject, null, checksumCache, vcs != null, subMonitor.newChildMain(1));
+         //   localFileList = FileListFactory.createFileList(currentLocalProject, null, checksumCache, vcs != null, subMonitor.newChildMain(1));
+
+            localFileList = MockInitializer.createFileList();
         }
         catch (CoreException e)
         {
@@ -776,6 +801,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             throws IOException
     {
         log.debug(this + " : computing file list difference");
+
+        System.out.println("IncomingProjectNegotiation.computeDiff>>>"+currentLocalProject);
 
         try
         {
@@ -973,8 +1000,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 + " to continue the project negotiation...",
                 IProgressMonitor.UNKNOWN);
 
-        Packet packet = collectPacket(startActivityQueuingRequestCollector,
-                PACKET_TIMEOUT);
+        Packet packet = collectPacket(startActivityQueuingRequestCollector, PACKET_TIMEOUT);
 
         if (packet == null)
         {
@@ -988,6 +1014,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
     private void createCollectors()
     {
+
         startActivityQueuingRequestCollector = xmppReceiver
                 .createCollector(StartActivityQueuingRequest.PROVIDER
                         .getPacketFilter(sessionID, processID));

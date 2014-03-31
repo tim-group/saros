@@ -22,16 +22,16 @@
 
 package de.fu_berlin.inf.dpp.net.internal.extensions;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
-import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
-
 import java.util.List;
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.invitation.FileList;
 
 @XStreamAlias(/* ProjectNegotiationOffering */"PNOF")
 public class ProjectNegotiationOfferingExtension extends
-        ProjectNegotiationExtension
-{
+        ProjectNegotiationExtension {
 
     public static final Provider PROVIDER = new Provider();
 
@@ -39,28 +39,23 @@ public class ProjectNegotiationOfferingExtension extends
 
     public ProjectNegotiationOfferingExtension(String sessionID,
             String negotiationID,
-            List<ProjectNegotiationData> projectNegotiationData)
-    {
+            List<ProjectNegotiationData> projectNegotiationData) {
         super(sessionID, negotiationID);
         this.projectNegotiationData = projectNegotiationData;
     }
 
-    public List<ProjectNegotiationData> getProjectNegotiationData()
-    {
+    public List<ProjectNegotiationData> getProjectNegotiationData() {
         return projectNegotiationData;
     }
 
     public static class Provider
             extends
-            ProjectNegotiationExtension.Provider<ProjectNegotiationOfferingExtension>
-    {
+            ProjectNegotiationExtension.Provider<ProjectNegotiationOfferingExtension> {
 
-        private Provider()
-        {
+        private Provider() {
             super("pnof", ProjectNegotiationOfferingExtension.class,
                     ProjectNegotiationData.class, FileList.class);
         }
     }
 
 }
-

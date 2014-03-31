@@ -81,11 +81,6 @@ public abstract class SessionNegotiation extends CancelableProcess
     public SessionNegotiation(String invitationID, JID peer,
             String description, ISarosContext sarosContext)
     {
-        System.out.println("SessionNegotiation.SessionNegotiation");
-        /////////////////////////////////////////////////////
-
-
-        ///////////////////////////////////////////////////
 
         this.invitationID = invitationID;
         this.peer = peer;

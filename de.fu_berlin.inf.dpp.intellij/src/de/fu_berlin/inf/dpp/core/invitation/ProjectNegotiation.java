@@ -316,6 +316,7 @@ public abstract class ProjectNegotiation extends CancelableProcess
 
             timeout -= 1000;
         }
+
         return packet;
     }
 }

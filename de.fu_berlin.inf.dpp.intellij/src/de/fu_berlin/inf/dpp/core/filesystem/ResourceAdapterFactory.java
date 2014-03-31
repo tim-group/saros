@@ -23,6 +23,8 @@
 package de.fu_berlin.inf.dpp.core.filesystem;
 
 import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
+import de.fu_berlin.inf.dpp.intellij.project.Project;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,6 +164,7 @@ public class ResourceAdapterFactory {
         // return new EclipseResourceImpl(resource);
         // }
 
-        return null;// todo
+       // return MockInitializer.testProject;
+        return null;
     }
 }

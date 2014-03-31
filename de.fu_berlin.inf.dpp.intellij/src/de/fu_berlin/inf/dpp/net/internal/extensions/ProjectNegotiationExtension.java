@@ -22,37 +22,33 @@
 
 package de.fu_berlin.inf.dpp.net.internal.extensions;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
 public abstract class ProjectNegotiationExtension extends
-        SarosSessionPacketExtension
-{
+        SarosSessionPacketExtension {
 
     @XStreamAlias("nid")
     @XStreamAsAttribute
     protected final String negotiationID;
 
-    protected ProjectNegotiationExtension(String sessionID, String negotiationID)
-    {
+    protected ProjectNegotiationExtension(String sessionID, String negotiationID) {
         super(sessionID);
         this.negotiationID = negotiationID;
     }
 
-    public String getNegotiationID()
-    {
+    public String getNegotiationID() {
         return negotiationID;
     }
 
     public abstract static class Provider<T extends ProjectNegotiationExtension>
-            extends SarosSessionPacketExtension.Provider<T>
-    {
+            extends SarosSessionPacketExtension.Provider<T> {
 
-        public Provider(String elementName, Class<?>... classes)
-        {
+            public Provider(String elementName, Class<?>... classes) {
             super(elementName, classes);
         }
 
@@ -66,21 +62,16 @@ public abstract class ProjectNegotiationExtension extends
          */
 
         public PacketFilter getPacketFilter(final String sessionID,
-                final String negotiationID)
-        {
+                final String negotiationID) {
 
             return new AndFilter(super.getPacketFilter(sessionID),
-                    new PacketFilter()
-                    {
+                    new PacketFilter() {
                         @Override
-                        public boolean accept(Packet packet)
-                        {
+                        public boolean accept(Packet packet) {
                             ProjectNegotiationExtension extension = getPayload(packet);
 
                             if (extension == null)
-                            {
                                 return false;
-                            }
 
                             return negotiationID.equals(extension
                                     .getNegotiationID());
@@ -89,4 +80,3 @@ public abstract class ProjectNegotiationExtension extends
         }
     }
 }
-

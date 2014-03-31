@@ -36,7 +36,7 @@ public class XMPPReceiver implements IReceiver {
     private final DispatchThreadContext dispatchThreadContext;
 
     private Map<PacketListener, PacketFilter> listeners = Collections
-        .synchronizedMap(new HashMap<PacketListener, PacketFilter>());
+            .synchronizedMap(new HashMap<PacketListener, PacketFilter>());
 
     private XmlPullParser parser;
 
@@ -52,23 +52,23 @@ public class XMPPReceiver implements IReceiver {
 
         @Override
         public void connectionStateChanged(Connection connection,
-            ConnectionState state) {
+                ConnectionState state) {
 
             switch (state) {
-            case CONNECTING:
-                connection.addPacketListener(smackPacketListener, null);
-                //$FALL-THROUGH$
-            case CONNECTED:
-                break;
-            default:
-                if (connection != null)
-                    connection.removePacketListener(smackPacketListener);
+                case CONNECTING:
+                    connection.addPacketListener(smackPacketListener, null);
+                    //$FALL-THROUGH$
+                case CONNECTED:
+                    break;
+                default:
+                    if (connection != null)
+                        connection.removePacketListener(smackPacketListener);
             }
         }
     };
 
     public XMPPReceiver(DispatchThreadContext dispatchThreadContext,
-        XMPPConnectionService connectionService) {
+            XMPPConnectionService connectionService) {
 
         this.dispatchThreadContext = dispatchThreadContext;
         this.parser = new MXParser();
@@ -99,12 +99,12 @@ public class XMPPReceiver implements IReceiver {
     @Override
     public SarosPacketCollector createCollector(PacketFilter filter) {
         final SarosPacketCollector collector = new SarosPacketCollector(
-            new CancelHook() {
-                @Override
-                public void cancelPacketCollector(SarosPacketCollector collector) {
-                    removePacketListener(collector);
-                }
-            }, filter);
+                new CancelHook() {
+                    @Override
+                    public void cancelPacketCollector(SarosPacketCollector collector) {
+                        removePacketListener(collector);
+                    }
+                }, filter);
         addPacketListener(collector, filter);
 
         return collector;
@@ -112,7 +112,7 @@ public class XMPPReceiver implements IReceiver {
 
     @Override
     public void processTransferObject(
-        final IncomingTransferObject transferObject) {
+            final IncomingTransferObject transferObject) {
 
         dispatchThreadContext.executeAsDispatch(new Runnable() {
 
@@ -129,7 +129,7 @@ public class XMPPReceiver implements IReceiver {
 
     /**
      * Dispatches the packet to all registered listeners.
-     * 
+     *
      * @sarosThread must be called from the Dispatch Thread
      */
     private void forwardPacket(Packet packet) {
@@ -152,26 +152,26 @@ public class XMPPReceiver implements IReceiver {
      * Deserializes the payload of an {@link IncomingTransferObject} back to its
      * original {@link PacketExtension} and returns a new packet containing the
      * deserialized packet extension.
-     * 
+     *
      * This method is <b>not</b> thread safe and <b>must not</b> accessed by
      * multiple threads concurrently.
      */
     private Packet convertTransferObjectToPacket(
-        IncomingTransferObject transferObject) {
+            IncomingTransferObject transferObject) {
 
         TransferDescription description = transferObject
-            .getTransferDescription();
+                .getTransferDescription();
 
         String name = description.getType();
         String namespace = description.getNamespace();
         // IQ provider?
 
         PacketExtensionProvider provider = (PacketExtensionProvider) ProviderManager
-            .getInstance().getExtensionProvider(name, namespace);
+                .getInstance().getExtensionProvider(name, namespace);
 
         if (provider == null) {
             LOG.warn("could not deserialize transfer object because no provider with namespace '"
-                + namespace + "' and element name '" + name + "' is installed");
+                    + namespace + "' and element name '" + name + "' is installed");
             return null;
         }
 
@@ -179,7 +179,7 @@ public class XMPPReceiver implements IReceiver {
 
         try {
             parser.setInput(
-                new ByteArrayInputStream(transferObject.getPayload()), "UTF-8");
+                    new ByteArrayInputStream(transferObject.getPayload()), "UTF-8");
             /*
              * We have to skip the empty start tag because Smack expects a
              * parser that already has started parsing.
@@ -188,8 +188,8 @@ public class XMPPReceiver implements IReceiver {
             extension = provider.parseExtension(parser);
         } catch (Exception e) {
             LOG.error(
-                "could not deserialize transfer object payload: "
-                    + e.getMessage(), e);
+                    "could not deserialize transfer object payload: "
+                            + e.getMessage(), e);
 
             // just to be safe
             parser = new MXParser();

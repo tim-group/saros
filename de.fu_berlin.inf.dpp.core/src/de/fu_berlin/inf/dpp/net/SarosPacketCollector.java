@@ -24,7 +24,7 @@ public class SarosPacketCollector implements PacketListener {
     }
 
     private static final Logger log = Logger
-        .getLogger(SarosPacketCollector.class);
+            .getLogger(SarosPacketCollector.class);
     private boolean hasReveived = false;
 
     /**
@@ -35,7 +35,7 @@ public class SarosPacketCollector implements PacketListener {
 
     private PacketFilter packetFilter;
     private LinkedBlockingQueue<Packet> resultQueue = new LinkedBlockingQueue<Packet>(
-        MAX_PACKETS);
+            MAX_PACKETS);
     private CancelHook cancelHook;
     /** Once canceled is true, it can never become false again. */
     private boolean canceled = false;
@@ -43,7 +43,7 @@ public class SarosPacketCollector implements PacketListener {
     /**
      * Creates a new packet collector. If the packet filter is <tt>null</tt>,
      * then all packets will match this collector.
-     * 
+     *
      * @param packetFilter
      *            determines which packets will be returned by this collector.
      */
@@ -69,7 +69,7 @@ public class SarosPacketCollector implements PacketListener {
     /**
      * Returns the packet filter associated with this packet collector. The
      * packet filter is used to determine what packets are queued as results.
-     * 
+     *
      * @return the packet filter.
      */
     public PacketFilter getPacketFilter() {
@@ -81,7 +81,7 @@ public class SarosPacketCollector implements PacketListener {
      * return) until a packet is available or the <tt>timeout</tt> has elapased.
      * If the timeout elapses without a result (or the thread is interrupted),
      * <tt>null</tt> will be returned.
-     * 
+     *
      * @param timeout
      *            the amount of time in milliseconds to wait for the next
      *            packet.
@@ -90,6 +90,7 @@ public class SarosPacketCollector implements PacketListener {
      * @return the next available packet.
      */
     public Packet nextResult(long timeout) {
+
         if (canceled && resultQueue.isEmpty())
             throw new IllegalStateException("Canceled packet collector");
         try {
@@ -110,16 +111,16 @@ public class SarosPacketCollector implements PacketListener {
     /**
      * Processes a packet to see if it meets the criteria for this packet
      * collector. If so, the packet is added to the result queue.
-     * 
+     *
      * If the result queue's capacity {@link #MAX_PACKETS} is reached, the
      * collector is canceled using the proved {@link CancelHook}.
-     * 
+     *
      * @param packet
      *            the packet to process
      * @singleThreaded should only be accessed by the single threaded executer
      *                 of
      *                 {@link de.fu_berlin.inf.dpp.net.business.DispatchThreadContext}
-     * 
+     *
      */
     @Override
     public void processPacket(Packet packet) {

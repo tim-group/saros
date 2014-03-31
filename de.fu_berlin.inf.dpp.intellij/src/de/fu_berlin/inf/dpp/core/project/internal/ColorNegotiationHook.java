@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.core.context.PreferenceUtils;
+import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.invitation.hooks.ISessionNegotiationHook;
 import de.fu_berlin.inf.dpp.core.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;

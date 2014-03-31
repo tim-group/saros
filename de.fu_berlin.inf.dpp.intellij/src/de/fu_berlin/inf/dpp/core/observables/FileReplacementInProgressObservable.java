@@ -22,15 +22,31 @@
 
 package de.fu_berlin.inf.dpp.core.observables;
 
+import de.fu_berlin.inf.dpp.annotations.Component;
+
 /**
- * Created by: r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28 Time: 11.51
+ * This observable can be used to check whether there is currently a file
+ * replacement activityDataObject in progress by the ConsistencyWatchdog (in
+ * this case isReplacementInProgress() returns true).
+ *
+ * Internally this class uses reference counting, so you can call
+ * startReplacement() repeatedly and it will return true until a matching number
+ * of calls to replacementDone() has been made.
  */
+@Component(module = "observables")
+public class FileReplacementInProgressObservable {
 
-public interface FileReplacementInProgressObservable {
+    int numberOfFileReplacementsInProgress = 0;
 
-    void startReplacement();
+    public synchronized boolean isReplacementInProgress() {
+        return numberOfFileReplacementsInProgress > 0;
+    }
 
-    void replacementDone();
+    public synchronized void startReplacement() {
+        numberOfFileReplacementsInProgress++;
+    }
+
+    public synchronized void replacementDone() {
+        numberOfFileReplacementsInProgress--;
+    }
 }

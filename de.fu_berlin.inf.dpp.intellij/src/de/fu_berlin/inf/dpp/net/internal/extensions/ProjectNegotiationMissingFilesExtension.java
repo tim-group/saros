@@ -26,7 +26,7 @@ import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.FileList;
 
 @XStreamAlias(/* ProjectNegotiationMissingFiles */"PNMF")
 public class ProjectNegotiationMissingFilesExtension extends

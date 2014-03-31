@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
+import de.fu_berlin.inf.dpp.intellij.ui.SubMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -36,21 +37,21 @@ public class MonitorConverter
 
     public static ISubMonitor convert(IProgressMonitor monitor)
     {
-        return null; //todo
+        return new SubMonitor(monitor);  //todo
     }
 
     public static ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
     {
-        return null; //todo
+        return new SubMonitor(monitor); //todo
     }
 
     public static IProgressMonitor convert(ISubMonitor monitor)
     {
-        return null; //todo
+        return monitor; //todo
     }
 
     public static IProgressMonitor convert(ISubMonitor monitor, String title, int progress)
     {
-        return null; //todo
+        return monitor;
     }
 }
