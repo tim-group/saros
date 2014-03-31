@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourceAttributes;
+
 /**
  * Factory to create adapters from Eclipse
  * {@link org.eclipse.core.resources.IResource resources} to Saros Core
