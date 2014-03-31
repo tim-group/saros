@@ -3,12 +3,17 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="IdProvider" IDEtalkID="8AFA4706EC70CFF54F0FCE5573E827A8" />
   <component name="ProjectPlainTextFileTypeManager">
     <file url="file://$PROJECT_DIR$/../de.fu_berlin.inf.dpp.core/.classpath" />
     <file url="file://$PROJECT_DIR$/../de.fu_berlin.inf.dpp.core/.project" />
   </component>
+  <component name="ProjectResources">
+    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA SDK" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/bin" />
   </component>
+  <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
 

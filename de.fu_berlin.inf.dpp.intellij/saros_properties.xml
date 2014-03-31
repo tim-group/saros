@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Saros properties</comment>
+<entry key="b2">7365636f6e642073696d706c6520737472696e67</entry>
+<entry key="b1">6f6e652073696d706c6520737472696e67</entry>
+<entry key="s2">two</entry>
+<entry key="s1">one</entry>
+</properties>
