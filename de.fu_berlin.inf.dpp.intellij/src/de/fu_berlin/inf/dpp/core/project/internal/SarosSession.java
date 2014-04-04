@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.project.internal;
+package de.fu_berlin.inf.dpp.core.project.internal;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.*;
@@ -31,7 +31,6 @@ import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.SharedResourcesManager;
-import de.fu_berlin.inf.dpp.core.project.internal.*;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -834,7 +833,7 @@ public final class SarosSession implements ISarosSession
             throw new IllegalArgumentException();
         }
         /*
-         * If we don't have any sharedProjects don't send File-, Folder- or
+         * If we don't have any sharedProjects don't send File-, FolderImp- or
          * EditorActivities.
          */
         if (projectMapper.size() == 0
@@ -1041,7 +1040,7 @@ public final class SarosSession implements ISarosSession
             }
             catch (IOException e)
             {
-                log.error("Can't get children of Project/Folder. ", e);
+                log.error("Can't get children of Project/FolderImp. ", e);
             }
             if (childResources != null && (childResources.size() > 0))
             {

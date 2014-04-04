@@ -20,15 +20,39 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.proc;
+package de.fu_berlin.inf.dpp.intellij.project;
+
+import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.4.3
- * Time: 08.27
+ * Date: 14.4.4
+ * Time: 16.03
  */
 
-public interface IContainer
+public class ResourceAttributes implements IResourceAttributes
 {
+    private boolean readOnly;
+
+    public ResourceAttributes()
+    {
+    }
+
+    public ResourceAttributes(boolean readOnly)
+    {
+        this.readOnly = readOnly;
+    }
+
+    @Override
+    public boolean isReadOnly()
+    {
+        return readOnly;
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
+    }
 }

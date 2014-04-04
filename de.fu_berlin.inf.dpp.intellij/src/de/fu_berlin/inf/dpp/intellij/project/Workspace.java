@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.project;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
-import de.fu_berlin.inf.dpp.core.project.WorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -42,6 +41,8 @@ import java.io.IOException;
 
 public class Workspace implements IWorkspace
 {
+    private IWorkspaceDescription description;
+
     @Override
     public void run(IWorkspaceRunnable deleteProcedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
     {
@@ -57,20 +58,16 @@ public class Workspace implements IWorkspace
     @Override
     public ISchedulingRoot getRoot()
     {
-        System.out.println("Workspace.getRoot");
-        return new SchedulingRoot(); //todo
+        return SchedulingRoot.instance();
     }
 
-    @Override
     public IWorkspaceDescription getDescription()
     {
-        System.out.println("Workspace.getDescription");
-        return new WorkspaceDescription(); //todo
+        return description;
     }
 
-    @Override
-    public void setDescription(IWorkspaceDescription description) throws IOException
+    public void setDescription(IWorkspaceDescription description)
     {
-        System.out.println("Workspace.setDescription");
+        this.description = description;
     }
 }

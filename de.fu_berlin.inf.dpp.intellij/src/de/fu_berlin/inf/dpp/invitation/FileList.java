@@ -97,7 +97,7 @@ public class FileList
         public List<IPath> toList()
         {
             List<IPath> paths = new ArrayList<IPath>();
-            //    toList(new Path(path), paths);   //todo
+            //    toList(new PathImp(path), paths);   //todo
             return paths;
         }
 

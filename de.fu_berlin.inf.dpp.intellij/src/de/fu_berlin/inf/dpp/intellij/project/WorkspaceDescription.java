@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.intellij.project;
 
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 
@@ -36,96 +36,104 @@ public class WorkspaceDescription implements IWorkspaceDescription
     @Override
     public String[] getBuildOrder()
     {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+        return buildOrder;
     }
 
     @Override
     public long getFileStateLongevity()
     {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return fileStateLongevity;
     }
 
     @Override
     public int getMaxBuildIterations()
     {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return maxBuildIterations;
     }
 
     @Override
     public int getMaxFileStates()
     {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return maxFileStates;
     }
 
     @Override
     public long getMaxFileStateSize()
     {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return maxFileStateSize;
     }
 
     @Override
     public boolean isApplyFileStatePolicy()
     {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return applyFileStatePolicy;
     }
 
     @Override
     public long getSnapshotInterval()
     {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return snapshotInterval;
     }
 
     @Override
     public boolean isAutoBuilding()
     {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return autoBuilding;
     }
 
+    private boolean autoBuilding;
     @Override
     public void setAutoBuilding(boolean arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.autoBuilding = arg0;
     }
 
+    private String[] buildOrder;
     @Override
     public void setBuildOrder(String[] arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.buildOrder = arg0;
     }
 
+    private long fileStateLongevity = 10000;
     @Override
     public void setFileStateLongevity(long arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.fileStateLongevity = arg0;
     }
 
+    private int maxBuildIterations = 10;
     @Override
     public void setMaxBuildIterations(int arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.maxBuildIterations=arg0;
     }
 
+    private int maxFileStates = 100;
     @Override
     public void setMaxFileStates(int arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.maxFileStateSize = arg0;
     }
 
+    private long  maxFileStateSize = 100000000L;
     @Override
     public void setMaxFileStateSize(long arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+       this.maxFileStateSize = arg0;
     }
 
+    private boolean applyFileStatePolicy = false;
     @Override
     public void setApplyFileStatePolicy(boolean arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+       this.applyFileStatePolicy = arg0;
     }
 
+    private long snapshotInterval = 10000;
     @Override
     public void setSnapshotInterval(long arg0)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+       this.snapshotInterval = arg0;
     }
 }

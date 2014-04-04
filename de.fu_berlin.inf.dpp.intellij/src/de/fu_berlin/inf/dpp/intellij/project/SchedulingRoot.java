@@ -25,6 +25,10 @@ package de.fu_berlin.inf.dpp.intellij.project;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -34,12 +38,39 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 public class SchedulingRoot implements ISchedulingRoot
 {
+    private static SchedulingRoot _instance;
+
+    private Map<String,IProject> projects = new HashMap<String, IProject>();
+
+    private SchedulingRoot()
+    {
+    }
+
+    public static SchedulingRoot instance()
+    {
+        if(_instance==null)
+        {
+            _instance = new SchedulingRoot();
+        }
+
+        return _instance;
+    }
+
     @Override
     public IProject getProject(String project)
     {
-        System.out.println("SchedulingRoot.getProject>>>>" + project);
-
-        // return MockInitializer.testProject;
-        return new Project();
+        return projects.get(project);
     }
+
+    public void addProject(IProject proj)
+    {
+        this.projects.put(proj.getName(),proj);
+    }
+    
+    public void addProject(String name, File path)
+    {
+        IProject  prj = new Project(name,path);
+        addProject(prj);
+    }
+
 }

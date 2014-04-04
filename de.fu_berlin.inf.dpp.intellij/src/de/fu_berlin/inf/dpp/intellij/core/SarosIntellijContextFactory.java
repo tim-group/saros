@@ -33,12 +33,12 @@ import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.FileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
+import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.UISynchronizerImpl;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
@@ -114,7 +114,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 //            Component.create(IChecksumCache.class, new ChecksumCacheImpl(
 //                    new FileContentNotifierBridge())),
 
-            // Saros Core Path Support
+            // Saros Core PathImp Support
             //    Component.create(IPathFactory.class, EclipsePathFactory.class),
 
             // SWT EDT support

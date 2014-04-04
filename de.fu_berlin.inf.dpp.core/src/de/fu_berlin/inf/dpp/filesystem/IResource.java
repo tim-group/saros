@@ -10,6 +10,8 @@ import java.net.URI;
  */
 public interface IResource {
 
+    public static final String DEFAULT_CHARSET = "utf8";
+
     public static final int NONE = 0;
     public static final int FILE = 1;
     public static final int FOLDER = 2;
