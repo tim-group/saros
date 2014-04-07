@@ -14,6 +14,7 @@ import org.jivesoftware.smackx.ChatState;
  */
 public class SarosCoreTestAction extends AnAction {
     public void actionPerformed(AnActionEvent e) {
+
         String values = "<html><body><b>Found the following connection states in the Saros Core module:</b><ul>";
 
         for (ConnectionState val : ConnectionState.values()) {
