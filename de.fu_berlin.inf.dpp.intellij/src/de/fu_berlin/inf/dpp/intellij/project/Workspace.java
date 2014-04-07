@@ -28,7 +28,9 @@ import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
+import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -41,7 +43,27 @@ import java.io.IOException;
 
 public class Workspace implements IWorkspace
 {
-    private IWorkspaceDescription description;
+    public static final Logger log = Logger.getLogger(Workspace.class);
+    private static Workspace _instance;
+
+    private SchedulingRoot root;
+
+    private Workspace()
+    {
+
+    }
+
+    public static Workspace instance()
+    {
+        if(_instance==null)
+        {
+            _instance = new Workspace();
+        }
+
+        return _instance;
+    }
+
+    private IWorkspaceDescription description = new WorkspaceDescription();
 
     @Override
     public void run(IWorkspaceRunnable deleteProcedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
@@ -58,7 +80,10 @@ public class Workspace implements IWorkspace
     @Override
     public ISchedulingRoot getRoot()
     {
-        return SchedulingRoot.instance();
+        if(root==null)
+            throw new RuntimeException("Workspace not initialized!");
+
+        return root;
     }
 
     public IWorkspaceDescription getDescription()
@@ -69,5 +94,20 @@ public class Workspace implements IWorkspace
     public void setDescription(IWorkspaceDescription description)
     {
         this.description = description;
+    }
+
+    public void createWorkSpace(File path)
+    {
+        this.root = new SchedulingRoot(path);
+
+        log.info("Add workspace " + path.getAbsolutePath());
+        for (File prj : path.listFiles())
+        {
+            if (prj.isDirectory())
+            {
+
+                root.addProject(prj.getName(), prj);
+            }
+        }
     }
 }

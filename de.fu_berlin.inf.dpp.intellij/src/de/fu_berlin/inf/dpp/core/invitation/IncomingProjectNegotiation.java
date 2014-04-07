@@ -243,6 +243,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 if(entry.getKey()==null || entry.getValue()==null)
                     continue;
 
+                System.out.println("IncomingProjectNegotiation.accept ADDING key="+entry.getKey()+" proj="+entry.getValue());
+
                 sarosSession.addProjectOwnership(entry.getKey(),
                         ResourceAdapterFactory.create(entry.getValue()), jid);
                 sarosSession.enableQueuing(entry.getKey());
@@ -261,6 +263,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             {
                 filesMissing |= list.getPaths().size() > 0;
             }
+
+            System.out.println("IncomingProjectNegotiation.accept MISSING="+filesMissing);
 
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
@@ -362,6 +366,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             SarosCancellationException
     {
 
+        System.out.println("IncomingProjectNegotiation.acceptArchive");
+
         // waiting for the big archive to come in
 
         monitor.beginTask(null, 100);
@@ -452,6 +458,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             Map<String, String> projectNames, boolean useVersionControl,
             ISubMonitor subMonitor) throws SarosCancellationException, IOException
     {
+
+        System.out.println("IncomingProjectNegotiation.calculateMissingFiles>>"+projectNames);
 
         subMonitor.beginTask(null, 100);
         int numberOfLoops = projectNames.size();
@@ -746,6 +754,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             IOException
     {
 
+        System.out.println("IncomingProjectNegotiation.computeRequiredFiles REMOTE_FILE="+remoteFileList+" LOcalProject="+currentLocalProject);
+
         ISubMonitor subMonitor = MonitorConverter.convert(monitor,
                 "Compute required Files...", 1);
 
@@ -754,9 +764,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         try
         {
-         //   localFileList = FileListFactory.createFileList(currentLocalProject, null, checksumCache, vcs != null, subMonitor.newChildMain(1));
+            localFileList = FileListFactory.createFileList(currentLocalProject, null, checksumCache, vcs != null, subMonitor.newChildMain(1));
 
-            localFileList = MockInitializer.createFileList();
         }
         catch (CoreException e)
         {

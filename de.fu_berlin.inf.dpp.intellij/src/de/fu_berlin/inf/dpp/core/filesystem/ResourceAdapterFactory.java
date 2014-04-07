@@ -22,24 +22,31 @@
 
 package de.fu_berlin.inf.dpp.core.filesystem;
 
+import com.intellij.openapi.project.impl.ProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
+import de.fu_berlin.inf.dpp.intellij.project.FileImp;
+import de.fu_berlin.inf.dpp.intellij.project.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.Project;
+import de.fu_berlin.inf.dpp.intellij.project.ResourceImp;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * //todo Factory to create adapters from Eclipse
+ * //todo Factory to create adapters from IntellJ
  * {@link org.eclipse.core.resources.IResource resources} to Saros Core
  * {@linkplain de.fu_berlin.inf.dpp.filesystem.IResource resources}.
  */
-public class ResourceAdapterFactory {
+public class ResourceAdapterFactory
+{
 
-    public static IPath create(IPath path) {
+    public static IPath create(IPath path)
+    {
 
-        if (path == null) {
+        if (path == null)
+        {
             return null;
         }
 
@@ -47,19 +54,23 @@ public class ResourceAdapterFactory {
         return null; // todo
     }
 
-    public static IProject create(IProject project) {
+    public static IProject create(IProject project)
+    {
         return (IProject) adapt(project);
     }
 
-    public static IFile create(IFile file) {
+    public static IFile create(IFile file)
+    {
         return (IFile) adapt(file);
     }
 
-    public static IFolder create(IFolder folder) {
+    public static IFolder create(IFolder folder)
+    {
         return (IFolder) adapt(folder);
     }
 
-    public static IResource create(IResource resource) {
+    public static IResource create(IResource resource)
+    {
         return adapt(resource);
     }
 
@@ -67,15 +78,16 @@ public class ResourceAdapterFactory {
      * Converts a collection of Eclipse resources to Saros Core file system
      * resources. The elements contained in the returned list have the same
      * order as returned by the iterator of the collection.
-     * 
-     * @param resources
-     *            collection of Eclipse resources
+     *
+     * @param resources collection of Eclipse resources
      * @return list which will the contain the converted resources or
      *         <code>null</code> if resources was <code>null</code>
      */
     public static List<IResource> convertTo(
-        Collection<? extends IResource> resources) {
-        if (resources == null) {
+            Collection<? extends IResource> resources)
+    {
+        if (resources == null)
+        {
             return null;
         }
 
@@ -88,15 +100,16 @@ public class ResourceAdapterFactory {
      * Converts a collection of Saros Core file system resources to Eclipse
      * resources.The elements contained in the returned list have the same order
      * as returned by the iterator of the collection.
-     * 
-     * @param resources
-     *            collection of Saros Core resources
+     *
+     * @param resources collection of Saros Core resources
      * @return list which will the contain the converted resources or
      *         <code>null</code> if resources was <code>null</code>
      */
     public static List<IResource> convertBack(
-        Collection<? extends IResource> resources) {
-        if (resources == null) {
+            Collection<? extends IResource> resources)
+    {
+        if (resources == null)
+        {
             return null;
         }
 
@@ -108,16 +121,16 @@ public class ResourceAdapterFactory {
     /**
      * Converts a collection of Eclipse resources to Saros Core file system
      * resources.
-     * 
-     * @param in
-     *            collection of Eclipse resources
-     * @param out
-     *            collection which will the contain the converted resources
+     *
+     * @param in  collection of Eclipse resources
+     * @param out collection which will the contain the converted resources
      */
     public static void convertTo(Collection<? extends IResource> in,
-        Collection<? super IResource> out) {
+            Collection<? super IResource> out)
+    {
 
-        for (IResource resource : in) {
+        for (IResource resource : in)
+        {
             out.add(adapt(resource));
         }
     }
@@ -125,14 +138,13 @@ public class ResourceAdapterFactory {
     /**
      * Converts a collection of Saros Core file system resources to Eclipse
      * resources.
-     * 
-     * @param in
-     *            collection of Saros Core file system resources
-     * @param out
-     *            collection which will the contain the converted resources
+     *
+     * @param in  collection of Saros Core file system resources
+     * @param out collection which will the contain the converted resources
      */
     public static void convertBack(Collection<? extends IResource> in,
-        Collection<? super IResource> out) {
+            Collection<? super IResource> out)
+    {
 
         // for (IResource resource : in)
         // out.add(((EclipseResourceImpl) resource).getDelegate());
@@ -140,31 +152,30 @@ public class ResourceAdapterFactory {
         // todo
     }
 
-    private static IResource adapt(IResource resource) {
-        if (resource == null) {
+    private static IResource adapt(IResource resource)
+    {
+        if (resource == null)
+        {
             return null;
         }
 
-        // todo
-        // switch (resource.getType()) {
-        // case IResource.FILE:
-        // return new EclipseFileImpl(
-        // (org.eclipse.core.resources.IFile) resource
-        // .getAdapter(org.eclipse.core.resources.IFile.class));
-        // case IResource.FOLDER:
-        // return new EclipseFolderImpl(
-        // (org.eclipse.core.resources.IFolder) resource
-        // .getAdapter(org.eclipse.core.resources.IFolder.class));
-        // case IResource.PROJECT:
-        // return new EclipseProjectImpl(
-        // (org.eclipse.core.resources.IProject) resource
-        // .getAdapter(org.eclipse.core.resources.IProject.class));
-        // default:
-        // // TODO workspace if needed ?
-        // return new EclipseResourceImpl(resource);
-        // }
+        System.out.println("ResourceAdapterFactory.adapt");
 
-       // return MockInitializer.testProject;
-        return null;
+//        File f = new File("");
+//        // todo
+//        switch (resource.getType())
+//        {
+//            case IResource.FILE:
+//                return (IResource) new FileImp(f).getAdapter(IFile.class);
+//            case IResource.FOLDER:
+//                return (IResource) new FolderImp(f).getAdapter(IFolder.class);
+//            case IResource.PROJECT:
+//                return (IResource) new Project("").getAdapter(IProject.class);
+//            default:
+//                // TODO workspace if needed ?
+//                return (IResource) new ResourceImp(f).getAdapter(IResource.class);
+//        }
+
+         return resource;
     }
 }

@@ -150,7 +150,7 @@ public class PathImp implements IPath
     @Override
     public String toPortableString()
     {
-        final String ts = "\\";
+        final String ts = "\\\\";
 
        String path = _path;
 

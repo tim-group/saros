@@ -23,7 +23,9 @@
 package de.fu_berlin.inf.dpp.intellij.project;
 
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -38,39 +40,50 @@ import java.util.Map;
 
 public class SchedulingRoot implements ISchedulingRoot
 {
-    private static SchedulingRoot _instance;
+    public static final Logger log = Logger.getLogger(SchedulingRoot.class);
 
-    private Map<String,IProject> projects = new HashMap<String, IProject>();
+    private File workspacePath;
+    private Map<String, IProject> projects = new HashMap<String, IProject>();
 
-    private SchedulingRoot()
+    public SchedulingRoot(File workspacePath)
+    {
+        this.workspacePath = workspacePath;
+    }
+
+    protected SchedulingRoot()
     {
     }
 
-    public static SchedulingRoot instance()
-    {
-        if(_instance==null)
-        {
-            _instance = new SchedulingRoot();
-        }
-
-        return _instance;
-    }
 
     @Override
     public IProject getProject(String project)
     {
-        return projects.get(project);
+        System.out.println("SchedulingRoot.getProject>>>" + project);
+        System.out.println(">>>" + projects.keySet());
+
+        IProject prj = projects.get(project);
+        if (prj == null)
+        {
+            File fPrj = new File(this.workspacePath.getAbsolutePath()+ PathImp.FILE_SEPARATOR+project);
+            prj = new Project(project,fPrj);
+        }
+
+        return prj;
     }
 
     public void addProject(IProject proj)
     {
-        this.projects.put(proj.getName(),proj);
+        this.projects.put(proj.getName(), proj);
     }
-    
+
     public void addProject(String name, File path)
     {
-        IProject  prj = new Project(name,path);
+        log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
+        IProject prj = new Project(name, path);
         addProject(prj);
     }
+
+
+
 
 }

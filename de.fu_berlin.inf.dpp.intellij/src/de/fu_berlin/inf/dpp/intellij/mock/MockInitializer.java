@@ -27,8 +27,11 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.project.Project;
+import de.fu_berlin.inf.dpp.intellij.project.SchedulingRoot;
+import de.fu_berlin.inf.dpp.intellij.project.Workspace;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +45,11 @@ import java.util.Map;
 public class MockInitializer
 {
     public static Project testProject = new Project("RemoteSystemsTempFiles");
+
+    public static void createProjects()
+    {
+        Workspace.instance().createWorkSpace(new File("c:\\Develop\\Saros\\idea\\test\\"));
+    }
 
     public static void initSecurePrefStore(ISecurePreferences securePrefs)
     {

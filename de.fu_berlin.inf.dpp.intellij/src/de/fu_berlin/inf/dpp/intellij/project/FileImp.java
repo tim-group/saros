@@ -50,7 +50,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -59,7 +58,7 @@ import java.net.URI;
  * Time: 12.02
  */
 
-public class FileImp extends AbstractContainer implements IFile
+public class FileImp extends ResourceImp implements IFile
 {
 
     public FileImp(Project project, File file)
@@ -103,6 +102,7 @@ public class FileImp extends AbstractContainer implements IFile
     {
         return new PathImp(file);
     }
+
 
 
     @Override

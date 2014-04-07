@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 
 import java.awt.*;
@@ -66,6 +67,8 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     public static void main(String[] args)
     {
         Saros.instance(); // start saros
+
+        MockInitializer.createProjects(); //todo
 
         SarosMainPanelView sarosMainView = new SarosMainPanelView();
         sarosMainView.setSize(new Dimension(800, 300));

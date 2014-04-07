@@ -260,7 +260,7 @@ public class FileListDiff
         };
 
         monitor.beginTask("Removing resources", toDelete.size());
-        IWorkspace workspace = new Workspace(); //todo //ResourcesPlugin.getWorkspace();
+        IWorkspace workspace = Workspace.instance();
         workspace.run(deleteProcedure, workspace.getRoot(),
                 IWorkspace.AVOID_UPDATE, monitor);
 

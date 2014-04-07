@@ -78,8 +78,14 @@ public class Project implements IProject, Comparable<Project>
         resourceMap.clear();
         fileMap.clear();
         folderMap.clear();
-
-        addRecursive(path);
+        if(!path.exists())
+        {
+            path.mkdirs();
+        }
+        else
+        {
+            addRecursive(path);
+        }
 
         exist = true;
         isAccessible=true;

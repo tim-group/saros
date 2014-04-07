@@ -36,7 +36,7 @@ import java.util.List;
  * Time: 12.01
  */
 
-public class FolderImp extends AbstractContainer implements IFolder
+public class FolderImp extends ResourceImp implements IFolder
 {
 
     public FolderImp(Project project, File file)
@@ -63,6 +63,11 @@ public class FolderImp extends AbstractContainer implements IFolder
         //todo
     }
 
+    @Override
+    public boolean exists(IPath path)
+    {
+        return new File(path.toString()).exists();
+    }
 
 
     @Override
