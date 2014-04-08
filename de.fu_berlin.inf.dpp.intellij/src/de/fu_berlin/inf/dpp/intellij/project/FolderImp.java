@@ -53,14 +53,14 @@ public class FolderImp extends ResourceImp implements IFolder
     public void create(int updateFlags, boolean local) throws IOException
     {
         System.out.println("FolderImp.create");
-        //todo
+        file.mkdirs();
     }
 
     @Override
     public void create(boolean force, boolean local) throws IOException
     {
         System.out.println("FolderImp.create");
-        //todo
+        file.mkdirs();
     }
 
     @Override

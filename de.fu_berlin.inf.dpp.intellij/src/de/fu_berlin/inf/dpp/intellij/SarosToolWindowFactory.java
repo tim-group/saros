@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui;
+package de.fu_berlin.inf.dpp.intellij;
 
 
 import com.intellij.openapi.project.Project;
@@ -28,11 +28,13 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
+import de.fu_berlin.inf.dpp.intellij.project.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 /**
  * Saros core panel tool window factory. Here is a starting point of IntelliJ plugin
@@ -55,8 +57,12 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow)
     {
-        Saros.instance(); //start saros
         SarosMainPanelView stw = new SarosMainPanelView(project, toolWindow);
+
+        System.out.println("SarosToolWindowFactory.createToolWindowContent PATH=" + project.getBasePath() + " NAME=" + project.getName());
+
+        //   System.out.println("SarosToolWindowFactory.createToolWindowContent>>>>"+project.getWorkspaceFile().getCanonicalPath());
+        Workspace.instance().createWorkSpace(new File(project.getBasePath()));
     }
 
     /**
@@ -66,7 +72,9 @@ public class SarosToolWindowFactory implements ToolWindowFactory
      */
     public static void main(String[] args)
     {
-        Saros.instance(); // start saros
+
+        Saros.instance().start(); // start saros
+
 
         MockInitializer.createProjects(); //todo
 
@@ -78,14 +86,8 @@ public class SarosToolWindowFactory implements ToolWindowFactory
         {
             public void windowClosing(WindowEvent e)
             {
-                try
-                {
-                    Saros.instance().stop();
-                }
-                catch (Exception e1)
-                {
-                    e1.printStackTrace();
-                }
+
+                Saros.instance().stop();
                 System.exit(0);
             }
         });

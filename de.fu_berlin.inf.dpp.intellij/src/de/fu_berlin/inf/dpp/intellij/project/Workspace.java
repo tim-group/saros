@@ -47,6 +47,7 @@ public class Workspace implements IWorkspace
     private static Workspace _instance;
 
     private SchedulingRoot root;
+    private File path;
 
     private Workspace()
     {
@@ -99,6 +100,7 @@ public class Workspace implements IWorkspace
     public void createWorkSpace(File path)
     {
         this.root = new SchedulingRoot(path);
+        this.path = path;
 
         log.info("Add workspace " + path.getAbsolutePath());
         for (File prj : path.listFiles())
@@ -109,5 +111,10 @@ public class Workspace implements IWorkspace
                 root.addProject(prj.getName(), prj);
             }
         }
+    }
+
+    public File getPath()
+    {
+        return path;
     }
 }

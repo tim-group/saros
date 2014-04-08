@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui;
+package de.fu_berlin.inf.dpp.intellij.core.misc;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;

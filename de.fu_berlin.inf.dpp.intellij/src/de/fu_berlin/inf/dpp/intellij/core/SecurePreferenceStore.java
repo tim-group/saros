@@ -57,7 +57,7 @@ public class SecurePreferenceStore extends AbstractStore implements ISecurePrefe
     /**
      * @throws IOException
      */
-    public SecurePreferenceStore() throws IOException
+    public SecurePreferenceStore()
     {
         this.preferenceMap = new Properties();
         load();

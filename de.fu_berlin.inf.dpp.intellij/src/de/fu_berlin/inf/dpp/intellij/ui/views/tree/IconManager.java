@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.SarosResourceLocator;
+import de.fu_berlin.inf.dpp.intellij.util.SarosResourceLocator;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;

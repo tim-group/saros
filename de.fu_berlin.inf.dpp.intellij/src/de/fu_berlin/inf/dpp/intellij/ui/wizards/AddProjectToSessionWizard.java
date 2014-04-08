@@ -37,6 +37,7 @@ import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.core.SarosPluginContext;
+import de.fu_berlin.inf.dpp.intellij.project.Workspace;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
@@ -120,6 +121,8 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
             names.append("\n");
         }
 
+        final String path = Workspace.instance().getPath().getAbsolutePath();
+
         SwingUtilities.invokeLater(new Runnable()
         {
 
@@ -130,7 +133,7 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
                 // Messages.showCheckboxOkCancelDialog(comp, "Do you want to join session?", "Incomming session");
                 int n = JOptionPane.showConfirmDialog(
                         comp,
-                        "Do you want to add projects?\n" + names,
+                        "Do you want to add projects?\n" + names+"\nTo workspace:\n"+path,
                         "Add projects to session",
                         JOptionPane.YES_NO_OPTION);
 

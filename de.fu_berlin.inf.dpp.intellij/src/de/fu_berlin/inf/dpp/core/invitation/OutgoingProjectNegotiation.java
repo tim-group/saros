@@ -160,6 +160,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
+
             if (zipArchives.size() > 0)
             {
 
@@ -239,6 +240,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
          */
 
         monitor.setTaskName("Sending file list...");
+
+
 
         /*
          * The Remote receives this message at the InvitationHandler which calls

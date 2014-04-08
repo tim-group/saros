@@ -42,7 +42,7 @@ import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.PathFactory;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
-import de.fu_berlin.inf.dpp.intellij.ui.UISynchronizerImpl;
+import de.fu_berlin.inf.dpp.intellij.core.misc.UISynchronizerImpl;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;

@@ -68,16 +68,23 @@ public abstract class AbstractStore
      *
      * @throws IOException
      */
-    public void load() throws IOException
+    public void load()
     {
         File propFile = new File(getFileName());
         log.info("Loading properties [" + propFile.getAbsolutePath() + "]");
 
         if (propFile.exists())
         {
-            FileInputStream fis = new FileInputStream(propFile);
-            preferenceMap.loadFromXML(fis);
-            fis.close();
+            try
+            {
+                FileInputStream fis = new FileInputStream(propFile);
+                preferenceMap.loadFromXML(fis);
+                fis.close();
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 

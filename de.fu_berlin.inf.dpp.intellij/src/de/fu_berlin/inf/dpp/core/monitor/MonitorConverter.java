@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
-import de.fu_berlin.inf.dpp.intellij.ui.SubMonitor;
+import de.fu_berlin.inf.dpp.intellij.core.misc.SubMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

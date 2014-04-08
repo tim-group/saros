@@ -20,9 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.util;
+package de.fu_berlin.inf.dpp.intellij.util;
 
-import de.fu_berlin.inf.dpp.intellij.ui.SarosToolWindowFactory;
+import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
 
 import java.net.URL;
 

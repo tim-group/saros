@@ -44,12 +44,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -82,19 +81,34 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public InputStream getContents() throws IOException
     {
-        return  new FileInputStream(file);
+        return new FileInputStream(file);
     }
 
     @Override
     public void setContents(InputStream input, boolean force, boolean keepHistory) throws IOException
     {
-        //todo
+
+        System.out.println("FileImp.setContents");
+
+        FileOutputStream fos = new FileOutputStream(file);
+        int read = -1;
+        byte[] buffer = new byte[1024];
+        while ((read = input.read(buffer)) != -1)
+        {
+            fos.write(buffer, 0, read);
+        }
+
+
+        fos.flush();
+        fos.close();
+
+
     }
 
     @Override
     public void create(InputStream input, boolean force) throws IOException
     {
-        //todo
+        setContents(input, true, true);
     }
 
     @Override
@@ -102,7 +116,6 @@ public class FileImp extends ResourceImp implements IFile
     {
         return new PathImp(file);
     }
-
 
 
     @Override
@@ -121,9 +134,8 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public void move(IPath destination, boolean force) throws IOException
     {
-         file.renameTo(destination.toFile());
+        file.renameTo(destination.toFile());
     }
-
 
 
     @Override

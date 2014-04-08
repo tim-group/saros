@@ -57,7 +57,7 @@ public class PreferenceStore extends AbstractStore implements IPreferenceStore
     /**
      * @throws IOException
      */
-    public PreferenceStore() throws IOException
+    public PreferenceStore()
     {
         this.preferenceMap = new Properties();
         load();

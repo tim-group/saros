@@ -109,7 +109,6 @@ public class Saros extends AbstractSaros
             try
             {
                 _instance = new Saros();
-                _instance.start();
             }
             catch (Exception e)
             {
@@ -130,10 +129,12 @@ public class Saros extends AbstractSaros
 
     }
 
-    public void start() throws Exception
+    public void start()
     {
         System.out.println("Saros.start");
 
+        if(isInitialized)
+            return;
 
         this.securePrefs = new SecurePreferenceStore();
         // MockInitializer.initSecurePrefStore(securePrefs); //todo
@@ -169,7 +170,7 @@ public class Saros extends AbstractSaros
     }
 
 
-    public void stop() throws Exception
+    public void stop()
     {
         System.out.println("Saros.stop");
 

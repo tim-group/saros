@@ -266,6 +266,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
             System.out.println("IncomingProjectNegotiation.accept MISSING="+filesMissing);
 
+            filesMissing = true; //todo: force
+
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
             {
@@ -754,7 +756,15 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             IOException
     {
 
-        System.out.println("IncomingProjectNegotiation.computeRequiredFiles REMOTE_FILE="+remoteFileList+" LOcalProject="+currentLocalProject);
+
+        System.out.println("IncomingProjectNegotiation.computeRequiredFiles REMOTE_FILE="+remoteFileList+" LocalProject="+currentLocalProject);
+
+        System.out.println("IncomingProjectNegotiation.computeRequiredFiles------------------ REMOTE FILES------------");
+        for(IPath p : remoteFileList.getPaths())
+        {
+            System.out.println("IncomingProjectNegotiation.computeRequiredFiles>>>"+p);
+        }
+
 
         ISubMonitor subMonitor = MonitorConverter.convert(monitor,
                 "Compute required Files...", 1);

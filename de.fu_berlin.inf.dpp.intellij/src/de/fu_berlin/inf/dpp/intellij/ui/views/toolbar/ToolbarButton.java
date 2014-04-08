@@ -3,7 +3,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.ui.util.SarosResourceLocator;
+import de.fu_berlin.inf.dpp.intellij.util.SarosResourceLocator;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
