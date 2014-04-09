@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.context;
 
+import de.fu_berlin.inf.dpp.core.invitation.DecompressTask;
 import de.fu_berlin.inf.dpp.net.internal.extensions.*;
 import de.fu_berlin.inf.dpp.misc.pico.ChildContainer;
 import de.fu_berlin.inf.dpp.misc.pico.ChildContainerProvider;
@@ -154,6 +155,7 @@ public class SarosContext implements ISarosContext
             Class.forName(JoinSessionRejectedExtension.class.getName());
             Class.forName(SessionStatusRequestExtension.class.getName());
             Class.forName(SessionStatusResponseExtension.class.getName());
+
         }
         catch (ClassNotFoundException e)
         {

@@ -28,6 +28,7 @@ import de.fu_berlin.inf.dpp.core.context.ISarosContextFactory;
 import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.core.invitation.DecompressTask;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
@@ -66,6 +67,9 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
     private final Saros saros;
 
     private final Component[] components = new Component[]{
+
+
+
 
 
             Component.create(SarosSessionManager.class),  //todo ???

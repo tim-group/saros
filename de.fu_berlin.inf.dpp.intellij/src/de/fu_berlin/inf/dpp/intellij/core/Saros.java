@@ -23,11 +23,12 @@
 package de.fu_berlin.inf.dpp.intellij.core;
 
 import com.intellij.openapi.project.Project;
-import de.fu_berlin.inf.dpp.core.AbstractSaros;
+import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.net.BlockableTransport;
 import de.fu_berlin.inf.dpp.core.net.Transport;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
@@ -42,8 +43,6 @@ import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.NetTransferMode;
 import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
-import de.fu_berlin.inf.dpp.util.StackTrace;
-import org.apache.log4j.helpers.LogLog;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.proxy.ProxyInfo;
@@ -70,7 +69,7 @@ public class Saros extends AbstractSaros
 
     private static Saros _instance;
 
-    protected static boolean isInitialized;
+
 
     private XMPPConnectionService connectionService;
     private ISarosSessionManager sessionManager;
@@ -182,25 +181,9 @@ public class Saros extends AbstractSaros
     }
 
 
-    protected static void checkInitialized()
-    {
-        if (
-            //  plugin == null   || //todo
-                !isInitialized())
-        {
-            LogLog.error("Saros not initialized", new StackTrace());
-            throw new IllegalStateException();
-        }
-    }
 
-    /**
-     * Returns true if the Saros instance has been initialized so that calling
-     * {@link SarosContext#reinject(Object)} will be well defined.
-     */
-    public static boolean isInitialized()
-    {
-        return isInitialized;
-    }
+
+
 
     public boolean isConnected()
     {

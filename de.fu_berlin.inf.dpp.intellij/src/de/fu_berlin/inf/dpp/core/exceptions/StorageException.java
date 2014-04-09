@@ -1,9 +1,6 @@
 package de.fu_berlin.inf.dpp.core.exceptions;
 
-/**
- * Created by IntelliJ IDEA. User: r.kvietkauskas Date: 14.3.14 Time: 11.54 To
- * change this template use File | Settings | File Templates.
- */
+
 public class StorageException extends Exception
 {
     public static final String ACTIVE_ACCOUNT = "active_account";

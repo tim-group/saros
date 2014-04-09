@@ -36,7 +36,7 @@ import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.core.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.JID;

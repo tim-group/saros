@@ -20,9 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core;
-
-import de.fu_berlin.inf.dpp.core.context.SarosContext;
+package de.fu_berlin.inf.dpp.core.context;
 
 /**
  * Provides the possibility to initialize a component with the components hold
@@ -41,7 +39,7 @@ public class SarosPluginContext
 
     private static SarosContext sarosContext;
 
-    static void setSarosContext(SarosContext sarosContext)
+    public static void setSarosContext(SarosContext sarosContext)
     {
         SarosPluginContext.sarosContext = sarosContext;
     }
@@ -57,7 +55,7 @@ public class SarosPluginContext
      */
     public static void initComponent(Object toInjectInto)
     {
-        Saros.checkInitialized();
+        AbstractSaros.checkInitialized();
         sarosContext.initComponent(toInjectInto);
     }
 
@@ -72,7 +70,7 @@ public class SarosPluginContext
      */
     public static void reinject(Object toReinject)
     {
-        Saros.checkInitialized();
+        AbstractSaros.checkInitialized();
         sarosContext.reinject(toReinject);
     }
 }

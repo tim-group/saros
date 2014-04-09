@@ -20,9 +20,11 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core;
+package de.fu_berlin.inf.dpp.core.context;
 
+import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
+import org.apache.log4j.helpers.LogLog;
 
 import java.util.Random;
 
@@ -43,7 +45,7 @@ public abstract class AbstractSaros
     /**
      * This is the Bundle-SymbolicName (a.k.a the pluginID)
      */
-    // public static final String SAROS = "de.fu_berlin.inf.dpp.intellij"; //$NON-NLS-1$
+
     public static final String SAROS = "de.fu_berlin.inf.dpp"; //$NON-NLS-1$
 
     /**
@@ -75,4 +77,26 @@ public abstract class AbstractSaros
      * active.
      */
     public static final String NAMESPACE_SERVER = NAMESPACE + ".server"; //$NON-NLS-1$
+
+
+    protected static boolean isInitialized;
+    /**
+     * Returns true if the Saros instance has been initialized so that calling
+     * {@link de.fu_berlin.inf.dpp.core.context.SarosContext#reinject(Object)} will be well defined.
+     */
+    public static boolean isInitialized()
+    {
+        return isInitialized;
+    }
+
+    protected static void checkInitialized()
+    {
+        if (
+            //  plugin == null   || //todo
+                !isInitialized())
+        {
+            LogLog.error("Saros not initialized", new StackTrace());
+            throw new IllegalStateException();
+        }
+    }
 }

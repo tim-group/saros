@@ -4,10 +4,7 @@ import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
 
 import java.io.IOException;
 
-/**
- * Created by IntelliJ IDEA. User: r.kvietkauskas Date: 14.3.14 Time: 11.58 To
- * change this template use File | Settings | File Templates.
- */
+
 public interface IPreferenceStore
 {
     void flush() throws IOException;

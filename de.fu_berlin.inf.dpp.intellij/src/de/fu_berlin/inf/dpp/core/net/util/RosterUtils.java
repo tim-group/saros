@@ -44,7 +44,7 @@
 
 package de.fu_berlin.inf.dpp.core.net.util;
 
-import de.fu_berlin.inf.dpp.intellij.core.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
 import org.apache.log4j.Logger;

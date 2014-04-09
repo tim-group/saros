@@ -196,7 +196,7 @@ public class Project implements IProject, Comparable<Project>
         }
 
         System.out.println("Project.getFile " + path + " -> " + f+" exist="+f.exists());
-        System.out.println(fileMap);
+        //System.out.println(fileMap);
 
         return f;
     }

@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.util.PathUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
@@ -31,6 +30,7 @@ import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -49,6 +49,9 @@ public class DecompressTask implements IWorkspaceRunnable
     private final ZipInputStream in;
     private final IProgressMonitor monitor;
     private final IProject project;
+
+    @Inject
+    private IPathFactory pathFactory;
 
     /**
      * Creates a decompress task that can be executed by {@link de.fu_berlin.inf.dpp.core.workspace.IWorkspace#run}.
@@ -69,6 +72,11 @@ public class DecompressTask implements IWorkspaceRunnable
         this.monitor = monitor;
     }
 
+    public void setPathFactory(IPathFactory pathFactory)
+    {
+        this.pathFactory = pathFactory;
+    }
+
     // TODO extract as much as possible even on some failures
     @Override
     public void run(IProgressMonitor monitor) throws CoreException
@@ -83,7 +91,6 @@ public class DecompressTask implements IWorkspaceRunnable
         ISubMonitor subMonitor = monitor.convert(monitor,
                 "Unpacking archive file to workspace", 1);
 
-
         try
         {
             ZipEntry entry;
@@ -94,7 +101,7 @@ public class DecompressTask implements IWorkspaceRunnable
                     throw new OperationCanceledException();
                 }
 
-                IPath path = PathUtils.fromPortableString(entry.getName());
+                IPath path = pathFactory.fromPortableString(entry.getName());
                 IFile file = project.getFile(path);
 
                 /*

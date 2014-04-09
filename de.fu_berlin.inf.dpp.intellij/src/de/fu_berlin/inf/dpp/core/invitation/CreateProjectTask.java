@@ -63,6 +63,11 @@ public class CreateProjectTask implements IWorkspaceRunnable
         this.monitor = monitor;
     }
 
+    public void setWorkspace(IWorkspace workspace)
+    {
+        this.workspace = workspace;
+    }
+
     /**
      * @return the newly created project or <code>null</code> if it has not been
      *         created yet

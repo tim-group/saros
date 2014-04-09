@@ -8,6 +8,7 @@ import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.invitation.FileListFactory;
@@ -22,10 +23,6 @@ import java.util.*;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingRequest;
-import de.fu_berlin.inf.dpp.filesystem.IContainer;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -101,6 +98,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
     @Inject
     private IEditorAPI editorAPI;
+
+    @Inject
+    private IPathFactory pathFactory;
 
     /**
      * maps the projectID to the project in workspace
@@ -641,6 +641,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         final CreateProjectTask createProjectTask = new CreateProjectTask(
                 newProjectName, baseProject, monitor);
 
+        createProjectTask.setWorkspace(workspace);
+
         try
         {
             workspace.run(createProjectTask, monitor);
@@ -859,6 +861,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         final DecompressTask decompressTask = new DecompressTask(
                 new ZipInputStream(archiveStream), project, monitor);
+
+        decompressTask.setPathFactory(pathFactory); //todo: inject it directly
 
         long startTime = System.currentTimeMillis();
 
