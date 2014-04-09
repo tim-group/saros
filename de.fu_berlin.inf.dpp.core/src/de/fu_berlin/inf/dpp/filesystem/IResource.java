@@ -20,6 +20,8 @@ public interface IResource {
     public static final int FORCE = 16;
     public static final int KEEP_HISTORY = 32;
 
+    public static final int DEPTH_INFINITE = 64;
+
     public boolean exists();
 
     public IPath getFullPath();
@@ -54,6 +56,8 @@ public interface IResource {
     public boolean isDerived();
 
     public void delete(int updateFlags) throws IOException;
+
+   // public void delete(int updateFlags, IProgressMonitor monitor) throws IOException;
 
     public void move(IPath destination, boolean force) throws IOException;
 

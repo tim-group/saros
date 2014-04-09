@@ -31,6 +31,7 @@ import java.io.IOException;
  */
 public interface IContainer extends IResource {
 
+    public static final int EXCLUDE_DERIVED = 1;
     public boolean exists(IPath path);
 
     public IResource[] members() throws IOException;

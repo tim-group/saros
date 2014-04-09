@@ -44,4 +44,6 @@ public interface IProject extends IContainer {
     public boolean isOpen();
 
     public void open() throws IOException;
+
+    void accept(IResourceVisitor visitor, int resource, int container);
 }

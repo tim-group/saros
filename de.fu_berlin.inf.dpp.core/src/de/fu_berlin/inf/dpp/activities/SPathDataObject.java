@@ -64,6 +64,7 @@ public class SPathDataObject {
                 "SPathDataObject cannot be connected to SarosSession because its ID is unknown: "
                     + projectID);
 
+
         return new SPath(project, pathFactory.fromString(path));
     }
 
