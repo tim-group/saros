@@ -44,6 +44,7 @@
 
 package de.fu_berlin.inf.dpp.core.net.util;
 
+import de.fu_berlin.inf.dpp.intellij.core.SarosPluginContext;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
 import org.apache.log4j.Logger;
@@ -81,7 +82,7 @@ public class RosterUtils {
      */
 
     static {
-        // SarosPluginContext.initComponent(new RosterUtils()); //todo
+         SarosPluginContext.initComponent(new RosterUtils()); //todo
     }
 
     private RosterUtils() {

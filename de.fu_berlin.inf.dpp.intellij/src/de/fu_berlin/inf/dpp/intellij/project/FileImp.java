@@ -87,8 +87,8 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public void setContents(InputStream input, boolean force, boolean keepHistory) throws IOException
     {
-
-        System.out.println("FileImp.setContents");
+        //todo: implement force, history
+        System.out.println("FileImp.setContents //todo: force, history");
 
         FileOutputStream fos = new FileOutputStream(file);
         int read = -1;
@@ -137,12 +137,22 @@ public class FileImp extends ResourceImp implements IFile
         file.renameTo(destination.toFile());
     }
 
+    @Override
+    public void refreshLocal() throws IOException
+    {
+        System.out.println("FileImp.refreshLocal //todo");
+    }
 
     @Override
     public Object getAdapter(Class<? extends IResource> clazz)
     {
-        System.out.println("FileImp.getAdapter");
+        System.out.println("FileImp.getAdapter //todo");
         //todo
         return null;
+    }
+
+    public String toString()
+    {
+        return file.getPath();
     }
 }

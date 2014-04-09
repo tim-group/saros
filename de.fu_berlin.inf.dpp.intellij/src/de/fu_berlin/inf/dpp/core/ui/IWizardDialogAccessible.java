@@ -29,6 +29,6 @@ package de.fu_berlin.inf.dpp.core.ui;
  * Time: 14.21
  */
 
-public interface IWizardDialogAccessable extends IWizard
+public interface IWizardDialogAccessible extends IWizard
 {
 }

@@ -52,11 +52,6 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Created by: r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.19 Time: 15.35
- */
 
 public class BlockableTransport extends Transport {
 

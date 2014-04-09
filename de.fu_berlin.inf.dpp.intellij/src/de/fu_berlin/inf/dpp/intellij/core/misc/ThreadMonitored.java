@@ -20,26 +20,46 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.menu;
+package de.fu_berlin.inf.dpp.intellij.core.misc;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import de.fu_berlin.inf.dpp.intellij.ui.menu.core.AbstractMenuHandler;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 
 /**
- * General button used to create any common button
- * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.21
- * Time: 09.52
+ * Date: 2014-04-08
+ * Time: 16:39
  */
 
-public class StartSarosConfigurationHandler extends AbstractMenuHandler
+public class ThreadMonitored extends Thread
 {
+    private IWorkspaceRunnable runnable;
+    private IProgressMonitor progress;
+
+    public ThreadMonitored(IWorkspaceRunnable runnable)
+    {
+        this.runnable = runnable;
+        this.progress = new NullProgressMonitor();
+    }
+
+    public ThreadMonitored(IWorkspaceRunnable runnable, IProgressMonitor progress)
+    {
+        this.runnable = runnable;
+        this.progress = progress == null ? new NullProgressMonitor() : progress;
+    }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent)
+    public void run()
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        try
+        {
+            runnable.run(progress);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

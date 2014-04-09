@@ -156,9 +156,6 @@ public abstract class SessionNegotiation extends CancelableProcess
     protected final Packet collectPacket(SarosPacketCollector collector,
             long timeout) throws SarosCancellationException
     {
-
-        System.out.println("SessionNegotiation.collectPacket");
-
         Packet packet = null;
 
         while (timeout > 0)

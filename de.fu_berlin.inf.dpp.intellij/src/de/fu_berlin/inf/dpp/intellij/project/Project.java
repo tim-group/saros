@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.project;
 
 import de.fu_berlin.inf.dpp.filesystem.*;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,8 @@ import java.util.Map;
 public class Project implements IProject, Comparable<Project>
 {
     private String name;
- 
+    private File path;
+
     private Map<IPath, IResource> resourceMap = new HashMap<IPath, IResource>();
     private Map<String, IFile> fileMap = new HashMap<String, IFile>();
     private Map<String, IFolder> folderMap = new HashMap<String, IFolder>();
@@ -57,9 +59,6 @@ public class Project implements IProject, Comparable<Project>
     private boolean isAccessible;
     private IResourceAttributes attributes;
 
-    public Project()
-    {
-    }
 
     public Project(String name)
     {
@@ -69,16 +68,30 @@ public class Project implements IProject, Comparable<Project>
     public Project(String name, File path)
     {
         this.name = name;
+        this.path = path;
         scan(path);
+    }
+
+    public void setPath(File path)
+    {
+        this.path = path;
+
+        exist = false;
+        isAccessible = false;
+        fullPath = new PathImp(path.getAbsolutePath());
+        relativePath = new PathImp(path.getPath());
+
+        attributes = new ResourceAttributes(); //todo
     }
 
     public void scan(File path)
     {
+        this.path = path;
         //clear old
         resourceMap.clear();
         fileMap.clear();
         folderMap.clear();
-        if(!path.exists())
+        if (!path.exists())
         {
             path.mkdirs();
         }
@@ -88,7 +101,7 @@ public class Project implements IProject, Comparable<Project>
         }
 
         exist = true;
-        isAccessible=true;
+        isAccessible = true;
         fullPath = new PathImp(path.getAbsolutePath());
         relativePath = new PathImp(path.getPath());
 
@@ -121,6 +134,14 @@ public class Project implements IProject, Comparable<Project>
     public IResource findMember(IPath path)
     {
         return resourceMap.get(path);
+    }
+
+
+    @Override
+    public void accept(IResourceVisitor visitor, int resource, int container)
+    {
+        //todo: Implement it
+        System.out.println("Project.accept //todo");
     }
 
     /**
@@ -167,7 +188,17 @@ public class Project implements IProject, Comparable<Project>
     @Override
     public IFile getFile(IPath path)
     {
-        return getFile(path.toPortableString());
+        IFile f = getFile(path.toPortableString());
+
+        if (f == null)
+        {
+            f = new FileImp(this, new File(this.path.getPath() + "/" + path.toPortableString()));
+        }
+
+        System.out.println("Project.getFile " + path + " -> " + f+" exist="+f.exists());
+        System.out.println(fileMap);
+
+        return f;
     }
 
     @Override
@@ -201,7 +232,7 @@ public class Project implements IProject, Comparable<Project>
     }
 
     @Override
-    public IResource[] members() throws IOException
+    public IResource[] members()
     {
         return resourceMap.values().toArray(new IResource[]{});
     }
@@ -226,7 +257,7 @@ public class Project implements IProject, Comparable<Project>
             }
         }
 
-       return list.toArray(new IResource[]{});
+        return list.toArray(new IResource[]{});
 
     }
 
@@ -261,7 +292,11 @@ public class Project implements IProject, Comparable<Project>
     public void setFullPath(IPath fullPath)
     {
         this.fullPath = fullPath;
-        this.relativePath = fullPath; //todo
+    }
+
+    public void setRelativePath(IPath relativePath)
+    {
+        this.relativePath = relativePath;
     }
 
     @Override
@@ -325,20 +360,20 @@ public class Project implements IProject, Comparable<Project>
     @Override
     public void refreshLocal() throws IOException
     {
-        //todo
+        scan(path);
     }
 
 
     @Override
     public void delete(int updateFlags) throws IOException
     {
-        //todo
+        FileUtils.deleteDirectory(path);
     }
 
     @Override
     public void move(IPath destination, boolean force) throws IOException
     {
-        //todo
+       path.renameTo(destination.toFile());
     }
 
     @Override
@@ -371,7 +406,7 @@ public class Project implements IProject, Comparable<Project>
     @Override
     public Object getAdapter(Class<? extends IResource> clazz)
     {
-        System.out.println("Project.getAdapter");
+        System.out.println("Project.getAdapter //todo");
         return null;  //todo??
     }
 
@@ -379,7 +414,7 @@ public class Project implements IProject, Comparable<Project>
     @Override
     public int compareTo(Project o)
     {
-        return getName().equalsIgnoreCase(o.getName()) ? 0 : 1;
+        return getName().compareTo(o.getName()); //todo: make better comparison
     }
 
     public String toString()

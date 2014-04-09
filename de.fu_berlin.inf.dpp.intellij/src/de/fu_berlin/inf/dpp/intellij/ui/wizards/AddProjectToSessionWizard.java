@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.core.ui.IEnterProjectNamePage;
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessable;
+import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
@@ -64,7 +64,7 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
     private static Logger log = Logger.getLogger(AddProjectToSessionWizard.class);
 
     protected IEnterProjectNamePage namePage;
-    protected IWizardDialogAccessable wizardDialog;
+    protected IWizardDialogAccessible wizardDialog;
     protected IncomingProjectNegotiation process;
     protected JID peer;
     protected List<FileList> fileLists;
@@ -93,8 +93,8 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
     public AddProjectToSessionWizard(IncomingProjectNegotiation process,
             JID peer, List<FileList> fileLists, Map<String, String> projectNames)
     {
-
-        System.out.println("AddProjectToSessionWizard.AddProjectToSessionWizard");
+        //todo: UI implementation
+        System.out.println("AddProjectToSessionWizard.AddProjectToSessionWizard //todo");
 
         SarosPluginContext.initComponent(this);
 
@@ -156,12 +156,12 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
         isExceptionCancel = false;
 
         this.namePage = new EnterProjectNamePage();    //todo
-        this.wizardDialog = new WizardDialogAccessable();//todo
+        this.wizardDialog = new WizardDialogAccessible();//todo
 
 
     }
 
-    public void setWizardDlg(IWizardDialogAccessable wizardDialog)
+    public void setWizardDlg(IWizardDialogAccessible wizardDialog)
     {
         this.wizardDialog = wizardDialog;
     }

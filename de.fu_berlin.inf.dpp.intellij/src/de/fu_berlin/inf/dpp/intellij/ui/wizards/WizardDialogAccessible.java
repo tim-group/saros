@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessable;
+import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -31,7 +31,7 @@ import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessable;
  * Time: 14.22
  */
 
-public class WizardDialogAccessable implements IWizardDialogAccessable
+public class WizardDialogAccessible implements IWizardDialogAccessible
 {
     @Override
     public void setBlockOnOpen(boolean blockOnOpen)

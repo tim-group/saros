@@ -91,4 +91,16 @@ public class NullProgressMonitor implements IProgressMonitor
     {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public ISubMonitor convert(IProgressMonitor monitor)
+    {
+        return new NullProgressSubMonitor(this);
+    }
+
+    @Override
+    public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
+    {
+        return new NullProgressSubMonitor(this);
+    }
 }

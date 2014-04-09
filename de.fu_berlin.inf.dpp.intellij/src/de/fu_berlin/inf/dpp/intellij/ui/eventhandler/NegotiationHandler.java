@@ -28,10 +28,10 @@ import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.project.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessable;
+import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.WizardDialogAccessable;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.WizardDialogAccessible;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
@@ -115,7 +115,7 @@ public class NegotiationHandler implements INegotiationHandler
 
                 //todo
 
-//                final WizardDialogAccessable wizardDialog = new WizardDialogAccessable(
+//                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(
 //                        SWTUtils.getShell(), sessionWizard);
 //
 //                // TODO Provide help :-)
@@ -167,7 +167,8 @@ public class NegotiationHandler implements INegotiationHandler
 
     private void showIncomingProjectUI(final IncomingProjectNegotiation process)
     {
-        System.out.println("NegotiationHandler.showIncomingProjectUI");
+        //todo: UI implementation
+        System.out.println("NegotiationHandler.showIncomingProjectUI //todo");
 
 
         List<ProjectNegotiationData> pInfos = process.getProjectInfos();
@@ -186,10 +187,11 @@ public class NegotiationHandler implements INegotiationHandler
             {
                 AddProjectToSessionWizard projectWizard = new AddProjectToSessionWizard(
                         process, process.getPeer(), fileLists, process
-                        .getProjectNames());
+                        .getProjectNames()
+                );
 
-                final IWizardDialogAccessable wizardDialog = new WizardDialogAccessable(); //todo
-//                final WizardDialogAccessable wizardDialog = new WizardDialogAccessable(
+                final IWizardDialogAccessible wizardDialog = new WizardDialogAccessible(); //todo
+//                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(
 //                        SWTUtils.getShell(), projectWizard, SWT.MIN | SWT.MAX,
 //                        SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL
 //                                | SWT.PRIMARY_MODAL);
@@ -459,7 +461,7 @@ public class NegotiationHandler implements INegotiationHandler
  *//*
                 JoinSessionWizard sessionWizard = new JoinSessionWizard(process);
 
-                final WizardDialogAccessable wizardDialog = new WizardDialogAccessable(
+                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(
                         SWTUtils.getShell(), sessionWizard);
 
                 // TODO Provide help :-)
@@ -488,7 +490,7 @@ public class NegotiationHandler implements INegotiationHandler
                         process, process.getPeer(), fileLists, process
                         .getProjectNames());
 
-                final WizardDialogAccessable wizardDialog = new WizardDialogAccessable(
+                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(
                         SWTUtils.getShell(), projectWizard, SWT.MIN | SWT.MAX,
                         SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL
                                 | SWT.PRIMARY_MODAL);

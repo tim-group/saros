@@ -20,20 +20,16 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.vcs;
-
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+package de.fu_berlin.inf.dpp.core.project;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 10.26
+ * Date: 2014-04-09
+ * Time: 17:24
  */
 
-public interface IRepositoryProvider
+public interface ISubscriberChangeListener
 {
-    String getID();
-    boolean isShared(IProject project);
-
+    public void subscriberResourceChanged(ISubscriberChangeEvent[] deltas);
 }

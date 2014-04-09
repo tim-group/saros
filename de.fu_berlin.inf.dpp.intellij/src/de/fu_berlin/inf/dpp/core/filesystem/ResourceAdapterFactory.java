@@ -22,14 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.filesystem;
 
-import com.intellij.openapi.project.impl.ProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.project.FileImp;
-import de.fu_berlin.inf.dpp.intellij.project.FolderImp;
-import de.fu_berlin.inf.dpp.intellij.project.Project;
-import de.fu_berlin.inf.dpp.intellij.project.ResourceImp;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -81,7 +75,7 @@ public class ResourceAdapterFactory
      *
      * @param resources collection of Eclipse resources
      * @return list which will the contain the converted resources or
-     *         <code>null</code> if resources was <code>null</code>
+     * <code>null</code> if resources was <code>null</code>
      */
     public static List<IResource> convertTo(
             Collection<? extends IResource> resources)
@@ -103,7 +97,7 @@ public class ResourceAdapterFactory
      *
      * @param resources collection of Saros Core resources
      * @return list which will the contain the converted resources or
-     *         <code>null</code> if resources was <code>null</code>
+     * <code>null</code> if resources was <code>null</code>
      */
     public static List<IResource> convertBack(
             Collection<? extends IResource> resources)
@@ -159,7 +153,8 @@ public class ResourceAdapterFactory
             return null;
         }
 
-        System.out.println("ResourceAdapterFactory.adapt");
+        //todo: why that is needed?
+        System.out.println("ResourceAdapterFactory.adapt //todo");
 
 //        File f = new File("");
 //        // todo
@@ -176,6 +171,6 @@ public class ResourceAdapterFactory
 //                return (IResource) new ResourceImp(f).getAdapter(IResource.class);
 //        }
 
-         return resource;
+        return resource;
     }
 }

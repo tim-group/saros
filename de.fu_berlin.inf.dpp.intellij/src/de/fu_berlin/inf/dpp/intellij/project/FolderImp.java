@@ -22,7 +22,10 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,14 +55,12 @@ public class FolderImp extends ResourceImp implements IFolder
     @Override
     public void create(int updateFlags, boolean local) throws IOException
     {
-        System.out.println("FolderImp.create");
         file.mkdirs();
     }
 
     @Override
     public void create(boolean force, boolean local) throws IOException
     {
-        System.out.println("FolderImp.create");
         file.mkdirs();
     }
 
@@ -73,7 +74,7 @@ public class FolderImp extends ResourceImp implements IFolder
     @Override
     public IResource[] members() throws IOException
     {
-         return members(NONE);
+        return members(NONE);
     }
 
 
@@ -84,14 +85,14 @@ public class FolderImp extends ResourceImp implements IFolder
 
         for (File myFile : file.listFiles())
         {
-             if(myFile.isFile() && !myFile.isHidden()
-                     && (memberFlags==NONE || memberFlags==FILE))
-             {
-                 list.add(new FileImp(file));
-             }
+            if (myFile.isFile() && !myFile.isHidden()
+                    && (memberFlags == NONE || memberFlags == FILE))
+            {
+                list.add(new FileImp(file));
+            }
 
-            if(myFile.isDirectory() && !myFile.isHidden()
-                    && (memberFlags==NONE || memberFlags==FOLDER))
+            if (myFile.isDirectory() && !myFile.isHidden()
+                    && (memberFlags == NONE || memberFlags == FOLDER))
             {
                 list.add(new FolderImp(file));
             }
@@ -100,6 +101,11 @@ public class FolderImp extends ResourceImp implements IFolder
         return list.toArray(new IResource[]{});
     }
 
+    @Override
+    public void refreshLocal() throws IOException
+    {
+        System.out.println("FolderImp.refreshLocal //todo");
+    }
 
     @Override
     public int getType()
@@ -111,22 +117,20 @@ public class FolderImp extends ResourceImp implements IFolder
     @Override
     public void delete(int updateFlags) throws IOException
     {
-        System.out.println("FolderImp.delete");
-        //todo
+        FileUtils.deleteDirectory(file);
     }
 
     @Override
     public void move(IPath destination, boolean force) throws IOException
     {
-        System.out.println("FolderImp.move");
-        //todo
+        file.renameTo(destination.toFile());
     }
 
 
     @Override
     public Object getAdapter(Class<? extends IResource> clazz)
     {
-        System.out.println("FolderImp.getAdapter");
+        System.out.println("FolderImp.getAdapter //todo");
         return null;  //todo
     }
 }

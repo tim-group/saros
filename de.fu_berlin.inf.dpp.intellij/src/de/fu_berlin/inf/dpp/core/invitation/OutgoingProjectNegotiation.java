@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
 
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.XMPPException;

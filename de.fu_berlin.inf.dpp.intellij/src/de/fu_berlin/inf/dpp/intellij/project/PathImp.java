@@ -25,7 +25,9 @@ package de.fu_berlin.inf.dpp.intellij.project;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -34,7 +36,7 @@ import java.util.Arrays;
  * Time: 11.41
  */
 
-public class PathImp implements IPath
+public class PathImp implements IPath, Comparable<PathImp>
 {
     public static final String FILE_SEPARATOR = "/";
 
@@ -42,8 +44,8 @@ public class PathImp implements IPath
 
     public PathImp(String path)
     {
-       this._path = path;
-       _path = toPortableString();
+        this._path = path;
+        _path = toPortableString();
     }
 
     public PathImp(File file)
@@ -51,19 +53,19 @@ public class PathImp implements IPath
         this._path = file.getPath();
         _path = toPortableString();
     }
-    
+
     @Override
     public IPath append(IPath path)
     {
-        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path+path.toPortableString())
-                : new PathImp(_path+FILE_SEPARATOR+ path.toPortableString());
+        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path + path.toPortableString())
+                : new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
     }
 
     @Override
     public String lastSegment()
     {
         String[] segments = _path.split(FILE_SEPARATOR);
-        return segments[segments.length-1];
+        return segments[segments.length - 1];
     }
 
     @Override
@@ -88,7 +90,16 @@ public class PathImp implements IPath
     public IPath removeLastSegments(int count)
     {
         String[] segments = _path.split(FILE_SEPARATOR);
-        segments=Arrays.copyOf(segments,segments.length-count);
+        segments = Arrays.copyOf(segments,segments.length - count);
+
+        return new PathImp(join(segments));
+    }
+
+    @Override
+    public IPath removeFirstSegments(int count)
+    {
+        String[] segments = _path.split(FILE_SEPARATOR);
+        segments = Arrays.copyOfRange(segments,count,segments.length);
 
         return new PathImp(join(segments));
     }
@@ -102,35 +113,47 @@ public class PathImp implements IPath
     @Override
     public String[] segments()
     {
-        return _path.split(FILE_SEPARATOR);
+        String[] array = _path.split(FILE_SEPARATOR);
+        List<String> list = new ArrayList<String>();
+
+        for (int i = 0; i < array.length; i++)
+        {
+            String segment = array[i];
+            if (!segment.isEmpty())
+            {
+                list.add(segment);
+            }
+        }
+
+        return list.toArray(new String[]{});
     }
 
     @Override
     public IPath append(String path)
     {
-        return new PathImp(_path.endsWith(FILE_SEPARATOR) ? _path+path:_path+FILE_SEPARATOR+path);
+        return new PathImp(_path.endsWith(FILE_SEPARATOR) ? _path + path : _path + FILE_SEPARATOR + path);
     }
 
     @Override
     public IPath addTrailingSeparator()
     {
-        return _path.endsWith(FILE_SEPARATOR)?new PathImp(_path): new PathImp(_path+FILE_SEPARATOR);
+        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path) : new PathImp(_path + FILE_SEPARATOR);
 
     }
 
     @Override
     public IPath addFileExtension(String extension)
     {
-        return new PathImp(_path+"."+extension);
+        return new PathImp(_path + "." + extension);
     }
 
     @Override
     public IPath removeFileExtension()
     {
-        String path=_path;
-        if(path.contains("."))
+        String path = _path;
+        if (path.contains("."))
         {
-           path = path.substring(0,path.lastIndexOf("."));
+            path = path.substring(0, path.lastIndexOf("."));
         }
         return new PathImp(path);
     }
@@ -150,13 +173,11 @@ public class PathImp implements IPath
     @Override
     public String toPortableString()
     {
-        final String ts = "\\\\";
+        String path = _path;
 
-       String path = _path;
-
-        if(path.contains(ts))
+        if (path.contains("\\"))
         {
-           path = path.replaceAll(ts, FILE_SEPARATOR);
+            path = path.replaceAll("\\\\", FILE_SEPARATOR);
         }
         return path;
     }
@@ -173,13 +194,31 @@ public class PathImp implements IPath
         return new File(_path);
     }
 
-    private String join (String ... data) {
+    private String join(String... data)
+    {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.length; i++)
+        {
             sb.append(data[i]);
-            if (i >= data.length-1) {break;}
+            if (i >= data.length - 1)
+            {
+                break;
+            }
             sb.append(FILE_SEPARATOR);
         }
         return sb.toString();
+    }
+
+
+
+    public String toString()
+    {
+        return _path;
+    }
+
+    @Override
+    public int compareTo(PathImp o)
+    {
+        return this._path.compareTo(o._path);
     }
 }

@@ -82,6 +82,7 @@ public class WorkspaceDescription implements IWorkspaceDescription
     }
 
     private boolean autoBuilding;
+
     @Override
     public void setAutoBuilding(boolean arg0)
     {
@@ -89,6 +90,7 @@ public class WorkspaceDescription implements IWorkspaceDescription
     }
 
     private String[] buildOrder;
+
     @Override
     public void setBuildOrder(String[] arg0)
     {
@@ -96,6 +98,7 @@ public class WorkspaceDescription implements IWorkspaceDescription
     }
 
     private long fileStateLongevity = 10000;
+
     @Override
     public void setFileStateLongevity(long arg0)
     {
@@ -103,37 +106,42 @@ public class WorkspaceDescription implements IWorkspaceDescription
     }
 
     private int maxBuildIterations = 10;
+
     @Override
     public void setMaxBuildIterations(int arg0)
     {
-        this.maxBuildIterations=arg0;
+        this.maxBuildIterations = arg0;
     }
 
     private int maxFileStates = 100;
+
     @Override
     public void setMaxFileStates(int arg0)
     {
         this.maxFileStateSize = arg0;
     }
 
-    private long  maxFileStateSize = 100000000L;
+    private long maxFileStateSize = 100000000L;
+
     @Override
     public void setMaxFileStateSize(long arg0)
     {
-       this.maxFileStateSize = arg0;
+        this.maxFileStateSize = arg0;
     }
 
     private boolean applyFileStatePolicy = false;
+
     @Override
     public void setApplyFileStatePolicy(boolean arg0)
     {
-       this.applyFileStatePolicy = arg0;
+        this.applyFileStatePolicy = arg0;
     }
 
     private long snapshotInterval = 10000;
+
     @Override
     public void setSnapshotInterval(long arg0)
     {
-       this.snapshotInterval = arg0;
+        this.snapshotInterval = arg0;
     }
 }

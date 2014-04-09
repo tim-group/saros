@@ -24,12 +24,6 @@ package de.fu_berlin.inf.dpp.core.versioning;
 
 import java.util.StringTokenizer;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.25
- * Time: 13.48
- */
 
 public class Version implements Comparable<Version>
 {

@@ -24,12 +24,6 @@ package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.21
- */
 
 public interface ISchedulingRoot
 {

@@ -25,14 +25,10 @@ package de.fu_berlin.inf.dpp.core.workspace;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.09
- */
+import java.io.IOException;
+
 
 public interface IWorkspaceRunnable
 {
-    void run(IProgressMonitor progress) throws CoreException;
+    void run(IProgressMonitor progress) throws CoreException,IOException;
 }

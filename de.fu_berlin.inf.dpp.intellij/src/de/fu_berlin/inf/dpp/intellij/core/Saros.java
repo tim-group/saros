@@ -34,6 +34,8 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
+import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -133,8 +135,10 @@ public class Saros extends AbstractSaros
     {
         System.out.println("Saros.start");
 
-        if(isInitialized)
+        if (isInitialized)
+        {
             return;
+        }
 
         this.securePrefs = new SecurePreferenceStore();
         // MockInitializer.initSecurePrefStore(securePrefs); //todo
@@ -483,7 +487,8 @@ public class Saros extends AbstractSaros
 
             connectionService.connect(
                     createConnectionConfiguration(domain, server, port, useTLS,
-                            useSASL), username, password);
+                            useSASL), username, password
+            );
         }
         catch (Exception e)
         {

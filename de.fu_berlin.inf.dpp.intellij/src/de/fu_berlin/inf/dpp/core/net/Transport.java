@@ -55,11 +55,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by: r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.19 Time: 15.36
- */
 
 public class Transport implements ITransport {
 

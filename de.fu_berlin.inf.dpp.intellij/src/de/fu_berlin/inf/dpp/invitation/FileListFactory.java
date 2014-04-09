@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.invitation;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -39,7 +40,7 @@ public class FileListFactory
     public static FileList createFileList(IProject project,
             List<IResource> resources, IChecksumCache checksumCache,
             boolean useVersionControl, IProgressMonitor monitor)
-            throws CoreException
+            throws CoreException, IOException
     {
 
         if (resources == null)

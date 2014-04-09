@@ -1,11 +1,13 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
 /**
- * Created by IntelliJ IDEA. User: r.kvietkauskas Date: 14.3.14 Time: 12.06 To
- * change this template use File | Settings | File Templates.
+ * Constant definitions for plug-in preferences
+ *
+ * @author rdjemili
+ * @author coezbek
  */
-public class PreferenceConstants
-{
+public class PreferenceConstants {
+
     public static final String ACTIVE_ACCOUNT = "active_account";
 
     public static final String ACCOUNT_DATA = "account_data";
@@ -50,58 +52,42 @@ public class PreferenceConstants
 
     /*
      * Preferences of the feedback preferences page
-     * 
+     *
      * These preferences are kept both in the workspace scope and globally (in
      * the configuration).
      */
 
-    /**
-     * Can be set and read by the FeedbackManager
-     */
+    /** Can be set and read by the FeedbackManager */
     public static final String FEEDBACK_SURVEY_DISABLED = "feedback.survey.disabled";
 
-    /**
-     * Can be set and read by the FeedbackManager
-     */
+    /** Can be set and read by the FeedbackManager */
     public static final String FEEDBACK_SURVEY_INTERVAL = "feedback.survey.interval";
 
-    /**
-     * Can be set and read by the StatisticManager
-     */
+    /** Can be set and read by the StatisticManager */
     public static final String STATISTIC_ALLOW_SUBMISSION = "statistic.allow.submission";
 
-    /**
-     * Can be set and read by the ErrorLogManager
-     */
+    /** Can be set and read by the ErrorLogManager */
     public static final String ERROR_LOG_ALLOW_SUBMISSION = "error.log.allow.submission";
 
-    /**
-     * Can be set and read by the ErrorLogManager
-     */
+    /** Can be set and read by the ErrorLogManager */
     public static final String ERROR_LOG_ALLOW_SUBMISSION_FULL = "error.log.allow.submission.full";
 
     /*
      * Global preferences, not initialized i.e. no default values
      */
 
-    /**
-     * Can be set and read by the StatisticManager
-     */
+    /** Can be set and read by the StatisticManager */
     public static final String SESSION_COUNT = "session.count";
 
-    /**
-     * Can be set and read by the FeedbackManager
-     */
+    /** Can be set and read by the FeedbackManager */
     public static final String SESSIONS_UNTIL_NEXT = "sessions.until.next.survey";
 
-    /**
-     * Can be read by the StatisticManager
-     */
+    /** Can be read by the StatisticManager */
     public static final String RANDOM_USER_ID = "user.id";
 
     /**
      * Preference used for a way to let the user identify himself.
-     * <p/>
+     *
      * For instance, this might get a value such as "coezbek" or "rdjemili".
      */
     public static final String STATISTICS_PSEUDONYM_ID = "STATISTICS_PSEUDONYM_ID";
@@ -116,9 +102,7 @@ public class PreferenceConstants
      * Preferences for Communication
      */
 
-    /**
-     * Custom multiuser-chat service name *
-     */
+    /** Custom multiuser-chat service name **/
     public static final String CUSTOM_MUC_SERVICE = "custom_muc_service";
 
     public static final String FORCE_CUSTOM_MUC_SERVICE = "force_custom_muc_service";
@@ -164,5 +148,10 @@ public class PreferenceConstants
     public static final String SHOW_CONTRIBUTION_ANNOTATIONS = "editor.annotation.contribution.enabled";
 
     public static final String SHOW_SELECTIONFILLUP_ANNOTATIONS = "editor.annotation.selectionfillup.enabled";
+
+    /*
+     * ConsoleSharing
+     */
+    public static final String CONSOLESHARING_ENABLED = "consolesharing.enabled";
 
 }

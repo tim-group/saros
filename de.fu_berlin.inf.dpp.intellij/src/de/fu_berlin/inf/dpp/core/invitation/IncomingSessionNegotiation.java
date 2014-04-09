@@ -1,19 +1,19 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.core.invitation.hooks.ISessionNegotiationHook;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.ui.IJoinSession;
+import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcceptedExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcknowledgedExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationCompletedExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationParameterExchangeExtension;
-import de.fu_berlin.inf.dpp.core.invitation.hooks.ISessionNegotiationHook;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.packet.Packet;
@@ -168,18 +168,14 @@ public class IncomingSessionNegotiation extends SessionNegotiation
             InvitationParameterExchangeExtension actualSessionParameters;
             actualSessionParameters = awaitActualSessionParameters(monitor);
 
-            System.out.println("---init session");
             initializeSession(actualSessionParameters, monitor);
 
-            System.out.println("---start session");
             startSession(monitor);
 
-            System.out.println("---invitation complete");
             sendInvitationCompleted(monitor);
 
-            System.out.println("---await for final acknowledgement");
             awaitFinalAcknowledgement(monitor);
-            System.out.println("---FINISH incoming session");
+
         }
         catch (Exception e)
         {
@@ -203,7 +199,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation
 
         transmitter.sendMessageToUser(peer,
                 InvitationAcceptedExtension.PROVIDER
-                        .create(new InvitationAcceptedExtension(invitationID)));
+                        .create(new InvitationAcceptedExtension(invitationID))
+        );
     }
 
     /**
@@ -258,7 +255,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation
         {
             throw new LocalCancellationException(peerNickname
                     + " does not respond. (Timeout)",
-                    ProcessTools.CancelOption.DO_NOT_NOTIFY_PEER);
+                    ProcessTools.CancelOption.DO_NOT_NOTIFY_PEER
+            );
         }
 
         InvitationParameterExchangeExtension parameters;
@@ -348,7 +346,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation
     {
         transmitter.sendMessageToUser(peer,
                 InvitationCompletedExtension.PROVIDER
-                        .create(new InvitationCompletedExtension(invitationID)));
+                        .create(new InvitationCompletedExtension(invitationID))
+        );
 
         log.debug(this + " : invitation complete confirmation sent");
     }
@@ -369,7 +368,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation
         {
             throw new LocalCancellationException(peerNickname
                     + " does not respond. (Timeout)",
-                    ProcessTools.CancelOption.DO_NOT_NOTIFY_PEER);
+                    ProcessTools.CancelOption.DO_NOT_NOTIFY_PEER
+            );
         }
     }
 

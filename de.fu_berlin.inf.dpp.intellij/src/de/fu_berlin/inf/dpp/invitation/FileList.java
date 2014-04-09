@@ -1,42 +1,41 @@
 /*
+ * DPP - Serious Distributed Pair Programming
+ * (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2006
+ * (c) Riad Djemili - 2006
  *
- *  DPP - Serious Distributed Pair Programming
- *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
- *  (c) NFQ (www.nfq.com) - 2014
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 1, or (at your option)
+ * any later version.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
 package de.fu_berlin.inf.dpp.invitation;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
+import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.project.PathImp;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
+
 
 /**
  * A FileList is a list of resources - files and folders - which belong to the
@@ -97,7 +96,7 @@ public class FileList
         public List<IPath> toList()
         {
             List<IPath> paths = new ArrayList<IPath>();
-            //    toList(new PathImp(path), paths);   //todo
+            toList(new PathImp(path), paths);
             return paths;
         }
 
@@ -329,7 +328,7 @@ public class FileList
     }
 
     @XStreamAlias("md")
-    static public class MetaData
+    static class MetaData
     {
         /**
          * Checksum of this file.
@@ -463,8 +462,7 @@ public class FileList
     /**
      * Creates an empty file list.
      */
-    //todo: should be protected
-    public FileList()
+    FileList()
     {
         this(true);
     }
@@ -492,22 +490,16 @@ public class FileList
      */
     FileList(IContainer container, IChecksumCache checksumCache,
             boolean useVersionControl, IProgressMonitor monitor)
-            throws CoreException
+            throws CoreException, IOException
     {
         this(useVersionControl);
 
-        System.out.println("FileList.FileList>>>>>>>>>>>>>>>>>>>>>"+container);
-
         if (container.getType() == IResource.PROJECT)
         {
-            try {
-                addEncoding(container.getDefaultCharset());
-            } catch (IOException e) {
-                throw new CoreException(e.getMessage(), e.getCause());
-            }
+            addEncoding(container.getDefaultCharset());
         }
 
-        // addMembers(Arrays.asList(container.members()), checksumCache, monitor); //todo
+        addMembers(Arrays.asList(container.members()), checksumCache, monitor);
     }
 
     /**
@@ -520,7 +512,7 @@ public class FileList
      */
     FileList(List<IResource> resources, IChecksumCache checksumCache,
             boolean useVersionControl, IProgressMonitor monitor)
-            throws CoreException
+            throws CoreException, IOException
     {
         this(useVersionControl);
         addMembers(resources, checksumCache, monitor);
@@ -566,7 +558,7 @@ public class FileList
 
     /**
      * @return a sorted list of all paths in this file list. The paths are
-     *         sorted by their character length.
+     * sorted by their character length.
      */
     public List<IPath> getPaths()
     {
@@ -603,7 +595,7 @@ public class FileList
 
     private void addMembers(List<IResource> resources,
             IChecksumCache checksumCache, IProgressMonitor monitor)
-            throws CoreException
+            throws CoreException, IOException
     {
 
         if (resources.size() == 0)
@@ -627,7 +619,7 @@ public class FileList
         if (useVersionControl)
         {
             project = resources.get(0).getProject();
-            vcs = null; //todo //VCSAdapter.getAdapter(project);
+            vcs = VCSAdapter.getAdapter(project);
 
             if (vcs != null)
             {
@@ -639,12 +631,12 @@ public class FileList
                 /*
                  * FIXME we need to stop querying for VCS revisions the moment
                  * we reach the first exception
-                 *
+                 * 
                  * Caused by:
                  * org.tigris.subversion.svnclientadapter.SVNClientException:
                  * org.apache.subversion.javahl.ClientException: The working
                  * copy needs to be upgraded
-                 *
+                 * 
                  * which will significantly slow down the overall invitation
                  * process. It doesn't make sense to check for other files. If
                  * there is one resource that is not upgraded, this fails
@@ -695,14 +687,10 @@ public class FileList
                     data = new MetaData();
                     data.vcsInfo = info;
                     root.addPath(path, data, false);
-                    try {
-                        addEncoding(((IFile) resource).getCharset());
-                    } catch (IOException e) {
-                        throw new CoreException(e.getMessage(), e.getCause());
-                    }
+                    addEncoding(((IFile) resource).getCharset());
                     break;
                 case IResource.FOLDER:
-                    //  stack.addAll(Arrays.asList(((IFolder) resource).members()));       //todo
+                    stack.addAll(Arrays.asList(((IFolder) resource).members()));
 
                     if (info != null)
                     {

@@ -22,43 +22,17 @@
 
 package de.fu_berlin.inf.dpp.core.vcs;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 10.40
+ * Date: 2014-04-09
+ * Time: 17:57
  */
 
-public interface ISubMonitor extends IProgressMonitor
+public interface IVCSFactory
 {
-
-    public static final int SUPPRESS_NONE = 1;
-    public static final int SUPPRESS_ALL_LABELS = 2;
-
-    void subTask(String name);
-
-    void done();
-
-    ISubMonitor newChild(int id);
-
-    IProgressMonitor getMain();
-
-    IProgressMonitor newChildMain(int progress);
-
-    IProgressMonitor newChildMain(int progress, int mode);
-
-    ISubMonitor newChild(int progress, int mode);
-
-
-    boolean isCanceled();
-
-    void setTaskName(String name);
-
-    void beginTask(String taskName, int workTotal);
-
-    void worked(int worked);
-
-    void setCanceled(boolean cancel);
+    IRepositoryProvider getProvider(IProject project);
+    VCSAdapter getAdapter(String identifier);
 }

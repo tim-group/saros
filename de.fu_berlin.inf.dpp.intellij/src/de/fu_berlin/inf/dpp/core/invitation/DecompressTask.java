@@ -22,14 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import de.fu_berlin.inf.dpp.core.*;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.MonitorConverter;
+import de.fu_berlin.inf.dpp.core.util.PathUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -81,21 +80,21 @@ public class DecompressTask implements IWorkspaceRunnable
 
         // TODO calculate size for better progress
 
-        ISubMonitor subMonitor = MonitorConverter.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(monitor,
                 "Unpacking archive file to workspace", 1);
+
 
         try
         {
             ZipEntry entry;
             while ((entry = in.getNextEntry()) != null)
             {
-
                 if (subMonitor.isCanceled())
                 {
                     throw new OperationCanceledException();
                 }
 
-                IPath path = PathUtil.fromPortableString(entry.getName());
+                IPath path = PathUtils.fromPortableString(entry.getName());
                 IFile file = project.getFile(path);
 
                 /*

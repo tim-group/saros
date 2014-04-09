@@ -38,7 +38,7 @@ import java.net.URI;
  * Time: 13.42
  */
 
-public class ResourceImp implements IResource
+public abstract class ResourceImp implements IResource
 {
     protected Project project;
     protected File file;
@@ -89,7 +89,7 @@ public class ResourceImp implements IResource
     @Override
     public IContainer getParent()
     {
-        return new FolderImp(file.getParentFile());
+        return file == null || file.getParentFile() == null ? null : new FolderImp(file.getParentFile());
     }
 
     public Project getProject()
@@ -145,29 +145,10 @@ public class ResourceImp implements IResource
         return isDerived;
     }
 
-    @Override
-    public void delete(int updateFlags) throws IOException
-    {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public void move(IPath destination, boolean force) throws IOException
-    {
-        throw new RuntimeException("Not implemented");
-    }
-
 
     public void setDerived(boolean derived)
     {
         isDerived = derived;
-    }
-
-    @Override
-    public void refreshLocal() throws IOException
-    {
-        System.out.println("ResourceImp.refreshLocal");
-        //todo
     }
 
 
@@ -190,7 +171,8 @@ public class ResourceImp implements IResource
     @Override
     public Object getAdapter(Class<? extends IResource> clazz)
     {
-        System.out.println("ResourceImp.getAdapter");
+        //todo
+        System.out.println("ResourceImp.getAdapter //todo");
         return null;
     }
 

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core;
+package de.fu_berlin.inf.dpp.intellij.core.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 

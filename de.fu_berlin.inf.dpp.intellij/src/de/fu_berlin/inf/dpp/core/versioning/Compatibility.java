@@ -22,12 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.versioning;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.25
- * Time: 13.48
- */
 
 /**
  * Enumeration to describe whether a local version is compatible with a remote

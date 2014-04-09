@@ -79,7 +79,8 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
 
     public JoinSessionWizard(IncomingSessionNegotiation process)
     {
-        System.out.println("JoinSessionWizard.JoinSessionWizard");
+        //todo: UI wizard implementation
+        System.out.println("JoinSessionWizard.JoinSessionWizard //todo");
         this.process = process;
         this.process.setInvitationUI(this);
 
@@ -143,8 +144,8 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
     {
         this.descriptionPage.createControl(pageContainer);
 
-        if (getContainer() instanceof WizardDialogAccessable) {
-            ((WizardDialogAccessable) getContainer()).setWizardButtonLabel(
+        if (getContainer() instanceof WizardDialogAccessible) {
+            ((WizardDialogAccessible) getContainer()).setWizardButtonLabel(
                     IDialogConstants.FINISH_ID, Messages.JoinSessionWizard_accept);
         }
     }*/

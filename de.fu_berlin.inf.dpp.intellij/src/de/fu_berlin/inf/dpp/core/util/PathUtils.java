@@ -20,38 +20,23 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.monitor;
+package de.fu_berlin.inf.dpp.core.util;
 
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
-import de.fu_berlin.inf.dpp.intellij.core.misc.SubMonitor;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.intellij.project.PathImp;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
  * Date: 14.3.28
- * Time: 11.08
+ * Time: 15.19
  */
 
-public class MonitorConverter
+public class PathUtils
 {
+   public static IPath fromPortableString(String path)
+   {
+       return new PathImp(path);
+   }
 
-    public static ISubMonitor convert(IProgressMonitor monitor)
-    {
-        return new SubMonitor(monitor);  //todo
-    }
-
-    public static ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
-    {
-        return new SubMonitor(monitor); //todo
-    }
-
-    public static IProgressMonitor convert(ISubMonitor monitor)
-    {
-        return monitor; //todo
-    }
-
-    public static IProgressMonitor convert(ISubMonitor monitor, String title, int progress)
-    {
-        return monitor;
-    }
 }

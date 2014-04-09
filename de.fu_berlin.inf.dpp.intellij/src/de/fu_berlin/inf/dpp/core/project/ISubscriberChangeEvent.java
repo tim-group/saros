@@ -20,20 +20,38 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.vcs;
+package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 10.26
+ * Date: 2014-04-09
+ * Time: 17:24
  */
 
-public interface IRepositoryProvider
+public interface ISubscriberChangeEvent
 {
-    String getID();
-    boolean isShared(IProject project);
+    // Field descriptor #2 I
+    public static final int NO_CHANGE = 0;
 
+    // Field descriptor #2 I
+    public static final int SYNC_CHANGED = 1;
+
+    // Field descriptor #2 I
+    public static final int ROOT_ADDED = 2;
+
+    // Field descriptor #2 I
+    public static final int ROOT_REMOVED = 4;
+
+
+    // Method descriptor #18 ()Lorg/eclipse/core/resources/IResource;
+    public IResource getResource();
+
+    // Method descriptor #19 ()Lorg/eclipse/team/core/subscribers/Subscriber;
+    ISubscriber getSubscriber();
+
+
+   int getFlags();
 }

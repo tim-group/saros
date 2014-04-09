@@ -37,31 +37,37 @@ public class EditorManager implements IEditorManager
     @Override
     public void colorChanged()
     {
-        System.out.println("EditorManager.colorChanged");
+        //todo
+        System.out.println("EditorManager.colorChanged //todo");
     }
 
     @Override
     public void refreshAnnotations()
     {
-        System.out.println("EditorManager.refreshAnnotations");
+        //todo
+        System.out.println("EditorManager.refreshAnnotations //todo");
     }
 
     @Override
     public void setAllLocalOpenedEditorsLocked(boolean locked)
     {
-        System.out.println("EditorManager.setAllLocalOpenedEditorsLocked");
+        //todo
+        System.out.println("EditorManager.setAllLocalOpenedEditorsLocked //todo");
     }
 
     @Override
     public SPath[] getOpenEditorsOfAllParticipants()
     {
-        System.out.println("EditorManager.getOpenEditorsOfAllParticipants");
-        return new SPath[0];  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorManager.getOpenEditorsOfAllParticipants //todo");
+        return new SPath[0];
     }
 
     @Override
     public void saveText(SPath path)
     {
-        System.out.println("EditorManager.saveText");
+        //todo
+        System.out.println("EditorManager.saveText //todo");
+
     }
 }

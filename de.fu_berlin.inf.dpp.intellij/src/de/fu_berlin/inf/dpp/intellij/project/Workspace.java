@@ -56,7 +56,7 @@ public class Workspace implements IWorkspace
 
     public static Workspace instance()
     {
-        if(_instance==null)
+        if (_instance == null)
         {
             _instance = new Workspace();
         }
@@ -67,22 +67,45 @@ public class Workspace implements IWorkspace
     private IWorkspaceDescription description = new WorkspaceDescription();
 
     @Override
-    public void run(IWorkspaceRunnable deleteProcedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
+    public void run(final IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
     {
-        System.out.println("Workspace.run");
+        System.out.println("Workspace.run 1 //todo");
+
+        //  new ThreadMonitored(procedure,monitor).start();
+        try
+        {
+            procedure.run(monitor);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
-    public void run(IWorkspaceRunnable deleteProcedure, ISchedulingRoot root, int mode, IProgressMonitor monitor)
+    public void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor)
     {
-        System.out.println("Workspace.run");
+        System.out.println("Workspace.run 2 //todo");
+
+        // new ThreadMonitored(procedure,monitor).start(); //todo
+        try
+        {
+            procedure.run(monitor);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public ISchedulingRoot getRoot()
     {
-        if(root==null)
+        if (root == null)
+        {
             throw new RuntimeException("Workspace not initialized!");
+        }
 
         return root;
     }

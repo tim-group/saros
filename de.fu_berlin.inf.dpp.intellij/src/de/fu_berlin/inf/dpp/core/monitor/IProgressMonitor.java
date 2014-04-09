@@ -1,9 +1,13 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
+
 /**
- * Created by IntelliJ IDEA. User: r.kvietkauskas Date: 14.3.14 Time: 13.11 To
- * change this template use File | Settings | File Templates.
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 14.3.28
+ * Time: 11.08
  */
+
 public interface IProgressMonitor
 {
     public static final int UNKNOWN = 0;
@@ -25,4 +29,8 @@ public interface IProgressMonitor
     void beginTask(String taskNam, int size);
 
     void internalWorked(double work);
+
+    ISubMonitor convert(IProgressMonitor monitor);
+
+    ISubMonitor convert(IProgressMonitor monitor, String title, int progress);
 }

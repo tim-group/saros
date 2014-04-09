@@ -78,13 +78,13 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     @Override
     public void preIncomingInvitationCompleted(IProgressMonitor monitor)
     {
-        System.out.println("-----------------SarosTreeView.preIncomingInvitationCompleted");
+
     }
 
     @Override
     public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user)
     {
-        System.out.println("------------------SarosTreeView.postOutgoingInvitationCompleted");
+
     }
 
     @Override
@@ -96,7 +96,6 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     @Override
     public void sessionStarted(ISarosSession newSarosSession)
     {
-        System.out.println("-------------------- SessionTree.sessionStarted");
 
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
         add(node);
@@ -116,7 +115,6 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     @Override
     public void sessionEnded(ISarosSession oldSarosSession)
     {
-        System.out.println("----------------------SarosTreeView.sessionEnded");
 
         DefaultMutableTreeNode node;
 
@@ -147,7 +145,8 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     @Override
     public void projectAdded(String projectID)
     {
-        System.out.println("------------------------------SarosTreeView.projectAdded");
+        //todo
+        System.out.println("SarosTreeView.projectAdded //todo");
     }
 
     /**

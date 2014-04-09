@@ -37,12 +37,12 @@ public class FileContentChangedNotifier implements IFileContentChangedNotifier
     @Override
     public void addFileContentChangedListener(IFileContentChangedListener listener)
     {
-        System.out.println("FileContentChangedNotifier.addFileContentChangedListener");
+        System.out.println("FileContentChangedNotifier.addFileContentChangedListener //todo");
     }
 
     @Override
     public void removeFileContentChangedListener(IFileContentChangedListener listener)
     {
-        System.out.println("FileContentChangedNotifier.removeFileContentChangedListener");
+        System.out.println("FileContentChangedNotifier.removeFileContentChangedListener //todo");
     }
 }

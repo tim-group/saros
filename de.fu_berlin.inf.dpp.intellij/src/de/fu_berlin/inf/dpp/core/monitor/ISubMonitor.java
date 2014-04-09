@@ -20,22 +20,43 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core;
-
-import de.fu_berlin.inf.dpp.filesystem.IPath;
+package de.fu_berlin.inf.dpp.core.monitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 15.19
+ * Date: 14.3.27
+ * Time: 10.40
  */
 
-public class PathUtil
+public interface ISubMonitor extends IProgressMonitor
 {
-   public static IPath fromPortableString(String path)
-   {
-       return null; //todo
-   }
 
+    public static final int SUPPRESS_NONE = 1;
+    public static final int SUPPRESS_ALL_LABELS = 2;
+
+    void subTask(String name);
+
+    void done();
+
+    ISubMonitor newChild(int id);
+
+    IProgressMonitor getMain();
+
+    IProgressMonitor newChildMain(int progress);
+
+    IProgressMonitor newChildMain(int progress, int mode);
+
+    ISubMonitor newChild(int progress, int mode);
+
+
+    boolean isCanceled();
+
+    void setTaskName(String name);
+
+    void beginTask(String taskName, int workTotal);
+
+    void worked(int worked);
+
+    void setCanceled(boolean cancel);
 }

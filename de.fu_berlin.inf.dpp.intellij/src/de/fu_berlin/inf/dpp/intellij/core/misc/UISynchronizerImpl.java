@@ -36,19 +36,22 @@ public class UISynchronizerImpl implements UISynchronizer
     @Override
     public void asyncExec(Runnable runnable)
     {
-        System.out.println("UISynchronizerImpl.asyncExec");
+        //todo
+        System.out.println("UISynchronizerImpl.asyncExec //todo");
     }
 
     @Override
     public void syncExec(Runnable runnable)
     {
-        System.out.println("UISynchronizerImpl.syncExec");
+        //todo
+        System.out.println("UISynchronizerImpl.syncExec //todo");
     }
 
     @Override
     public boolean isUIThread()
     {
-        System.out.println("UISynchronizerImpl.isUIThread");
+        //todo
+        System.out.println("UISynchronizerImpl.isUIThread //todo");
         return false;
     }
 }

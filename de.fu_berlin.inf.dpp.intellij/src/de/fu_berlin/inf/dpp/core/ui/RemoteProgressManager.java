@@ -34,11 +34,10 @@ import java.util.concurrent.TimeUnit;
 import de.fu_berlin.inf.dpp.core.*;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
-import de.fu_berlin.inf.dpp.core.monitor.MonitorConverter;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.session.*;
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
@@ -108,7 +107,7 @@ public class RemoteProgressManager
                 {
                     try
                     {
-                        mainloop(MonitorConverter.convert(monitor));
+                        mainloop(monitor.convert(monitor));
                     }
                     catch (Exception e)
                     {
@@ -414,6 +413,18 @@ public class RemoteProgressManager
             }
 
             @Override
+            public ISubMonitor convert(IProgressMonitor monitor)
+            {
+                return monitor.convert(monitor);
+            }
+
+            @Override
+            public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
+            {
+                return monitor.convert(monitor,title,progress);
+            }
+
+            @Override
             public void worked(int work)
             {
                 worked += work;
@@ -481,6 +492,18 @@ public class RemoteProgressManager
                 activityProvider.fireActivity(new ProgressActivity(localUser,
                         target, progressID, 0, totalWorked, name,
                         ProgressAction.BEGINTASK));
+            }
+
+            @Override
+            public ISubMonitor convert(IProgressMonitor monitor)
+            {
+                return monitor.convert(monitor);
+            }
+
+            @Override
+            public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
+            {
+                return monitor.convert(monitor,title,progress);
             }
 
             @Override

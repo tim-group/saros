@@ -3,13 +3,11 @@ package de.fu_berlin.inf.dpp.core.invitation;
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.MonitorConverter;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
-import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.invitation.FileListFactory;
@@ -18,7 +16,7 @@ import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFil
 import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.net.JID;
 
-import java.util.Map;
+import java.util.*;
 
 
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
@@ -35,10 +33,6 @@ import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -46,7 +40,7 @@ import java.util.zip.ZipInputStream;
 
 import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -131,7 +125,19 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         this.sarosSession = sarosSession;
         this.processID = processID;
         this.projectInfos = projectInfos;
-        this.localProjects = MockInitializer.createProjectList();
+        this.localProjects =new HashMap<String, IProject>();
+
+        //todo: remove logging
+        System.out.println("IncomingProjectNegotiation.IncomingProjectNegotiation logging START");
+        final ListIterator<ProjectNegotiationData> iter = projectInfos.listIterator();
+        ProjectNegotiationData data;
+        while(iter.hasNext())
+        {
+            data = iter.next();
+            System.out.println(data.getProjectName()+ "-->"+data.getFileList().toString());
+        }
+        System.out.println("IncomingProjectNegotiation.IncomingProjectNegotiation logging END");
+
         this.jid = peer;
     }
 
@@ -186,7 +192,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             running = true;
         }
 
-        this.monitor = MonitorConverter.convert(monitor, "Initializing shared project", 100);
+        this.monitor = monitor.convert(monitor, "Initializing shared project", 100);
 
         observeMonitor(monitor);
 
@@ -243,8 +249,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 if(entry.getKey()==null || entry.getValue()==null)
                     continue;
 
-                System.out.println("IncomingProjectNegotiation.accept ADDING key="+entry.getKey()+" proj="+entry.getValue());
-
                 sarosSession.addProjectOwnership(entry.getKey(),
                         ResourceAdapterFactory.create(entry.getValue()), jid);
                 sarosSession.enableQueuing(entry.getKey());
@@ -264,9 +268,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 filesMissing |= list.getPaths().size() > 0;
             }
 
-            System.out.println("IncomingProjectNegotiation.accept MISSING="+filesMissing);
-
-            filesMissing = true; //todo: force
+            System.out.println("IncomingProjectNegotiation.accept MISSING FILES>>>"+missingFiles);
 
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
@@ -368,8 +370,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             SarosCancellationException
     {
 
-        System.out.println("IncomingProjectNegotiation.acceptArchive");
-
         // waiting for the big archive to come in
 
         monitor.beginTask(null, 100);
@@ -429,7 +429,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                     }
                 }, project, currentArchiveMonitor);
 
-                zipInputStream.closeEntry();
+                zipInputStream.closeEntry();  //todo
                 currentArchiveMonitor.done();
             }
         }
@@ -460,8 +460,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             Map<String, String> projectNames, boolean useVersionControl,
             ISubMonitor subMonitor) throws SarosCancellationException, IOException
     {
-
-        System.out.println("IncomingProjectNegotiation.calculateMissingFiles>>"+projectNames);
 
         subMonitor.beginTask(null, 100);
         int numberOfLoops = projectNames.size();
@@ -756,17 +754,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             IOException
     {
 
-
-        System.out.println("IncomingProjectNegotiation.computeRequiredFiles REMOTE_FILE="+remoteFileList+" LocalProject="+currentLocalProject);
-
-        System.out.println("IncomingProjectNegotiation.computeRequiredFiles------------------ REMOTE FILES------------");
-        for(IPath p : remoteFileList.getPaths())
-        {
-            System.out.println("IncomingProjectNegotiation.computeRequiredFiles>>>"+p);
-        }
-
-
-        ISubMonitor subMonitor = MonitorConverter.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(monitor,
                 "Compute required Files...", 1);
 
         FileListDiff filesToSynchronize = null;
@@ -821,12 +809,20 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     {
         log.debug(this + " : computing file list difference");
 
-        System.out.println("IncomingProjectNegotiation.computeDiff>>>"+currentLocalProject);
+        //todo: remove logging
+        System.out.println("IncomingProjectNegotiation.computeDiff REMOTE>>> "+remoteFileList);
+        System.out.println("IncomingProjectNegotiation.computeDiff LOCAL>>> "+localFileList);
 
         try
         {
             FileListDiff diff = FileListDiff
                     .diff(localFileList, remoteFileList);
+
+            //todo: remove logging
+            System.out.println("IncomingProjectNegotiation.computeDiff DIFF added>>> "+diff.getAddedPaths());
+            System.out.println("IncomingProjectNegotiation.computeDiff DIFF removed>>> "+diff.getRemovedPaths());
+            System.out.println("IncomingProjectNegotiation.computeDiff DIFF unaltered>>> "+diff.getUnalteredPaths());
+            System.out.println("IncomingProjectNegotiation.computeDiff DIFF altered>>> "+diff.getAlteredPaths());
 
             if (!isPartialRemoteProject(projectID))
             {
@@ -840,6 +836,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
             diff = diff.addAllFolders(currentLocalProject,
                     new NullProgressMonitor());
+
+
 
             return diff;
         }

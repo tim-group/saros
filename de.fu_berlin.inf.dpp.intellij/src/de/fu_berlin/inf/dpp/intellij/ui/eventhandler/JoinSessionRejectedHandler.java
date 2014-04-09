@@ -59,7 +59,8 @@ public final class JoinSessionRejectedHandler
                 {
                     handleRejection(new JID(packet.getFrom()),
                             JoinSessionRejectedExtension.PROVIDER
-                                    .getPayload(packet));
+                                    .getPayload(packet)
+                    );
                 }
             });
         }
@@ -68,8 +69,7 @@ public final class JoinSessionRejectedHandler
     public JoinSessionRejectedHandler(IReceiver receiver)
     {
         this.receiver = receiver;
-        this.receiver.addPacketListener(joinSessionRejectedListener,
-                JoinSessionRejectedExtension.PROVIDER.getPacketFilter());
+        this.receiver.addPacketListener(joinSessionRejectedListener,JoinSessionRejectedExtension.PROVIDER.getPacketFilter());
 
     }
 

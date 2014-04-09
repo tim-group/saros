@@ -49,8 +49,7 @@ import org.apache.log4j.Logger;
 public class HostLeftAloneInSessionHandler
 {
 
-    private static Logger LOG = Logger
-            .getLogger(HostLeftAloneInSessionHandler.class);
+    private static Logger log = Logger.getLogger(HostLeftAloneInSessionHandler.class);
 
     private final ISarosSessionManager sessionManager;
 

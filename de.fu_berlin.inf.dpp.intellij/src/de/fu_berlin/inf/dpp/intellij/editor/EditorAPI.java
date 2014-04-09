@@ -43,96 +43,122 @@ public class EditorAPI implements IEditorAPI
     @Override
     public IEditorPart openEditor(SPath path)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.openEditor //todo");
+        return null;
     }
 
     @Override
     public IEditorPart openEditor(SPath path, boolean activate)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.openEditor //todo");
+        return null;
     }
 
     @Override
     public boolean openEditor(IEditorPart part)
     {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.openEditor //todo");
+        return false;
     }
 
     @Override
     public void closeEditor(IEditorPart part)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.closeEditor //todo");
     }
 
     @Override
     public IEditorPart getActiveEditor()
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getActiveEditor //todo");
+        return null;
     }
 
     @Override
     public ITextSelection getSelection(IEditorPart editorPart)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getSelection //todo");
+        return null;
     }
 
     @Override
     public SPath getEditorPath(IEditorPart editorPart)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getEditorPath //todo");
+        return null;
     }
 
     @Override
     public ILineRange getViewport(IEditorPart editorPart)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getViewport //todo");
+        return null;
     }
 
     @Override
     public void setEditable(IEditorPart editorPart, boolean editable)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.setEditable //todo");
     }
 
     @Override
     public void addSharedEditorListener(IEditorManager editorManager, IEditorPart editorPart)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.addSharedEditorListener //todo");
     }
 
     @Override
     public void removeSharedEditorListener(IEditorManager editorManager, IEditorPart editorPart)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.removeSharedEditorListener //todo");
     }
 
     @Override
     public SPath getActiveEditorPath()
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getActiveEditorPath //todo");
+        return null;
     }
 
     @Override
     public IResource getEditorResource(IEditorPart editorPart)
     {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.getEditorResource //todo");
+        return null;
     }
 
     @Override
     public void removeEditorPartListener(IEditorManager editorManager)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.removeEditorPartListener //todo");
     }
 
     @Override
     public void addEditorPartListener(IEditorManager editorManager)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.addEditorPartListener //todo");
     }
 
     @Override
     public boolean existUnsavedFiles(IProject project)
     {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        //todo
+        System.out.println("EditorAPI.existUnsavedFiles //todo");
+        return false;
     }
 }

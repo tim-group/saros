@@ -28,9 +28,11 @@ import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
 import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.resource.IResourceChangeEvent;
 import de.fu_berlin.inf.dpp.core.resource.IResourceChangeListener;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -161,6 +163,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
     public void resourceChanged(IResourceChangeEvent event)
     {
+        //todo: implement it
 
         /* if (fileReplacementInProgressObservable.isReplacementInProgress())
             return;
@@ -309,7 +312,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     protected boolean checkVCSConnection(IProject project)
     {
 
-        /* SharedProject sharedProject = sharedProjects.get(project);
+     /*   SharedProject sharedProject = sharedProjects.get(project);
 
    if (sharedProject == null)
        return true;
@@ -352,8 +355,8 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
        }
        return false;
    }
-        */
 
+     */
         return true;
     }
 

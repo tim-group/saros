@@ -23,18 +23,13 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.MonitorConverter;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.core.vcs.ISubMonitor;
-import de.fu_berlin.inf.dpp.filesystem.IWorkspaceRoot;
-import de.fu_berlin.inf.dpp.intellij.project.SchedulingRoot;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
-
-import java.io.IOException;
-
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import org.picocontainer.annotations.Inject;
 
 public class CreateProjectTask implements IWorkspaceRunnable
 {
@@ -44,6 +39,9 @@ public class CreateProjectTask implements IWorkspaceRunnable
     private final IProgressMonitor monitor;
 
     private IProject project;
+
+    @Inject
+    private IWorkspace workspace;
 
     /**
      * Creates a create project task that can be executed by
@@ -82,18 +80,15 @@ public class CreateProjectTask implements IWorkspaceRunnable
             monitor = this.monitor;
         }
 
-        ISubMonitor subMonitor = MonitorConverter.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(monitor,
                 "Creating new project... ", base == null ? 2 : 3);
 
-
-        //todo
-
-        ISchedulingRoot workspaceRoot = Workspace.instance().getRoot();
+        ISchedulingRoot workspaceRoot = workspace.getRoot();
 
         project = workspaceRoot.getProject(name);
 
 
-
+       //todo: implement it
         /* try {
             if (project.exists())
                 throw new CoreException(new Status(IStatus.ERROR, Saros.SAROS,

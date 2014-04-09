@@ -28,13 +28,6 @@ import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 
 import java.io.IOException;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.08
- */
-
 public interface IWorkspace
 {
     public static final int AVOID_UPDATE = 1;

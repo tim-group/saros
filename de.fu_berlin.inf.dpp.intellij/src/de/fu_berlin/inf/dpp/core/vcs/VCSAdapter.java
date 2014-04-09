@@ -26,11 +26,13 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.exceptions.TeamException;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
 /**
  * Interface to an adapter for a Version Control System (Team Provider).
@@ -61,6 +63,8 @@ public abstract class VCSAdapter
      */
     public abstract boolean isInManagedProject(IResource resource);
 
+    @Inject
+    private static IVCSFactory vcsFactory;
     /**
      * @param resource
      * @return The identifier of the resource's Team Provider.
@@ -68,7 +72,7 @@ public abstract class VCSAdapter
     public String getProviderID(IResource resource)
     {
         IProject project = resource.getProject();
-        IRepositoryProvider provider = null;//IRepositoryProvider.getProvider(project); //todo
+        IRepositoryProvider provider = vcsFactory.getProvider(project);
         String vcsIdentifier = provider.getID();
 
         return vcsIdentifier;
@@ -220,21 +224,8 @@ public abstract class VCSAdapter
      * @return
      * @see RepositoryProvider#getID()
      */
-    //todo
-    /* public static VCSAdapter getAdapter(String identifier) {
-        if (identifier == null)
-            return null;
-        IRepositoryProviderType provider = null;//todo // IRepositoryProviderType.getProviderType(identifier);
-        try {
-            if (identifier.equals(SubclipseAdapter.identifier)) {
-                return new SubclipseAdapter(provider);
-            }
-        } catch (NoClassDefFoundError e) {
-            // TODO Should we inform the user?
-            log.warn("Could not find a VCS adapter for \"" + identifier + "\".");
-        }
-        return null;
-    }*/
+
+
     public abstract VCSActivity getUpdateActivity(ISarosSession sarosSession,
             IResource resource);
 
@@ -250,29 +241,22 @@ public abstract class VCSAdapter
      * @param project
      * @return
      */
-    //todo
     public static VCSAdapter getAdapter(IProject project)
     {
-        /*  boolean underVCS;
-       underVCS = IRepositoryProvider.isShared(project);
-       if (!underVCS)
+       IRepositoryProvider provider = vcsFactory.getProvider(project);
+
+       if (!provider.isShared(project))
            return null;
 
-       IRepositoryProvider provider = IRepositoryProvider.getProvider(project);
-       final VCSAdapter adapter = getAdapter(provider.getID());
-       return adapter;*/
-
-        return null; //todo
+       return getAdapter(provider.getID());
     }
 
-    public static VCSAdapter getAdapter(String project)
-    {
-        return null; //todo
+    public static VCSAdapter getAdapter(String identifier) {
+        if (identifier == null)
+            return null;
+
+        return vcsFactory.getAdapter(identifier);
     }
-    /*public ProjectDeltaVisitor getProjectDeltaVisitor(
-            EditorManager editorManager, ISarosSession sarosSession,
-            SharedProject sharedProject) {
-        return new ProjectDeltaVisitor(editorManager, sarosSession,
-                sharedProject);
-    }*/
+
+
 }
