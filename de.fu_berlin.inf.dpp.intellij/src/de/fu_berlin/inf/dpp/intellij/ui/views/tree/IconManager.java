@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.util.SarosResourceLocator;
+import de.fu_berlin.inf.dpp.intellij.util.PluginResourceLocator;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -49,10 +49,10 @@ public class IconManager
      */
     static
     {
-        sessionsIcon = new ImageIcon(SarosResourceLocator.getTreeImageUrl("project_share_tsk"), "sessions");
-        contactOnlineIcon = new ImageIcon(SarosResourceLocator.getTreeImageUrl("buddy_saros_obj"), "contactOnLine");
-        contactOfflineIcon = new ImageIcon(SarosResourceLocator.getTreeImageUrl("buddy_offline_obj"), "contactOffLine");
-        contactsIcon = new ImageIcon(SarosResourceLocator.getTreeImageUrl("group"), "contacts");
+        sessionsIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("project_share_tsk"), "sessions");
+        contactOnlineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_saros_obj"), "contactOnLine");
+        contactOfflineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_offline_obj"), "contactOffLine");
+        contactsIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("group"), "contacts");
     }
 
     /**

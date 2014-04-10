@@ -20,16 +20,43 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.core.ui;
+
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.Status;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-09
- * Time: 17:24
+ * Date: 14.3.28
+ * Time: 11.11
  */
 
-public interface ISubscriberChangeListener
+public abstract class Job extends Thread
 {
-    public void subscriberResourceChanged(ISubscriberChangeEvent[] deltas);
+    public static final int SHORT = 1;
+
+    private boolean isUser;
+
+    public Job(String name)
+    {
+        super(name);
+    }
+
+    public void setUser(boolean isUser)
+    {
+        this.isUser = isUser;
+    }
+
+    public boolean isUser()
+    {
+        return isUser;
+    }
+
+    public void schedule()
+    {
+        start();
+    }
+
+    public abstract Status run(IProgressMonitor monitor);
 }

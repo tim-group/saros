@@ -71,7 +71,7 @@ public class Workspace implements IWorkspace
     {
         System.out.println("Workspace.run 1 //todo");
 
-        //  new ThreadMonitored(procedure,monitor).start();
+        //  new WorkspaceThread(procedure,monitor).start();
         try
         {
             procedure.run(monitor);
@@ -88,7 +88,7 @@ public class Workspace implements IWorkspace
     {
         System.out.println("Workspace.run 2 //todo");
 
-        // new ThreadMonitored(procedure,monitor).start(); //todo
+        // new WorkspaceThread(procedure,monitor).start(); //todo
         try
         {
             procedure.run(monitor);

@@ -29,8 +29,8 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
  * Time: 11.50
  */
 
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -46,7 +46,7 @@ import de.fu_berlin.inf.dpp.session.User;
 public class UserStatusChangeHandler
 {
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
+    private final SarosSessionListener sessionListener = new SarosSessionAdapter()
     {
         @Override
         public void sessionStarting(ISarosSession session)

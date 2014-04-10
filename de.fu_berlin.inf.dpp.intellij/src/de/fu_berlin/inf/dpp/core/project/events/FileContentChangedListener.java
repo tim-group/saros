@@ -20,20 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.proc;
+package de.fu_berlin.inf.dpp.core.project.events;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-
-import java.lang.reflect.InvocationTargetException;
-
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.3
- * Time: 08.23
- */
-
-public abstract class IRunnableWithProgress implements Runnable
+public interface FileContentChangedListener
 {
-    public abstract void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException;
+    public void fileContentChanged(String path);
 }

@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedListener;
+import de.fu_berlin.inf.dpp.core.project.events.FileContentChangedListener;
 import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 
 /**
@@ -35,13 +35,13 @@ import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 public class FileContentChangedNotifier implements IFileContentChangedNotifier
 {
     @Override
-    public void addFileContentChangedListener(IFileContentChangedListener listener)
+    public void addFileContentChangedListener(FileContentChangedListener listener)
     {
         System.out.println("FileContentChangedNotifier.addFileContentChangedListener //todo");
     }
 
     @Override
-    public void removeFileContentChangedListener(IFileContentChangedListener listener)
+    public void removeFileContentChangedListener(FileContentChangedListener listener)
     {
         System.out.println("FileContentChangedNotifier.removeFileContentChangedListener //todo");
     }

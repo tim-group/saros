@@ -1,6 +1,8 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeEvent;
+import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.filesystem.*;
@@ -158,26 +160,26 @@ public class SharedProject {
     };
 
     /** Used only for logging. */
-    private ISubscriberChangeListener subscriberChangeListener = new ISubscriberChangeListener() {
+    private SubscriberChangeListener subscriberChangeListener = new SubscriberChangeListener() {
         @Override
-        public void subscriberResourceChanged(ISubscriberChangeEvent[] deltas) {
+        public void subscriberResourceChanged(SubscriberChangeEvent[] deltas) {
             if (!log.isTraceEnabled())
                 return;
 
             StringBuilder result = new StringBuilder(512);
             result.append("subscriberResourceChanged:\n"); //$NON-NLS-1$
 
-            for (ISubscriberChangeEvent delta : deltas) {
+            for (SubscriberChangeEvent delta : deltas) {
                 int flags = delta.getFlags();
-                boolean syncChanged = (flags & ISubscriberChangeEvent.SYNC_CHANGED) != 0;
+                boolean syncChanged = (flags & SubscriberChangeEvent.SYNC_CHANGED) != 0;
 
-                if (flags == ISubscriberChangeEvent.NO_CHANGE)
+                if (flags == SubscriberChangeEvent.NO_CHANGE)
                     result.append('0');
                 if (syncChanged)
                     result.append('S');
-                if ((flags & ISubscriberChangeEvent.ROOT_ADDED) != 0)
+                if ((flags & SubscriberChangeEvent.ROOT_ADDED) != 0)
                     result.append('+');
-                if ((flags & ISubscriberChangeEvent.ROOT_REMOVED) != 0)
+                if ((flags & SubscriberChangeEvent.ROOT_REMOVED) != 0)
                     result.append('-');
 
                 IResource resource = delta.getResource();
@@ -245,7 +247,7 @@ public class SharedProject {
             if (subscriber != null)
                 subscriber.addListener(subscriberChangeListener);
             else
-                log.error("Could not add this SharedProject as an ISubscriberChangeListener.");
+                log.error("Could not add this SharedProject as an SubscriberChangeListener.");
         }
         Set<IPath> paths = resourceMap.keySet();
         for (IPath path : paths) {

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core.misc;
+package de.fu_berlin.inf.dpp.core.workspace;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
@@ -33,18 +33,18 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
  * Time: 16:39
  */
 
-public class ThreadMonitored extends Thread
+public class WorkspaceThread extends Thread
 {
     private IWorkspaceRunnable runnable;
     private IProgressMonitor progress;
 
-    public ThreadMonitored(IWorkspaceRunnable runnable)
+    public WorkspaceThread(IWorkspaceRunnable runnable)
     {
         this.runnable = runnable;
         this.progress = new NullProgressMonitor();
     }
 
-    public ThreadMonitored(IWorkspaceRunnable runnable, IProgressMonitor progress)
+    public WorkspaceThread(IWorkspaceRunnable runnable, IProgressMonitor progress)
     {
         this.runnable = runnable;
         this.progress = progress == null ? new NullProgressMonitor() : progress;

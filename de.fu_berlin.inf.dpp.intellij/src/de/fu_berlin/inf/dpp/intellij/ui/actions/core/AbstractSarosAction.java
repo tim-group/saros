@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -46,7 +47,7 @@ public abstract class AbstractSarosAction implements ISarosAction
     protected Saros saros;
     protected Container guiFrame;
 
-    private List<ISarosActionListener> actionListeners = new ArrayList<ISarosActionListener>();
+    private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
 
 
     protected AbstractSarosAction()
@@ -58,8 +59,8 @@ public abstract class AbstractSarosAction implements ISarosAction
     {
         log.info("Action started [" + this.getActionName() + "]");
 
-        final List<ISarosActionListener> list = new ArrayList<ISarosActionListener>(actionListeners);
-        for (ISarosActionListener actionListener : list)
+        final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
+        for (SarosActionListener actionListener : list)
         {
             actionListener.actionStarted(this);
         }
@@ -69,8 +70,8 @@ public abstract class AbstractSarosAction implements ISarosAction
     {
         log.info("Action finished [" + this.getActionName() + "]");
 
-        final List<ISarosActionListener> list = new ArrayList<ISarosActionListener>(actionListeners);
-        for (ISarosActionListener actionListener : list)
+        final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
+        for (SarosActionListener actionListener : list)
         {
             actionListener.actionFinished(this);
         }
@@ -84,13 +85,13 @@ public abstract class AbstractSarosAction implements ISarosAction
 
 
     @Override
-    public void addActionListener(ISarosActionListener actionListener)
+    public void addActionListener(SarosActionListener actionListener)
     {
         actionListeners.add(actionListener);
     }
 
     @Override
-    public void removeActionListener(ISarosActionListener actionListener)
+    public void removeActionListener(SarosActionListener actionListener)
     {
         actionListeners.remove(actionListener);
     }

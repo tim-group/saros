@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
@@ -47,7 +47,7 @@ import java.awt.*;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosTreeView implements TreeExpansionListener, TreeSelectionListener, ISarosActionListener
+public class SarosTreeView implements TreeExpansionListener, TreeSelectionListener, SarosActionListener
 {
 
     private Container parent;

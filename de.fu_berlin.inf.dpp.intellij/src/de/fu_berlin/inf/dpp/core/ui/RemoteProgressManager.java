@@ -31,12 +31,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
-import de.fu_berlin.inf.dpp.core.*;
 import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
 import de.fu_berlin.inf.dpp.core.monitor.Status;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.log4j.Logger;
@@ -48,7 +48,6 @@ import de.fu_berlin.inf.dpp.activities.business.ProgressActivity;
 import de.fu_berlin.inf.dpp.activities.business.ProgressActivity.ProgressAction;
 import de.fu_berlin.inf.dpp.annotations.Component;
 
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 
 import de.fu_berlin.inf.dpp.util.StackTrace;
@@ -284,7 +283,7 @@ public class RemoteProgressManager
         }
     };
 
-    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
+    protected SarosSessionListener sessionListener = new SarosSessionAdapter()
     {
 
         @Override

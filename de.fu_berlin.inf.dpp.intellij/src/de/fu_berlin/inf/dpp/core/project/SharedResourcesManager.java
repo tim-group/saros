@@ -28,11 +28,9 @@ import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
 import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
-import de.fu_berlin.inf.dpp.core.resource.IResourceChangeEvent;
-import de.fu_berlin.inf.dpp.core.resource.IResourceChangeListener;
+import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent;
+import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeListener;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -57,14 +55,14 @@ import org.picocontainer.annotations.Inject;
  */
 @Component(module = "core")
 public class SharedResourcesManager extends AbstractActivityProvider implements
-        IResourceChangeListener, Startable
+        ResourceChangeListener, Startable
 {
     /**
-     * The {@link IResourceChangeEvent}s we're going to register for.
+     * The {@link de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent}s we're going to register for.
      */
     /*
      * haferburg: We're really only interested in
-     * IResourceChangeEvent.POST_CHANGE events. I don't know why other events
+     * ResourceChangeEvent.POST_CHANGE events. I don't know why other events
      * were tracked, so I removed them.
      *
      * We're definitely not interested in PRE_REFRESH, refreshes are only
@@ -77,7 +75,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      * We might want to add PRE_DELETE if the user deletes our shared project
      * though.
      */
-    static final int INTERESTING_EVENTS = -1;//IResourceChangeEvent.POST_CHANGE;
+    static final int INTERESTING_EVENTS = -1;//ResourceChangeEvent.POST_CHANGE;
 
     private static final Logger log = Logger
             .getLogger(SharedResourcesManager.class);
@@ -161,7 +159,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      * This method is called from Eclipse when changes to resource are detected
      */
 
-    public void resourceChanged(IResourceChangeEvent event)
+    public void resourceChanged(ResourceChangeEvent event)
     {
         //todo: implement it
 
@@ -181,7 +179,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
                 log.trace("currentJob='" + currentJob.getName() + "'");
             }
         }
-        if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+        if (event.getType() == ResourceChangeEvent.POST_CHANGE) {
             // Creations, deletions, modifications of files and folders.
             handlePostChange(event);
         } else {
@@ -190,7 +188,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }*/
     }
 
-//    protected void handlePostChange(IResourceChangeEvent event) {
+//    protected void handlePostChange(ResourceChangeEvent event) {
 //
 //        if (!sarosSession.hasWriteAccess()) {
 //            return;
@@ -395,8 +393,8 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      * fileReplacementInProgressObservable. Also, why add a misleading warning
      * in the first place??
      */
-    /* protected void logPauseWarning(IResourceChangeEvent event) {
-        if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+    /* protected void logPauseWarning(ResourceChangeEvent event) {
+        if (event.getType() == ResourceChangeEvent.POST_CHANGE) {
 
             IResourceDelta delta = event.getDelta();
             if (delta == null) {

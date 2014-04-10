@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -34,6 +34,6 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 public interface IRepositoryProvider
 {
     ISubscriber getSubscriber();
-    void addListener(ISubscriberChangeListener listener);
+    void addListener(SubscriberChangeListener listener);
 
 }

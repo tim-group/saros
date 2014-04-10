@@ -20,15 +20,22 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.resource;
+package de.fu_berlin.inf.dpp.intellij.ui.actions.events;
+
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 
 /**
+ * Saros action listener
+ * <p/>
+ * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 13.09
+ * Date: 14.3.18
+ * Time: 14.03
  */
-
-public interface IResourceChangeListener
+public interface SarosActionListener
 {
+    void actionStarted(ISarosAction action);
+
+    void actionFinished(ISarosAction action);
 }

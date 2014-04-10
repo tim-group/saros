@@ -20,15 +20,39 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.preferences;
+package de.fu_berlin.inf.dpp.core.project.events;
+
+import de.fu_berlin.inf.dpp.core.project.ISubscriber;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 13.04
+ * Date: 2014-04-09
+ * Time: 17:24
  */
 
-public class IPreferenceChangeListener
+public interface SubscriberChangeEvent
 {
+    // Field descriptor #2 I
+    public static final int NO_CHANGE = 0;
+
+    // Field descriptor #2 I
+    public static final int SYNC_CHANGED = 1;
+
+    // Field descriptor #2 I
+    public static final int ROOT_ADDED = 2;
+
+    // Field descriptor #2 I
+    public static final int ROOT_REMOVED = 4;
+
+
+    // Method descriptor #18 ()Lorg/eclipse/core/resources/IResource;
+    public IResource getResource();
+
+    // Method descriptor #19 ()Lorg/eclipse/team/core/subscribers/Subscriber;
+    ISubscriber getSubscriber();
+
+
+   int getFlags();
 }

@@ -32,6 +32,7 @@ import de.fu_berlin.inf.dpp.core.observables.ProjectNegotiationObservable;
 import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.internal.SarosSession;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -110,7 +111,7 @@ public class SarosSessionManager implements ISarosSessionManager {
 
     private XMPPConnectionService connectionService;
 
-    private final List<ISarosSessionListener> sarosSessionListeners = new CopyOnWriteArrayList<ISarosSessionListener>();
+    private final List<SarosSessionListener> sarosSessionListeners = new CopyOnWriteArrayList<SarosSessionListener>();
 
     private final Lock startStopSessionLock = new ReentrantLock();
 
@@ -666,19 +667,19 @@ public class SarosSessionManager implements ISarosSessionManager {
     }
 
     @Override
-    public void addSarosSessionListener(ISarosSessionListener listener) {
+    public void addSarosSessionListener(SarosSessionListener listener) {
         sarosSessionListeners.add(listener);
     }
 
     @Override
-    public void removeSarosSessionListener(ISarosSessionListener listener) {
+    public void removeSarosSessionListener(SarosSessionListener listener) {
         sarosSessionListeners.remove(listener);
     }
 
     @Override
     public void preIncomingInvitationCompleted(IProgressMonitor monitor) {
         try {
-            for (ISarosSessionListener sarosSessionListener : sarosSessionListeners) {
+            for (SarosSessionListener sarosSessionListener : sarosSessionListeners) {
                 sarosSessionListener.preIncomingInvitationCompleted(monitor);
             }
         } catch (RuntimeException e) {
@@ -691,7 +692,7 @@ public class SarosSessionManager implements ISarosSessionManager {
     public void postOutgoingInvitationCompleted(IProgressMonitor monitor,
             User user) {
         try {
-            for (ISarosSessionListener sarosSessionListener : sarosSessionListeners) {
+            for (SarosSessionListener sarosSessionListener : sarosSessionListeners) {
                 sarosSessionListener.postOutgoingInvitationCompleted(monitor,
                         user);
             }
@@ -704,7 +705,7 @@ public class SarosSessionManager implements ISarosSessionManager {
     @Override
     public void sessionStarting(ISarosSession sarosSession) {
         try {
-            for (ISarosSessionListener sarosSessionListener : sarosSessionListeners) {
+            for (SarosSessionListener sarosSessionListener : sarosSessionListeners) {
                 sarosSessionListener.sessionStarting(sarosSession);
             }
         } catch (RuntimeException e) {
@@ -714,7 +715,7 @@ public class SarosSessionManager implements ISarosSessionManager {
 
     @Override
     public void sessionStarted(ISarosSession sarosSession) {
-        for (ISarosSessionListener sarosSessionListener : sarosSessionListeners) {
+        for (SarosSessionListener sarosSessionListener : sarosSessionListeners) {
             try {
                 sarosSessionListener.sessionStarted(sarosSession);
             } catch (RuntimeException e) {
@@ -724,7 +725,7 @@ public class SarosSessionManager implements ISarosSessionManager {
     }
 
     private void sessionEnding(ISarosSession sarosSession) {
-        for (ISarosSessionListener saroSessionListener : sarosSessionListeners) {
+        for (SarosSessionListener saroSessionListener : sarosSessionListeners) {
             try {
                 saroSessionListener.sessionEnding(sarosSession);
             } catch (RuntimeException e) {
@@ -734,7 +735,7 @@ public class SarosSessionManager implements ISarosSessionManager {
     }
 
     private void sessionEnded(ISarosSession sarosSession) {
-        for (ISarosSessionListener listener : sarosSessionListeners) {
+        for (SarosSessionListener listener : sarosSessionListeners) {
             try {
                 listener.sessionEnded(sarosSession);
             } catch (RuntimeException e) {
@@ -745,7 +746,7 @@ public class SarosSessionManager implements ISarosSessionManager {
 
     @Override
     public void projectAdded(String projectID) {
-        for (ISarosSessionListener listener : sarosSessionListeners) {
+        for (SarosSessionListener listener : sarosSessionListeners) {
             try {
                 listener.projectAdded(projectID);
             } catch (RuntimeException e) {

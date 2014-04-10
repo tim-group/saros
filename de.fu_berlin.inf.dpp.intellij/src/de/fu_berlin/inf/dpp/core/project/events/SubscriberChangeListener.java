@@ -20,15 +20,16 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.resource;
+package de.fu_berlin.inf.dpp.core.project.events;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.27
- * Time: 13.10
+ * Date: 2014-04-09
+ * Time: 17:24
  */
 
-public interface IResourceChangeEvent
+public interface SubscriberChangeListener
 {
+    public void subscriberResourceChanged(SubscriberChangeEvent[] deltas);
 }

@@ -23,12 +23,14 @@
 package de.fu_berlin.inf.dpp.core.project.internal;
 
 
+import de.fu_berlin.inf.dpp.core.project.events.FileContentChangedListener;
+
 public interface IFileContentChangedNotifier {
 
     public void addFileContentChangedListener(
-            IFileContentChangedListener listener);
+            FileContentChangedListener listener);
 
     public void removeFileContentChangedListener(
-            IFileContentChangedListener listener);
+            FileContentChangedListener listener);
 }
 

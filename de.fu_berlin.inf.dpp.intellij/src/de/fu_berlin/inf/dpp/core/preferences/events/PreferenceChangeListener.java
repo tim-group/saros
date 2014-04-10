@@ -20,43 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core;
+package de.fu_berlin.inf.dpp.core.preferences.events;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.Status;
+import java.util.prefs.PreferenceChangeEvent;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 11.11
+ * Date: 14.3.27
+ * Time: 13.04
  */
 
-public abstract class Job extends Thread
+public interface PreferenceChangeListener
 {
-    public static final int SHORT = 1;
-
-    private boolean isUser;
-
-    public Job(String name)
-    {
-        super(name);
-    }
-
-    public void setUser(boolean isUser)
-    {
-        this.isUser = isUser;
-    }
-
-    public boolean isUser()
-    {
-        return isUser;
-    }
-
-    public void schedule()
-    {
-        start();
-    }
-
-    public abstract Status run(IProgressMonitor monitor);
+    void preferenceChange(PreferenceChangeEvent event);
 }

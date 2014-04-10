@@ -35,7 +35,7 @@ import java.net.URL;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosResourceLocator
+public class PluginResourceLocator
 {
     private static final Class loader = SarosToolWindowFactory.class;
 

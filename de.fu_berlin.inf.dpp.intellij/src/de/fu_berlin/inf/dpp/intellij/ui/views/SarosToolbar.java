@@ -26,7 +26,7 @@ import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
@@ -45,7 +45,7 @@ import java.util.Map;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosToolbar implements ISarosActionListener
+public class SarosToolbar implements SarosActionListener
 {
 
     private Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.core.project.events;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -31,7 +31,7 @@ import de.fu_berlin.inf.dpp.session.User;
  *
  * @author bkahlert
  */
-public class AbstractSarosSessionListener implements ISarosSessionListener
+public class SarosSessionAdapter implements SarosSessionListener
 {
 
     @Override

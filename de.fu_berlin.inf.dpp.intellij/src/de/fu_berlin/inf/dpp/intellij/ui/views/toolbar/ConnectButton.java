@@ -27,7 +27,7 @@ import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 
 import javax.swing.*;
@@ -43,7 +43,7 @@ import java.util.List;
  * Date: 14.3.21
  * Time: 07.39
  */
-public class ConnectButton extends ToolbarButton implements ISarosActionListener
+public class ConnectButton extends ToolbarButton implements SarosActionListener
 {
     private JPopupMenu popupMenu = new JPopupMenu();
 

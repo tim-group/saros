@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+
 import java.awt.*;
 
 /**
@@ -35,9 +37,9 @@ import java.awt.*;
  */
 public interface ISarosAction extends Runnable
 {
-    void addActionListener(ISarosActionListener actionListener);
+    void addActionListener(SarosActionListener actionListener);
 
-    void removeActionListener(ISarosActionListener actionListener);
+    void removeActionListener(SarosActionListener actionListener);
 
     void removeAllActionListeners();
 

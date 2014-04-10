@@ -54,11 +54,14 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.19
- * Time: 12.45
+/* *
+ *
+ * @JTourBusStop 2, Creating custom network messages, Session Packet
+ * Extensions:
+ *
+ * As you see we also have another base class to inherit from if you want to
+ * use messages that should only be processed during a running Saros
+ * session.
  */
 
 /**

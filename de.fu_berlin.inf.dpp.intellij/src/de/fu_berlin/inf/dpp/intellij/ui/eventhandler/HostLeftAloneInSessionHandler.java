@@ -31,8 +31,8 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -55,7 +55,7 @@ public class HostLeftAloneInSessionHandler
 
     private final IPreferenceStore preferenceStore;
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
+    private final SarosSessionListener sessionListener = new SarosSessionAdapter()
     {
         @Override
         public void sessionEnded(ISarosSession session)

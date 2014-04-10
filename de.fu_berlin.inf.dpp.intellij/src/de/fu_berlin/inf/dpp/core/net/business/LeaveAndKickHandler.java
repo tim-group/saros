@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.net.business;
 
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
+import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.net.internal.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.LeaveSessionExtension;
 import org.apache.log4j.Logger;
@@ -32,8 +34,6 @@ import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.JID;
 
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -56,7 +56,7 @@ public class LeaveAndKickHandler {
 
     private final IReceiver receiver;
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final SarosSessionListener sessionListener = new SarosSessionAdapter() {
 
         @Override
         public void sessionStarted(ISarosSession session) {

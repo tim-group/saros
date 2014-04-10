@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
+import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,5 +33,5 @@ package de.fu_berlin.inf.dpp.core.project;
 
 public interface ISubscriber
 {
-    void addListener(ISubscriberChangeListener listener);
+    void addListener(SubscriberChangeListener listener);
 }

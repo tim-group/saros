@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class SarosActionFactory
      * @param actionName
      * @param listener
      */
-    public void addListener(String actionName, ISarosActionListener listener)
+    public void addListener(String actionName, SarosActionListener listener)
     {
         ISarosAction action = getAction(actionName);
         action.addActionListener(listener);
@@ -90,7 +91,7 @@ public class SarosActionFactory
      * @param actionName
      * @param listener
      */
-    public void removeListener(String actionName, ISarosActionListener listener)
+    public void removeListener(String actionName, SarosActionListener listener)
     {
         ISarosAction action = getAction(actionName);
         action.removeActionListener(listener);

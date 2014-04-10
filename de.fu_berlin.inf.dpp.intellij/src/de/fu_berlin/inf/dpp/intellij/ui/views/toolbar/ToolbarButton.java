@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.util.SarosResourceLocator;
+import de.fu_berlin.inf.dpp.intellij.util.PluginResourceLocator;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -60,7 +60,7 @@ public abstract class ToolbarButton extends JButton
      */
     public static void setButtonIcon(JButton button, String iconName, String altText)
     {
-        URL imageURL = SarosResourceLocator.getButtonImageUrl(iconName);
+        URL imageURL = PluginResourceLocator.getButtonImageUrl(iconName);
         if (imageURL != null)
         {
             //image found

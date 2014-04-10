@@ -871,7 +871,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
          * TODO: calculate the ADLER32 checksums during decompression and add
          * them into the ChecksumCache. The insertion must be done after the
          * WorkspaceRunnable has run or all checksums will be invalidated during
-         * the IResourceChangeListener updates inside the WorkspaceRunnable or
+         * the ResourceChangeListener updates inside the WorkspaceRunnable or
          * after it finished!
          */
 

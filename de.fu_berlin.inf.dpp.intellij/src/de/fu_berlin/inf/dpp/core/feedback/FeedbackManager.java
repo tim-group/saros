@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.feedback;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.preferences.IPreferenceChangeListener;
+import de.fu_berlin.inf.dpp.core.preferences.events.PreferenceChangeListener;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
@@ -70,7 +70,7 @@ public class FeedbackManager extends AbstractFeedbackManager implements
     protected static final Logger log = Logger.getLogger(FeedbackManager.class
         .getName());
 
-    private static IPreferenceChangeListener preferenceChangeListener = new IPreferenceChangeListener() {
+    private static PreferenceChangeListener preferenceChangeListener = new PreferenceChangeListener() {
 
         public void preferenceChange(PreferenceChangeEvent event) {
             final String key = event.getKey();

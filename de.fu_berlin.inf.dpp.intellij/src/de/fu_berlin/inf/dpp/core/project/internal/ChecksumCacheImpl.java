@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
+import de.fu_berlin.inf.dpp.core.project.events.FileContentChangedListener;
 import org.apache.log4j.Logger;
 
 
@@ -84,7 +85,7 @@ public final class ChecksumCacheImpl implements IChecksumCache
         }
     }
 
-    private final IFileContentChangedListener fileContentChangedListener = new IFileContentChangedListener() {
+    private final FileContentChangedListener fileContentChangedListener = new FileContentChangedListener() {
 
         @Override
         public void fileContentChanged(String path) {
