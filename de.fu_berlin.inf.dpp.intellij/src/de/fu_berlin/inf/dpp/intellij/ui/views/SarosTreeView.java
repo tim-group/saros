@@ -47,7 +47,7 @@ import java.awt.*;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosTreeView implements TreeExpansionListener, TreeSelectionListener, SarosActionListener
+public class SarosTreeView implements SarosActionListener
 {
 
     private Container parent;
@@ -84,8 +84,36 @@ public class SarosTreeView implements TreeExpansionListener, TreeSelectionListen
         sessionTree = new SessionTree(rootTree);
         contactTree = new ContactTree(rootTree);
 
-        //todo: set nice icons
 
+        //listeners
+        TreeExpansionListener expansionListener = new TreeExpansionListener()
+        {
+            @Override
+            public void treeExpanded(TreeExpansionEvent event)
+            {
+
+            }
+
+            @Override
+            public void treeCollapsed(TreeExpansionEvent event)
+            {
+
+            }
+        };
+        rootTree.getJtree().addTreeExpansionListener(expansionListener);
+
+        TreeSelectionListener selectionListener = new TreeSelectionListener()
+        {
+            @Override
+            public void valueChanged(TreeSelectionEvent e)
+            {
+
+            }
+        };
+        rootTree.getJtree().addTreeSelectionListener(selectionListener);
+
+
+        //todo: set nice icons
         return rootTree.getJtree();
     }
 
@@ -105,23 +133,6 @@ public class SarosTreeView implements TreeExpansionListener, TreeSelectionListen
         return contactTree;
     }
 
-    @Override
-    public void treeExpanded(TreeExpansionEvent event)
-    {
-        //  System.out.println("SarosTreeView.treeExpanded "+event);
-    }
-
-    @Override
-    public void treeCollapsed(TreeExpansionEvent event)
-    {
-        //  System.out.println("SarosTreeView.treeCollapsed "+event);
-    }
-
-    @Override
-    public void valueChanged(TreeSelectionEvent e)
-    {
-        // System.out.println("SarosTreeView.valueChanged "+e);
-    }
 
     @Override
     public void actionStarted(ISarosAction action)

@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.core.feedback;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.preferences.events.PreferenceChangeListener;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
@@ -31,6 +30,7 @@ import org.picocontainer.Startable;
 
 import java.util.Date;
 import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 
 /**
  * The FeedbackManager registers himself as a listener with the

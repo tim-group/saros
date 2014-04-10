@@ -47,7 +47,7 @@ public class MockInitializer
 
         File projects = new File("../../test_projects");
         projects.mkdirs();
-        Workspace.instance().createWorkSpace(projects);
+        Workspace.instance().createWorkSpace(new File(projects.getAbsolutePath()));
 
         // Workspace.instance().createWorkSpace(new File("c:\\Develop\\Saros\\idea\\test\\"));
     }
