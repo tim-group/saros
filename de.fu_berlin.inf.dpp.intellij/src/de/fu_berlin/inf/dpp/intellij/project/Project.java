@@ -410,6 +410,12 @@ public class Project implements IProject, Comparable<Project>
         return null;  //todo??
     }
 
+    @Override
+    public IPath getLocation()
+    {
+        return this.fullPath;
+    }
+
 
     @Override
     public int compareTo(Project o)

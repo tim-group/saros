@@ -72,14 +72,14 @@ public class FolderImp extends ResourceImp implements IFolder
 
 
     @Override
-    public IResource[] members() throws IOException
+    public IResource[] members()
     {
         return members(NONE);
     }
 
 
     @Override
-    public IResource[] members(int memberFlags) throws IOException
+    public IResource[] members(int memberFlags)
     {
         List<IResource> list = new ArrayList<IResource>();
 
@@ -132,5 +132,11 @@ public class FolderImp extends ResourceImp implements IFolder
     {
         System.out.println("FolderImp.getAdapter //todo");
         return null;  //todo
+    }
+
+    @Override
+    public IPath getLocation()
+    {
+        return this.getFullPath();
     }
 }

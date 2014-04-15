@@ -1,6 +1,7 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
 import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IPropertyChangeListener;
 
 import java.io.IOException;
 
@@ -30,4 +31,9 @@ public interface IPreferenceStore
     void setValue(Object key, String value);
 
     String getDefaultString(String key);
+
+    void addPropertyChangeListener(IPropertyChangeListener listener);
+
+    void removePropertyChangeListener(IPropertyChangeListener listener);
+
 }

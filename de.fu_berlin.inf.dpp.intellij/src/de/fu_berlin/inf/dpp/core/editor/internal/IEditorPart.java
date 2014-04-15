@@ -22,6 +22,9 @@
 
 package de.fu_berlin.inf.dpp.core.editor.internal;
 
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,4 +34,13 @@ package de.fu_berlin.inf.dpp.core.editor.internal;
 
 public interface IEditorPart
 {
+    int getId();
+    String getTitle();
+    boolean contains(IEditorPart editorPart);
+    IEditorInput getEditorInput();
+    boolean isDirty();
+    Object getAdapter(Class clazz);
+    void doSave(IProgressMonitor monitor);
+
+    IEditorPart getEditorSite();
 }

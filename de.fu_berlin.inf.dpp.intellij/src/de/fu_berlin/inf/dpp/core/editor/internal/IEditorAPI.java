@@ -22,11 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.editor.internal;
 
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 
 /**
@@ -37,8 +39,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
  *
  * @author rdjemili
  */
-public interface IEditorAPI
-{
+public interface IEditorAPI {
 
     /**
      * Opens the editor with given path. Needs to be called from an UI thread.
@@ -51,8 +52,9 @@ public interface IEditorAPI
     /**
      * Opens the editor with given path. Needs to be called from an UI thread.
      *
-     * @param activate <code>true</code>, if editor should get focus, otherwise
-     *                 <code>false</code>
+     * @param activate
+     *            <code>true</code>, if editor should get focus, otherwise
+     *            <code>false</code>
      * @return the opened editor or <code>null</code> if the editor couldn't be
      *         opened.
      */
@@ -60,7 +62,7 @@ public interface IEditorAPI
 
     /**
      * Opens the given editor part.
-     * <p/>
+     *
      * Needs to be called from an UI thread.
      *
      * @return <code>true</code> if the editor part was successfully opened,
@@ -70,7 +72,7 @@ public interface IEditorAPI
 
     /**
      * Closes the given editorpart.
-     * <p/>
+     *
      * Needs to be called from an UI thread.
      */
     public void closeEditor(IEditorPart part);
@@ -83,10 +85,12 @@ public interface IEditorAPI
     /**
      * Returns the current text selection for given editor.
      *
-     * @param editorPart the editorPart for which to get the text selection.
+     * @param editorPart
+     *            the editorPart for which to get the text selection.
      * @return the current text selection. Returns
      *         {@link TextSelection#emptySelection()} if no text selection
      *         exists.
+     *
      */
     public ITextSelection getSelection(IEditorPart editorPart);
 
@@ -111,28 +115,35 @@ public interface IEditorAPI
     /**
      * Attaches listeners to the given editor that will fire the
      * {@link EditorListener} methods on the given editor manager
-     * <p/>
+     *
      * Connecting to an editorPart multiple times, will automatically remove
      * previous listeners via removeSharedEditorListener(IEditorPart editorPart)
      * (but will print a warning!)
      *
-     * @throws IllegalArgumentException if the given editorPart does not have an ITextViewer or if
-     *                                  the EditorManager or EditorPart are null
      * @swt Needs to be called from the SWT-UI thread.
+     *
+     * @throws IllegalArgumentException
+     *             if the given editorPart does not have an ITextViewer or if
+     *             the EditorManager or EditorPart are null
+     *
      */
-    public void addSharedEditorListener(de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager,
+    public void addSharedEditorListener(IEditorManager editorManager,
             IEditorPart editorPart);
 
     /**
      * Removes the listener to the given editor for the given manager previously
      * added via {@link #addSharedEditorListener(EditorManager, IEditorPart)}.
      *
-     * @throws IllegalArgumentException if the EditorManager or EditorPart are null
-     * @throws IllegalStateException    if the given editorPart has never been registered via
-     *                                  {@link #addSharedEditorListener(EditorManager, IEditorPart)}.
      * @swt Needs to be called from the SWT-UI thread.
+     *
+     * @throws IllegalArgumentException
+     *             if the EditorManager or EditorPart are null
+     *
+     * @throws IllegalStateException
+     *             if the given editorPart has never been registered via
+     *             {@link #addSharedEditorListener(EditorManager, IEditorPart)}.
      */
-    public void removeSharedEditorListener(de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager,
+    public void removeSharedEditorListener(IEditorManager editorManager,
             IEditorPart editorPart);
 
     /**
@@ -152,25 +163,30 @@ public interface IEditorAPI
      * Removes a previously registered PartListener added via
      * {@link #addEditorPartListener(EditorManager)}.
      *
-     * @throws IllegalArgumentException if the EditorManager is null
-     * @throws IllegalStateException    if the given EditorManager has never been registered via
-     *                                  {@link #addEditorPartListener(EditorManager)}
      * @swt Needs to be called from the SWT-UI thread.
+     *
+     * @throws IllegalArgumentException
+     *             if the EditorManager is null
+     *
+     * @throws IllegalStateException
+     *             if the given EditorManager has never been registered via
+     *             {@link #addEditorPartListener(EditorManager)}
      */
-    public void removeEditorPartListener(de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager);
+    public void removeEditorPartListener(IEditorManager editorManager);
 
     /**
      * Register a PartListener on the currently active WorkbenchWindow using the
      * given EditorManager as callback.
-     * <p/>
+     *
      * If a part listener is already registered for the given editorManager it
      * is removed before adding a new listener (but a warning will be printed!)
      *
-     * @throws IllegalArgumentException if the EditorManager is null
      * @swt Needs to be called from the SWT-UI thread.
+     *
+     * @throws IllegalArgumentException
+     *             if the EditorManager is null
      */
-    public void addEditorPartListener(de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager);
+    public void addEditorPartListener(IEditorManager editorManager);
 
     public boolean existUnsavedFiles(IProject project);
-
 }

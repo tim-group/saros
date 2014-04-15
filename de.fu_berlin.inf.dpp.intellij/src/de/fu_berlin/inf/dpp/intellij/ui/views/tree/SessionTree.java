@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -37,7 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * Time: 08.53
  */
 
-public class SessionTree extends AbstractTree implements SarosSessionListener
+public class SessionTree extends AbstractTree implements ISarosSessionListener
 {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";

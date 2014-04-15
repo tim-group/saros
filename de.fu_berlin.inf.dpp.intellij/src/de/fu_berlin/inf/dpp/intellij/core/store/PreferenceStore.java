@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IPropertyChangeListener;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -102,6 +103,20 @@ public class PreferenceStore extends AbstractStore implements IPreferenceStore
     public String getDefaultString(String key)
     {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void addPropertyChangeListener(IPropertyChangeListener listener)
+    {
+        //todo
+        System.out.println("PreferenceStore.addPropertyChangeListener //todo");
+    }
+
+    @Override
+    public void removePropertyChangeListener(IPropertyChangeListener listener)
+    {
+        //todo
+        System.out.println("PreferenceStore.removePropertyChangeListener //todo");
     }
 
     @Override

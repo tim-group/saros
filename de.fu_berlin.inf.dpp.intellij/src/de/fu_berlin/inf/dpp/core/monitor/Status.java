@@ -29,8 +29,24 @@ package de.fu_berlin.inf.dpp.core.monitor;
  * Time: 11.05
  */
 
-public enum Status
+public class Status implements IStatus
 {
+    public static final Status  CANCEL_STATUS = new Status(0);
+    public static final Status OK_STATUS=new Status(1);
 
-    CANCEL_STATUS, OK_STATUS
+    public Status()
+    {
+    }
+    public Status(int status)
+    {
+    }
+
+    public Status(int status,String msg, String title)
+    {
+    }
+
+    public Status(int status,String msg, String title, Exception ex)
+    {
+    }
+
 }

@@ -23,6 +23,9 @@
 package de.fu_berlin.inf.dpp.core.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
+import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
+import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -42,4 +45,16 @@ public interface IEditorManager
     SPath[] getOpenEditorsOfAllParticipants();
 
     void saveText(SPath path);
+
+    void generateSelection(IEditorPart part, ITextSelection newSelection);
+
+    void generateViewport(IEditorPart part, ILineRange viewport);
+
+    void partActivated(IEditorPart editorPart);
+
+    void partOpened(IEditorPart editorPart);
+
+    void partClosed(IEditorPart editor);
+
+    void partInputChanged(IEditorPart editor);
 }

@@ -2,7 +2,6 @@ package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
@@ -65,7 +64,7 @@ public interface ISarosSessionManager {
      * @param listener
      *            the listener that is to be added.
      */
-    public void addSarosSessionListener(SarosSessionListener listener);
+    public void addSarosSessionListener(ISarosSessionListener listener);
 
     /**
      * Removes the given session listener.
@@ -73,7 +72,7 @@ public interface ISarosSessionManager {
      * @param listener
      *            the listener that is to be removed.
      */
-    public void removeSarosSessionListener(SarosSessionListener listener);
+    public void removeSarosSessionListener(ISarosSessionListener listener);
 
     /**
      * Handles the negotiation process for a received invitation.

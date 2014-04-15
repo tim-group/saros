@@ -26,6 +26,7 @@ package de.fu_berlin.inf.dpp.intellij;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;

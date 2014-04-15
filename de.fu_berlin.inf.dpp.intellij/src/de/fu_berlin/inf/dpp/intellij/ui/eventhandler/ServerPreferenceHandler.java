@@ -32,40 +32,25 @@ import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.52
- */
-
-public class ServerPreferenceHandler
-{
+public class ServerPreferenceHandler {
 
     private IPreferenceStore preferenceStore;
 
-    private IConnectionListener connectionListener = new IConnectionListener()
-    {
+    private IConnectionListener connectionListener = new IConnectionListener() {
 
         @Override
         public void connectionStateChanged(Connection connection,
-                ConnectionState newState)
-        {
+                ConnectionState newState) {
 
             // Adding the feature while state is CONNECTING would be much
             // better, yet it's not possible since the ServiceDiscoveryManager
             // is not available at that point
-            if (ConnectionState.CONNECTED.equals(newState))
-            {
-                if (Boolean.getBoolean("de.fu_berlin.inf.dpp.server.SUPPORTED"))
-                {
+            if (ConnectionState.CONNECTED.equals(newState)) {
+                if (Boolean.getBoolean("de.fu_berlin.inf.dpp.server.SUPPORTED")) {
                     if (preferenceStore
-                            .getBoolean(PreferenceConstants.SERVER_ACTIVATED))
-                    {
+                            .getBoolean(PreferenceConstants.SERVER_ACTIVATED)) {
                         addServerFeature(connection);
-                    }
-                    else
-                    {
+                    } else {
                         removeServerFeature(connection);
                     }
                 }
@@ -74,45 +59,34 @@ public class ServerPreferenceHandler
     };
 
     public ServerPreferenceHandler(XMPPConnectionService connectionService,
-            IPreferenceStore preferenceStore)
-    {
+            IPreferenceStore preferenceStore) {
         this.preferenceStore = preferenceStore;
 
         connectionService.addListener(connectionListener);
     }
 
-    private void addServerFeature(Connection connection)
-    {
+    private void addServerFeature(Connection connection) {
         if (connection == null)
-        {
             return;
-        }
 
         ServiceDiscoveryManager discoveryManager = ServiceDiscoveryManager
                 .getInstanceFor(connection);
 
         if (discoveryManager == null)
-        {
             return;
-        }
 
         discoveryManager.addFeature(Saros.NAMESPACE_SERVER);
     }
 
-    private void removeServerFeature(Connection connection)
-    {
+    private void removeServerFeature(Connection connection) {
         if (connection == null)
-        {
             return;
-        }
 
         ServiceDiscoveryManager discoveryManager = ServiceDiscoveryManager
                 .getInstanceFor(connection);
 
         if (discoveryManager == null)
-        {
             return;
-        }
 
         discoveryManager.removeFeature(Saros.NAMESPACE_SERVER);
     }

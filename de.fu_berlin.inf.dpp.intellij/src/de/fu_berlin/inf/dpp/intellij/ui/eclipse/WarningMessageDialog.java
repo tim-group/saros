@@ -20,43 +20,28 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.ui;
+package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.Status;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
+import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 11.11
+ * Date: 2014-04-15
+ * Time: 15:42
  */
 
-public abstract class Job extends Thread
+public class WarningMessageDialog
 {
-    public static final int SHORT = 1;
+    private static Component parent = Saros.instance().getMainPanel();
 
-    private boolean isUser;
-
-    public Job(String name)
+    public static void showWarningMessage(String msg, String title)
     {
-        super(name);
+         JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.YES_OPTION);
     }
-
-    public void setUser(boolean isUser)
-    {
-        this.isUser = isUser;
-    }
-
-    public boolean isUser()
-    {
-        return isUser;
-    }
-
-    public void schedule()
-    {
-        start();
-    }
-
-    public abstract Status run(IProgressMonitor monitor);
 }

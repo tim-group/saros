@@ -985,7 +985,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                     }
                 }
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 /*
                  * We shouldn't ever get here. CoreExceptions are thrown e.g. if

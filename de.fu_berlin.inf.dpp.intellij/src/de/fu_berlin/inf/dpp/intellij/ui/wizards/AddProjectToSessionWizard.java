@@ -30,14 +30,12 @@ import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
-import de.fu_berlin.inf.dpp.core.ui.IEnterProjectNamePage;
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
-import de.fu_berlin.inf.dpp.core.ui.Messages;
+import de.fu_berlin.inf.dpp.core.ui.*;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.WizardDialogAccessible;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
@@ -58,7 +56,7 @@ import java.util.Map;
  * Time: 14.08
  */
 
-public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSessionWizard
+public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSessionWizard, IWizard
 {
 
     private static Logger log = Logger.getLogger(AddProjectToSessionWizard.class);
@@ -156,7 +154,7 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
         isExceptionCancel = false;
 
         this.namePage = new EnterProjectNamePage();    //todo
-        this.wizardDialog = new WizardDialogAccessible();//todo
+        this.wizardDialog = new WizardDialogAccessible(this,this);//todo
 
 
     }
@@ -194,5 +192,17 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
     {
         System.out.println("AddProjectToSessionWizard.cancelWizard");
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setBlockOnOpen(boolean blockOnOpen)
+    {
+
+    }
+
+    @Override
+    public void setHelpAvailable(boolean helpAvailable)
+    {
+
     }
 }

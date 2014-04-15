@@ -29,13 +29,16 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
  * Time: 11.50
  */
 
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+
+import java.text.MessageFormat;
 
 /**
  * Simple handler that informs the local user of the status changes for users in
@@ -46,7 +49,7 @@ import de.fu_berlin.inf.dpp.session.User;
 public class UserStatusChangeHandler
 {
 
-    private final SarosSessionListener sessionListener = new SarosSessionAdapter()
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
     {
         @Override
         public void sessionStarting(ISarosSession session)
@@ -62,8 +65,7 @@ public class UserStatusChangeHandler
 
     };
 
-    private ISharedProjectListener userStatusListener = new AbstractSharedProjectListener()
-    {
+    private ISharedProjectListener userStatusListener = new AbstractSharedProjectListener() {
 
         /*
          * save to call SarosView.showNotification because it uses asyncExec
@@ -71,12 +73,9 @@ public class UserStatusChangeHandler
          */
 
         @Override
-        public void permissionChanged(User user)
-        {
+        public void permissionChanged(User user) {
 
-            //todo
-
-            /* if (user.isLocal()) {
+            if (user.isLocal()) {
                 SarosView
                         .showNotification(
                                 Messages.UserStatusChangeHandler_permission_changed,
@@ -85,7 +84,9 @@ public class UserStatusChangeHandler
                                                 Messages.UserStatusChangeHandler_you_have_now_access,
                                                 user.getHumanReadableName(),
                                                 user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
-                                                        : Messages.UserStatusChangeHandler_read_only));
+                                                        : Messages.UserStatusChangeHandler_read_only
+                                        )
+                        );
             } else {
                 SarosView
                         .showNotification(
@@ -96,35 +97,28 @@ public class UserStatusChangeHandler
                                         user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
                                                 : Messages.UserStatusChangeHandler_read_only));
 
-            }*/
+            }
         }
 
         @Override
-        public void userJoined(User user)
-        {
+        public void userJoined(User user) {
 
-            //todo
-/*
             SarosView.showNotification(
                     Messages.UserStatusChangeHandler_user_joined, MessageFormat
-                    .format(Messages.UserStatusChangeHandler_user_joined_text,
-                            user.getHumanReadableName()));*/
+                            .format(Messages.UserStatusChangeHandler_user_joined_text,
+                                    user.getHumanReadableName()));
         }
 
         @Override
-        public void userLeft(User user)
-        {
-
-            //todo
-            /* SarosView.showNotification(
-    Messages.UserStatusChangeHandler_user_left, MessageFormat
-    .format(Messages.UserStatusChangeHandler_user_left_text,
-            user.getHumanReadableName()));*/
+        public void userLeft(User user) {
+            SarosView.showNotification(
+                    Messages.UserStatusChangeHandler_user_left, MessageFormat
+                            .format(Messages.UserStatusChangeHandler_user_left_text,
+                                    user.getHumanReadableName()));
         }
     };
 
-    public UserStatusChangeHandler(ISarosSessionManager sessionManager)
-    {
+    public UserStatusChangeHandler(ISarosSessionManager sessionManager) {
         sessionManager.addSarosSessionListener(sessionListener);
     }
 }

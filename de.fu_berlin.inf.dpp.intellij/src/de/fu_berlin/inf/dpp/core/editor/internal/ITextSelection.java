@@ -31,4 +31,9 @@ package de.fu_berlin.inf.dpp.core.editor.internal;
 
 public interface ITextSelection
 {
+    int getOffset();
+    int getLength();
+    int getEndLine();
+
+    boolean isEmpty();
 }

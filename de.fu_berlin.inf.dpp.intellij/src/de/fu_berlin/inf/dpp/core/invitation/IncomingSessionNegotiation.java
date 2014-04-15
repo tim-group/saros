@@ -48,6 +48,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation
         super(invitationID, from, description, sarosContext);
         this.sessionManager = sessionManager;
         this.remoteVersion = remoteVersion;
+
+        System.out.println("IncomingSessionNegotiation.IncomingSessionNegotiation");
     }
 
     @Override

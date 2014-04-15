@@ -22,38 +22,32 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 09.29
- */
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.internal.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
-import org.apache.log4j.Logger;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.packet.Packet;
 
 
-public final class JoinSessionRejectedHandler
-{
+public final class JoinSessionRejectedHandler {
 
-    private static final Logger log = Logger.getLogger(JoinSessionRejectedHandler.class);
+    private static final Logger LOG = Logger
+            .getLogger(JoinSessionRejectedHandler.class);
 
     private final IReceiver receiver;
 
-    private final PacketListener joinSessionRejectedListener = new PacketListener()
-    {
+    private final PacketListener joinSessionRejectedListener = new PacketListener() {
 
         @Override
-        public void processPacket(final Packet packet)
-        {
-            ThreadUtils.runSafeSync(log, new Runnable()
+        public void processPacket(final Packet packet) {
+            SWTUtils.runSafeSWTAsync(LOG, new Runnable()
             {
+
                 @Override
                 public void run()
                 {
@@ -66,28 +60,24 @@ public final class JoinSessionRejectedHandler
         }
     };
 
-    public JoinSessionRejectedHandler(IReceiver receiver)
-    {
+    public JoinSessionRejectedHandler(IReceiver receiver) {
         this.receiver = receiver;
-        this.receiver.addPacketListener(joinSessionRejectedListener,JoinSessionRejectedExtension.PROVIDER.getPacketFilter());
+        this.receiver.addPacketListener(joinSessionRejectedListener,
+                JoinSessionRejectedExtension.PROVIDER.getPacketFilter());
 
     }
 
     private void handleRejection(JID from,
-            JoinSessionRejectedExtension extension)
-    {
+            JoinSessionRejectedExtension extension) {
 
         String name = XMPPUtils.getNickname(null, from);
 
-        if (name == null)
-        {
+        if (name == null) {
             name = from.getBase();
         }
 
-        //todo
-//        DialogUtils.openInformationMessageDialog(SWTUtils.getShell(),
-//                "Join Session Request Rejected",
-//                "Your request to join the session of " + name + " was rejected.");
+        DialogUtils.openInformationMessageDialog(SWTUtils.getShell(),
+                "Join Session Request Rejected",
+                "Your request to join the session of " + name + " was rejected.");
     }
 }
-

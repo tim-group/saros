@@ -185,6 +185,9 @@ public final class ActivityHandler implements Startable
         }
         else
         {
+
+            System.out.println("ActivityHandler.handleIncomingActivities>>>>>>>>>>"+activities);
+
             dispatchQueue.add(activities);
         }
     }

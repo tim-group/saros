@@ -20,60 +20,61 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project.events;
-
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
 /**
- * A listener for SarosSession life-cycle related events.
- *
- * @author bkahlert
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 2014-04-15
+ * Time: 17:23
  */
-public class SarosSessionAdapter implements SarosSessionListener
+
+public class WorkbenchWindow implements IWorkbenchWindow
 {
-
     @Override
-    public void preIncomingInvitationCompleted(IProgressMonitor monitor)
+    public IWorkbenchWindow getActiveWorkbenchWindow()
     {
-        // do nothing
+        //todo
+        return new WorkbenchWindow();
     }
 
     @Override
-    public void postOutgoingInvitationCompleted(IProgressMonitor monitor,
-            User user)
+    public IWorkbenchWindow[] getWorkbenchWindows()
     {
-        // do nothing
+        //todo
+        return new IWorkbenchWindow[0];
     }
 
     @Override
-    public void sessionStarting(ISarosSession newSarosSession)
+    public IWorkbenchPage getActivePage()
     {
-        // do nothing
+        return null;
     }
 
     @Override
-    public void sessionStarted(ISarosSession newSarosSession)
+    public IWorkbenchWindow getPartService()
     {
-        // do nothing
+        //todo
+        return new WorkbenchWindow();
     }
 
     @Override
-    public void sessionEnding(ISarosSession oldSarosSession)
+    public IWorkbenchPage[] getPages()
     {
-        // do nothing
+        return new IWorkbenchPage[0];
     }
 
     @Override
-    public void sessionEnded(ISarosSession oldSarosSession)
+    public void addPartListener(IPartListener2 partListener)
     {
-        // do nothing
+        //todo
+        System.out.println("WorkbenchWindow.addPartListener //todo");
     }
 
     @Override
-    public void projectAdded(String projectID)
+    public void removePartListener(IPartListener2 partListener)
     {
-        // do nothing
+        //todo
+        System.out.println("WorkbenchWindow.removePartListener //todo");
     }
 }

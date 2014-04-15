@@ -175,6 +175,9 @@ public final class SarosSession implements ISarosSession
         @Override
         public void execute(IActivity activity)
         {
+
+            System.out.println("SarosSession.execute>>>>>>>>>>>>>>>>>>>>>>>>>>"+activity);
+
             /**
              * @JTourBusStop 10, Activity sending, Local Execution:
              *
@@ -800,6 +803,7 @@ public final class SarosSession implements ISarosSession
     @Override
     public void exec(List<IActivityDataObject> ados)
     {
+
         final List<IActivity> activities = new ArrayList<IActivity>();
 
         for (IActivityDataObject ado : activityQueuer.process(ados))
@@ -1041,7 +1045,7 @@ public final class SarosSession implements ISarosSession
                 childResources = Arrays.asList(((IContainer) iResource)
                         .members());
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 log.error("Can't get children of Project/FolderImp. ", e);
             }
@@ -1302,4 +1306,17 @@ public final class SarosSession implements ISarosSession
         return activityProviders.size();
     }
 
+    @Override
+    public void addActivityProducerAndConsumer(IActivityProducerAndConsumer producerAndConsumer)
+    {
+        //todo
+        System.out.println("SarosSession.addActivityProducerAndConsumer //todo");
+    }
+
+    @Override
+    public void removeActivityProducerAndConsumer(IActivityProducerAndConsumer producerAndConsumer)
+    {
+         //todo
+        System.out.println("SarosSession.removeActivityProducerAndConsumer //todo");
+    }
 }

@@ -29,11 +29,15 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
  * Time: 11.57
  */
 
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.subscription.SubscriptionHandler;
 import de.fu_berlin.inf.dpp.net.subscription.SubscriptionListener;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
+
+import java.text.MessageFormat;
 
 /**
  * Handler for accepting or rejecting incoming XMPP subscription requests
@@ -53,7 +57,7 @@ public class XMPPAuthorizationHandler
         public void subscriptionRequestReceived(final JID jid)
         {
 
-            ThreadUtils.runSafeSync(log, new Runnable()
+            ThreadUtils.runSafeAsync(log, new Runnable()
             {
                 @Override
                 public void run()
@@ -75,17 +79,13 @@ public class XMPPAuthorizationHandler
     private void handleAuthorizationRequest(final JID jid)
     {
 
-        //todo
-        boolean accept = true;
-        //MessageDialog
-//                .openConfirm(
-//                        SWTUtils.getShell(),
-//                        Messages.SubscriptionManager_incoming_subscription_request_title,
-//                        MessageFormat
-//                                .format(
-//                                        Messages.SubscriptionManager_incoming_subscription_request_message,
-//                                        jid.getBareJID()));
-
+        boolean accept = MessageDialog
+                .openConfirm(
+                        SWTUtils.getShell(),
+                        Messages.SubscriptionManager_incoming_subscription_request_title,
+                        MessageFormat.format(Messages.SubscriptionManager_incoming_subscription_request_message,
+                        jid.getBareJID())
+                );
         if (accept)
         {
             subscriptionHandler.addSubscription(jid, true);

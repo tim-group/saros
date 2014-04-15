@@ -22,34 +22,29 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
+import java.util.Set;
+
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Packet;
+
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.internal.extensions.SessionStatusRequestExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.SessionStatusResponseExtension;
+
 import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
-import org.apache.log4j.Logger;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.packet.Packet;
 
-import java.util.Set;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.55
- */
+public final class SessionStatusRequestHandler {
 
-public final class SessionStatusRequestHandler
-{
-
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(SessionStatusRequestHandler.class);
 
     private final ISarosSessionManager sessionManager;
@@ -60,13 +55,11 @@ public final class SessionStatusRequestHandler
 
     private final IPreferenceStore preferenceStore;
 
-    private final PacketListener statusRequestListener = new PacketListener()
-    {
+    private final PacketListener statusRequestListener = new PacketListener() {
 
         @Override
-        public void processPacket(final Packet packet)
-        {
-            ThreadUtils.runSafeSync(log, new Runnable()
+        public void processPacket(final Packet packet) {
+            SWTUtils.runSafeSWTAsync(LOG, new Runnable()
             {
 
                 @Override
@@ -80,36 +73,28 @@ public final class SessionStatusRequestHandler
 
     public SessionStatusRequestHandler(ISarosSessionManager sessionManager,
             ITransmitter transmitter, IReceiver receiver,
-            IPreferenceStore preferenceStore)
-    {
+            IPreferenceStore preferenceStore) {
         this.sessionManager = sessionManager;
         this.transmitter = transmitter;
         this.receiver = receiver;
         this.preferenceStore = preferenceStore;
 
-        if (Boolean.getBoolean("de.fu_berlin.inf.dpp.server.SUPPORTED"))
-        {
+        if (Boolean.getBoolean("de.fu_berlin.inf.dpp.server.SUPPORTED")) {
             this.receiver.addPacketListener(statusRequestListener,
                     SessionStatusRequestExtension.PROVIDER.getPacketFilter());
         }
     }
 
-    private void handleStatusRequest(JID from)
-    {
+    private void handleStatusRequest(JID from) {
         if (!preferenceStore.getBoolean(PreferenceConstants.SERVER_ACTIVATED))
-        {
             return;
-        }
 
         ISarosSession session = sessionManager.getSarosSession();
         SessionStatusResponseExtension response;
 
-        if (session == null)
-        {
+        if (session == null) {
             response = new SessionStatusResponseExtension();
-        }
-        else
-        {
+        } else {
             // Don't count the server
             int participants = session.getUsers().size() - 1;
 
@@ -121,37 +106,29 @@ public final class SessionStatusRequestHandler
                 SessionStatusResponseExtension.PROVIDER.create(response));
     }
 
-    private String getSessionDescription(ISarosSession session)
-    {
+    private String getSessionDescription(ISarosSession session) {
         String description = "Projects: ";
 
         Set<IProject> projects = session.getProjects();
         int i = 0;
         int numOfProjects = projects.size();
 
-        for (IProject project : projects)
-        {
+        for (IProject project : projects) {
             description += project.getName();
 
             if (!session.isCompletelyShared(project))
-            {
                 description += " (partial)";
-            }
 
             if (i < numOfProjects - 1)
-            {
                 description += ", ";
-            }
 
             i++;
         }
 
-        if (numOfProjects == 0)
-        {
+        if (numOfProjects == 0) {
             description += "none";
         }
 
         return description;
     }
 }
-

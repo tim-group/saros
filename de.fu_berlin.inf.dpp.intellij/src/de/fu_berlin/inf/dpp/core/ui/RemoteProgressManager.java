@@ -35,8 +35,9 @@ import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
 import de.fu_berlin.inf.dpp.core.monitor.Status;
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionAdapter;
-import de.fu_berlin.inf.dpp.core.project.events.SarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.Job;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.apache.log4j.Logger;
@@ -283,7 +284,7 @@ public class RemoteProgressManager
         }
     };
 
-    protected SarosSessionListener sessionListener = new SarosSessionAdapter()
+    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
     {
 
         @Override

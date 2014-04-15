@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.core.context.ISarosContextFactory;
 import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
-import de.fu_berlin.inf.dpp.core.invitation.DecompressTask;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
@@ -40,7 +39,7 @@ import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.core.misc.UISynchronizerImpl;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.PathFactory;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
@@ -168,6 +167,10 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
         container.addComponent(BindKey.bindKey(String.class,
                 ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL");  //todo
+
+//        container.addComponent(BindKey.bindKey(String.class,
+//                ISarosContextBindings.SarosVersion.class), "13.12.6");
+
 
 
         container.addComponent(BindKey.bindKey(String.class,

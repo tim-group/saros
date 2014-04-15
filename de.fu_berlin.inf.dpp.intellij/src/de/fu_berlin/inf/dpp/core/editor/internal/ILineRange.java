@@ -31,4 +31,6 @@ package de.fu_berlin.inf.dpp.core.editor.internal;
 
 public interface ILineRange
 {
+    int getStartLine();
+    int getNumberOfLines();
 }

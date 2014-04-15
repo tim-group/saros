@@ -97,6 +97,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             sarosSessionManager.stopSarosSession();
     }
 
+
     /**
      * @JTourBusStop 5, Invitation Process:
      *
