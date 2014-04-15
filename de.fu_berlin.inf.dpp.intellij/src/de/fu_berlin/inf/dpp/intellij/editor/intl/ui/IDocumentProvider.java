@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationModel;
 import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
 
@@ -38,8 +39,17 @@ public interface IDocumentProvider
     IDocument getDocument(IEditorInput input);
 
     void addElementStateListener(IElementStateListener listener);
+
     void removeElementStateListener(IElementStateListener listener);
+
     IAnnotationModel getAnnotationModel(IEditorInput input);
+
     void disconnect(IEditorInput input);
+
     void connect(IEditorInput input) throws CoreException;
+
+    boolean canSaveDocument(IEditorInput input);
+
+    void saveDocument(IProgressMonitor monitor, IEditorInput input, IDocument doc, boolean b) throws CoreException;
+
 }

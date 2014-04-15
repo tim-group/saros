@@ -22,29 +22,23 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
-
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
  * Date: 2014-04-15
- * Time: 08:47
+ * Time: 17:46
  */
 
-public class ResourceUtil
+public class DocumentProviderRegistry
 {
-    public static IFile getResource(IEditorInput input)
-    {
-        System.out.println("ResourceUtil.getFile //todo");
-        //todo
+     public IDocumentProvider getDocumentProvider(IEditorInput input)
+     {
+         //todo
+         System.out.println("DocumentProviderRegistry.getDocumentProvider //todo");
         return null;
-    }
-
-    public static IFile getFile(IEditorInput input)
+     }
+    public static DocumentProviderRegistry getDefault()
     {
-        System.out.println("ResourceUtil.getFile //todo");
-        //todo
-        return null;
+        return new DocumentProviderRegistry();
     }
 }

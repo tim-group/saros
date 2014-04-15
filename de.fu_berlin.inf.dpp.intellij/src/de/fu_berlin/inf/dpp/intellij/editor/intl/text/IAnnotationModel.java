@@ -40,4 +40,6 @@ public interface IAnnotationModel
     Iterator<Annotation> getAnnotationIterator();
     Position getPosition(Annotation annotation);
     IAnnotationModel getAnnotationModel(String model);
+    void connect(IDocument doc);
+    void disconnect(IDocument doc);
 }

@@ -74,6 +74,11 @@ public class SWTUtils
         return Display.getDefault();
     }
 
+    public static Object runSWTSync1(Callable<Object> callable) throws Exception
+    {
+        return callable.call();
+    }
+
     public static Boolean runSWTSync(Callable<Boolean> callable) throws Exception
     {
         return callable.call();

@@ -27,6 +27,8 @@ import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 
+import java.util.Set;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -42,7 +44,7 @@ public interface IEditorManager
 
     void setAllLocalOpenedEditorsLocked(boolean locked);
 
-    SPath[] getOpenEditorsOfAllParticipants();
+    Set<SPath> getOpenEditorsOfAllParticipants();
 
     void saveText(SPath path);
 
