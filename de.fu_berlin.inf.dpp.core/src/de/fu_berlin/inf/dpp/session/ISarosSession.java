@@ -491,4 +491,20 @@ public interface ISarosSession {
      * @return the id of the current session
      */
     public String getID();
+
+    /**
+     * Adds an {@link IActivityProducerAndConsumer} and also registers itself as
+     * {@link IActivityListener} at the given IActivityProducerAndConsumer.
+     *
+     * If the given IActivityProducerAndConsumer was already added this method
+     * does not add it again but silently returns.
+     */
+    public void addActivityProducerAndConsumer(
+            IActivityProducerAndConsumer producerAndConsumer);
+
+
+    public void removeActivityProducerAndConsumer(
+            IActivityProducerAndConsumer producerAndConsumer);
+
+
 }

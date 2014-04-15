@@ -70,4 +70,6 @@ public interface IResource {
 
     public Object getAdapter(Class<? extends IResource> clazz);
 
+    public IPath getLocation();
+
 }
