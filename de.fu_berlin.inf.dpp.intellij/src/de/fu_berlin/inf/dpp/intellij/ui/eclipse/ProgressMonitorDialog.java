@@ -20,29 +20,37 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.intl.text;
+package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.BadLocationException;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocumentListener;
 
+import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
+
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
  * Date: 2014-04-15
- * Time: 08:52
+ * Time: 18:44
  */
 
-public interface IDocument
+public class ProgressMonitorDialog   extends JDialog
 {
-    void addDocumentListener(IDocumentListener listener);
-    void removeDocumentListener(IDocumentListener listener);
-    String get(int offset, int length) throws BadLocationException;
-    String get();
-    void replace(int offset, int length, String text) throws BadLocationException;
-    int getLength();
-    int getNumberOfLines();
-    int getLineOfOffset(int offset)throws BadLocationException;
-    int getLineOffset(int top);
 
+    public ProgressMonitorDialog(Container cont)
+    {
+    }
+
+    protected Image getImage()
+    {
+        return null;
+    }
+
+    public void run(boolean b1, boolean b2, IRunnableWithProgress progress)  throws InvocationTargetException, InterruptedException
+    {
+        //todo
+        System.out.println("ProgressMonitorDialog.run //todo");
+    }
 }

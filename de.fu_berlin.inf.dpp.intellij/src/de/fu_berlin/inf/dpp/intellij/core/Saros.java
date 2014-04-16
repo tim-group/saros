@@ -29,6 +29,7 @@ import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
 import de.fu_berlin.inf.dpp.core.net.BlockableTransport;
 import de.fu_berlin.inf.dpp.core.net.Transport;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
@@ -167,6 +168,8 @@ public class Saros extends AbstractSaros
         // Make sure that all components in the container are
         // instantiated
         this.sarosContext.getComponents(Object.class);
+
+        FeedbackPreferences.setPreferences(new SarosPreferences());
 
         this.isInitialized = true;
 

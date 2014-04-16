@@ -52,11 +52,9 @@ public class FeedbackManager extends AbstractFeedbackManager implements
     /**
      * the text to show in the first FeedbackDialog
      */
-    public static final String FEEDBACK_REQUEST = Messages
-        .getString("feedback.dialog.request.general"); //$NON-NLS-1$
+    public static final String FEEDBACK_REQUEST = "feedback.dialog.request.general";//todo //Messages.getString("feedback.dialog.request.general"); //$NON-NLS-1$
 
-    public static final String FEEDBACK_REQUEST_SHORT = Messages
-        .getString("feedback.dialog.request.short"); //$NON-NLS-1$
+    public static final String FEEDBACK_REQUEST_SHORT = "feedback.dialog.request.general";//todo //Messages.getString("feedback.dialog.request.short"); //$NON-NLS-1$
 
     public static final long MIN_SESSION_TIME = 5 * 60; // 5 min.
 

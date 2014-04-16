@@ -20,29 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.intl.text;
+package de.fu_berlin.inf.dpp.intellij.core.misc;
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.BadLocationException;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocumentListener;
-
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
  * Date: 2014-04-15
- * Time: 08:52
+ * Time: 18:47
  */
 
-public interface IDocument
+public interface IRunnableWithProgress
 {
-    void addDocumentListener(IDocumentListener listener);
-    void removeDocumentListener(IDocumentListener listener);
-    String get(int offset, int length) throws BadLocationException;
-    String get();
-    void replace(int offset, int length, String text) throws BadLocationException;
-    int getLength();
-    int getNumberOfLines();
-    int getLineOfOffset(int offset)throws BadLocationException;
-    int getLineOffset(int top);
-
+    void run(IProgressMonitor monitor);
 }

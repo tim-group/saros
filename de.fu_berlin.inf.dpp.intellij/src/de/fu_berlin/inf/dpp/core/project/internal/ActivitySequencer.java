@@ -660,8 +660,6 @@ public class ActivitySequencer implements Startable
 
     private void receiveActivities(Packet activityPacket)
     {
-        System.out.println("ActivitySequencer.receiveActivities++++++++++++++++++++");
-
 
         /* *
          *
