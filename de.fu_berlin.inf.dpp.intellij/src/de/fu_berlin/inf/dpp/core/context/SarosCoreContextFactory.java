@@ -23,15 +23,24 @@
 package de.fu_berlin.inf.dpp.core.context;
 
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
-import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.communication.chat.muc.MultiUserChatService;
 import de.fu_berlin.inf.dpp.communication.chat.single.SingleUserChatService;
+import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
+import de.fu_berlin.inf.dpp.core.communication.chart.muc.negotiation.MUCNegotiationManager;
+import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.invitation.hooks.SessionNegotiationHookManager;
-import de.fu_berlin.inf.dpp.core.observables.*;
-import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.net.*;
+import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
+import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
+import de.fu_berlin.inf.dpp.core.observables.*;
+import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
+import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
+import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
+import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
+import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.net.*;
 import de.fu_berlin.inf.dpp.net.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.internal.*;
 import de.fu_berlin.inf.dpp.net.stun.IStunService;
@@ -41,8 +50,6 @@ import de.fu_berlin.inf.dpp.net.upnp.IUPnPAccess;
 import de.fu_berlin.inf.dpp.net.upnp.IUPnPService;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPAccessImpl;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPServiceImpl;
-import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
-import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
 
@@ -87,12 +94,12 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
 
 
             Component.create(XMPPAccountStore.class),
-            // Component.create(ColorIDSetStorage.class),
+            Component.create(ColorIDSetStorage.class),
 
             // Invitation hooks
             Component.create(SessionNegotiationHookManager.class),
             Component.create(ColorNegotiationHook.class),
-            //  Component.create(MUCNegotiationManager.class),  //todo
+             Component.create(MUCNegotiationManager.class),  //todo
 
             // Network
             Component.create(DispatchThreadContext.class),
@@ -105,8 +112,9 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
                     ISarosContextBindings.IBBTransport.class), IBBTransport.class),
 
             Component.create(BindKey.bindKey(ITransport.class,
-                    ISarosContextBindings.Socks5Transport.class),
-                    Socks5Transport.class),
+                            ISarosContextBindings.Socks5Transport.class),
+                    Socks5Transport.class
+            ),
 
             Component.create(RosterTracker.class),
             Component.create(XMPPConnectionService.class),
@@ -125,17 +133,17 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(FileReplacementInProgressObservable.class),
             Component.create(InvitationProcessObservable.class),
             Component.create(ProjectNegotiationObservable.class),
-            //    Component.create(IsInconsistentObservable.class),
+            Component.create(IsInconsistentObservable.class),
             Component.create(SessionIDObservable.class),
-             Component.create(SarosSessionObservable.class),
-            //   Component.create(AwarenessInformationCollector.class),
-            //   Component.create(FollowingActivitiesManager.class),
+            Component.create(SarosSessionObservable.class),
+            Component.create(AwarenessInformationCollector.class),
+            Component.create(FollowingActivitiesManager.class),
 
             // Handlers
-            // Component.create(CancelInviteHandler.class),
-            //   Component.create(CancelProjectSharingHandler.class),
-              Component.create(InvitationHandler.class),
-              Component.create(LeaveAndKickHandler.class),
+            Component.create(CancelInviteHandler.class),
+            Component.create(CancelProjectSharingHandler.class),
+            Component.create(InvitationHandler.class),
+            Component.create(LeaveAndKickHandler.class),
 
             Component.create(RemoteProgressManager.class),
 

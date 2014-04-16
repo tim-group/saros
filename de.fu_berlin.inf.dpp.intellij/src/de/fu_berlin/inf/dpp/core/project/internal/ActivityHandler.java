@@ -141,6 +141,8 @@ public final class ActivityHandler implements Startable
 
     public synchronized void handleIncomingActivities(List<IActivity> activities)
     {
+        System.out.println("ActivityHandler.handleIncomingActivities>>>>>>>>>>"+activities);
+
 
         if (session.isHost())
         {
@@ -185,9 +187,6 @@ public final class ActivityHandler implements Startable
         }
         else
         {
-
-            System.out.println("ActivityHandler.handleIncomingActivities>>>>>>>>>>"+activities);
-
             dispatchQueue.add(activities);
         }
     }

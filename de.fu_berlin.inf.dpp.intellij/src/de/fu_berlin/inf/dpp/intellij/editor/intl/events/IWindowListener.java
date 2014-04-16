@@ -20,33 +20,25 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.events;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IWorkbenchWindow;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 10.21
+ * Date: 2014-04-16
+ * Time: 08:35
  */
 
-public interface IEditorPart
+public interface IWindowListener
 {
-    int getId();
 
-    String getTitle();
+    public void windowOpened(IWorkbenchWindow window);
 
-    boolean contains(IEditorPart editorPart);
+    public void windowDeactivated(IWorkbenchWindow window);
 
-    IEditorInput getEditorInput();
+    public void windowClosed(IWorkbenchWindow window);
 
-    boolean isDirty();
-
-    Object getAdapter(Class clazz);
-
-    void doSave(IProgressMonitor monitor);
-
-    IEditorPart getEditorSite();
+    public void windowActivated(IWorkbenchWindow window);
 }

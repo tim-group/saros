@@ -20,33 +20,22 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.operations;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 10.21
+ * Date: 2014-04-16
+ * Time: 09:15
  */
 
-public interface IEditorPart
+public interface IOperationApprover
 {
-    int getId();
+    public IStatus proceedRedoing(final IUndoableOperation operation,
+            IOperationHistory history, IAdaptable info);
 
-    String getTitle();
-
-    boolean contains(IEditorPart editorPart);
-
-    IEditorInput getEditorInput();
-
-    boolean isDirty();
-
-    Object getAdapter(Class clazz);
-
-    void doSave(IProgressMonitor monitor);
-
-    IEditorPart getEditorSite();
+    public IStatus proceedUndoing(final IUndoableOperation operation,
+            IOperationHistory history, IAdaptable info);
 }

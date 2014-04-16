@@ -20,33 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
-
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.operations;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 10.21
+ * Date: 2014-04-16
+ * Time: 09:16
  */
 
-public interface IEditorPart
+public interface IUndoableOperation
 {
-    int getId();
+    String getLabel();
 
-    String getTitle();
-
-    boolean contains(IEditorPart editorPart);
-
-    IEditorInput getEditorInput();
-
-    boolean isDirty();
-
-    Object getAdapter(Class clazz);
-
-    void doSave(IProgressMonitor monitor);
-
-    IEditorPart getEditorSite();
+    void addContext( IUndoContext context );
 }

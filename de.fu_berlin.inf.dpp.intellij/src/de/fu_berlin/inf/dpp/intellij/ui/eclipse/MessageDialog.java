@@ -36,6 +36,17 @@ import java.awt.*;
 public class MessageDialog
 {
 
+    public static void openInformation(Container shell,  String title, String message)
+    {
+        JOptionPane.showInternalMessageDialog(shell,title,message,JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void openError(Container shell,  String title, String message)
+    {
+        JOptionPane.showInternalMessageDialog(shell,title,message,JOptionPane.ERROR_MESSAGE);
+    }
+
+
 
     public static boolean openConfirm(Container shell, String title, String message)
     {

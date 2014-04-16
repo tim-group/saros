@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
+import de.fu_berlin.inf.dpp.intellij.editor.intl.Display;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -29,9 +31,9 @@ package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
  * Time: 14:51
  */
 
-public interface IWorkbenchWindow
+public interface IWorkbenchWindow extends IWorkbench
 {
-    IWorkbenchWindow getActiveWorkbenchWindow();
+
     IWorkbenchWindow[] getWorkbenchWindows();
     IWorkbenchPage getActivePage();
 
@@ -42,4 +44,8 @@ public interface IWorkbenchWindow
     void addPartListener(IPartListener2 partListener);
 
     void removePartListener(IPartListener2 partListener);
+
+    boolean isClosing();
+
+    Display getDisplay();
 }

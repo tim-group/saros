@@ -31,6 +31,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 public class SarosView
 {
+    public static final String ID = "saros_view";
 
     public static void showNotification(String message, String title)
     {

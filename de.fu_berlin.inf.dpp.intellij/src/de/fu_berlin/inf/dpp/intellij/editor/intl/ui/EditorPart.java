@@ -23,28 +23,63 @@
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.PartInitException;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-15
- * Time: 15:26
+ * Date: 2014-04-16
+ * Time: 08:42
  */
 
-public interface IWorkbenchPage
+public class EditorPart implements IEditorPart
 {
-    public static final int VIEW_VISIBLE = 1;
-    public static final int VIEW_ACTIVATE = 2;
-    public static final int VIEW_CREATE = 3;
+    @Override
+    public int getId()
+    {
+        return 0;
+    }
 
-    IEditorPart getActiveEditor();
+    @Override
+    public String getTitle()
+    {
+        return "TestEditor";
+    }
 
-    IEditorReference[] getEditorReferences();
+    @Override
+    public boolean contains(IEditorPart editorPart)
+    {
+        return false;
+    }
 
-    void closeEditor(IEditorPart part, boolean b);
+    @Override
+    public IEditorInput getEditorInput()
+    {
+        return new EditorInput();
+    }
 
-    void openEditor(IEditorInput input, int id) throws PartInitException;
+    @Override
+    public boolean isDirty()
+    {
+        return false;
+    }
 
-    void showView(String view, Object o,int mode) throws PartInitException;
+    @Override
+    public Object getAdapter(Class clazz)
+    {
+        System.out.println("EditorPart.getAdapter //todo");
+        return null;
+    }
+
+    @Override
+    public void doSave(IProgressMonitor monitor)
+    {
+        System.out.println("EditorPart.doSave //todo");
+    }
+
+    @Override
+    public IEditorPart getEditorSite()
+    {
+        return new EditorPart();
+    }
 }

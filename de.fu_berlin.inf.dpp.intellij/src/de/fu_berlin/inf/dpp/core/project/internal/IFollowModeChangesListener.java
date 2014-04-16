@@ -20,33 +20,8 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
+package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
-
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 10.21
- */
-
-public interface IEditorPart
-{
-    int getId();
-
-    String getTitle();
-
-    boolean contains(IEditorPart editorPart);
-
-    IEditorInput getEditorInput();
-
-    boolean isDirty();
-
-    Object getAdapter(Class clazz);
-
-    void doSave(IProgressMonitor monitor);
-
-    IEditorPart getEditorSite();
+public interface IFollowModeChangesListener {
+    public void followModeChanged();
 }

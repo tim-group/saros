@@ -31,6 +31,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 public class SWT
 {
+    public static final int NONE = 0;
     public static final int MIN = 1;
     public static final int MAX = 10;
     public static final int MODAL = 5;

@@ -20,33 +20,33 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.operations;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.ExecutionException;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.operations.events.IOperationHistoryListener;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 10.21
+ * Date: 2014-04-16
+ * Time: 09:09
  */
 
-public interface IEditorPart
+public interface IOperationHistory
 {
-    int getId();
+    public static final IUndoContext GLOBAL_UNDO_CONTEXT = new UndoContext();
 
-    String getTitle();
+    void addOperationApprover( IOperationApprover operationBlocker);
 
-    boolean contains(IEditorPart editorPart);
+    void removeOperationApprover(IOperationApprover operationBlocker);
 
-    IEditorInput getEditorInput();
+    void addOperationHistoryListener( IOperationHistoryListener historyListener);
 
-    boolean isDirty();
+    void removeOperationHistoryListener( IOperationHistoryListener historyListener);
 
-    Object getAdapter(Class clazz);
+    void execute(IUndoableOperation auxOp, Object o1, Object o2) throws ExecutionException;
 
-    void doSave(IProgressMonitor monitor);
+    void undo(IUndoContext context, Object o1, Object o2);
 
-    IEditorPart getEditorSite();
+    boolean canRedo(IUndoContext context);
 }

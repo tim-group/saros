@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.core;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.core.context.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.core.context.ISarosContextFactory;
-import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
@@ -39,13 +38,14 @@ import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
-import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
-import de.fu_berlin.inf.dpp.intellij.core.misc.UISynchronizerImpl;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.concurrent.UndoManager;
+import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.PathFactory;
 import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
@@ -71,13 +71,10 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
     private final Component[] components = new Component[]{
 
 
-
-
-
-            Component.create(SarosSessionManager.class),  //todo ???
+            Component.create(SarosSessionManager.class),
 
             // Core Managers
-               Component.create(ConsistencyWatchdogClient.class),
+            Component.create(ConsistencyWatchdogClient.class),
 
             //   Component.create(EditorAPI.class),
             Component.create(IEditorAPI.class, EditorAPI.class),
@@ -87,12 +84,12 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             // see
             // http://opus.haw-hamburg.de/volltexte/2011/1391/pdf/ba_krassmann_online.pdf
             // page 47
-            // Component.create(LocalPresenceTracker.class),
+            Component.create(LocalPresenceTracker.class),
 
 
-//            Component.create(SarosUI.class),
-//            Component.create(SessionViewOpener.class),
-//            Component.create(UndoManager.class),
+            Component.create(SarosUI.class),
+            Component.create(SessionViewOpener.class),
+            Component.create(UndoManager.class),
 
 
             Component.create(Container.class),
@@ -108,10 +105,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             Component.create(XMPPAuthorizationHandler.class),
 
 
-            Component.create(UISynchronizer.class, UISynchronizerImpl.class),
-            Component.create(IPathFactory.class, PathFactory.class),
+            //   Component.create(UISynchronizer.class, UISynchronizerImpl.class),
 
-            Component.create(ColorIDSetStorage.class),
 
             // Cache support
             /*
@@ -124,21 +119,17 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 //                    new FileContentNotifierBridge())),
 
             // Saros Core PathImp Support
-            //    Component.create(IPathFactory.class, EclipsePathFactory.class),
+            Component.create(IPathFactory.class, PathFactory.class),
 
             // SWT EDT support
-            //       Component.create(UISynchronizer.class, SWTSynchronizer.class)
+            Component.create(UISynchronizer.class, SWTSynchronizer.class),
 
             Component.create(IFileContentChangedNotifier.class, FileContentChangedNotifier.class),
 
 
-            //Component.create(IWorkspace.class, Workspace.class),
-
-            Component.create(IsInconsistentObservable.class),
-
             Component.create(PreferenceUtils.class),
 
-            //  Component.create(IAddProjectToSessionWizard.class, AddProjectToSessionWizard.class),
+            //   Component.create(IAddProjectToSessionWizard.class, AddProjectToSessionWizard.class),
 
 
     };
@@ -175,7 +166,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
 //        container.addComponent(BindKey.bindKey(String.class,
 //                ISarosContextBindings.SarosVersion.class), "13.12.6");
-
 
 
         container.addComponent(BindKey.bindKey(String.class,

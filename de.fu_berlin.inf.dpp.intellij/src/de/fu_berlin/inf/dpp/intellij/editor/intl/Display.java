@@ -22,6 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.intl;
 
+import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.SWTException;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.apache.log4j.Logger;
+
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,6 +36,7 @@ package de.fu_berlin.inf.dpp.intellij.editor.intl;
 
 public class Display
 {
+    public static final Logger log = Logger.getLogger(Display.class);
     public boolean isDisposed()
     {
         //todo
@@ -47,5 +53,22 @@ public class Display
         System.out.println("Display.getDefault");
         //todo
         return new Display();
+    }
+
+    public static Display getCurrent()
+    {
+        return new Display();
+    }
+
+    public void asyncExec(Runnable runnable) throws SWTException
+    {
+        System.out.println("Display.asyncExec "+runnable);
+        ThreadUtils.runSafeAsync(log, runnable);
+    }
+
+    public void syncExec(Runnable runnable)  throws SWTException
+    {
+        System.out.println("Display.syncExec "+runnable);
+        ThreadUtils.runSafeSync(log, runnable);
     }
 }

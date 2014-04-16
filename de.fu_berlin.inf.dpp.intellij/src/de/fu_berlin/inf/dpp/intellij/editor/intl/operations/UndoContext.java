@@ -20,33 +20,17 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.operations;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.operations.IUndoContext;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.28
- * Time: 10.21
+ * Date: 2014-04-16
+ * Time: 09:10
  */
 
-public interface IEditorPart
+public class UndoContext implements IUndoContext
 {
-    int getId();
-
-    String getTitle();
-
-    boolean contains(IEditorPart editorPart);
-
-    IEditorInput getEditorInput();
-
-    boolean isDirty();
-
-    Object getAdapter(Class clazz);
-
-    void doSave(IProgressMonitor monitor);
-
-    IEditorPart getEditorSite();
 }

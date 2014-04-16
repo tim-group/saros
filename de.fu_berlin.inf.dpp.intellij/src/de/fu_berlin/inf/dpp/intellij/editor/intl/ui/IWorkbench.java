@@ -20,38 +20,22 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core.misc;
+package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
-import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IWindowListener;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.4.1
- * Time: 10.18
+ * Date: 2014-04-16
+ * Time: 08:32
  */
 
-public class UISynchronizerImpl implements UISynchronizer
+public interface IWorkbench extends IServiceLocator
 {
-    @Override
-    public void asyncExec(Runnable runnable)
-    {
-        //todo
-        System.out.println("UISynchronizerImpl.asyncExec //todo");
-    }
+    void addWindowListener(IWindowListener listener);
 
-    @Override
-    public void syncExec(Runnable runnable)
-    {
-        //todo
-        System.out.println("UISynchronizerImpl.syncExec //todo");
-    }
+    void removeWindowListener(IWindowListener listener);
 
-    @Override
-    public boolean isUIThread()
-    {
-        //todo
-        System.out.println("UISynchronizerImpl.isUIThread //todo");
-        return false;
-    }
+    IWorkbenchWindow getActiveWorkbenchWindow();
 }

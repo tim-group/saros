@@ -22,23 +22,48 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
+import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.PartInitException;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-15
- * Time: 17:46
+ * Date: 2014-04-16
+ * Time: 08:40
  */
 
-public class DocumentProviderRegistry
+public class WorkbenchPage implements IWorkbenchPage
 {
-     public IDocumentProvider getDocumentProvider(IEditorInput input)
-     {
-         //todo
-         System.out.println("DocumentProviderRegistry.getDocumentProvider //todo");
-        return new DocumentProvider();
-     }
-    public static DocumentProviderRegistry getDefault()
+    @Override
+    public IEditorPart getActiveEditor()
     {
-        return new DocumentProviderRegistry();
+        return new EditorPart();
+    }
+
+    @Override
+    public IEditorReference[] getEditorReferences()
+    {
+        return new IEditorReference[0];
+    }
+
+    @Override
+    public void closeEditor(IEditorPart part, boolean b)
+    {
+        //todo
+        System.out.println("WorkbenchPage.closeEditor //todo");
+    }
+
+    @Override
+    public void openEditor(IEditorInput input, int id) throws PartInitException
+    {
+        //todo
+        System.out.println("WorkbenchPage.openEditor //todo");
+    }
+
+    @Override
+    public void showView(String view, Object o, int mode) throws PartInitException
+    {
+        //todo
+        System.out.println("WorkbenchPage.showView //todo");
     }
 }

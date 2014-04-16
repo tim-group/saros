@@ -22,6 +22,9 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
+import de.fu_berlin.inf.dpp.intellij.editor.intl.Display;
+import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IWindowListener;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,9 +34,11 @@ package de.fu_berlin.inf.dpp.intellij.editor.intl.ui;
 
 public class WorkbenchWindow implements IWorkbenchWindow
 {
+
     @Override
     public IWorkbenchWindow getActiveWorkbenchWindow()
     {
+        System.out.println("WorkbenchWindow.getActiveWorkbenchWindow //todo");
         //todo
         return new WorkbenchWindow();
     }
@@ -41,6 +46,7 @@ public class WorkbenchWindow implements IWorkbenchWindow
     @Override
     public IWorkbenchWindow[] getWorkbenchWindows()
     {
+        System.out.println("WorkbenchWindow.getWorkbenchWindows //todo");
         //todo
         return new IWorkbenchWindow[0];
     }
@@ -48,12 +54,15 @@ public class WorkbenchWindow implements IWorkbenchWindow
     @Override
     public IWorkbenchPage getActivePage()
     {
-        return null;
+        System.out.println("WorkbenchWindow.getActivePage //todo");
+        //todo
+        return new WorkbenchPage();
     }
 
     @Override
     public IWorkbenchWindow getPartService()
     {
+        System.out.println("WorkbenchWindow.getPartService //todo");
         //todo
         return new WorkbenchWindow();
     }
@@ -61,6 +70,7 @@ public class WorkbenchWindow implements IWorkbenchWindow
     @Override
     public IWorkbenchPage[] getPages()
     {
+        System.out.println("WorkbenchWindow.getPages //todo");
         return new IWorkbenchPage[0];
     }
 
@@ -77,4 +87,31 @@ public class WorkbenchWindow implements IWorkbenchWindow
         //todo
         System.out.println("WorkbenchWindow.removePartListener //todo");
     }
+
+    @Override
+    public boolean isClosing()
+    {
+        return false;
+    }
+
+    @Override
+    public Display getDisplay()
+    {
+        return new Display();
+    }
+
+    @Override
+    public void addWindowListener(IWindowListener listener)
+    {
+        //todo
+        System.out.println("WorkbenchWindow.addWindowListener //todo");
+    }
+
+    @Override
+    public void removeWindowListener(IWindowListener listener)
+    {
+        //todo
+        System.out.println("WorkbenchWindow.removeWindowListener //todo");
+    }
+
 }
