@@ -40,6 +40,7 @@ import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
 import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.*;
 import de.fu_berlin.inf.dpp.net.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.internal.*;
@@ -146,6 +147,8 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(LeaveAndKickHandler.class),
 
             Component.create(RemoteProgressManager.class),
+
+
 
     };
 

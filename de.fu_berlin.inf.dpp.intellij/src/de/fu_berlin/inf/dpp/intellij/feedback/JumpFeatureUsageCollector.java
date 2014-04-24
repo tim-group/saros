@@ -24,11 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.feedback;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
@@ -45,7 +45,7 @@ public class JumpFeatureUsageCollector extends AbstractStatisticCollector
     protected int jumpedToWriteAccessHolder = 0;
     protected int jumpedToReadOnlyAccessHolder = 0;
 
-    private final EditorManager editorManager;
+    private final IEditorManager editorManager;
 
     protected ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
 
@@ -60,7 +60,7 @@ public class JumpFeatureUsageCollector extends AbstractStatisticCollector
     };
 
     public JumpFeatureUsageCollector(StatisticManager statisticManager,
-            ISarosSession session, EditorManager editorManager) {
+            ISarosSession session, IEditorManager editorManager) {
         super(statisticManager, session);
         this.editorManager = editorManager;
     }

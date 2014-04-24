@@ -22,8 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.internal;
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IWorkbenchPartReference;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IPartListener2;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbenchPartReference;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IPartListener2;
 import org.apache.log4j.Logger;
 
 

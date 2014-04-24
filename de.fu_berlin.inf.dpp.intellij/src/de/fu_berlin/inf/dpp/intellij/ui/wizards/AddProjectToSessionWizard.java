@@ -31,10 +31,11 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.*;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.WizardDialogAccessible;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -87,6 +88,8 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
     @Inject
     private ISarosSessionManager sessionManager;
 
+    @Inject
+    private IWorkspace workspace;
 
     public AddProjectToSessionWizard(IncomingProjectNegotiation process,
             JID peer, List<FileList> fileLists, Map<String, String> projectNames)
@@ -119,7 +122,7 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
             names.append("\n");
         }
 
-        final String path = Workspace.instance().getPath().getAbsolutePath();
+        final String path = workspace.getPath().getAbsolutePath();
 
         SwingUtilities.invokeLater(new Runnable()
         {

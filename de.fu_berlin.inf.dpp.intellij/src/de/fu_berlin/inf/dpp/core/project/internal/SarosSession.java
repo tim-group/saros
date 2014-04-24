@@ -874,7 +874,7 @@ public final class SarosSession implements ISarosSession {
                 childResources = Arrays.asList(((IContainer) iResource)
                         .members());
             } catch (Exception e) {
-                log.error("Can't get children of Project/Folder. ", e);
+                log.error("Can't get children of ProjectIntl/Folder. ", e);
             }
             if (childResources != null && (childResources.size() > 0)) {
                 for (IResource childResource : childResources) {
@@ -1046,7 +1046,7 @@ public final class SarosSession implements ISarosSession {
         sessionContainer.addComponent(FeedbackManager.class);
 
         // Handlers
-        sessionContainer.addComponent(ConsistencyWatchdogHandler.class);
+        //sessionContainer.addComponent(ConsistencyWatchdogHandler.class);   //todo 1
         // transforming - thread access
         sessionContainer.addComponent(ActivityHandler.class);
         sessionContainer.addComponent(IActivityHandlerCallback.class,

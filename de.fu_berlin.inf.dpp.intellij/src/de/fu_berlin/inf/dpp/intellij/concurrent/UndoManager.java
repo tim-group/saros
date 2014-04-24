@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.concurrent;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
@@ -37,17 +38,17 @@ import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.OperationHistory;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.OperationHistory.EditorHistoryEntry;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.OperationHistory.Type;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.ExecutionException;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.operations.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.BadLocationException;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.operations.events.IOperationHistoryListener;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.operations.events.OperationHistoryEvent;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.ExecutionException;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.operations.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.BadLocationException;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.operations.events.IOperationHistoryListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.operations.events.OperationHistoryEvent;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
@@ -120,7 +121,7 @@ public class UndoManager extends AbstractActivityProducerAndConsumer implements 
 
     protected IUndoContext context = IOperationHistory.GLOBAL_UNDO_CONTEXT;
 
-    protected EditorManager editorManager;
+    protected IEditorManager editorManager;
 
     protected List<IActivityProducerAndConsumer> producerAndConsumers = new LinkedList<IActivityProducerAndConsumer>();
 
@@ -430,7 +431,7 @@ public class UndoManager extends AbstractActivityProducerAndConsumer implements 
     };
 
     public UndoManager(ISarosSessionManager sessionManager,
-            EditorManager editorManager) {
+            IEditorManager editorManager) {
 
         if (log.isDebugEnabled())
             DefaultOperationHistory.DEBUG_OPERATION_HISTORY_APPROVAL = true;
@@ -583,7 +584,7 @@ public class UndoManager extends AbstractActivityProducerAndConsumer implements 
         IFile file = currentActiveEditor.getFile();
 
         FileEditorInput input = new FileEditorInput(file);
-        IDocumentProvider provider = EditorManager.getDocumentProvider(input);
+        IDocumentProvider provider = EditorManagerEcl.getDocumentProvider(input);
 
         try {
             provider.connect(input);

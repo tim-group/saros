@@ -25,9 +25,9 @@ package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocumentListener;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.events.DocumentEvent;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocumentListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.events.DocumentEvent;
 
 /**
  * This Class represents a checksum of a document. It contains the path, the

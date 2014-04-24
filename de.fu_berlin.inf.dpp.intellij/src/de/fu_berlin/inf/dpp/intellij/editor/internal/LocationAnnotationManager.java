@@ -32,12 +32,12 @@ import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.events.PropertyChangeEvent;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.BadLocationException;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.events.PropertyChangeEvent;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.BadLocationException;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
@@ -128,7 +128,7 @@ public class LocationAnnotationManager {
     public void setViewportForUser(final User user, IEditorPart editorPart,
             ILineRange lineRange) {
 
-        ITextViewer viewer = EditorAPI.getViewer(editorPart);
+        ITextViewer viewer = EditorAPIEcl.getViewer(editorPart);
         if (!(viewer instanceof ISourceViewer)) {
             return;
         }

@@ -23,13 +23,11 @@
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
@@ -39,7 +37,6 @@ import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.project.Project;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.Job;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
@@ -273,7 +270,7 @@ public class CollaborationUtils {
                 fileCountAndSize = FileUtils.getFileCountAndSize(Arrays.asList(project.members()), true, IContainer.EXCLUDE_DERIVED);
 
                 result.append(String.format(
-                        "\nProject: %s, Files: %d, Size: %s", project.getName(),
+                        "\nProjectIntl: %s, Files: %d, Size: %s", project.getName(),
                         fileCountAndSize.v, format(fileCountAndSize.p)));
             } else {
                 List<IResource> resources = ResourceAdapterFactory
@@ -283,7 +280,7 @@ public class CollaborationUtils {
                         false, IResource.NONE);
 
                 result.append(String.format(
-                        "\nProject: %s, Files: %s, Size: %s", project.getName()
+                        "\nProjectIntl: %s, Files: %s, Size: %s", project.getName()
                                 + " " + Messages.CollaborationUtils_partial,
                         fileCountAndSize.v, format(fileCountAndSize.p)));
             }

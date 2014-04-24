@@ -29,16 +29,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.ProgressMonitorDialog;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import org.apache.log4j.Logger;
@@ -69,7 +70,7 @@ public class ConsistencyWatchdogHandler implements Startable {
     private static Logger log = Logger
             .getLogger(ConsistencyWatchdogHandler.class);
 
-    protected final EditorManager editorManager;
+    protected final IEditorManager editorManager;
 
     protected final ConsistencyWatchdogClient watchdogClient;
 
@@ -102,7 +103,7 @@ public class ConsistencyWatchdogHandler implements Startable {
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-            EditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
+            IEditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
         this.sarosSession = sarosSession;
         this.editorManager = editorManager;
         this.watchdogClient = watchdogClient;
@@ -302,7 +303,7 @@ public class ConsistencyWatchdogHandler implements Startable {
                 // Immediately follow up with a new checksum
                 IDocument doc;
                 FileEditorInput input = new FileEditorInput(file);
-                IDocumentProvider provider = EditorManager
+                IDocumentProvider provider = EditorManagerEcl
                         .getDocumentProvider(input);
                 try {
                     provider.connect(input);

@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.observables.ProjectNegotiationObservable;
 import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.RemoteEditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.RemoteEditorManager;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
@@ -57,7 +57,7 @@ public class AwarenessInformationCollector {
     private static final Logger log = Logger
             .getLogger(AwarenessInformationCollector.class);
 
-    protected EditorManager editorManager;
+    protected IEditorManager editorManager;
     protected ProjectNegotiationObservable projectNegotiationObservable;
     protected SarosSessionObservable sarosSession;
 
@@ -68,7 +68,7 @@ public class AwarenessInformationCollector {
 
     public AwarenessInformationCollector(SarosSessionObservable sarosSession,
             ProjectNegotiationObservable projectNegotiationObservable,
-            EditorManager editorManager) {
+            IEditorManager editorManager) {
 
         this.sarosSession = sarosSession;
         this.projectNegotiationObservable = projectNegotiationObservable;

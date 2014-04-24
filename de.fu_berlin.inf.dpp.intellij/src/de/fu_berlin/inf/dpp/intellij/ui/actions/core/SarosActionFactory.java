@@ -24,7 +24,10 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.apache.log4j.Logger;
 
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +41,8 @@ import java.util.Map;
  */
 public class SarosActionFactory
 {
+    private static Logger log = Logger.getLogger(SarosActionFactory.class);
+
     private static Map<String, ISarosAction> registeredActions = new HashMap<String, ISarosAction>();
 
     private static ConnectServerAction connectServerAction;
@@ -126,7 +131,8 @@ public class SarosActionFactory
      */
     public static void startAction(ISarosAction action)
     {
-        new Thread(action).start();
+       // ThreadUtils.runSafeAsync(log,action);
+        action.run();
     }
 
     /**

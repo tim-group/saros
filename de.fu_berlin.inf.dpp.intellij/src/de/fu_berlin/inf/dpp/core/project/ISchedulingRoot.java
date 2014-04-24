@@ -29,4 +29,6 @@ public interface ISchedulingRoot
 {
 
     IProject getProject(String project);
+
+    IProject getDefaultProject();
 }

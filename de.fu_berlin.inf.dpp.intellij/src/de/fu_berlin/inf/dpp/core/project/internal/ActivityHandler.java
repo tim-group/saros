@@ -86,7 +86,7 @@ public final class ActivityHandler implements Startable
 
     private final ConcurrentDocumentServer documentServer;
 
-    private final ConcurrentDocumentClient documentClient;
+    private static ConcurrentDocumentClient documentClient;
 
     private final UISynchronizer synchronizer;
 
@@ -124,9 +124,16 @@ public final class ActivityHandler implements Startable
             ConcurrentDocumentServer documentServer,
             ConcurrentDocumentClient documentClient, UISynchronizer synchronizer)
     {
+        System.out.println("ActivityHandler.ActivityHandler ****************************************************************");
         this.session = session;
         this.callback = callback;
         this.documentServer = documentServer;
+
+        if(this.documentClient !=null)
+        {
+            System.out.println("DOCUMENT_CLIENT EXIST! ActivityHandler.ActivityHandler***********************************************************************************");
+        }
+
         this.documentClient = documentClient;
         this.synchronizer = synchronizer;
     }
@@ -382,7 +389,7 @@ public final class ActivityHandler implements Startable
                 for (IActivity activity : activities)
                 {
 
-                    User source = activity.getSource();
+                     User source = activity.getSource();
 
                     /*
                      * Ensure that we do not execute activities after all
@@ -406,6 +413,14 @@ public final class ActivityHandler implements Startable
 
                     List<IActivity> transformedActivities = documentClient
                             .transformFromJupiter(activity);
+
+                    ////////////////////////////////////////   //todo
+                    if(transformedActivities.size()==0)
+                    {
+                        System.out.println("ActivityHandler.run //todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BAD TRANSFORM!!!");
+                       // callback.execute(activity);
+                    }
+                    //////////////////////////////////////
 
                     for (IActivity transformedActivity : transformedActivities)
                     {

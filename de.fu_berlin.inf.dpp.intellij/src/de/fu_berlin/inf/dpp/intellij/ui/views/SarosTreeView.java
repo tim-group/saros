@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
@@ -153,10 +154,19 @@ public class SarosTreeView implements SarosActionListener
             renderDisconnected();
         }
 
-        DefaultTreeModel model = (DefaultTreeModel) (rootTree.getJtree().getModel());
-        model.reload();
+        Runnable run = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                DefaultTreeModel model = (DefaultTreeModel) (rootTree.getJtree().getModel());
+                model.reload();
 
-        this.rootTree.getJtree().expandRow(2);
+                rootTree.getJtree().expandRow(2);
+            }
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(run);
     }
 
     /**

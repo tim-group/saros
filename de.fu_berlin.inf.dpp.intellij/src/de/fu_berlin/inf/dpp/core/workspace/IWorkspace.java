@@ -25,16 +25,19 @@ package de.fu_berlin.inf.dpp.core.workspace;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 
+import java.io.File;
 import java.io.IOException;
 
 public interface IWorkspace
 {
     public static final int AVOID_UPDATE = 1;
 
-    void run(IWorkspaceRunnable deleteProcedure, IProgressMonitor monitor) throws OperationCanceledException, IOException;
+    void run(IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException;
 
-    void run(IWorkspaceRunnable deleteProcedure, ISchedulingRoot root, int mode, IProgressMonitor monitor);
+    void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor);
 
     ISchedulingRoot getRoot();
 
@@ -42,5 +45,7 @@ public interface IWorkspace
 
     void setDescription(IWorkspaceDescription description) throws IOException;
 
+    File getPath();
 
+    IPathFactory getPathFactory();
 }

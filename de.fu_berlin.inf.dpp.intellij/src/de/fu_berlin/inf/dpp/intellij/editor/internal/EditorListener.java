@@ -26,13 +26,13 @@ import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.ITextViewer;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.events.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.ITextListener;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.LineRange;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.TextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.events.TextEvent;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.ITextViewer;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.events.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.ITextListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.LineRange;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.TextSelection;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.events.TextEvent;
 import org.apache.log4j.Logger;
 
 import java.awt.event.KeyEvent;
@@ -42,7 +42,7 @@ import java.awt.event.MouseEvent;
 
 /**
  * Listener for tracking the selection and viewport of an IEditorPart and
- * reporting any changes to an EditorManager.
+ * reporting any changes to an EditorManagerEcl.
  */
 public class EditorListener {
 
@@ -83,7 +83,7 @@ public class EditorListener {
         if (this.part != null)
             unbind();
 
-        final ITextViewer viewer = EditorAPI.getViewer(part);
+        final ITextViewer viewer = EditorAPIEcl.getViewer(part);
 
         if (viewer == null) {
             log.warn("could not attach selection listeners to editor part:"
@@ -246,7 +246,7 @@ public class EditorListener {
 
     protected void generateViewport() {
 
-        ILineRange viewport = EditorAPI.getViewport(viewer);
+        ILineRange viewport = EditorAPIEcl.getViewport(viewer);
 
         if (!equals(viewport, lastViewport)) {
             lastViewport = viewport;

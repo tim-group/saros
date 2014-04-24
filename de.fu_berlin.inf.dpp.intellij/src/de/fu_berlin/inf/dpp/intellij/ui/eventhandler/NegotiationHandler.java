@@ -30,9 +30,14 @@ import de.fu_berlin.inf.dpp.core.project.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.*;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
+
+
+//import de.fu_berlin.inf.dpp.intellij.ui.dialogs.JoinSessionWizard;
+//import de.fu_berlin.inf.dpp.intellij.ui.dialogs.AddProjectToSessionWizard;
+
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -271,6 +276,7 @@ public class NegotiationHandler implements INegotiationHandler
             @Override
             public void run()
             {
+
                 /**
                  * @JTourBusStop 8, Invitation Process:
                  *

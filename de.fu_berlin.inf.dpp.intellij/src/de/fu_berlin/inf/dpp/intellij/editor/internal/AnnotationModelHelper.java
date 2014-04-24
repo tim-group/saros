@@ -29,13 +29,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.intellij.editor.*;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.Annotation;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationModel;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationModelExtension;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Position;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModelExtension;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Position;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
 
@@ -132,7 +132,7 @@ public class AnnotationModelHelper {
 
     public IAnnotationModel retrieveAnnotationModel(IEditorPart editorPart) {
         IEditorInput input = editorPart.getEditorInput();
-        IDocumentProvider provider = EditorManager.getDocumentProvider(input);
+        IDocumentProvider provider = EditorManagerEcl.getDocumentProvider(input);
         IAnnotationModel model = provider.getAnnotationModel(input);
 
         return model;

@@ -36,8 +36,9 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.invitation.FileList.MetaData;
+import org.picocontainer.annotations.Inject;
 
 
 /**
@@ -62,6 +63,10 @@ public class FileListDiff {
     private final List<IPath> altered = new ArrayList<IPath>();
 
     private final List<IPath> unaltered = new ArrayList<IPath>();
+
+    //todo: inject it
+    @Inject
+    public static IWorkspace workspace;
 
     /**
      * Returns a new <code>FileListDiff</code> which contains the difference of
@@ -230,7 +235,7 @@ public class FileListDiff {
         };
 
         monitor.beginTask("Removing resources", toDelete.size());
-        IWorkspace workspace = Workspace.instance();
+
         workspace.run(deleteProcedure, workspace.getRoot(),
                 IWorkspace.AVOID_UPDATE, monitor);
 

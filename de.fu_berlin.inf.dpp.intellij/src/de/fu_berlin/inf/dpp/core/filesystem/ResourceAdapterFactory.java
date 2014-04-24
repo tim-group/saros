@@ -161,14 +161,14 @@ public class ResourceAdapterFactory
 //        switch (resource.getType())
 //        {
 //            case IResource.FILE:
-//                return (IResource) new FileImp(f).getAdapter(IFile.class);
+//                return (IResource) new FileIntl(f).getAdapter(IFile.class);
 //            case IResource.FOLDER:
-//                return (IResource) new FolderImp(f).getAdapter(IFolder.class);
+//                return (IResource) new FolderIntl(f).getAdapter(IFolder.class);
 //            case IResource.PROJECT:
-//                return (IResource) new Project("").getAdapter(IProject.class);
+//                return (IResource) new ProjectIntl("").getAdapter(IProject.class);
 //            default:
 //                // TODO workspace if needed ?
-//                return (IResource) new ResourceImp(f).getAdapter(IResource.class);
+//                return (IResource) new ResourceIntl(f).getAdapter(IResource.class);
 //        }
 
         return resource;

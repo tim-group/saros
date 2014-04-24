@@ -36,8 +36,11 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.intl.WorkspaceIntl;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -69,7 +72,7 @@ public class Saros extends AbstractSaros
     private Project project;
 
     private static Saros _instance;
-
+    private boolean bTesting;
 
 
     private XMPPConnectionService connectionService;
@@ -91,6 +94,7 @@ public class Saros extends AbstractSaros
     public void setMainPanel(SarosMainPanelView mainPanel)
     {
         this.mainPanel = mainPanel;
+        this.project = mainPanel.getProject();
     }
 
     /**
@@ -129,6 +133,12 @@ public class Saros extends AbstractSaros
     private Saros() throws Exception
     {
 
+    }
+
+    public void start(boolean testing)
+    {
+        this.bTesting = testing;
+        start();
     }
 
     public void start()
@@ -614,6 +624,22 @@ public class Saros extends AbstractSaros
 //                .getActiveAccount()) != null);
 
         return true;
+    }
+
+    public IWorkspace getWorkspace()
+    {
+
+        if(bTesting)
+        {
+            log.warn("Project is null - loading FS Workspace");
+            return Workspace.instance();
+        }
+        else
+        {
+            log.info("Project loading IntelliJ Workspace");
+            return WorkspaceIntl.instance();
+        }
+
     }
 
 }

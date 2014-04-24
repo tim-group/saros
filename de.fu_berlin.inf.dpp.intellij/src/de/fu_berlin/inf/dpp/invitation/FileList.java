@@ -29,9 +29,11 @@ import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.project.PathImp;
+
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
 import java.io.IOException;
 import java.util.*;
@@ -54,6 +56,9 @@ public class FileList
 
     private static final Logger log = Logger.getLogger(FileList.class);
 
+    @Inject
+    public static IWorkspace workspace;  //todo
+
     @XStreamAlias("f")
     private static class File
     {
@@ -71,6 +76,8 @@ public class FileList
         @XStreamAlias("d")
         @XStreamAsAttribute
         boolean isDirectory;
+
+
 
         private File(String path, MetaData metaData, boolean isDirectory)
         {
@@ -96,7 +103,7 @@ public class FileList
         public List<IPath> toList()
         {
             List<IPath> paths = new ArrayList<IPath>();
-            toList(new PathImp(path), paths);
+            toList(workspace.getPathFactory().fromString(path), paths);
             return paths;
         }
 

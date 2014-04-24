@@ -28,6 +28,8 @@ import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
 import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent;
 import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeListener;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
@@ -42,7 +44,7 @@ import org.picocontainer.annotations.Inject;
 
 /**
  * This manager is responsible for handling all resource changes that aren't
- * handled by the EditorManager, that is for changes that aren't done by
+ * handled by the EditorManagerEcl, that is for changes that aren't done by
  * entering text in a text editor. It creates and executes file, folder, and VCS
  * activities.<br>
  * TODO Extract AbstractActivityProvider functionality in another class
@@ -100,7 +102,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 //    protected FileReplacementInProgressObservable fileReplacementInProgressObservable;
 
     @Inject
-    protected de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager;
+    protected IEditorManagerBase editorManager;
 
 //    @Inject
 //    protected ConsistencyWatchdogClient consistencyWatchdogClient;

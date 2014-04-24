@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
@@ -45,10 +46,10 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
 import org.apache.log4j.Logger;
 
 import org.picocontainer.annotations.Inject;
@@ -92,7 +93,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
     protected IsInconsistentObservable inconsistencyToResolve;
 
     @Inject
-    protected EditorManager editorManager;
+    protected IEditorManager editorManager;
 
     /**
      * @Inject Injected via Constructor Injection
@@ -397,7 +398,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
         }
 
         FileEditorInput input = new FileEditorInput(file);
-        IDocumentProvider provider = EditorManager.getDocumentProvider(input);
+        IDocumentProvider provider = EditorManagerEcl.getDocumentProvider(input);
 
         try {
             provider.connect(input);

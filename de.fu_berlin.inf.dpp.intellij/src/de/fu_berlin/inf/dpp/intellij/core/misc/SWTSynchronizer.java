@@ -23,9 +23,9 @@
 package de.fu_berlin.inf.dpp.intellij.core.misc;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Display;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.PlatformUI;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.exceptions.SWTException;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Display;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.PlatformUI;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.SWTException;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;

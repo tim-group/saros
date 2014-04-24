@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.editor.internal;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

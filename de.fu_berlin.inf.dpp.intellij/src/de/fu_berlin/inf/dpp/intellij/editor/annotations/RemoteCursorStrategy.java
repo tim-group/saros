@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.editor.annotations;
 
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDrawingStrategy;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.Annotation;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.GC;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.StyledText;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDrawingStrategy;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.GC;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.StyledText;
 
 import java.awt.*;
 

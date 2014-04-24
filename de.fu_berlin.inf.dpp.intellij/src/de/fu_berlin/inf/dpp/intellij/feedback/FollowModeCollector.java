@@ -27,11 +27,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
@@ -94,7 +94,7 @@ public class FollowModeCollector extends AbstractStatisticCollector
     protected List<FollowModeToggleEvent> followModeChangeEvents = Collections
             .synchronizedList(new ArrayList<FollowModeToggleEvent>());
 
-    private final EditorManager editorManager;
+    private final IEditorManager editorManager;
 
     protected ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
 
@@ -129,7 +129,7 @@ public class FollowModeCollector extends AbstractStatisticCollector
     };
 
     public FollowModeCollector(StatisticManager statisticManager,
-            ISarosSession session, EditorManager editorManager) {
+            ISarosSession session, IEditorManager editorManager) {
         super(statisticManager, session);
         this.editorManager = editorManager;
     }

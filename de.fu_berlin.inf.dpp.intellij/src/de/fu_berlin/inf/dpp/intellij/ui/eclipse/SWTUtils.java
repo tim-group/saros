@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Display;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Display;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 

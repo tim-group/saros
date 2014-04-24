@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
 
 import javax.swing.*;
 
@@ -69,7 +70,7 @@ public class NotImplementedAction extends AbstractSarosAction
 
         log.info("Not implemented action [" + name + "]");
 
-        JOptionPane.showMessageDialog(guiFrame, "We are sorry, but action [" + name + "] not implemented yet!", "Not Implemented", JOptionPane.ERROR_MESSAGE);
+        DialogUtil.showError("We are sorry, but action [" + name + "] not implemented yet!", "Not Implemented");
 
         actionFinished();
     }

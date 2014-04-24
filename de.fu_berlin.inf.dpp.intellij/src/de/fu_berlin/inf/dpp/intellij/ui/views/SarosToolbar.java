@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
@@ -151,15 +152,24 @@ public class SarosToolbar implements SarosActionListener
      */
     private void initButtons()
     {
-        JButton btnConnect = toolbarButtons.get(ConnectServerAction.NAME);
-        for (JButton button : toolbarButtons.values())
+        Runnable action = new Runnable()
         {
-            if (btnConnect != button)
+            @Override
+            public void run()
             {
-                button.setEnabled(saros.isConnected());
+                JButton btnConnect = toolbarButtons.get(ConnectServerAction.NAME);
+                for (JButton button : toolbarButtons.values())
+                {
+                    if (btnConnect != button)
+                    {
+                        button.setEnabled(saros.isConnected());
+                    }
+                }
+                btnConnect.setEnabled(true); //always enabled!
             }
-        }
-        btnConnect.setEnabled(true); //always enabled!
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(action);
     }
 
 

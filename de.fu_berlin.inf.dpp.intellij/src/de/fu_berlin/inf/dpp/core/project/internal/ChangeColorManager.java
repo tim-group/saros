@@ -29,6 +29,7 @@ import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.editor.ColorIDSet;
 import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.invitation.UserColorID;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.session.*;
@@ -52,7 +53,7 @@ public class ChangeColorManager extends AbstractActivityProvider implements
             .getLogger(ChangeColorManager.class);
 
     private final ISarosSession sarosSession;
-    private final de.fu_berlin.inf.dpp.core.editor.IEditorManager editorManager;
+    private final IEditorManagerBase editorManager;
     private final ColorIDSetStorage colorIDSetStorage;
 
     private final Map<User, Integer> favoriteUserColors = new LinkedHashMap<User, Integer>();

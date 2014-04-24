@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -192,7 +192,7 @@ public class TextEditCollector extends AbstractStatisticCollector
      */
     protected Map<JID, Integer> remoteCharCount = new HashMap<JID, Integer>();
 
-    private final EditorManager editorManager;
+    private final IEditorManager editorManager;
 
     protected ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
 
@@ -275,7 +275,7 @@ public class TextEditCollector extends AbstractStatisticCollector
     };
 
     public TextEditCollector(StatisticManager statisticManager,
-            ISarosSession session, EditorManager editorManager) {
+            ISarosSession session, IEditorManager editorManager) {
         super(statisticManager, session);
 
         // TODO: remove

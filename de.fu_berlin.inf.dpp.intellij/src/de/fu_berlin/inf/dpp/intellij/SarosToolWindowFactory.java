@@ -23,13 +23,18 @@
 package de.fu_berlin.inf.dpp.intellij;
 
 
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-
+import com.intellij.psi.PsiManager;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.intl.WorkspaceIntl;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 
 import java.awt.*;
@@ -49,6 +54,13 @@ import java.io.File;
 
 public class SarosToolWindowFactory implements ToolWindowFactory
 {
+
+    public static Project _project;
+
+//    public static ProjectManager pm;
+//    public static FileEditorManager em;
+//    public static PsiManager psm;
+
     /**
      * Plugin starting point via IntelliJ
      *
@@ -58,12 +70,40 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow)
     {
+        _project = project;
+       /* pm =  ProjectManager.getInstance();
+        em = FileEditorManager.getInstance(project);
+        psm = PsiManager.getInstance(project);
+        _project = project;
+
+        File f = new File("c:\\Develop\\Saros\\idea\\test_projects\\testas1\\src\\test1.java");
+        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(f);
+        System.out.println("DocumentProvider.connect>>>"+vf+" exist="+vf.exists());
+
+        FileEditorManager  fem = FileEditorManager.getInstance(project);
+        System.out.println("FollowModeAction.run DefaultProject="+project);
+        System.out.println("FollowModeAction.run FileEditorManager="+ fem);
+
+        fem.openFile(vf,true);
+
+*/
+
+
+        Saros.instance().start(true);
         SarosMainPanelView stw = new SarosMainPanelView(project, toolWindow);
 
         System.out.println("SarosToolWindowFactory.createToolWindowContent PATH=" + project.getBasePath() + " NAME=" + project.getName());
 
         //   System.out.println("SarosToolWindowFactory.createToolWindowContent>>>>"+project.getWorkspaceFile().getCanonicalPath());
         Workspace.instance().createWorkSpace(new File(project.getBasePath()));
+      /*  try
+        {
+          //  WorkspaceIntl.instance().createWorkSpace(new File(project.getBasePath()));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }*/
     }
 
     /**
@@ -74,7 +114,7 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     public static void main(String[] args)
     {
 
-        Saros.instance().start(); // start saros
+        Saros.instance().start(true); // start saros
 
 
         MockInitializer.createProjects(); //todo

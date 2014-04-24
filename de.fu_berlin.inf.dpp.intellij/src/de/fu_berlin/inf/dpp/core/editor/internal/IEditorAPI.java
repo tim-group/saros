@@ -28,14 +28,13 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 
 /**
  * A humble interface that is responsible for editor functionality. The idea
  * behind this interface is to only capsulates the least possible amount of
  * functionality - the one that can't be easily tested. All higher logic can be
- * found in {@link EditorManager}.
+ * found in {@link de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl}.
  *
  * @author rdjemili
  */
@@ -124,7 +123,7 @@ public interface IEditorAPI {
      *
      * @throws IllegalArgumentException
      *             if the given editorPart does not have an ITextViewer or if
-     *             the EditorManager or EditorPart are null
+     *             the EditorManagerEcl or EditorPart are null
      *
      */
     public void addSharedEditorListener(IEditorManager editorManager,
@@ -132,16 +131,16 @@ public interface IEditorAPI {
 
     /**
      * Removes the listener to the given editor for the given manager previously
-     * added via {@link #addSharedEditorListener(EditorManager, IEditorPart)}.
+     * added via {@link #addSharedEditorListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl, IEditorPart)}.
      *
      * @swt Needs to be called from the SWT-UI thread.
      *
      * @throws IllegalArgumentException
-     *             if the EditorManager or EditorPart are null
+     *             if the EditorManagerEcl or EditorPart are null
      *
      * @throws IllegalStateException
      *             if the given editorPart has never been registered via
-     *             {@link #addSharedEditorListener(EditorManager, IEditorPart)}.
+     *             {@link #addSharedEditorListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl, IEditorPart)}.
      */
     public void removeSharedEditorListener(IEditorManager editorManager,
             IEditorPart editorPart);
@@ -161,22 +160,22 @@ public interface IEditorAPI {
 
     /**
      * Removes a previously registered PartListener added via
-     * {@link #addEditorPartListener(EditorManager)}.
+     * {@link #addEditorPartListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl)}.
      *
      * @swt Needs to be called from the SWT-UI thread.
      *
      * @throws IllegalArgumentException
-     *             if the EditorManager is null
+     *             if the EditorManagerEcl is null
      *
      * @throws IllegalStateException
-     *             if the given EditorManager has never been registered via
-     *             {@link #addEditorPartListener(EditorManager)}
+     *             if the given EditorManagerEcl has never been registered via
+     *             {@link #addEditorPartListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl)}
      */
     public void removeEditorPartListener(IEditorManager editorManager);
 
     /**
      * Register a PartListener on the currently active WorkbenchWindow using the
-     * given EditorManager as callback.
+     * given EditorManagerEcl as callback.
      *
      * If a part listener is already registered for the given editorManager it
      * is removed before adding a new listener (but a warning will be printed!)
@@ -184,7 +183,7 @@ public interface IEditorAPI {
      * @swt Needs to be called from the SWT-UI thread.
      *
      * @throws IllegalArgumentException
-     *             if the EditorManager is null
+     *             if the EditorManagerEcl is null
      */
     public void addEditorPartListener(IEditorManager editorManager);
 

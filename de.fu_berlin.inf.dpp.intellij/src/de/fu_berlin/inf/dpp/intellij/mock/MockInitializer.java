@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.mock;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 
 import java.io.File;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class MockInitializer
         projects.mkdirs();
         Workspace.instance().createWorkSpace(new File(projects.getAbsolutePath()));
 
-        // Workspace.instance().createWorkSpace(new File("c:\\Develop\\Saros\\idea\\test\\"));
+        // WorkspaceIntl.instance().createWorkSpace(new File("c:\\Develop\\Saros\\idea\\test\\"));
     }
 
     public static void initSecurePrefStore(ISecurePreferences securePrefs)
@@ -69,10 +69,10 @@ public class MockInitializer
     {
         Map<String, IProject> projects = new HashMap<String, IProject>();
 
-        // Project p1 = new Project("Testas");
+        // ProjectIntl p1 = new ProjectIntl("Testas");
         //  projects.put(p1.getName(),p1);
 
-        // Project p2 = new Project("RemoteSystemsTempFiles");
+        // ProjectIntl p2 = new ProjectIntl("RemoteSystemsTempFiles");
         //  projects.put(testProject.getName(), testProject);
 
         return projects;

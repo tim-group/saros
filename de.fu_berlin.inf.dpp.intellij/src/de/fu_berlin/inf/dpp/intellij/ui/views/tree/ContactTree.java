@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.net.IRosterListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
@@ -142,8 +143,17 @@ public class ContactTree extends AbstractTree implements IRosterListener
                 info.setIcon(IconManager.contactOfflineIcon);
             }
 
-            this.rootTree.getJtree().collapseRow(2);
-            this.rootTree.getJtree().expandRow(2);
+            Runnable action = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    rootTree.getJtree().collapseRow(2);
+                    rootTree.getJtree().expandRow(2);
+                }
+            };
+
+            UIUtil.invokeAndWaitIfNeeded(action);
         }
 
 

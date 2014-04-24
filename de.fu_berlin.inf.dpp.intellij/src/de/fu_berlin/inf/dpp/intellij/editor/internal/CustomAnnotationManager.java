@@ -22,12 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.internal;
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDrawingStrategy;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IPainter;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.ISourceViewer;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.Annotation;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.AnnotationPainter;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.DefaultMarkerAnnotationAccess;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDrawingStrategy;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IPainter;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.ISourceViewer;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.AnnotationPainter;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.DefaultMarkerAnnotationAccess;
 
 import java.util.Arrays;
 import java.util.HashMap;

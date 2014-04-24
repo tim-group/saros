@@ -33,13 +33,13 @@ import java.util.Queue;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationModel;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationModelExtension;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IPropertyChangeListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModelExtension;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IPropertyChangeListener;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.ContributionAnnotation;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.Annotation;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Position;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.events.PropertyChangeEvent;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Position;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.events.PropertyChangeEvent;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import org.apache.log4j.Logger;
 
@@ -73,7 +73,7 @@ public class ContributionAnnotationManager {
         public void userLeft(User user) {
             /*
              * Just remove the annotations from the history. They are removed by
-             * the EditorManager from the editors.
+             * the EditorManagerEcl from the editors.
              */
             sourceToHistory.remove(user);
         }

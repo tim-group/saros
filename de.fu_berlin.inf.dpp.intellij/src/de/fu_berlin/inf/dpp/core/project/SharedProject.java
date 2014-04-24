@@ -345,7 +345,7 @@ public class SharedProject {
      * Adds the resource, and recursively adds its decendants if it's a
      * IContainer.
      */
-    protected void addAll(IResource resource) throws CoreException, IOException {
+    protected void addAll(IResource resource) throws Exception {
         add(resource);
         if (resource instanceof IContainer) {
             IContainer container = (IContainer) resource;

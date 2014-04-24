@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.annotations;
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 

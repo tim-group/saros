@@ -37,16 +37,17 @@ import de.fu_berlin.inf.dpp.core.project.internal.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.concurrent.UndoManager;
 import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPIBridge;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPI;
-import de.fu_berlin.inf.dpp.intellij.project.PathFactory;
-import de.fu_berlin.inf.dpp.intellij.project.Workspace;
+import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPIEcl;
 import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -64,6 +65,8 @@ import java.util.Arrays;
 public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 {
 
+
+
     private final ISarosContextFactory additionalContext;
 
     private final Saros saros;
@@ -74,11 +77,12 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             Component.create(SarosSessionManager.class),
 
             // Core Managers
-            Component.create(ConsistencyWatchdogClient.class),
+          //  Component.create(ConsistencyWatchdogClient.class),   //todo  1
 
             //   Component.create(EditorAPI.class),
-            Component.create(IEditorAPI.class, EditorAPI.class),
-            //  Component.create(EditorManager.class),
+            Component.create(IEditorAPI.class, EditorAPIEcl.class),
+            //  Component.create(EditorManagerEcl.class),
+           // Component.create(IEditorManager.class, EditorManagerEcl.class),
             Component.create(IEditorManager.class, EditorManager.class),
             // disabled because of privacy violations
             // see
@@ -118,8 +122,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 //            Component.create(IChecksumCache.class, new ChecksumCacheImpl(
 //                    new FileContentNotifierBridge())),
 
-            // Saros Core PathImp Support
-            Component.create(IPathFactory.class, PathFactory.class),
+
 
             // SWT EDT support
             Component.create(UISynchronizer.class, SWTSynchronizer.class),
@@ -140,13 +143,22 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
         this.additionalContext = delegate;
     }
 
+
     @Override
     public void createComponents(MutablePicoContainer container)
     {
+        IWorkspace workspace = Saros.instance().getWorkspace();
+        FileList.workspace = workspace;
+        FileListDiff.workspace = workspace;
 
         container.addComponent(IPreferenceStore.class, saros.getConfigPrefs());
         container.addComponent(ISecurePreferences.class, saros.getSecurePrefs());
-        container.addComponent(IWorkspace.class, Workspace.instance());
+
+        // Saros Core PathIntl Support
+        container.addComponent(IPathFactory.class, workspace.getPathFactory());
+
+
+        container.addComponent(IWorkspace.class, workspace);
 
         if (additionalContext != null)
         {

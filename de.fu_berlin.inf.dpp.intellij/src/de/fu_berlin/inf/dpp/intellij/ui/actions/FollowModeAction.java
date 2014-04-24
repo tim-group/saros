@@ -22,10 +22,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.vfs.VirtualFile;
+import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
 import org.jivesoftware.smack.RosterEntry;
 
-import javax.swing.*;
+import java.io.File;
 import java.util.Collection;
 
 
@@ -43,10 +49,14 @@ public class FollowModeAction extends AbstractSarosAction
 {
     public static final String NAME = "follow";
 
+
+    public static File file = new File("c:\\Develop\\Saros\\idea\\test_projects\\testas1\\src\\test1.java");
+
     @Override
     public String getActionName()
     {
         return NAME;
+
     }
 
     @Override
@@ -64,7 +74,29 @@ public class FollowModeAction extends AbstractSarosAction
             log.info(entry);
         }
 
-        JOptionPane.showMessageDialog(guiFrame, "We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented", JOptionPane.ERROR_MESSAGE);
+
+
+        EditorAPI api = new EditorAPI(SarosToolWindowFactory._project);
+        VirtualFile vf = api.toVirtualFile(FollowModeAction.file);
+
+
+        if(api.isOpen(vf))
+        {
+            System.out.println("FollowModeAction.run CLOSE "+vf);
+            api.closeEditor(vf);
+        }
+         else
+        {
+            System.out.println("FollowModeAction.run OPEN "+vf);
+           Editor edit = api.openEditor(vf);
+            Document doc = api.createDocument(vf);
+            //Editor edit = api.openEditor(doc);
+            System.out.println("FollowModeAction.run>>>"+edit.getDocument().getLineNumber(1));
+
+
+        }
+
+        DialogUtil.showError("We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented");
 
         actionFinished();
     }

@@ -24,11 +24,16 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -43,6 +48,7 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
     private RootTree rootTree;
+    private List<DefaultMutableTreeNode> sessionNodeList = new ArrayList<DefaultMutableTreeNode>();
 
     /**
      * @param parent
@@ -97,8 +103,11 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     public void sessionStarted(ISarosSession newSarosSession)
     {
 
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
-        add(node);
+        DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
+
+        this.sessionNodeList.add(nSession);
+
+        add(nSession);
 
         setTitle(TREE_TITLE);
 
@@ -126,6 +135,7 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             if (sessionInfo.getSession().getID().equalsIgnoreCase(oldSarosSession.getID()))
             {
                 remove(node);
+                sessionNodeList.remove(node);
             }
             else
             {
@@ -145,8 +155,24 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
     @Override
     public void projectAdded(String projectID)
     {
-        //todo
-        System.out.println("SarosTreeView.projectAdded //todo");
+
+        //iterate projects in sessions
+        for (DefaultMutableTreeNode nSession : sessionNodeList)
+        {
+            IProject p = ((SessionInfo) nSession.getUserObject()).getSession().getProject(projectID);
+            DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(new ProjectInfo(p));
+            nSession.add(nProject);
+
+            //todo: expand node
+            for (TreeNode path : nSession.getPath())
+            {
+                System.out.println("SessionTree.projectAdded>>>" + path);
+                rootTree.getJtree().collapsePath(new TreePath(path));
+                rootTree.getJtree().expandPath(new TreePath(path));
+            }
+        }
+
+
     }
 
     /**
@@ -172,5 +198,24 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             return session;
         }
 
+    }
+
+    /**
+     *
+     */
+    protected class ProjectInfo extends LeafInfo
+    {
+        private IProject project;
+
+        public ProjectInfo(IProject project)
+        {
+            super(project.getFullPath().toString(), project.getName());
+            this.project = project;
+        }
+
+        public IProject getProject()
+        {
+            return project;
+        }
     }
 }

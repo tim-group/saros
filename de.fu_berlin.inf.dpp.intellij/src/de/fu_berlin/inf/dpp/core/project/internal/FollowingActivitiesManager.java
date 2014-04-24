@@ -27,11 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
@@ -61,7 +61,7 @@ public class FollowingActivitiesManager extends AbstractActivityProducerAndConsu
     protected AwarenessInformationCollector awarenessInformationCollector;
 
     public FollowingActivitiesManager(ISarosSessionManager sessionManager,
-            EditorManager editorManager,
+            IEditorManager editorManager,
             AwarenessInformationCollector awarenessInformationCollector) {
         this.awarenessInformationCollector = awarenessInformationCollector;
         sessionManager.addSarosSessionListener(sessionListener);

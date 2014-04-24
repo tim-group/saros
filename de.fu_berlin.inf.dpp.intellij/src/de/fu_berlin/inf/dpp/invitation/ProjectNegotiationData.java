@@ -2,6 +2,8 @@ package de.fu_berlin.inf.dpp.invitation;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
+import org.picocontainer.annotations.Inject;
 
 /**
  * This class contains all the information that the remote user needs during a
@@ -26,6 +28,8 @@ public class ProjectNegotiationData {
 
     @XStreamAlias("filelist")
     private final FileList fileList;
+
+
 
     /**
      *

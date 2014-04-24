@@ -26,7 +26,11 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.RemoteEditorManager;
+import de.fu_berlin.inf.dpp.session.IActivityProducerAndConsumer;
 
+import java.io.FileNotFoundException;
 import java.util.Set;
 
 /**
@@ -36,17 +40,9 @@ import java.util.Set;
  * Time: 12.32
  */
 
-public interface IEditorManager
+public interface IEditorManager extends IEditorManagerBase, IActivityProducerAndConsumer
 {
-    void colorChanged();
 
-    void refreshAnnotations();
-
-    void setAllLocalOpenedEditorsLocked(boolean locked);
-
-    Set<SPath> getOpenEditorsOfAllParticipants();
-
-    void saveText(SPath path);
 
     void generateSelection(IEditorPart part, ITextSelection newSelection);
 
@@ -59,4 +55,18 @@ public interface IEditorManager
     void partClosed(IEditorPart editor);
 
     void partInputChanged(IEditorPart editor);
+
+    RemoteEditorManager getRemoteEditorManager();
+
+    boolean isActiveEditorShared();
+
+    void addSharedEditorListener(ISharedEditorListener listener);
+
+    void removeSharedEditorListener(ISharedEditorListener listener);
+
+
+    void saveLazy(SPath path) throws FileNotFoundException;
+
+    Set<SPath> getLocallyOpenEditors();
+    Set<SPath> getRemoteOpenEditors();
 }

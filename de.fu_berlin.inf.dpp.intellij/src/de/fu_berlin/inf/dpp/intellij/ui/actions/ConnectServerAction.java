@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 
@@ -129,16 +130,14 @@ public class ConnectServerAction extends AbstractSarosAction
         {
             //throw new RuntimeException("No current account set!"); //todo: open dialog
 
-            //  final String jabberID = Messages.showInputDialog(saros.getProject(), "Your Jabber-ID (e.g. 'dev1_alice_stf')", "What are your credentials?", Messages.getQuestionIcon());
-            //  final String password = Messages.showInputDialog(saros.getProject(), "Password (e.g. 'dev')", "What are your credentials?", Messages.getQuestionIcon());
 
-            final String jabberID = JOptionPane.showInputDialog(guiFrame, "Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf");
+            final String jabberID = DialogUtil.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf");
             if (jabberID == null)
             {
                 actionFinished();
                 return;
             }
-            final String password = JOptionPane.showInputDialog(guiFrame, "Password (e.g. 'dev')", "dev");
+            final String password = DialogUtil.showInputDialog("Password (e.g. 'dev')", "dev");
             if (password == null)
             {
                 actionFinished();

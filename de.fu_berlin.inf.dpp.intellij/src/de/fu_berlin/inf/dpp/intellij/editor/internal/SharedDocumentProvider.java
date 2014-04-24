@@ -27,8 +27,8 @@ import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IFileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.TextFileDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IFileEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.TextFileDocumentProvider;
 import org.apache.log4j.Logger;
 
 import org.picocontainer.annotations.Inject;

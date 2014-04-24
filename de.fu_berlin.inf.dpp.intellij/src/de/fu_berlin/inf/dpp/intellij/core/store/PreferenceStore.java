@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.events.IPropertyChangeListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IPropertyChangeListener;
 
 import java.io.IOException;
 import java.util.Properties;

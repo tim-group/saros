@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.editor.annotations;
 
 
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Canvas;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.Display;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.GC;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IAnnotationPresentation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Canvas;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Display;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.GC;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationPresentation;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 

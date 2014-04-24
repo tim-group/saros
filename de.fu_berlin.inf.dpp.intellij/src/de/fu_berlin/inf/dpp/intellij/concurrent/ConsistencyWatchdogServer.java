@@ -31,12 +31,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.intl.ui.IDocumentProvider;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
 import org.apache.log4j.Logger;
 
 import org.picocontainer.Startable;
@@ -86,7 +87,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
 
     private final HashMap<SPath, DocumentChecksum> docsChecksums = new HashMap<SPath, DocumentChecksum>();
 
-    private final EditorManager editorManager;
+    private final IEditorManager editorManager;
 
     private final ISarosSession session;
 
@@ -113,7 +114,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
     };
 
     public ConsistencyWatchdogServer(ISarosSession session,
-            EditorManager editorManager, StopManager stopManager,
+            IEditorManager editorManager, StopManager stopManager,
             UISynchronizer synchronizer) {
         this.session = session;
         this.editorManager = editorManager;
@@ -241,7 +242,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
 
             if (file.exists()) {
                 input = new FileEditorInput(file);
-                provider = EditorManager.getDocumentProvider(input);
+                provider = EditorManagerEcl.getDocumentProvider(input);
                 try {
                     provider.connect(input);
                     doc = provider.getDocument(input);
@@ -255,7 +256,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
             if (doc == null) {
 
                 if (localEditors.contains(docPath)) {
-                    LOG.error("EditorManager is in an inconsistent state. "
+                    LOG.error("EditorManagerEcl is in an inconsistent state. "
                             + "It is reporting a locally open editor but no"
                             + " document could be found in the underlying file system: "
                             + docPath);
