@@ -243,8 +243,8 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
         @Override
         public void projectAdded(String projectID)
         {
-
-            System.out.println("EditorManager.projectAdded");
+            //todo
+            System.out.println("EditorManager.projectAdded //todo");
 //            SWTUtils.runSafeSWTSync(log, new Runnable()
 //            {
 //

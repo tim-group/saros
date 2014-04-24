@@ -166,7 +166,7 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             //todo: expand node
             for (TreeNode path : nSession.getPath())
             {
-                System.out.println("SessionTree.projectAdded>>>" + path);
+
                 rootTree.getJtree().collapsePath(new TreePath(path));
                 rootTree.getJtree().expandPath(new TreePath(path));
             }

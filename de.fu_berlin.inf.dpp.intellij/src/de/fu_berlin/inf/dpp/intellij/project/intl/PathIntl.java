@@ -20,8 +20,32 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.project.fs;
+/*
+ *
+ *  DPP - Serious Distributed Pair Programming
+ *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
+ *  (c) NFQ (www.nfq.com) - 2014
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 1, or (at your option)
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * /
+ */
 
+package de.fu_berlin.inf.dpp.intellij.project.intl;
+
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 
 import java.io.File;
@@ -36,29 +60,41 @@ import java.util.List;
  * Time: 11.41
  */
 
-public class PathImp implements IPath, Comparable<PathImp>
+public class PathIntl implements IPath, Comparable<PathIntl>
 {
+    private VirtualFile virtualFile;
     public static final String FILE_SEPARATOR = "/";
 
     private String _path;
 
-    public PathImp(String path)
+    public PathIntl(VirtualFile virtualFile)
     {
-        this._path = path;
+        this.virtualFile = virtualFile;
+        this._path = virtualFile.getPath() ;
         _path = toPortableString();
     }
 
-    public PathImp(File file)
+    public PathIntl(String path)
+    {
+        this._path = path;
+        this._path = toPortableString();
+        this.virtualFile =  LocalFileSystem.getInstance().findFileByIoFile(new File(path));
+    }
+
+    public PathIntl(File file)
     {
         this._path = file.getPath();
         _path = toPortableString();
+        this.virtualFile =  LocalFileSystem.getInstance().findFileByIoFile(file);
     }
+
+
 
     @Override
     public IPath append(IPath path)
     {
-        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path + path.toPortableString())
-                : new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
+        return _path.endsWith(FILE_SEPARATOR) ? new PathIntl(_path + path.toPortableString())
+                : new PathIntl(_path + FILE_SEPARATOR + path.toPortableString());
     }
 
     @Override
@@ -92,7 +128,7 @@ public class PathImp implements IPath, Comparable<PathImp>
         String[] segments = _path.split(FILE_SEPARATOR);
         segments = Arrays.copyOf(segments,segments.length - count);
 
-        return new PathImp(join(segments));
+        return new PathIntl(join(segments));
     }
 
     @Override
@@ -101,7 +137,7 @@ public class PathImp implements IPath, Comparable<PathImp>
         String[] segments = _path.split(FILE_SEPARATOR);
         segments = Arrays.copyOfRange(segments,count,segments.length);
 
-        return new PathImp(join(segments));
+        return new PathIntl(join(segments));
     }
 
     @Override
@@ -113,6 +149,7 @@ public class PathImp implements IPath, Comparable<PathImp>
     @Override
     public String[] segments()
     {
+
         String[] array = _path.split(FILE_SEPARATOR);
         List<String> list = new ArrayList<String>();
 
@@ -131,20 +168,20 @@ public class PathImp implements IPath, Comparable<PathImp>
     @Override
     public IPath append(String path)
     {
-        return new PathImp(_path.endsWith(FILE_SEPARATOR) ? _path + path : _path + FILE_SEPARATOR + path);
+        return new PathIntl(_path.endsWith(FILE_SEPARATOR) ? _path + path : _path + FILE_SEPARATOR + path);
     }
 
     @Override
     public IPath addTrailingSeparator()
     {
-        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path) : new PathImp(_path + FILE_SEPARATOR);
+        return _path.endsWith(FILE_SEPARATOR) ? new PathIntl(_path) : new PathIntl(_path + FILE_SEPARATOR);
 
     }
 
     @Override
     public IPath addFileExtension(String extension)
     {
-        return new PathImp(_path + "." + extension);
+        return new PathIntl(_path + "." + extension);
     }
 
     @Override
@@ -155,13 +192,13 @@ public class PathImp implements IPath, Comparable<PathImp>
         {
             path = path.substring(0, path.lastIndexOf("."));
         }
-        return new PathImp(path);
+        return new PathIntl(path);
     }
 
     @Override
     public IPath makeAbsolute()
     {
-        return new PathImp(new File(_path).getAbsolutePath());
+        return new PathIntl(new File(_path).getAbsolutePath());
     }
 
     @Override
@@ -210,9 +247,14 @@ public class PathImp implements IPath, Comparable<PathImp>
     }
 
     @Override
-    public String getAdapter()
+    public <T> T getAdapter()
     {
-        return _path;
+        return null;
+    }
+
+    public VirtualFile getVirtualFile()
+    {
+        return virtualFile;
     }
 
     public String toString()
@@ -221,11 +263,10 @@ public class PathImp implements IPath, Comparable<PathImp>
     }
 
     @Override
-    public int compareTo(PathImp o)
+    public int compareTo(PathIntl o)
     {
         return this._path.compareTo(o._path);
     }
-
 
     @Override
     public int hashCode()
@@ -236,10 +277,10 @@ public class PathImp implements IPath, Comparable<PathImp>
     @Override
     public boolean equals(Object obj)
     {
-        if(!(obj instanceof PathImp))
+        if(!(obj instanceof PathIntl))
             return false;
 
-        PathImp other = (PathImp) obj;
+        PathIntl other = (PathIntl) obj;
 
         return this._path.equalsIgnoreCase(other._path);
     }

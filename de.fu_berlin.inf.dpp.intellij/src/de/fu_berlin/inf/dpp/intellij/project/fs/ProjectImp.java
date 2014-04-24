@@ -41,7 +41,7 @@ import java.util.Map;
  * Time: 15.37
  */
 
-public class ProjectImp implements IProject, Comparable<ProjectImp>
+public class ProjectImp implements IProject
 {
     private String name;
     private File path;
@@ -421,15 +421,30 @@ public class ProjectImp implements IProject, Comparable<ProjectImp>
         return path;
     }
 
-
-    @Override
-    public int compareTo(ProjectImp o)
-    {
-        return getName().compareTo(o.getName()); //todo: make better comparison
-    }
-
     public String toString()
     {
         return super.toString() + " [" + name + "]";
+    }
+
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 1;
+        hash = hash * 17 + this.name.hashCode();
+        hash = hash * 31 + this.path.hashCode();
+        return hash;
+
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(!(obj instanceof ProjectImp))
+            return false;
+
+        ProjectImp other = (ProjectImp)obj;
+
+        return this.name.equals(other.name) && this.path.equals(other.path);
     }
 }
