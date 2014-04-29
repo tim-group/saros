@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -111,7 +112,15 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
 
         setTitle(TREE_TITLE);
 
-        this.rootTree.getJtree().expandRow(1);
+        UIUtil.invokeAndWaitIfNeeded(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                rootTree.getJtree().expandRow(1);
+            }
+        });
+
 
     }
 
@@ -148,8 +157,16 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             setTitle(TREE_TITLE_NO_SESSIONS);
         }
 
-        this.rootTree.getJtree().expandRow(1);
-        this.rootTree.getJtree().collapseRow(1);
+        SwingUtilities.invokeLater( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                rootTree.getJtree().expandRow(1);
+                rootTree.getJtree().collapseRow(1);
+            }
+        });
+
     }
 
     @Override
@@ -164,12 +181,12 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             nSession.add(nProject);
 
             //todo: expand node
-            for (TreeNode path : nSession.getPath())
-            {
-
-                rootTree.getJtree().collapsePath(new TreePath(path));
-                rootTree.getJtree().expandPath(new TreePath(path));
-            }
+//            for (TreeNode path : nSession.getPath())
+//            {
+//
+//                rootTree.getJtree().collapsePath(new TreePath(path));
+//                rootTree.getJtree().expandPath(new TreePath(path));
+//            }
         }
 
 

@@ -243,6 +243,9 @@ public abstract class VCSAdapter
      */
     public static VCSAdapter getAdapter(IProject project)
     {
+        if(vcsFactory==null)
+            return null;
+
        IRepositoryProvider provider = vcsFactory.getProvider(project);
 
        if (!provider.isShared(project))

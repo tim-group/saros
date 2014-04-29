@@ -143,7 +143,7 @@ public final class ActivityHandler implements Startable
 
     public synchronized void handleIncomingActivities(List<IActivity> activities)
     {
-        System.out.println("ActivityHandler.handleIncomingActivities>>>"+activities);
+        System.out.println("ActivityHandler.handleIncomingActivities>>>h="+session.isHost()+" "+activities);
 
 
         if (session.isHost())
@@ -417,6 +417,7 @@ public final class ActivityHandler implements Startable
                         }
                         catch (Exception e)
                         {
+                            e.printStackTrace();
                             LOG.error(
                                     "failed to execute activity: " + activity, e);
                         }

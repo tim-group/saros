@@ -285,6 +285,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 if(iProject==null)
                     continue;
 
+                iProject.refreshLocal();
+
                 if (isPartialRemoteProject(projectID))
                 {
                     List<IPath> paths = getRemoteFileList(projectID).getPaths();
@@ -310,6 +312,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             exception = e;
         }
         finally

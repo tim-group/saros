@@ -44,6 +44,9 @@ public class PathImp implements IPath, Comparable<PathImp>
 
     public PathImp(String path)
     {
+        if(path.startsWith("\\") || path.startsWith("/"))
+            path = path.substring(1);
+
         this._path = path;
         _path = toPortableString();
     }

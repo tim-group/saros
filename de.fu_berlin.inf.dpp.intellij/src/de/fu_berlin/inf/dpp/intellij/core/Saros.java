@@ -274,7 +274,7 @@ public class Saros extends AbstractSaros
     sarosVersion = getBundle().getVersion().toString();
 
     log.info("Starting Saros " + sarosVersion + " running:\n"
-            + Utils.getPlatformInfo());
+            + TreeUtils.getPlatformInfo());
 
     sarosContext = new SarosContext(new SarosEclipseContextFactory(this,
             new SarosCoreContextFactory()), dotMonitor);
@@ -343,7 +343,7 @@ public class Saros extends AbstractSaros
         sarosVersion = getBundle().getVersion().toString();
 
         log.info("Starting Saros " + sarosVersion + " running:\n"
-                + Utils.getPlatformInfo());
+                + TreeUtils.getPlatformInfo());
 
         sarosContext = new SarosContext(new SarosEclipseContextFactory(this,
                 new SarosCoreContextFactory()), dotMonitor);

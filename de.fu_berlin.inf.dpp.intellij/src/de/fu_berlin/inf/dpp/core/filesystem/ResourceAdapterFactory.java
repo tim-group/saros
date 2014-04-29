@@ -150,7 +150,7 @@ public class ResourceAdapterFactory
     {
         if (resource == null)
         {
-            return null;
+            return resource;
         }
 
         //todo: why that is needed?

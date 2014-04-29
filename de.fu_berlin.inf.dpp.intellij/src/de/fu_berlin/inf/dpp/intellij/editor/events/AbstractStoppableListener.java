@@ -20,19 +20,27 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.intellij.editor.events;
 
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+/**
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 2014-04-28
+ * Time: 17:09
+ */
 
-import java.io.File;
-
-
-public interface ISchedulingRoot
+public abstract class AbstractStoppableListener
 {
+    protected boolean enabled = true;
 
-    IProject getProject(String project);
-
-    IProject addProject(String title, File file);
-
-    IProject getDefaultProject();
+    /**
+     * Enables or disables the forwarding of text changes. Default is enabled.
+     *
+     * @param enabled <code>true</code> to forward text changes, <code>false</code>
+     *                otherwise
+     */
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+    }
 }

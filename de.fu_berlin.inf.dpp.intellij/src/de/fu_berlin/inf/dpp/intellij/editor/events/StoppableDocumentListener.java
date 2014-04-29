@@ -42,57 +42,89 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor;
+package de.fu_berlin.inf.dpp.intellij.editor.events;
 
 
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocumentListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.events.DocumentEvent;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+
 
 /**
  * A document listener which informs the given EditorManagerEcl of changes before
  * they occur in a document (using documentAboutToBeChanged). </p> This listener
  * can be temporarily disabled which prevents the notification of text change
  * events.
- *
  */
-public class StoppableDocumentListener implements IDocumentListener
+public class StoppableDocumentListener extends AbstractStoppableListener implements DocumentListener
 {
 
     private final EditorManager editorManager;
+    private Document document;
 
-    private boolean enabled = true;
-
-    StoppableDocumentListener(EditorManager editorManager) {
+    public StoppableDocumentListener(EditorManager editorManager)
+    {
         this.editorManager = editorManager;
     }
 
     @Override
-    public void documentAboutToBeChanged(final DocumentEvent event) {
-
+    public void beforeDocumentChange(DocumentEvent event)
+    {
         if (!enabled)
+        {
             return;
+        }
 
-        String text = event.getText() == null ? "" : event.getText();
-
-        editorManager.textAboutToBeChanged(event.getOffset(), text,
-                event.getLength(), event.getDocument());
-
+        editorManager.textAboutToBeChanged(event);
     }
 
     @Override
-    public void documentChanged(final DocumentEvent event) {
+    public void documentChanged(DocumentEvent documentEvent)
+    {
         // do nothing. We handled everything in documentAboutToBeChanged
     }
 
-    /**
-     * Enables or disables the forwarding of text changes. Default is enabled.
-     *
-     * @param enabled
-     *            <code>true</code> to forward text changes, <code>false</code>
-     *            otherwise
-     *
-     */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public EditorManager getEditorManager()
+    {
+        return editorManager;
+    }
+
+    public Document getDocument()
+    {
+        return document;
+    }
+
+    public void setDocument(Document document)
+    {
+        if(document !=null)
+        {
+            if (this.document == null)
+            {
+                this.document = document;
+                this.document.addDocumentListener(this);
+            }
+            else if (this.document != document)
+            {
+                this.document.removeDocumentListener(this);
+                this.document = document;
+
+                this.document.addDocumentListener(this);
+            }
+            else
+            {
+                //do nothing, as we listen that document
+            }
+        }
+        else
+        {
+            if(this.document != null)
+            {
+                this.document.removeDocumentListener(this);
+                this.document = null;
+            }
+
+        }
+
     }
 }

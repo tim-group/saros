@@ -24,10 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.vfs.VirtualFile;
+import de.fu_berlin.inf.dpp.activities.SPath;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -38,51 +39,73 @@ import java.util.Map;
 
 public class EditorPool
 {
-    private Map<VirtualFile, Editor> editors = new HashMap<VirtualFile, Editor>();
-    private Map<VirtualFile, Document> documents = new HashMap<VirtualFile, Document>();
+    private Map<SPath, Editor> editors = new HashMap<SPath, Editor>();
+    private Map<SPath, Document> documents = new HashMap<SPath, Document>();
+    private Map<Document, SPath> files = new HashMap<Document, SPath>();
 
     public EditorPool()
     {
     }
 
-    public void add(VirtualFile file, Editor editor)
+    public void add(SPath file, Editor editor)
     {
         editors.put(file, editor);
-        documents.put(file, editor.getDocument());
+        add(file, editor.getDocument());
     }
 
-    public void add(VirtualFile file, Document document)
+    public void add(SPath file, Document document)
     {
         documents.put(file, document);
+        files.put(document, file);
     }
 
-    public void remove(VirtualFile file)
+    public void remove(SPath file)
     {
         if (editors.containsKey(file))
         {
             editors.remove(file);
         }
 
-        if(documents.containsKey(file))
+        Document doc = null;
+        if (documents.containsKey(file))
         {
-           documents.remove(file);
+            doc = documents.remove(file);
         }
+
+        if (doc != null)
+        {
+            files.remove(doc);
+        }
+
+
     }
 
-    public Document getDocument(VirtualFile file)
+    public Document getDocument(SPath file)
     {
         return documents.get(file);
     }
 
-    public Editor getEditor(VirtualFile file)
+    public Editor getEditor(SPath file)
     {
         return editors.get(file);
+    }
+
+    public SPath getFile(Document doc)
+    {
+        return files.get(doc);
+    }
+
+    public Set<SPath> getFiles()
+    {
+        return documents.keySet();
+
     }
 
     public void clear()
     {
         documents.clear();
         editors.clear();
+        files.clear();
     }
 
 }

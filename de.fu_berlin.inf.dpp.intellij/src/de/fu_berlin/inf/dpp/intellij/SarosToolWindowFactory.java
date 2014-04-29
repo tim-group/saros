@@ -90,12 +90,15 @@ public class SarosToolWindowFactory implements ToolWindowFactory
 
 
         Saros.instance().start(true);
+        Saros.instance().setProject(project);
+
         SarosMainPanelView stw = new SarosMainPanelView(project, toolWindow);
 
         System.out.println("SarosToolWindowFactory.createToolWindowContent PATH=" + project.getBasePath() + " NAME=" + project.getName());
 
         //   System.out.println("SarosToolWindowFactory.createToolWindowContent>>>>"+project.getWorkspaceFile().getCanonicalPath());
-        Workspace.instance().createWorkSpace(new File(project.getBasePath()));
+       // Workspace.instance().createWorkSpace(new File(project.getBasePath()).getParentFile());
+        Workspace.instance().setPath(new File(project.getBasePath()));
       /*  try
         {
           //  WorkspaceIntl.instance().createWorkSpace(new File(project.getBasePath()));

@@ -81,7 +81,7 @@ public class SWTSynchronizer implements UISynchronizer
             }
 
         }
-        catch (SWTException e)
+        catch (Exception e)
         {
 
             if (PlatformUI.getWorkbench().isClosing())

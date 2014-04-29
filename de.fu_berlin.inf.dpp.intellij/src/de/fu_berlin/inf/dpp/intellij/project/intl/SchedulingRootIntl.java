@@ -46,11 +46,14 @@ package de.fu_berlin.inf.dpp.intellij.project.intl;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.util.InvalidDataException;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,18 +127,34 @@ public class SchedulingRootIntl implements ISchedulingRoot
         return defaultProject;
     }
 
-    public void addProject(String name, File path) throws Exception
+    public IProject addProject(String name, File path)
     {
         log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
-        Project project = projectManager.loadAndOpenProject(name);
-
-        if(project!=null)
+        try
         {
-            IProject prj = new ProjectIntl(project);
-            projects.put(project.getName(), prj);
+            Project project = projectManager.loadAndOpenProject(name);
+
+            if(project!=null)
+            {
+                IProject prj = new ProjectIntl(project);
+                projects.put(project.getName(), prj);
+                return prj;
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (JDOMException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvalidDataException e)
+        {
+            e.printStackTrace();
         }
 
-
+        return null;
     }
 
 }

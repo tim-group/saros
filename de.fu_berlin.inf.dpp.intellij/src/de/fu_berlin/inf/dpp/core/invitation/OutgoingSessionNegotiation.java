@@ -178,6 +178,8 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
              *               receive activities, then send final acknowledgement
              *               to inform client about this.
              */
+
+
             checkAvailability(monitor);
 
             checkVersion(monitor);

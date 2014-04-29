@@ -22,9 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor;
 
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.SelectionEvent;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.*;
-import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.JupiterDocumentServer;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
@@ -34,20 +36,22 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.AnnotationModelHelper;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.ContributionAnnotationManager;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPIEcl;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.LocationAnnotationManager;
+import de.fu_berlin.inf.dpp.intellij.mock.internal.AnnotationModelHelper;
+import de.fu_berlin.inf.dpp.intellij.mock.internal.ContributionAnnotationManager;
+import de.fu_berlin.inf.dpp.intellij.mock.internal.LocationAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
+
+//todo: remove these links
+
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -56,7 +60,10 @@ import java.util.Set;
  * Time: 18:57
  */
 
-public class EditorManager extends AbstractActivityProducerAndConsumer implements IEditorManager
+public class EditorManager
+       // extends AbstractActivityProducerAndConsumer
+        extends EditorManagerBridge
+                implements IEditorManager
 {
 
 
@@ -75,13 +82,12 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
      * editor when it is received.
      */
 
-    protected static final Logger log = Logger.getLogger(EditorManager.class
-            .getName());
+    protected static final Logger log = Logger.getLogger(EditorManager.class.getName());
 
     protected SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
 
 
-    protected EditorActionManager actionManager = new EditorActionManager();
+    protected final EditorActionManager actionManager = new EditorActionManager(this);
 
     protected final IPreferenceStore preferenceStore;
 
@@ -101,15 +107,14 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
     protected boolean isLocked;
 
 
-    protected final de.fu_berlin.inf.dpp.intellij.editor.DirtyStateListener dirtyStateListener = new de.fu_berlin.inf.dpp.intellij.editor.DirtyStateListener(this);
+    protected final DirtyStateListener dirtyStateListener = new DirtyStateListener(this);
 
-    protected final StoppableDocumentListener documentListener = new StoppableDocumentListener(this);
 
     protected SPath locallyActiveEditor;
 
     protected Set<SPath> locallyOpenEditors = new HashSet<SPath>();
 
-    protected ITextSelection localSelection;
+    protected SelectionEvent localSelection;
 
     protected ILineRange localViewport;
 
@@ -305,28 +310,31 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
     /**
      * @Inject
      */
-    public EditorManager(ISarosSessionManager sessionManager,
-            EditorAPIEcl editorApi, IPreferenceStore preferenceStore)
+    public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore)
     {
 
         System.out.println("EditorManager.EditorManager");
 
         remoteEditorManager = new RemoteEditorManager(sarosSession);
+        //   registerCustomAnnotations();
         sessionManager.addSarosSessionListener(this.sessionListener);
         this.preferenceStore = preferenceStore;
 
         addSharedEditorListener(sharedEditorListener);
 
+
     }
 
     protected void execEditorActivity(EditorActivity editorActivity)
     {
-        System.out.println(">>>EditorManager.execEditorActivity " + editorActivity);
+
         SPath file = editorActivity.getPath();
-        if(file==null)
+        if (file == null)
         {
             return;
         }
+
+        System.out.println(">>>EditorManager.execEditorActivity " + editorActivity);
 
         switch (editorActivity.getType())
         {
@@ -348,11 +356,12 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
         System.out.println(">>>EditorManager.execTextEdit " + editorActivity);
 
         SPath file = editorActivity.getPath();
-        actionManager.editText(file,editorActivity.toOperation());
 
+        actionManager.editText(file, editorActivity.toOperation());
 
         User user = editorActivity.getSource();
         SPath path = editorActivity.getPath();
+
         // inform all registered ISharedEditorListeners about this text edit
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
                 editorActivity.getReplacedText(), editorActivity.getOffset());
@@ -364,14 +373,14 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
     {
         System.out.println(">>>EditorManager.execTextSelection " + editorActivity);
         SPath file = editorActivity.getPath();
-        actionManager.selectText(file,editorActivity.getOffset(),editorActivity.getLength());
+        actionManager.selectText(file, editorActivity.getOffset(), editorActivity.getLength());
     }
 
     protected void execViewport(ViewportActivity editorActivity)
     {
         System.out.println(">>>EditorManager.execViewport " + editorActivity);
         SPath file = editorActivity.getPath();
-        actionManager.setViewPort(file,editorActivity.getStartLine(),editorActivity.getStartLine()+editorActivity.getNumberOfLines());
+        actionManager.setViewPort(file, editorActivity.getStartLine(), editorActivity.getStartLine() + editorActivity.getNumberOfLines());
     }
 
 
@@ -396,50 +405,167 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
         activity.dispatch(activityReceiver);
     }
 
-
-    /////////////
-    //
-    //
-    //
-    //
-    ////////////
-
-
-    @Override
-    public void generateSelection(IEditorPart part, ITextSelection newSelection)
+    /**
+     * Sets the local editor 'opened' and fires an {@link EditorActivity} of
+     * type {@link de.fu_berlin.inf.dpp.activities.business.EditorActivity.Type#ACTIVATED}.
+     *
+     * @param path the project-relative path to the resource that the editor is
+     *             currently editing or <code>null</code> if the local user has
+     *             no editor open.
+     */
+    public void generateEditorActivated(@Nullable SPath path)
     {
-        System.out.println("EditorManager.generateSelection");
+
+        this.locallyActiveEditor = path;
+
+        if (path != null && sarosSession.isShared(path.getResource()))
+        {
+            this.locallyOpenEditors.add(path);
+        }
+
+        editorListenerDispatch.activeEditorChanged(sarosSession.getLocalUser(),
+                path);
+
+        fireActivity(new EditorActivity(sarosSession.getLocalUser(),
+                EditorActivity.Type.ACTIVATED, path));
+
+      //  generateSelection(path, selection);
+      //  generateViewport(path, viewport);
+
     }
 
-    @Override
-    public void generateViewport(IEditorPart part, ILineRange viewport)
+    public void generateEditorClosed(@Nullable SPath path)
     {
-        System.out.println("EditorManager.generateViewport");
+        fireActivity(new EditorActivity(sarosSession.getLocalUser(),
+                EditorActivity.Type.CLOSED, path));
     }
 
-    @Override
-    public void partActivated(IEditorPart editorPart)
+    /**
+     * Fires an update of the given {@link ITextSelection} for the given
+     * {@link IEditorPart} so that all remote parties know that the user
+     * selected some text in the given part.
+     *
+     * @param path         The IEditorPart for which to generate a TextSelectionActivity
+     * @param newSelection The ITextSelection in the given part which represents the
+     *                     currently selected text in editor.
+     */
+    public void generateSelection(SPath path, SelectionEvent newSelection)
     {
-        System.out.println("EditorManager.partActivated");
+
+        if (path.equals(locallyActiveEditor))
+        {
+            localSelection = newSelection;
+        }
+
+        int offset = newSelection.getNewRange().getStartOffset();
+        int length = newSelection.getNewRange().getLength();
+
+        fireActivity(new TextSelectionActivity(sarosSession.getLocalUser(),
+                offset, length, path));
+    }
+    /**
+     * Returns <code>true</code> if there is currently a {@link User} followed,
+     * otherwise <code>false</code>.
+     */
+    public boolean isFollowing()
+    {
+        return getFollowedUser() != null;
     }
 
-    @Override
-    public void partOpened(IEditorPart editorPart)
+    /**
+     * Returns the followed {@link User} or <code>null</code> if currently no
+     * user is followed.
+     */
+    public User getFollowedUser()
     {
-        System.out.println("EditorManager.partOpened");
+        return followedUser;
     }
 
-    @Override
-    public void partClosed(IEditorPart editor)
+    /**
+     * Sets the {@link User} to follow or <code>null</code> if no user should be
+     * followed.
+     */
+    public void setFollowing(User newFollowedUser)
     {
-        System.out.println("EditorManager.partClosed");
+        assert newFollowedUser == null
+                || !newFollowedUser.equals(sarosSession.getLocalUser()) : "local user cannot follow himself!";
+
+        User oldFollowedUser = this.followedUser;
+        this.followedUser = newFollowedUser;
+
+        if (oldFollowedUser != null && !oldFollowedUser.equals(newFollowedUser))
+        {
+            editorListenerDispatch.followModeChanged(oldFollowedUser, false);
+        }
+
+        if (newFollowedUser != null)
+        {
+            editorListenerDispatch.followModeChanged(newFollowedUser, true);
+            this.jumpToUser(newFollowedUser);
+        }
     }
 
-    @Override
-    public void partInputChanged(IEditorPart editor)
+    public void jumpToUser(User jumpTo)
     {
-        System.out.println("EditorManager.partInputChanged");
+
+        RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(jumpTo)
+                .getActiveEditor();
+
+        // you can't follow yourself
+        if (sarosSession.getLocalUser().equals(jumpTo))
+        {
+            return;
+        }
+
+        if (activeEditor == null)
+        {
+            log.info(jumpTo.getJID() + " has no editor open");
+
+            // changed waldmann, 22.01.2012: this balloon Notification became
+            // annoying as the awareness information, which file is opened is
+            // now shown in the session view all the time (unless the user has
+            // collapsed the tree element)
+
+            // no active editor on target subject
+            // SarosView.showNotification("Following " +
+            // jumpTo.getJID().getBase()
+            // + "!", jumpTo.getJID().getName()
+            // + " has no shared file opened yet.");
+            return;
+        }
+
+        Editor newEditor = this.actionManager.openFile(activeEditor.getPath());
+
+        if (newEditor == null)
+        {
+            return;
+        }
+
+        ILineRange viewport = activeEditor.getViewport();
+
+        if (viewport == null)
+        {
+            log.warn(jumpTo.getJID() + " has no viewport in editor: "
+                    + activeEditor.getPath());
+            return;
+        }
+
+        // selection can be null
+        ITextSelection selection = remoteEditorManager.getSelection(followedUser);
+
+        this.actionManager.adjustViewport(newEditor, viewport, selection);
+
+
+
+
+        /*
+         * inform all registered ISharedEditorListeners about this jump
+         * performed
+         */
+        editorListenerDispatch.jumpedToUser(jumpTo);
     }
+
+
 
     @Override
     public void saveText(SPath path)
@@ -450,8 +576,8 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
     @Override
     public Set<SPath> getOpenEditorsOfAllParticipants()
     {
-        System.out.println("EditorManager.getOpenEditorsOfAllParticipants");
-        return null;
+        System.out.println("EditorManager.getOpenEditorsOfAllParticipants //todo");
+        return new HashSet<SPath>(); //todo
     }
 
     @Override
@@ -508,19 +634,19 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
     public Set<SPath> getLocallyOpenEditors()
     {
         System.out.println("EditorManager.getLocallyOpenEditors");
-        return null;
+        return actionManager.getEditorPool().getFiles();
     }
 
     @Override
     public Set<SPath> getRemoteOpenEditors()
     {
         System.out.println("EditorManager.getRemoteOpenEditors");
-        return null;
+        return remoteEditorManager.getRemoteOpenEditors();
     }
 
     public void sendEditorActivitySaved(SPath path)
     {
-        System.out.println("EditorManager.sendEditorActivitySaved");
+        System.out.println("EditorManager.sendEditorActivitySaved ");
     }
 
     public boolean isConnected(IFile file)
@@ -528,9 +654,80 @@ public class EditorManager extends AbstractActivityProducerAndConsumer implement
         return true;
     }
 
-    public void textAboutToBeChanged(int offset, String text,
-            int replaceLength, IDocument document)
+    /**
+     * This method is called from Eclipse (via the StoppableDocumentListener)
+     * whenever the local user has changed some text in an editor.
+     *
+     * @param event
+     */
+    public void textAboutToBeChanged(DocumentEvent event)
     {
-        System.out.println("EditorManager.textAboutToBeChanged>>>" + text);
+        System.out.println(">>>EditorManager.textAboutToBeChanged>>>" + event);
+
+//        if (fileReplacementInProgressObservable.isReplacementInProgress())
+//        {
+//            return;
+//        }
+
+        if (sarosSession == null)
+        {
+            log.error("session has ended but text edits"
+                    + " are received from local user");
+            return;
+        }
+
+
+        SPath path = actionManager.getEditorPool().getFile(event.getDocument());
+        if (path == null)
+        {
+            log.warn("Could not find path for editor "
+                    + event.getDocument());
+            return;
+        }
+
+        String text = event.getNewFragment().toString();
+        String replacedText = event.getOldFragment().toString();
+
+
+        TextEditActivity textEdit = new TextEditActivity(
+                sarosSession.getLocalUser(), event.getOffset(), text, replacedText, path);
+
+
+//        if (!hasWriteAccess || isLocked)
+//        {
+//            /**
+//             * TODO If we don't have {@link User.Permission#WRITE_ACCESS}, then
+//             * receiving this event might indicate that the user somehow
+//             * achieved to change his document. We should run a consistency
+//             * check.
+//             *
+//             * But watch out for changes because of a consistency check!
+//             */
+//            log.warn("local user caused text changes: " + textEdit
+//                    + " | write access : " + hasWriteAccess + ", session locked : "
+//                    + isLocked);
+//            return;
+//        }
+
+        fireActivity(textEdit);
+
+        // inform all registered ISharedEditorListeners about this text edit
+        editorListenerDispatch.textEditRecieved(sarosSession.getLocalUser(),
+                textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
+
+//        /*
+//         * TODO Investigate if this is really needed here
+//         */
+//        {
+//            IEditorInput input = changedEditor.getEditorInput();
+//            IDocumentProvider provider = getDocumentProvider(input);
+//            IAnnotationModel model = provider.getAnnotationModel(input);
+//            contributionAnnotationManager.splitAnnotation(model, offset);
+//        }
+    }
+
+    public EditorActionManager getActionManager()
+    {
+        return actionManager;
     }
 }

@@ -113,7 +113,7 @@ public abstract class ResourceImp implements IResource
         {
             String prjPath = project.getFullPath().toFile().getAbsolutePath();
             String myPath = file.getAbsolutePath();
-            myPath = myPath.substring(prjPath.length());
+            myPath = myPath.substring(prjPath.length()+1);
 
             return new PathImp(new File(myPath));
         }

@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.intellij.editor.internal.EditorAPIEcl;
+import de.fu_berlin.inf.dpp.intellij.mock.internal.EditorAPIEcl;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.ITextViewer;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;

@@ -1,56 +1,43 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
+import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelOption;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
+import de.fu_berlin.inf.dpp.core.zip.FileZipper;
+import de.fu_berlin.inf.dpp.core.zip.ZipProgressMonitor;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
-import de.fu_berlin.inf.dpp.core.zip.FileZipper;
-import de.fu_berlin.inf.dpp.core.zip.ZipProgressMonitor;
 import de.fu_berlin.inf.dpp.net.JID;
-
-import java.util.Map;
-
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
+import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CancellationException;
-
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.synchronize.StartHandle;
 import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.picocontainer.annotations.Inject;
 
-import de.fu_berlin.inf.dpp.activities.SPath;
-
-import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
-import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelOption;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
-
-import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.synchronize.StartHandle;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CancellationException;
 
 public class OutgoingProjectNegotiation extends ProjectNegotiation
 {
@@ -95,7 +82,6 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         observeMonitor(monitor);
 
         Exception exception = null;
-
         try
         {
             if (fileTransferManager == null)
@@ -104,8 +90,9 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 throw new IOException("not connected to a XMPP server");
             }
 
-            sendFileList(createProjectExchangeInfoList(projects, monitor),
-                    monitor);
+            List<ProjectNegotiationData> data = createProjectExchangeInfoList(projects, monitor);
+
+            sendFileList(data, monitor);
 
             monitor.subTask("");
 
@@ -148,6 +135,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 sarosSession.userStartedQueuing(user);
 
                 zipArchives = createProjectArchives(fileLists, monitor);
+
                 monitor.subTask("");
             }
             finally
@@ -160,7 +148,6 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
-
             if (zipArchives.size() > 0)
             {
 
@@ -170,7 +157,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 {
                     FileZipper.zipFiles(zipArchives, zipArchive, false,
                             new ZipProgressMonitor(monitor, zipArchives.size(),
-                                    false));
+                                    false)
+                    );
 
                     monitor.subTask("");
                     monitor.done();
@@ -184,7 +172,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
                 sendArchive(zipArchive, peer, ARCHIVE_TRANSFER_ID + processID,
                         monitor);
-            }
+          }
 
             User user = sarosSession.getUser(peer);
 
@@ -194,11 +182,13 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                         CancelOption.DO_NOT_NOTIFY_PEER);
             }
 
-            sarosSession.userFinishedProjectNegotiation(user);
+             sarosSession.userFinishedProjectNegotiation(user);
 
         }
         catch (Exception e)
         {
+            e.printStackTrace();
+
             exception = e;
         }
         finally
@@ -283,7 +273,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         {
             throw new LocalCancellationException("received no response from "
                     + peer + " while waiting for the file list",
-                    CancelOption.DO_NOT_NOTIFY_PEER);
+                    CancelOption.DO_NOT_NOTIFY_PEER
+            );
         }
 
         List<FileList> remoteFileLists = ProjectNegotiationMissingFilesExtension.PROVIDER
@@ -367,6 +358,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         }
         catch (CancellationException e)
         {
+            e.printStackTrace();
+
             checkCancellation(CancelOption.NOTIFY_PEER);
             return null;
         }
@@ -395,7 +388,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
         log.debug(this + " : creating archive(s)");
 
-        ISubMonitor subMonitor = null; //todo
+        ISubMonitor subMonitor = monitor.convert(monitor);
         /* SubMonitor subMonitor = SubMonitor.convert(monitor,
      "Creating project archives...", fileLists.size());*/
 
@@ -465,7 +458,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
                 FileZipper.createProjectZipArchive(project, toSend,
                         tempArchive, new ZipProgressMonitor(monitor, toSend.size(),
-                        true));
+                                true)
+                );
             }
         }
         catch (OperationCanceledException e)
@@ -536,7 +530,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         /*
          * FIXME must be calculated while the session is blocked !
          */
-        ISubMonitor subMonitor = null;//todo
+        ISubMonitor subMonitor = monitor.convert(monitor);
 //        ISubMonitor subMonitor = ISubMonitor
 //                .convert(
 //                        monitor,
@@ -578,6 +572,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
             }
             catch (CoreException e)
             {
+                e.printStackTrace();
                 /*
                  * avoid that the error is send to remote side (which is default
                  * for IOExceptions) at this point because the remote side has
@@ -605,12 +600,14 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     {
 
         monitor.beginTask("Waiting for " + peer.getName()
-                + " to perform additional initialization...",
-                IProgressMonitor.UNKNOWN);
+                        + " to perform additional initialization...",
+                IProgressMonitor.UNKNOWN
+        );
 
         transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
                 getPeer(), StartActivityQueuingRequest.PROVIDER
-                .create(new StartActivityQueuingRequest(sessionID, processID)));
+                        .create(new StartActivityQueuingRequest(sessionID, processID))
+        );
 
         Packet packet = collectPacket(startActivityQueuingResponseCollector,
                 PACKET_TIMEOUT);
@@ -619,7 +616,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         {
             throw new LocalCancellationException("received no response from "
                     + peer + " while waiting to finish additional initialization",
-                    CancelOption.DO_NOT_NOTIFY_PEER);
+                    CancelOption.DO_NOT_NOTIFY_PEER
+            );
         }
 
         monitor.done();

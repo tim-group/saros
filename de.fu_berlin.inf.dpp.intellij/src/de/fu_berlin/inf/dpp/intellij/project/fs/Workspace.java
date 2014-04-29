@@ -149,4 +149,10 @@ public class Workspace implements IWorkspace
     {
         return path;
     }
+
+    public void setPath(File path)
+    {
+        this.root = new SchedulingRoot(path);
+        this.path = path;
+    }
 }

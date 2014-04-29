@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.SarosProgressMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -49,6 +50,9 @@ public abstract class Job extends Thread
     public Job(String name)
     {
         super(name);
+        this.monitor = new SarosProgressMonitor(name);
+
+        System.out.println("Job.Job");
     }
 
     public void setUser(boolean isUser)

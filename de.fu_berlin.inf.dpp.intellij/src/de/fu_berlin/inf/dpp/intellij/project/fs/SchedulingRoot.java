@@ -79,12 +79,14 @@ public class SchedulingRoot implements ISchedulingRoot
         this.projects.put(proj.getName(), proj);
     }
 
-    public void addProject(String name, File path)
+    public ProjectImp addProject(String name, File path)
     {
         log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
         ProjectImp prj = new ProjectImp(name, path);
 
         addProject(prj);
+
+        return prj;
     }
 
     @Override

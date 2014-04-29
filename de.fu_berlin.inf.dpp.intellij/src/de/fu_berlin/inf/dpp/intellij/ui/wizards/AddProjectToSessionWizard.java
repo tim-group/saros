@@ -22,11 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.ProcessTools;
-import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -34,9 +35,8 @@ import de.fu_berlin.inf.dpp.core.ui.*;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.WizardDialogAccessible;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.SarosProgressMonitor;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
@@ -132,17 +132,25 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
             {
 
                 // Messages.showCheckboxOkCancelDialog(comp, "Do you want to join session?", "Incomming session");
-                int n = JOptionPane.showConfirmDialog(
+//                int n = JOptionPane.showConfirmDialog(
+//                        comp,
+//                        "Do you want to add projects?\n" + names + "\nTo workspace:\n" + path,
+//                        "Add projects to session",
+//                        JOptionPane.YES_NO_OPTION);
+
+
+                String newName = JOptionPane.showInputDialog(
                         comp,
-                        "Do you want to add projects?\n" + names+"\nTo workspace:\n"+path,
-                        "Add projects to session",
-                        JOptionPane.YES_NO_OPTION);
+                        "Do you want to add module?\nTo workspace:\n" + path,
+                        names
+                );
 
-                if (n == 0)
+                IProgressMonitor monitor = new SarosProgressMonitor(comp, "Creating project: " + prjNames, "", 0, 100);
+                // if (n == 0)
+                if (newName != null && newName.trim().length() > 0)
                 {
-                    proc.accept(prjNames, new NullProgressMonitor(), false); //todo: make it by wizard!
-
-
+                    prjNames.put(prjNames.toString(),newName);
+                    proc.accept(prjNames, monitor, false); //todo: make it by wizard!
                 }
                 else
                 {
@@ -157,7 +165,7 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
         isExceptionCancel = false;
 
         this.namePage = new EnterProjectNamePage();    //todo
-        this.wizardDialog = new WizardDialogAccessible(this,this);//todo
+        this.wizardDialog = new WizardDialogAccessible(this, this);//todo
 
 
     }

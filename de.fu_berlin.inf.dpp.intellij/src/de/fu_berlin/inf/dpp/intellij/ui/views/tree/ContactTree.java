@@ -46,7 +46,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
 {
     public static final String TREE_TITLE = "Contacts";
 
-    private RootTree rootTree;
+    protected RootTree rootTree;
     private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
 
     /**
@@ -84,6 +84,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
             ContactInfo contactInfo = new ContactInfo(contactEntry);
             contactInfo.setIcon(IconManager.contactOfflineIcon);
             node = new DefaultMutableTreeNode(contactInfo);
+
             add(node);
 
             contactMap.put(contactInfo.getKey(), contactInfo);
@@ -183,6 +184,11 @@ public class ContactTree extends AbstractTree implements IRosterListener
         public RosterPacket.ItemStatus getStatus()
         {
             return rosterEntry.getStatus();
+        }
+
+        public RosterEntry getRosterEntry()
+        {
+            return rosterEntry;
         }
 
         public String toString()

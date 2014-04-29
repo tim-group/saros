@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.internal;
+package de.fu_berlin.inf.dpp.intellij.mock.internal;
 
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;

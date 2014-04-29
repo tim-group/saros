@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.mock.text;
 
-import de.fu_berlin.inf.dpp.intellij.editor.internal.CustomAnnotationManager;
+import de.fu_berlin.inf.dpp.intellij.mock.internal.CustomAnnotationManager;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

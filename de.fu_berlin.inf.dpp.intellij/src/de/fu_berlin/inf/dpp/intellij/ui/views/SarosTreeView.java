@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.TreeClickListener;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -85,6 +86,7 @@ public class SarosTreeView implements SarosActionListener
         sessionTree = new SessionTree(rootTree);
         contactTree = new ContactTree(rootTree);
 
+        this.rootTree.getJtree().addMouseListener(new TreeClickListener(contactTree,sessionTree));
 
         //listeners
         TreeExpansionListener expansionListener = new TreeExpansionListener()

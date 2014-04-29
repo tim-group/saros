@@ -42,6 +42,8 @@ import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 import org.picocontainer.annotations.Inject;
 
+import java.io.IOException;
+
 /**
  * This manager is responsible for handling all resource changes that aren't
  * handled by the EditorManagerEcl, that is for changes that aren't done by
@@ -671,8 +673,10 @@ log.warn("could not delete file " + file
     }
 
     // HACK
-    public void projectAdded(de.fu_berlin.inf.dpp.filesystem.IProject project)
+    public void projectAdded(IProject project)
     {
+
+
         /* synchronized (sharedProjects) {
             IProject eclipseProject = ((EclipseProjectImpl) project)
                     .getDelegate();
@@ -682,7 +686,7 @@ log.warn("could not delete file " + file
     }
 
     // HACK
-    public void projectRemoved(de.fu_berlin.inf.dpp.filesystem.IProject project)
+    public void projectRemoved(IProject project)
     {
         /*synchronized (sharedProjects) {
 

@@ -100,9 +100,11 @@ public class CollaborationUtils {
                 monitor.beginTask("Starting session...",
                         IProgressMonitor.UNKNOWN);
 
+                System.out.println("CollaborationUtils.run 1");
                 try {
                     sessionManager.startSession(convert(newResources));
                     Set<JID> participantsToAdd = new HashSet<JID>(contacts);
+                    System.out.println("CollaborationUtils.run 2");
 
                     ISarosSession session = sessionManager.getSarosSession();
 
@@ -111,14 +113,14 @@ public class CollaborationUtils {
 
                     sessionManager.invite(participantsToAdd,
                             getShareProjectDescription(session));
-
+                    System.out.println("CollaborationUtils.run 3");
                 } catch (Exception e) {
 
                     LOG.error("could not start a Saros session", e);
                     return new Status(IStatus.ERROR, Saros.SAROS,
                             e.getMessage(), e);
                 }
-
+                System.out.println("CollaborationUtils.run 4");
                 return Status.OK_STATUS;
             }
         };
@@ -126,6 +128,8 @@ public class CollaborationUtils {
         sessionStartupJob.setPriority(Job.SHORT);
         sessionStartupJob.setUser(true);
         sessionStartupJob.schedule();
+
+        System.out.println("CollaborationUtils.run 5");
     }
 
     /**

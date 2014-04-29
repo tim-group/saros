@@ -68,7 +68,7 @@ public class ProjectImp implements IProject
     public ProjectImp(String name, File path)
     {
         this.name = name;
-        this.path = path;
+
         scan(path);
     }
 
@@ -78,6 +78,7 @@ public class ProjectImp implements IProject
 
         exist = false;
         isAccessible = false;
+
         fullPath = new PathImp(path.getAbsolutePath());
         relativePath = new PathImp(path.getPath());
 
@@ -86,7 +87,8 @@ public class ProjectImp implements IProject
 
     public void scan(File path)
     {
-        this.path = path;
+        setPath(path);
+
         //clear old
         resourceMap.clear();
         fileMap.clear();
@@ -102,15 +104,10 @@ public class ProjectImp implements IProject
 
         exist = true;
         isAccessible = true;
-        fullPath = new PathImp(path.getAbsolutePath());
-        relativePath = new PathImp(path.getPath());
-
-        attributes = new ResourceAttributes(); //todo
     }
 
     protected void addRecursive(File file)
     {
-
 
         if (file.isDirectory())
         {
@@ -133,6 +130,7 @@ public class ProjectImp implements IProject
     @Override
     public IResource findMember(IPath path)
     {
+
         return resourceMap.get(path);
     }
 
@@ -149,19 +147,24 @@ public class ProjectImp implements IProject
      */
     protected void addResource(IResource res)
     {
-        resourceMap.put(res.getFullPath(), res);
+        resourceMap.put(res.getProjectRelativePath(), res);
     }
 
     protected void addResource(IFile file)
     {
         addResource((IResource) file);
-        fileMap.put(file.getFullPath().toString(), file);
+        //String key = file.getProjectRelativePath().toString();
+        String key = file.getFullPath().toString();
+
+        fileMap.put(key, file);
     }
 
     protected void addResource(IFolder folder)
     {
         addResource((IResource) folder);
-        folderMap.put(folder.getFullPath().toString(), folder);
+       // String key = folder.getProjectRelativePath().toString();
+        String key = folder.getFullPath().toString();
+        folderMap.put(key, folder);
     }
 
     public void addFile(File file)
@@ -423,7 +426,23 @@ public class ProjectImp implements IProject
 
     public String toString()
     {
-        return super.toString() + " [" + name + "]";
+
+        StringBuilder sb = new StringBuilder(" ");
+        if(name!=null)
+        {
+            sb.append("name=[");
+            sb.append(name);
+            sb.append("]");
+        }
+
+        if(path !=null)
+        {
+            sb.append(" path=[");
+            sb.append(path);
+            sb.append("]");
+        }
+
+        return getClass().getName() + sb;
     }
 
 

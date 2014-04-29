@@ -27,11 +27,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
@@ -56,15 +59,17 @@ public class EditorAPI
     private CommandProcessor commandProcessor;
     private FileDocumentManager fileDocumentManager;
     private EditorFactory editorFactory;
+    private ModuleManager moduleManager;
 
     private Project project;
     private PsiManager psiManager;
-    private FileEditorManager editorFileManager;
+    protected FileEditorManager editorFileManager;
     private PsiDocumentManager psiDocumentManager;
+    private VirtualFileManager virtualFileManager;
 
     public EditorAPI()
     {
-        Project project = SarosToolWindowFactory._project; //todo
+        Project project =  SarosToolWindowFactory._project;
         setProject(project);
     }
 
@@ -118,6 +123,7 @@ public class EditorAPI
                     public void run()
                     {
                         editorFileManager.openFile(path, true);
+
                         result.editor = editorFileManager.getSelectedTextEditor();
                     }
                 });
@@ -126,6 +132,7 @@ public class EditorAPI
         };
 
         UIUtil.invokeAndWaitIfNeeded(action);
+
 
         return result.editor;
 
@@ -144,6 +151,8 @@ public class EditorAPI
 
     public void closeEditor(final VirtualFile file)
     {
+        // editorFileManager.addFileEditorManagerListener(); //todo
+
         Runnable action = new Runnable()
         {
             @Override
@@ -154,6 +163,11 @@ public class EditorAPI
         };
 
         UIUtil.invokeAndWaitIfNeeded(action);
+    }
+
+    public Document getDocument(final VirtualFile file)
+    {
+         return fileDocumentManager.getDocument(file);
     }
 
     public void closeEditor(Document doc)
@@ -188,7 +202,6 @@ public class EditorAPI
     }
 
     /**
-     *
      * @param doc
      */
     public void saveAllDocuments(Document doc)
@@ -212,7 +225,6 @@ public class EditorAPI
     }
 
     /**
-     *
      * @param editor
      * @param lineStart
      * @param lineEnd
@@ -237,6 +249,8 @@ public class EditorAPI
 
     public void insertText(final Document doc, final int position, final String text)
     {
+        // doc.addDocumentListener();
+
         Runnable action = new Runnable()
         {
             @Override
@@ -322,7 +336,7 @@ public class EditorAPI
                         editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
 
                         //move cursor
-                        editor.getCaretModel().moveToOffset(start,true);
+                        editor.getCaretModel().moveToOffset(start, true);
                     }
                 });
             }
@@ -332,6 +346,10 @@ public class EditorAPI
 
     }
 
+    public ModuleManager getModuleManager()
+    {
+        return moduleManager;
+    }
 
     public boolean isInitialized()
     {
@@ -346,7 +364,9 @@ public class EditorAPI
             this.editorFileManager = FileEditorManager.getInstance(project);
             this.psiManager = PsiManager.getInstance(project);
             this.psiDocumentManager = PsiDocumentManager.getInstance(project);
+            this.moduleManager = ModuleManager.getInstance(project);
 
+            this.virtualFileManager = VirtualFileManager.getInstance();
             this.projectManager = ProjectManager.getInstance();
             this.localFileSystem = LocalFileSystem.getInstance();
             this.application = ApplicationManager.getApplication();
@@ -355,4 +375,6 @@ public class EditorAPI
             this.editorFactory = EditorFactory.getInstance();
         }
     }
+
+
 }

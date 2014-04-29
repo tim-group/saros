@@ -22,9 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.mock;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.SWTException;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
+
+import javax.swing.*;
 
 
 /**
@@ -60,15 +63,18 @@ public class Display
         return new Display();
     }
 
-    public void asyncExec(Runnable runnable) throws SWTException
+    public void asyncExec(Runnable runnable) throws Exception
     {
         System.out.println("Display.asyncExec "+runnable);
-        ThreadUtils.runSafeAsync(log, runnable);
+      //  ThreadUtils.runSafeAsync(log, runnable);
+       // SwingUtilities.invokeLater(runnable);
+        UIUtil.invokeLaterIfNeeded(runnable);
     }
 
-    public void syncExec(Runnable runnable)  throws SWTException
+    public void syncExec(Runnable runnable)  throws Exception
     {
         System.out.println("Display.syncExec "+runnable);
-        ThreadUtils.runSafeSync(log, runnable);
+       // ThreadUtils.runSafeSync(log, runnable);
+        UIUtil.invokeAndWaitIfNeeded(runnable);
     }
 }
