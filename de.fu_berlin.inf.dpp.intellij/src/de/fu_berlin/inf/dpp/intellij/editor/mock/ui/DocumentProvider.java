@@ -83,20 +83,20 @@ public class DocumentProvider implements IDocumentProvider
     public void disconnect(IEditorInput input)
     {
         System.out.println("DocumentProvider.disconnect //todo");
-        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
-        System.out.println("DocumentProvider.disconnect>>>"+vf+" exist="+vf.exists());
-        FileEditorManager.getInstance(Saros.instance().getProject()).closeFile(vf);
+//        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
+//        System.out.println("DocumentProvider.disconnect>>>"+vf+" exist="+vf.exists());
+//        FileEditorManager.getInstance(Saros.instance().getProject()).closeFile(vf);
     }
 
     @Override
     public void connect(IEditorInput input) throws CoreException
     {
         System.out.println("DocumentProvider.connect //todo");
-
-        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
-        System.out.println("DocumentProvider.connect>>>"+vf+" exist="+vf.exists());
-
-        FileEditorManager.getInstance(Saros.instance().getProject()).openFile(vf, true);
+//
+//        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
+//        System.out.println("DocumentProvider.connect>>>"+vf+" exist="+vf.exists());
+//
+//        FileEditorManager.getInstance(Saros.instance().getProject()).openFile(vf, true);
 
     }
 

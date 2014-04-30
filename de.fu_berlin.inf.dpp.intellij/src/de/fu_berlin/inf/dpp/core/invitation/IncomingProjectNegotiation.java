@@ -500,6 +500,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             }
 
             IProject iProject = workspace.getRoot().getProject(projectName);
+            iProject.refreshLocal();
             if (iProject.exists())
             {
                 /*

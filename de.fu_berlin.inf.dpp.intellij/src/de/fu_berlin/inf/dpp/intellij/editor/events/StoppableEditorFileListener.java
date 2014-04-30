@@ -45,6 +45,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
     public StoppableEditorFileListener(EditorManager manager)
     {
         this.manager = manager;
+        this.enabled = true;
     }
 
     @Override
@@ -58,10 +59,10 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
         SPath path = manager.getActionManager().toPath(virtualFile);
         if (path != null)
         {
-            manager.getActionManager().getEditorPool().add(path,fileEditorManager.getSelectedTextEditor());
-            manager.getActionManager().startEditor(fileEditorManager.getSelectedTextEditor());
+              manager.getActionManager().getEditorPool().add(path,fileEditorManager.getSelectedTextEditor());
+              manager.getActionManager().startEditor(fileEditorManager.getSelectedTextEditor());
 
-            manager.generateEditorActivated(path);
+            // manager.generateEditorActivated(path);  //no need to fire event
         }
     }
 
@@ -73,11 +74,12 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             return;
         }
 
+
         SPath path = manager.getActionManager().toPath(virtualFile);
         if (path != null)
         {
-           // manager.getActionManager().getEditorPool().remove(path);
-            manager.generateEditorClosed(path);
+             manager.getActionManager().getEditorPool().remove(path);
+             manager.generateEditorClosed(path);
         }
     }
 

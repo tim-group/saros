@@ -626,6 +626,11 @@ public class Saros extends AbstractSaros
         return true;
     }
 
+    public SarosContext getSarosContext()
+    {
+        return sarosContext;
+    }
+
     public IWorkspace getWorkspace()
     {
 

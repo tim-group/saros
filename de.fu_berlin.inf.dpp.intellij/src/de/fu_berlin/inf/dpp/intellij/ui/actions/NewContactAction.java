@@ -23,10 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.vfs.VirtualFile;
-import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
 
@@ -54,16 +50,6 @@ public class NewContactAction extends AbstractSarosAction
     public void run()
     {
         actionStarted();
-
-        final int rnd1 = ((int) (50 * Math.random()));
-        int rnd2 = ((int) (10000 * Math.random()));
-        final String text = " insert_" + rnd2 + " ";
-
-        EditorAPI api = new EditorAPI(SarosToolWindowFactory._project);
-        VirtualFile vf = api.toVirtualFile(FollowModeAction.file);
-        Editor edit = api.openEditor(vf);
-        api.insertText(edit.getDocument(),rnd1,text);
-        api.setSelection(edit,rnd1, rnd1 + text.length());
 
         //todo
         log.info("ADD_CONTACT - not implemented action");

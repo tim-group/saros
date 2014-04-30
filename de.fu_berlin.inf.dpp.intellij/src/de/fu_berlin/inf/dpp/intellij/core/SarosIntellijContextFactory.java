@@ -42,6 +42,7 @@ import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.mock.internal.EditorAPIEcl;
 import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.invitation.FileList;
@@ -130,6 +131,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
             Component.create(PreferenceUtils.class),
 
+            Component.create(FollowModeAction.class),
             //   Component.create(IAddProjectToSessionWizard.class, AddProjectToSessionWizard.class),
 
 

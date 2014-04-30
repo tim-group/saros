@@ -69,7 +69,10 @@ public class EditorActionManager
         this.fileListener = new StoppableEditorFileListener(manager);
         this.selectionListener = new StoppableSelectionListener(manager);
 
-        this.editorAPI.editorFileManager.addFileEditorManagerListener(this.fileListener);
+        if (this.editorAPI.editorFileManager != null)
+        {
+            this.editorAPI.editorFileManager.addFileEditorManagerListener(this.fileListener);
+        }
     }
 
 
@@ -83,7 +86,10 @@ public class EditorActionManager
 
             if (editorAPI.isOpen(virtualFile))
             {
-                return editorPool.getEditor(file);
+                Editor editor = editorAPI.openEditor(virtualFile);   //todo: need to activate only, not open!
+                return  editor;
+              //  return editorPool.getEditor(file);
+              //  editorFileManager.setSelectedEditor(path,FileEditorProvider.getEditorTypeId());
             }
             else
             {
@@ -351,7 +357,7 @@ public class EditorActionManager
 
     public SPath toPath(VirtualFile virtualFile)
     {
-        if (virtualFile == null && manager.sarosSession == null)
+        if (virtualFile == null || !virtualFile.exists() || manager.sarosSession == null)
         {
             return null;
         }

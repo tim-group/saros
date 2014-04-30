@@ -31,6 +31,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,7 +121,10 @@ public class SarosToolbar implements SarosActionListener
         addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "test_con", "preferences");
 
         //follow button
-        addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
+        //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
+        FollowButton followButton = new FollowButton();
+        toolbarButtons.put(followButton.getActionCommand(), followButton);
+        toolBar.add(followButton);
 
         //reload button
         addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "reload", "reload");

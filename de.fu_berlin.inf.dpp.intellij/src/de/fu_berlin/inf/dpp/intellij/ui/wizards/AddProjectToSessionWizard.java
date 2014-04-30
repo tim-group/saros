@@ -149,7 +149,8 @@ public class AddProjectToSessionWizard extends JFrame implements IAddProjectToSe
                 // if (n == 0)
                 if (newName != null && newName.trim().length() > 0)
                 {
-                    prjNames.put(prjNames.toString(),newName);
+                    String key = prjNames.keySet().iterator().next();
+                    prjNames.put(key,newName.trim());
                     proc.accept(prjNames, monitor, false); //todo: make it by wizard!
                 }
                 else

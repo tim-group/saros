@@ -41,6 +41,7 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
+import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.feedback.*;
 import de.fu_berlin.inf.dpp.intellij.project.internal.ClientSessionTimeoutHandler;
 import de.fu_berlin.inf.dpp.intellij.project.internal.ServerSessionTimeoutHandler;
@@ -93,7 +94,7 @@ public final class SarosSession implements ISarosSession {
     private static final Logger log = Logger.getLogger(SarosSession.class);
 
     @Inject
-    private UISynchronizer synchronizer;
+    private UISynchronizer synchronizer= new SWTSynchronizer(); //todo
 
     /* Dependencies */
 
@@ -424,12 +425,21 @@ public final class SarosSession implements ISarosSession {
             }
         }
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        ThreadUtils.runSafeAsync(log,new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                listenerDispatch.userJoined(user);
+            }
+        });
+
+       /* synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userJoined(user);
             }
-        }));
+        }));*/
 
         log.info("user " + user + " joined session");
     }

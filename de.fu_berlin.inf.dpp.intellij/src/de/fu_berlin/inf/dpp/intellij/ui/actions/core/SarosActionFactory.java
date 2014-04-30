@@ -22,10 +22,13 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
+import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
+import org.picocontainer.MutablePicoContainer;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -49,12 +52,12 @@ public class SarosActionFactory
 
     static
     {
-
+        MutablePicoContainer pico = Saros.instance().getSarosContext().createSimpleChildContainer();
         //register all actions
         connectServerAction = new ConnectServerAction();
         registerAction(connectServerAction);
         registerAction(new DisconnectServerAction());
-        registerAction(new FollowModeAction());
+        registerAction(pico.getComponent(FollowModeAction.class));
         registerAction(new LeaveSessionAction());
         registerAction(new NewContactAction());
         registerAction(new OpenChartAction());

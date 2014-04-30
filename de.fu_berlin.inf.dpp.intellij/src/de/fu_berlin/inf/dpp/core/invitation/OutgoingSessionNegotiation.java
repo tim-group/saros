@@ -213,6 +213,9 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             sessionManager.postOutgoingInvitationCompleted(monitor, newUser);
 
         } catch (Exception e) {
+
+            e.printStackTrace();
+
             exception = e;
         } finally {
             deleteCollectors();

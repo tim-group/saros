@@ -64,7 +64,7 @@ public final class ColorIDSetStorage
     public ColorIDSetStorage(IPreferenceStore prefStore)
     {
         this.preferenceStore = prefStore;
-        // load(); //todo
+        load(); //todo
         // remove(REMOVE_THRESHOLD); //todo
     }
 
@@ -234,7 +234,7 @@ public final class ColorIDSetStorage
 
         String serializedData = preferenceStore.getString(PREFERENCE_STORE_KEY);
 
-        if (serializedData.isEmpty())
+        if (serializedData==null || serializedData.isEmpty())
         {
             return;
         }

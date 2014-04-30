@@ -36,11 +36,11 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
 import de.fu_berlin.inf.dpp.intellij.mock.internal.AnnotationModelHelper;
 import de.fu_berlin.inf.dpp.intellij.mock.internal.ContributionAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.mock.internal.LocationAnnotationManager;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
@@ -61,9 +61,9 @@ import java.util.Set;
  */
 
 public class EditorManager
-       // extends AbstractActivityProducerAndConsumer
+        // extends AbstractActivityProducerAndConsumer
         extends EditorManagerBridge
-                implements IEditorManager
+        implements IEditorManager
 {
 
 
@@ -110,13 +110,14 @@ public class EditorManager
     protected final DirtyStateListener dirtyStateListener = new DirtyStateListener(this);
 
 
-    protected SPath locallyActiveEditor;
+
 
     protected Set<SPath> locallyOpenEditors = new HashSet<SPath>();
 
     protected SelectionEvent localSelection;
-
     protected ILineRange localViewport;
+    protected SPath locallyActiveEditor;
+
 
     /**
      * all files that have connected document providers
@@ -328,26 +329,42 @@ public class EditorManager
     protected void execEditorActivity(EditorActivity editorActivity)
     {
 
-        SPath file = editorActivity.getPath();
-        if (file == null)
+        SPath path = editorActivity.getPath();
+        if (path == null)
         {
             return;
         }
 
+        final User user = editorActivity.getSource();
+
         System.out.println(">>>EditorManager.execEditorActivity " + editorActivity);
+
 
         switch (editorActivity.getType())
         {
             case ACTIVATED:
-                actionManager.openFile(file);
+                if (isFollowing(user))
+                {
+                    actionManager.openFile(path);
+                }
+                editorListenerDispatch.activeEditorChanged(user, path);
                 break;
+
             case CLOSED:
-                actionManager.closeFile(file);
+                if (isFollowing(user))
+                {
+                    actionManager.closeFile(path);
+                }
+                editorListenerDispatch.editorRemoved(user, path);
                 break;
             case SAVED:
-                actionManager.saveFile(file);
+                actionManager.saveFile(path);
+                editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
                 break;
+            default:
+                log.warn("Unexpected type: " + editorActivity.getType());
         }
+
 
     }
 
@@ -369,18 +386,61 @@ public class EditorManager
 
     }
 
-    protected void execTextSelection(TextSelectionActivity editorActivity)
+    protected void execTextSelection(TextSelectionActivity selection)
     {
-        System.out.println(">>>EditorManager.execTextSelection " + editorActivity);
-        SPath file = editorActivity.getPath();
-        actionManager.selectText(file, editorActivity.getOffset(), editorActivity.getLength());
+        System.out.println(">>>EditorManager.execTextSelection " + selection);
+//        SPath file = selection.getPath();
+//        actionManager.selectText(file, selection.getOffset(), selection.getLength());
+//
+
+
+        SPath path = selection.getPath();
+        if (path == null)
+        {
+            log.error("Received text selection but have no writable editor");
+            return;
+        }
+
+        User user = selection.getSource();
+        if (isFollowing(user))
+        {
+            actionManager.selectText(path, selection.getOffset(), selection.getLength());
+        }
+
+        /*
+         * inform all registered ISharedEditorListeners about a text selection
+         * made
+         */
+        editorListenerDispatch.textSelectionMade(selection);
+
+
     }
 
-    protected void execViewport(ViewportActivity editorActivity)
+    protected void execViewport(ViewportActivity viewport)
     {
-        System.out.println(">>>EditorManager.execViewport " + editorActivity);
-        SPath file = editorActivity.getPath();
-        actionManager.setViewPort(file, editorActivity.getStartLine(), editorActivity.getStartLine() + editorActivity.getNumberOfLines());
+        System.out.println(">>>EditorManager.execViewport " + viewport);
+//        SPath file = editorActivity.getPath();
+//        actionManager.setViewPort(file, editorActivity.getStartLine(), editorActivity.getStartLine() + editorActivity.getNumberOfLines());
+
+
+        SPath path = viewport.getPath();
+        if (path == null)
+        {
+            log.error("Received text selection but have no writable editor");
+            return;
+        }
+
+        User user = viewport.getSource();
+        if (isFollowing(user))
+        {
+            actionManager.setViewPort(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
+        }
+
+        /*
+         * inform all registered ISharedEditorListeners about a change in
+         * viewport
+         */
+        editorListenerDispatch.viewportChanged(viewport);
     }
 
 
@@ -423,19 +483,33 @@ public class EditorManager
             this.locallyOpenEditors.add(path);
         }
 
-        editorListenerDispatch.activeEditorChanged(sarosSession.getLocalUser(),
-                path);
-
+        editorListenerDispatch.activeEditorChanged(sarosSession.getLocalUser(), path);
         fireActivity(new EditorActivity(sarosSession.getLocalUser(),
                 EditorActivity.Type.ACTIVATED, path));
 
-      //  generateSelection(path, selection);
-      //  generateViewport(path, viewport);
+        //  generateSelection(path, selection);
+        //  generateViewport(path, viewport);
 
     }
 
     public void generateEditorClosed(@Nullable SPath path)
     {
+        // if closing the followed editor, leave follow mode
+        if (getFollowedUser() != null)
+        {
+            RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(
+                    getFollowedUser()).getActiveEditor();
+
+            if (activeEditor != null && activeEditor.getPath().equals(path))
+            {
+                // follower closed the followed editor (no other editor gets
+                // activated)
+                setFollowing(null);
+                SarosView.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+            }
+        }
+
+
         fireActivity(new EditorActivity(sarosSession.getLocalUser(),
                 EditorActivity.Type.CLOSED, path));
     }
@@ -463,6 +537,7 @@ public class EditorManager
         fireActivity(new TextSelectionActivity(sarosSession.getLocalUser(),
                 offset, length, path));
     }
+
     /**
      * Returns <code>true</code> if there is currently a {@link User} followed,
      * otherwise <code>false</code>.
@@ -470,6 +545,15 @@ public class EditorManager
     public boolean isFollowing()
     {
         return getFollowedUser() != null;
+    }
+
+    /**
+     * Returns <code>true</code> if there is currently a {@link User} followed,
+     * otherwise <code>false</code>.
+     */
+    public boolean isFollowing(User user)
+    {
+        return getFollowedUser() != null && getFollowedUser().equals(user);
     }
 
     /**
@@ -564,7 +648,6 @@ public class EditorManager
          */
         editorListenerDispatch.jumpedToUser(jumpTo);
     }
-
 
 
     @Override

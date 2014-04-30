@@ -304,4 +304,9 @@ public class SarosContext implements ISarosContext
     {
         return container.makeChildContainer();
     }
+
+    public MutablePicoContainer getContainer()
+    {
+        return container;
+    }
 }
