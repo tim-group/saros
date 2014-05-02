@@ -36,6 +36,8 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableDocumentListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableSelectionListener;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
 
 
@@ -87,9 +89,16 @@ public class EditorActionManager
             if (editorAPI.isOpen(virtualFile))
             {
                 Editor editor = editorAPI.openEditor(virtualFile);   //todo: need to activate only, not open!
-                return  editor;
-              //  return editorPool.getEditor(file);
-              //  editorFileManager.setSelectedEditor(path,FileEditorProvider.getEditorTypeId());
+
+
+                startEditor(editor);
+
+                editorPool.add(file, editor);
+
+                return editor;
+
+                //  return editorPool.getEditor(file);
+                //  editorFileManager.setSelectedEditor(path,FileEditorProvider.getEditorTypeId());
             }
             else
             {
@@ -103,7 +112,7 @@ public class EditorActionManager
 //            }
 
                 // editor.getDocument().addDocumentListener(documentListener);
-                documentListener.setDocument(editor.getDocument());
+                // documentListener.setDocument(editor.getDocument());
                 startEditor(editor);
 
 
@@ -125,11 +134,13 @@ public class EditorActionManager
     public void startEditor(Editor editor)
     {
         editor.getSelectionModel().addSelectionListener(selectionListener);
+        documentListener.setDocument(editor.getDocument());
     }
 
     public void stopEditor(Editor editor)
     {
         editor.getSelectionModel().removeSelectionListener(selectionListener);
+        documentListener.setDocument(null);
     }
 
     public void closeFile(SPath file)
@@ -181,6 +192,12 @@ public class EditorActionManager
     {
 
         Document doc = editorPool.getDocument(file);
+        if (doc == null)
+        {
+            VirtualFile virtualFile = editorAPI.toVirtualFile(file);
+            doc = editorAPI.createDocument(virtualFile);
+            editorPool.add(file, doc);
+        }
 
          /*
          * Disable documentListener temporarily to avoid being notified of the
@@ -354,6 +371,24 @@ public class EditorActionManager
    */
     }
 
+    public void setWriteAccessEnabled(boolean hasWriteAccess)
+    {
+        //todo
+        System.out.println("EditorActionManager.setWriteAccessEnabled //todo");
+    }
+
+
+    /**
+     * Removes all Annotation that fulfill given {@link de.fu_berlin.inf.dpp.intellij.util.Predicate} from all
+     * editors.
+     *
+     * @param predicate The filter to use for cleaning.
+     */
+    protected void removeAnnotationsFromAllEditors(Predicate<Annotation> predicate)
+    {
+        //todo
+        System.out.println("EditorActionManager.removeAnnotationsFromAllEditors //todo");
+    }
 
     public SPath toPath(VirtualFile virtualFile)
     {

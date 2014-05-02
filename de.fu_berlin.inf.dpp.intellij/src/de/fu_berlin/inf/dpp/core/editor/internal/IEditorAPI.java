@@ -79,7 +79,7 @@ public interface IEditorAPI {
     /**
      * @return the editor that is currently activated.
      */
-    public IEditorPart getActiveEditor();
+   // public IEditorPart getActiveEditor();
 
     /**
      * Returns the current text selection for given editor.

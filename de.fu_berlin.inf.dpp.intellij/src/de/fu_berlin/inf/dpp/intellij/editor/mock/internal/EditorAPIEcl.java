@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.mock.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.mock.internal;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.annotations.Component;
@@ -369,7 +369,7 @@ public class EditorAPIEcl implements IEditorAPI
     /**
      * {@inheritDoc}
      */
-    @Override
+    //@Override
     public IEditorPart getActiveEditor()
     {
         IWorkbenchWindow window = EditorAPIEcl.getActiveWindow();

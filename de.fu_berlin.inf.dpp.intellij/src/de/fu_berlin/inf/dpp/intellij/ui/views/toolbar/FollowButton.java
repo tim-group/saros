@@ -23,8 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.UIRefreshListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -42,13 +44,21 @@ import java.awt.event.ActionListener;
 public class FollowButton extends ToolbarButton implements SarosActionListener
 {
     private JPopupMenu popupMenu;
-    private final FollowModeAction action;
+    private final FollowModeAction followModeAction;
 
+    private UIRefreshListener refreshListener = new UIRefreshListener()
+    {
+        @Override
+        public void refresh(AbstractSarosAction actionEvent)
+        {
+            createMenu(followModeAction);
+        }
+    };
 
     public FollowButton()
     {
-        action = (FollowModeAction) SarosActionFactory.getAction(FollowModeAction.NAME);
-        action.setButton(this);
+        followModeAction = (FollowModeAction) SarosActionFactory.getAction(FollowModeAction.NAME);
+        followModeAction.addRefreshListener(refreshListener);
 
         createButton();
     }
@@ -60,7 +70,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
         setToolTipText("Enter follow mode");
 
-        createMenu();
+        createMenu(followModeAction);
         this.setEnabled(false);
 
         final JButton button = this;
@@ -75,23 +85,35 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
     }
 
 
-    public void createMenu()
+    public void createMenu(final FollowModeAction action)
     {
         popupMenu = new JPopupMenu();
+
+        final String prefix = "Follow ";
 
         boolean isUser = false;
         for (User user : action.getCurrentRemoteSessionUsers())
         {
             isUser = true;
             String userName = user.getHumanReadableName();
-            JMenuItem menuItem = new JMenuItem(userName);
+            String userNameShort = userName;
+            int index = userNameShort.indexOf("@");
+            if (index > -1)
+            {
+                userNameShort = userNameShort.substring(0, index);
+            }
+
+            JMenuItem menuItem = new JMenuItem(prefix + userNameShort);
 
             User currentUser = action.getCurrentlyFollowedUser();
-            if (currentUser != null && userName.equalsIgnoreCase(currentUser.getShortHumanReadableName()))
-            {
-             //   menuItem.setEnabled(false);
 
-                continue;
+            if (currentUser != null)
+            {
+                String currentUserName = currentUser.getShortHumanReadableName();
+                if (currentUserName.equalsIgnoreCase(userNameShort))
+                {
+                    menuItem.setEnabled(false);
+                }
             }
 
             menuItem.setActionCommand(userName);

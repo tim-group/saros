@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.mock.internal;
+package de.fu_berlin.inf.dpp.intellij.editor.mock.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;

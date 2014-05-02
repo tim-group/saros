@@ -50,7 +50,7 @@ import java.io.File;
  * Time: 12:20
  */
 
-public class EditorAPI
+public class EditorAPI extends EditorAPIBridge
 {
 
     private ProjectManager projectManager;

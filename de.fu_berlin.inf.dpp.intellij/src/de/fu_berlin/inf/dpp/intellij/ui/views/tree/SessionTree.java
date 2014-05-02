@@ -26,13 +26,15 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.core.UIRefreshListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,13 +45,71 @@ import java.util.List;
  * Time: 08.53
  */
 
-public class SessionTree extends AbstractTree implements ISarosSessionListener
+public class SessionTree extends AbstractTree
 {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
     private RootTree rootTree;
     private List<DefaultMutableTreeNode> sessionNodeList = new ArrayList<DefaultMutableTreeNode>();
+    private List<DefaultMutableTreeNode> userNodeList = new ArrayList<DefaultMutableTreeNode>();
+
+    private ISarosSessionListener sessionListener = new ISarosSessionListener()
+    {
+        @Override
+        public void preIncomingInvitationCompleted(IProgressMonitor monitor)
+        {
+
+        }
+
+        @Override
+        public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user)
+        {
+
+        }
+
+        @Override
+        public void sessionStarting(ISarosSession newSarosSession)
+        {
+
+        }
+
+        @Override
+        public void sessionStarted(ISarosSession newSarosSession)
+        {
+            createSessionNode(newSarosSession);
+        }
+
+        @Override
+        public void sessionEnding(ISarosSession oldSarosSession)
+        {
+
+        }
+
+        @Override
+        public void sessionEnded(ISarosSession oldSarosSession)
+        {
+            removeSessionNode(oldSarosSession);
+        }
+
+        @Override
+        public void projectAdded(String projectID)
+        {
+            addProjectNode(projectID);
+        }
+    };
+
+    private UIRefreshListener followModeListener = new UIRefreshListener()
+    {
+        @Override
+        public void refresh(AbstractSarosAction action)
+        {
+            if (action instanceof FollowModeAction)
+            {
+                createRemoteUserNodes((FollowModeAction) action);
+            }
+        }
+    };
 
     /**
      * @param parent
@@ -64,7 +124,8 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
         create();
 
         //register listener
-        saros.getSessionManager().addSarosSessionListener(this);
+        saros.getSessionManager().addSarosSessionListener(sessionListener);
+        SarosActionFactory.getAction(FollowModeAction.NAME).addRefreshListener(followModeListener);
     }
 
     protected void create()
@@ -82,26 +143,8 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
         getUserObject().title = title;
     }
 
-    @Override
-    public void preIncomingInvitationCompleted(IProgressMonitor monitor)
-    {
 
-    }
-
-    @Override
-    public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user)
-    {
-
-    }
-
-    @Override
-    public void sessionStarting(ISarosSession newSarosSession)
-    {
-
-    }
-
-    @Override
-    public void sessionStarted(ISarosSession newSarosSession)
+    private void createSessionNode(ISarosSession newSarosSession)
     {
 
         DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
@@ -121,17 +164,10 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             }
         });
 
-
     }
 
-    @Override
-    public void sessionEnding(ISarosSession oldSarosSession)
-    {
 
-    }
-
-    @Override
-    public void sessionEnded(ISarosSession oldSarosSession)
+    private void removeSessionNode(ISarosSession oldSarosSession)
     {
 
         DefaultMutableTreeNode node;
@@ -157,7 +193,7 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             setTitle(TREE_TITLE_NO_SESSIONS);
         }
 
-        SwingUtilities.invokeLater( new Runnable()
+        SwingUtilities.invokeLater(new Runnable()
         {
             @Override
             public void run()
@@ -169,8 +205,8 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
 
     }
 
-    @Override
-    public void projectAdded(String projectID)
+
+    private void addProjectNode(String projectID)
     {
 
         //iterate projects in sessions
@@ -188,6 +224,41 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
 //                rootTree.getJtree().expandPath(new TreePath(path));
 //            }
         }
+
+
+    }
+
+    private void createRemoteUserNodes(FollowModeAction followAction)
+    {
+        //todo
+        System.out.println("SessionTree.createRemoteUserNodes");
+
+        //remove old users
+        for (DefaultMutableTreeNode nUser : this.userNodeList)
+        {
+            remove(nUser);
+        }
+        this.userNodeList.clear();
+
+        //add new users
+        for (User user : followAction.getCurrentRemoteSessionUsers())
+        {
+            DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
+
+            this.userNodeList.add(nUser);
+
+            add(nUser);
+        }
+
+        UIUtil.invokeAndWaitIfNeeded(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                rootTree.getJtree().collapseRow(1);
+                rootTree.getJtree().expandRow(1);
+            }
+        });
 
 
     }
@@ -215,6 +286,22 @@ public class SessionTree extends AbstractTree implements ISarosSessionListener
             return session;
         }
 
+    }
+
+    protected class UserInfo extends LeafInfo
+    {
+        private User user;
+
+        public UserInfo(User user)
+        {
+            super(user.getHumanReadableName(), user.getShortHumanReadableName());
+            this.user = user;
+        }
+
+        public User getUser()
+        {
+            return user;
+        }
     }
 
     /**

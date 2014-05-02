@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 
 /**
@@ -37,6 +38,12 @@ public class LeaveSessionAction extends AbstractSarosAction
 {
     public static final String NAME = "leave";
 
+    private ISarosSessionManager sessionManager;
+
+    public LeaveSessionAction(ISarosSessionManager sessionManager)
+    {
+        this.sessionManager = sessionManager;
+    }
 
     @Override
     public String getActionName()
@@ -50,9 +57,9 @@ public class LeaveSessionAction extends AbstractSarosAction
     {
         actionStarted();
 
-        saros.getConnectionService().disconnect();
+        sessionManager.stopSarosSession();
 
-        log.info("CONNECTED");
+        log.info("DISCONNECTED");
 
         actionFinished();
     }

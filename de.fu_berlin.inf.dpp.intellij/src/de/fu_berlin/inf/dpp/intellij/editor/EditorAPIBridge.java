@@ -67,11 +67,6 @@ public class EditorAPIBridge  implements IEditorAPI
 
     }
 
-    @Override
-    public IEditorPart getActiveEditor()
-    {
-        return null;
-    }
 
     @Override
     public ITextSelection getSelection(IEditorPart editorPart)

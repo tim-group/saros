@@ -58,7 +58,7 @@ public class SarosActionFactory
         registerAction(connectServerAction);
         registerAction(new DisconnectServerAction());
         registerAction(pico.getComponent(FollowModeAction.class));
-        registerAction(new LeaveSessionAction());
+        registerAction(pico.getComponent(LeaveSessionAction.class));
         registerAction(new NewContactAction());
         registerAction(new OpenChartAction());
 

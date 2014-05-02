@@ -36,13 +36,25 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
+
+
+import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
+
 import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
-import de.fu_berlin.inf.dpp.intellij.mock.internal.AnnotationModelHelper;
-import de.fu_berlin.inf.dpp.intellij.mock.internal.ContributionAnnotationManager;
-import de.fu_berlin.inf.dpp.intellij.mock.internal.LocationAnnotationManager;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.ContributionAnnotationManager;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.LocationAnnotationManager;
+
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
+
+
+import de.fu_berlin.inf.dpp.intellij.util.Predicate;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
@@ -110,8 +122,6 @@ public class EditorManager
     protected final DirtyStateListener dirtyStateListener = new DirtyStateListener(this);
 
 
-
-
     protected Set<SPath> locallyOpenEditors = new HashSet<SPath>();
 
     protected SelectionEvent localSelection;
@@ -124,7 +134,7 @@ public class EditorManager
      */
     protected final Set<IFile> connectedFiles = new HashSet<IFile>();
 
-    AnnotationModelHelper annotationModelHelper;
+    //AnnotationModelHelper annotationModelHelper;
     LocationAnnotationManager locationAnnotationManager;
     ContributionAnnotationManager contributionAnnotationManager;
 
@@ -163,21 +173,21 @@ public class EditorManager
         {
             System.out.println("EditorManager.sessionStarted");
             sarosSession = newSarosSession;
-//            sarosSession.getStopManager().addBlockable(stopManagerListener);
+            sarosSession.getStopManager().addBlockable(stopManagerListener);
 
 //            assert editorPool.getAllEditors().size() == 0 : "EditorPool was not correctly reset!";
 //
             hasWriteAccess = sarosSession.hasWriteAccess();
-//            sarosSession.addListener(sharedProjectListener);
-//
+            sarosSession.addListener(sharedProjectListener);
+
             sarosSession.addActivityProducerAndConsumer(EditorManager.this);
-            annotationModelHelper = new AnnotationModelHelper();
+            //annotationModelHelper = new AnnotationModelHelper();
             locationAnnotationManager = new LocationAnnotationManager(preferenceStore);
             contributionAnnotationManager = new ContributionAnnotationManager(newSarosSession, preferenceStore);
             remoteEditorManager = new RemoteEditorManager(sarosSession);
             remoteWriteAccessManager = new RemoteWriteAccessManager(sarosSession);
 
-//            preferenceStore.addPropertyChangeListener(annotationPreferenceListener);
+//            preferenceStore.addPropertyChangeListener(annotationPreferenceListener); //todo
 //
 //            SWTUtils.runSafeSWTSync(log, new Runnable()
 //            {
@@ -185,7 +195,7 @@ public class EditorManager
 //                public void run()
 //                {
 //
-//                    editorAPI.addEditorPartListener(EditorManagerEcl.this);
+//                    editorAPI.addEditorPartListener(EditorManager.this);
 //                }
 //            });
         }
@@ -195,55 +205,56 @@ public class EditorManager
         {
             System.out.println("EditorManager.sessionEnded");
             assert sarosSession == oldSarosSession;
-//            sarosSession.getStopManager().removeBlockable(stopManagerListener);
-//
-//            SWTUtils.runSafeSWTSync(log, new Runnable()
-//            {
-//                @Override
-//                public void run()
-//                {
-//
-//                    setFollowing(null);
-//
-//                    editorAPI.removeEditorPartListener(EditorManagerEcl.this);
-//
-//                    preferenceStore
-//                            .removePropertyChangeListener(annotationPreferenceListener);
-//
-//                    /*
-//                     * First need to remove the annotations and then clear the
-//                     * editorPool
-//                     */
-//                    removeAnnotationsFromAllEditors(new Predicate<Annotation>()
-//                    {
-//                        @Override
-//                        public boolean evaluate(Annotation annotation)
-//                        {
-//                            return annotation instanceof SarosAnnotation;
-//                        }
-//                    });
-//
-//                    editorPool.removeAllEditors(sarosSession);
-//
-//                    customAnnotationManager.uninstallAllPainters(true);
-//
-//                    dirtyStateListener.unregisterAll();
-//
-//                    sarosSession.removeListener(sharedProjectListener);
-//                    sarosSession.removeActivityProducerAndConsumer(EditorManagerEcl.this);
-//
-//                    sarosSession = null;
-//                    annotationModelHelper = null;
-//                    locationAnnotationManager = null;
-//                    contributionAnnotationManager.dispose();
-//                    contributionAnnotationManager = null;
-//                    remoteEditorManager = null;
-//                    remoteWriteAccessManager.dispose();
-//                    remoteWriteAccessManager = null;
-//                    locallyActiveEditor = null;
-//                    locallyOpenEditors.clear();
-            //               }
-            //           });
+            sarosSession.getStopManager().removeBlockable(stopManagerListener); //todo
+
+            SWTUtils.runSafeSWTSync(log, new Runnable()
+            {
+                @Override
+                public void run()
+                {
+
+                    setFollowing(null);
+
+                    // editorAPI.removeEditorPartListener(EditorManager.this); //should be not needed
+
+                    //  preferenceStore.removePropertyChangeListener(annotationPreferenceListener);  //todo
+
+                    //todo: implement annotations
+                    /*
+                     * First need to remove the annotations and then clear the
+                     * editorPool
+                     */
+                    actionManager.removeAnnotationsFromAllEditors(new Predicate<Annotation>()
+                    {
+                        @Override
+                        public boolean evaluate(Annotation annotation)
+                        {
+                            return annotation instanceof SarosAnnotation;
+                        }
+                    });
+
+                    actionManager.getEditorPool().clear(); //todo
+                    //removeAllEditors(sarosSession); //make multi-session support
+
+                    //  customAnnotationManager.uninstallAllPainters(true);  //todo
+
+                    dirtyStateListener.unregisterAll();
+
+                    sarosSession.removeListener(sharedProjectListener);
+                    sarosSession.removeActivityProducerAndConsumer(EditorManager.this);
+
+                    sarosSession = null;
+                    //annotationModelHelper = null;
+                    locationAnnotationManager = null;
+                    contributionAnnotationManager.dispose();
+                    contributionAnnotationManager = null;
+                    remoteEditorManager = null;
+                    remoteWriteAccessManager.dispose();
+                    remoteWriteAccessManager = null;
+                    locallyActiveEditor = null;
+                    locallyOpenEditors.clear();
+                }
+            });
         }
 
         @Override
@@ -305,6 +316,128 @@ public class EditorManager
         public void activeEditorChanged(User user, SPath path)
         {
             System.out.println("EditorManager.activeEditorChanged>>>>>" + path);
+        }
+    };
+
+    private Blockable stopManagerListener = new Blockable()
+    {
+        @Override
+        public void unblock()
+        {
+            SWTUtils.runSafeSWTSync(log, new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    lockAllEditors(false);
+                }
+            });
+        }
+
+        @Override
+        public void block()
+        {
+            SWTUtils.runSafeSWTSync(log, new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    lockAllEditors(true);
+                }
+            });
+        }
+    };
+
+    private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener()
+    {
+
+        @Override
+        public void permissionChanged(final User user)
+        {
+
+            // Make sure we have the up-to-date facts about ourself
+            hasWriteAccess = sarosSession.hasWriteAccess();
+
+            // Lock / unlock editors
+            if (user.isLocal())
+            {
+                actionManager.setWriteAccessEnabled(hasWriteAccess);
+            }
+
+            // TODO [PERF] 1 Make this lazy triggered on activating a part?
+            refreshAnnotations();
+        }
+
+        @Override
+        public void userFinishedProjectNegotiation(User user)
+        {
+
+            // TODO The user should be able to ask us for this state
+
+            // Send awareness-informations
+            User localUser = sarosSession.getLocalUser();
+            for (SPath path : getLocallyOpenEditors())
+            {
+                fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
+            }
+
+            fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
+                    locallyActiveEditor));
+
+            if (locallyActiveEditor == null)
+            {
+                return;
+            }
+            if (localViewport != null)
+            {
+                fireActivity(new ViewportActivity(localUser,
+                        localViewport.getStartLine(),
+                        localViewport.getNumberOfLines(), locallyActiveEditor));
+            }
+            else
+            {
+                log.warn("No viewport for locallyActivateEditor: "
+                        + locallyActiveEditor);
+            }
+
+            if (localSelection != null)
+            {
+                int offset = localSelection.getNewRange().getStartOffset();
+                int length = localSelection.getNewRange().getEndOffset() - localSelection.getNewRange().getStartOffset();
+
+                fireActivity(new TextSelectionActivity(localUser, offset,
+                        length, locallyActiveEditor));
+            }
+            else
+            {
+                log.warn("No selection for locallyActivateEditor: "
+                        + locallyActiveEditor);
+            }
+        }
+
+        @Override
+        public void userLeft(final User user)
+        {
+
+            // If the user left which I am following, then stop following...
+            if (user.equals(followedUser))
+            {
+                setFollowing(null);
+            }
+
+            actionManager.removeAnnotationsFromAllEditors(new Predicate<Annotation>()
+            {
+                @Override
+                public boolean evaluate(Annotation annotation)
+                {
+                    return annotation instanceof SarosAnnotation
+                            && ((SarosAnnotation) annotation).getSource().equals(
+                            user);
+                }
+            });
+            remoteEditorManager.removeUser(user);
         }
     };
 
@@ -725,6 +858,12 @@ public class EditorManager
     {
         System.out.println("EditorManager.getRemoteOpenEditors");
         return remoteEditorManager.getRemoteOpenEditors();
+    }
+
+    private void lockAllEditors(boolean lock)
+    {
+        //todo
+        System.out.println("EditorManager.lockAllEditors //todo");
     }
 
     public void sendEditorActivitySaved(SPath path)

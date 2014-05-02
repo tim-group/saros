@@ -22,38 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
-
-import java.awt.*;
-
 /**
- * Saros action interface
- * <p/>
- * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.18
- * Time: 14.03
+ * Date: 2014-04-30
+ * Time: 16:57
  */
-public interface ISarosAction extends Runnable
+
+public interface UIRefreshListener
 {
-    void addActionListener(SarosActionListener actionListener);
-
-    void removeActionListener(SarosActionListener actionListener);
-
-    void removeAllActionListeners();
-
-
-    public void removeAllRefreshListeners();
-
-
-    public void addRefreshListener(UIRefreshListener refreshListener);
-
-
-    public void removeRefreshListener(UIRefreshListener refreshListener);
-
-
-    String getActionName();
-
-    public void setGuiFrame(Container guiFrame);
+    void refresh(AbstractSarosAction action);
 }

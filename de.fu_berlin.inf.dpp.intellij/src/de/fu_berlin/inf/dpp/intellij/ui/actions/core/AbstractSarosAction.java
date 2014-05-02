@@ -48,7 +48,7 @@ public abstract class AbstractSarosAction implements ISarosAction
     protected Container guiFrame;
 
     private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
-
+    private List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
     protected AbstractSarosAction()
     {
@@ -77,12 +77,26 @@ public abstract class AbstractSarosAction implements ISarosAction
         }
     }
 
+    protected void refreshAll()
+    {
+        final List<UIRefreshListener> list = new ArrayList<UIRefreshListener>(refreshListeners);
+        for (UIRefreshListener refreshListener : list)
+        {
+            refreshListener.refresh(this);
+        }
+    }
+
     @Override
     public void removeAllActionListeners()
     {
         actionListeners.clear();
     }
 
+    @Override
+    public void removeActionListener(SarosActionListener actionListener)
+    {
+        actionListeners.remove(actionListener);
+    }
 
     @Override
     public void addActionListener(SarosActionListener actionListener)
@@ -91,9 +105,22 @@ public abstract class AbstractSarosAction implements ISarosAction
     }
 
     @Override
-    public void removeActionListener(SarosActionListener actionListener)
+    public void removeAllRefreshListeners()
     {
-        actionListeners.remove(actionListener);
+        refreshListeners.clear();
+    }
+
+
+    @Override
+    public void addRefreshListener(UIRefreshListener refreshListener)
+    {
+        refreshListeners.add(refreshListener);
+    }
+
+    @Override
+    public void removeRefreshListener(UIRefreshListener refreshListener)
+    {
+        refreshListeners.remove(refreshListener);
     }
 
     public void setGuiFrame(Container guiFrame)

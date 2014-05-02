@@ -41,7 +41,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.*;
-import de.fu_berlin.inf.dpp.intellij.mock.internal.*;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.*;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IPropertyChangeListener;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.events.PropertyChangeEvent;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.BadLocationException;
@@ -114,7 +114,7 @@ public class EditorManagerEcl extends AbstractActivityProducerAndConsumer implem
 
     protected SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
 
-    protected IEditorAPI editorAPI;
+    protected EditorAPIEcl editorAPI;
 
     protected final IPreferenceStore preferenceStore;
 

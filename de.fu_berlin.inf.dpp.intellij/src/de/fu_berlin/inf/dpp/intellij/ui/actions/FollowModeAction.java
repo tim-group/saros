@@ -30,7 +30,6 @@ import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorLis
 import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -54,7 +53,6 @@ import java.util.Set;
  */
 public class FollowModeAction extends AbstractSarosAction
 {
-    private FollowButton button;
 
     public static final String NAME = "follow";
 
@@ -175,12 +173,6 @@ public class FollowModeAction extends AbstractSarosAction
     private final Set<User> currentRemoteSessionUsers = new LinkedHashSet<User>();
 
 
-    public FollowModeAction(FollowButton button)
-    {
-        this();
-        this.button = button;
-    }
-
     public FollowModeAction(EditorManager editorManager, ISarosSessionManager sessionManager)
     {
         this.editorManager = editorManager;
@@ -219,10 +211,6 @@ public class FollowModeAction extends AbstractSarosAction
         updateMenu();
     }
 
-    public void setButton(FollowButton button)
-    {
-        this.button = button;
-    }
 
     @Override
     public String getActionName()
@@ -263,7 +251,7 @@ public class FollowModeAction extends AbstractSarosAction
 
     public User getCurrentlyFollowedUser()
     {
-        return currentlyFollowedUser;
+        return editorManager.getFollowedUser();
     }
 
     public Set<User> getCurrentRemoteSessionUsers()
@@ -331,10 +319,7 @@ public class FollowModeAction extends AbstractSarosAction
 
     private void updateMenu()
     {
-        if (button != null)
-        {
-            button.createMenu();
-        }
+        refreshAll();
     }
 
 }
