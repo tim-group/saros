@@ -20,32 +20,49 @@
  * /
  */
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+package de.fu_berlin.inf.dpp.intellij.editor.events;
+
+import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-17
- * Time: 15:41
+ * Date: 2014-05-05
+ * Time: 17:52
  */
 
-public class TextBoxes extends AnAction
+public class TextSelectionEvent implements ITextSelection
 {
+    private int offset;
+    private int length;
 
-    public TextBoxes()
+    public TextSelectionEvent(int offset, int length)
     {
-        super("Text _Boxes");
+        this.offset = offset;
+        this.length = length;
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event)
+    public int getOffset()
     {
-        Project project = event.getData(PlatformDataKeys.PROJECT);
-        String txt = Messages.showInputDialog(project, "What is your name?", "Input your name", Messages.getQuestionIcon());
-        Messages.showMessageDialog(project, "Hello, " + txt + "!\n I am glad to see you.", "Information", Messages.getInformationIcon());
+        return offset;
+    }
+
+    @Override
+    public int getLength()
+    {
+        return length;
+    }
+
+    @Override
+    public int getEndLine()
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return getLength()==0;
     }
 }

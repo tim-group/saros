@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
+import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 
 import java.io.IOException;
@@ -95,5 +96,65 @@ public class SecurePreferenceStore extends AbstractStore implements ISecurePrefe
     {
         //todo: why arg2 needed?
         putByteArray(key, value);
+    }
+
+    @Override
+    public String get(String key, String def) throws StorageException
+    {
+        return null;
+    }
+
+    @Override
+    public String absolutePath()
+    {
+        return null;
+    }
+
+    @Override
+    public double getDouble(String key, double def) throws StorageException
+    {
+        return 0;
+    }
+
+    @Override
+    public float getFloat(String key, float def) throws StorageException
+    {
+        return 0;
+    }
+
+    @Override
+    public int getInt(String key, int def) throws StorageException
+    {
+        return 0;
+    }
+
+    @Override
+    public long getLong(String key, long def) throws StorageException
+    {
+        return 0;
+    }
+
+    @Override
+    public void remove(String key)
+    {
+
+    }
+
+    @Override
+    public boolean isEncrypted(String key) throws StorageException
+    {
+        return false;
+    }
+
+    @Override
+    public String name()
+    {
+        return null;
+    }
+
+    @Override
+    public void clear()
+    {
+
     }
 }

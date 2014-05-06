@@ -20,10 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor;
+package de.fu_berlin.inf.dpp.core.editor.colorstorage;
 
 
-import de.fu_berlin.inf.dpp.core.invitation.UserColorID;
 import de.fu_berlin.inf.dpp.net.JID;
 
 import java.io.Serializable;
@@ -56,7 +55,7 @@ public final class ColorIDSet implements Serializable
      *
      * @param colorIDs a map from JIDs to ColorIds
      */
-    ColorIDSet(Map<JID, UserColorID> colorIDs)
+    public ColorIDSet(Map<JID, UserColorID> colorIDs)
     {
         if (!isValidMap(colorIDs))
         {

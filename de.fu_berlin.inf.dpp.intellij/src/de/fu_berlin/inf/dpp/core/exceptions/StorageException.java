@@ -3,6 +3,8 @@ package de.fu_berlin.inf.dpp.core.exceptions;
 
 public class StorageException extends Exception
 {
+    public static final String INTERNAL_ERROR = "internal_error";
+
     public static final String ACTIVE_ACCOUNT = "active_account";
 
     public static final String ACCOUNT_DATA = "account_data";
@@ -161,4 +163,13 @@ public class StorageException extends Exception
     public static final String SHOW_CONTRIBUTION_ANNOTATIONS = "editor.annotation.contribution.enabled";
 
     public static final String SHOW_SELECTIONFILLUP_ANNOTATIONS = "editor.annotation.selectionfillup.enabled";
+
+    public StorageException()
+    {
+    }
+
+    public StorageException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

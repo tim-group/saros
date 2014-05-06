@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.mock.events;
 
+import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,6 +33,19 @@ package de.fu_berlin.inf.dpp.intellij.editor.mock.events;
 
 public class PropertyChangeEvent
 {
+    private IPreferenceStore store;
+    private String name;
+    private Object oldValue;
+    private Object newValue;
+
+    public PropertyChangeEvent(IPreferenceStore store, String name, Object oldValue, Object newValue)
+    {
+        this.store = store;
+        this.name = name;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+    }
+
     public String getProperty()
     {
         //todo

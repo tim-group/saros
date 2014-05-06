@@ -19,4 +19,24 @@ public interface ISecurePreferences
 
     void putByteArray(String key, byte[] value, boolean arg2)
             throws StorageException;
+
+    public String get(String key, String def) throws StorageException;
+
+    String absolutePath();
+
+    public double getDouble(String key, double def) throws StorageException;
+
+    public float getFloat(String key, float def) throws StorageException;
+
+    public int getInt(String key, int def) throws StorageException;
+
+    public long getLong(String key, long def) throws StorageException;
+
+    public void remove(String key);
+
+    public boolean isEncrypted(String key) throws StorageException;
+
+    public String name();
+
+    void clear();
 }

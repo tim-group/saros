@@ -26,8 +26,11 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -41,6 +44,7 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
 
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -69,7 +73,7 @@ public class EditorAPI extends EditorAPIBridge
 
     public EditorAPI()
     {
-        Project project =  SarosToolWindowFactory._project;
+        Project project = SarosToolWindowFactory._project;
         setProject(project);
     }
 
@@ -167,7 +171,7 @@ public class EditorAPI extends EditorAPIBridge
 
     public Document getDocument(final VirtualFile file)
     {
-         return fileDocumentManager.getDocument(file);
+        return fileDocumentManager.getDocument(file);
     }
 
     public void closeEditor(Document doc)
@@ -231,6 +235,7 @@ public class EditorAPI extends EditorAPIBridge
      */
     public void setViewPort(final Editor editor, final int lineStart, final int lineEnd)
     {
+
         Runnable action = new Runnable()
         {
             @Override
@@ -239,7 +244,7 @@ public class EditorAPI extends EditorAPIBridge
 
                 VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, 0);
                 editor.getCaretModel().moveToVisualPosition(posCenter);
-                editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+                editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
 
             }
         };
@@ -249,8 +254,6 @@ public class EditorAPI extends EditorAPIBridge
 
     public void insertText(final Document doc, final int position, final String text)
     {
-        // doc.addDocumentListener();
-
         Runnable action = new Runnable()
         {
             @Override
@@ -275,10 +278,34 @@ public class EditorAPI extends EditorAPIBridge
         };
 
         UIUtil.invokeAndWaitIfNeeded(action);
-
-
     }
 
+    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color)
+    {
+        if (color == null || editor == null)
+        {
+            return null;
+        }
+
+        TextAttributes textAttr = new TextAttributes();
+        textAttr.setBackgroundColor(color);
+
+        RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.LAST + 1, textAttr, HighlighterTargetArea.EXACT_RANGE);
+        highlighter.setGreedyToLeft(false);
+        highlighter.setGreedyToRight(false);
+
+        return highlighter;
+    }
+
+    public void textMarkRemove(final Editor editor,RangeHighlighter highlighter)
+    {
+        if(editor==null || highlighter==null)
+        {
+            return;
+        }
+
+        editor.getMarkupModel().removeHighlighter(highlighter);
+    }
 
     public void deleteText(final Document doc, final int start, final int end)
     {
@@ -308,7 +335,44 @@ public class EditorAPI extends EditorAPIBridge
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void setSelection(final Editor editor, final int start, final int end)
+    public void setSelection(final Editor editor, final int start, final int end,ColorModel colorMode)
+    {
+
+        Runnable action = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                application.runReadAction(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        //set selection
+                        editor.getSelectionModel().setSelection(start, end);
+
+                        //move scroll
+                        int lineStart = editor.getSelectionModel().getSelectionStartPosition().getLine();
+                        int lineEnd = editor.getSelectionModel().getSelectionEndPosition().getLine();
+
+                        int colStart = editor.getSelectionModel().getSelectionStartPosition().getColumn();
+                        int colEnd = editor.getSelectionModel().getSelectionEndPosition().getColumn();
+
+                        VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
+                        editor.getCaretModel().moveToVisualPosition(posCenter);
+                        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+
+                        //move cursor
+                        editor.getCaretModel().moveToOffset(start, true);
+                    }
+                });
+            }
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(action);
+
+    }
+    public void _setSelection(final Editor editor, final int start, final int end)
     {
         Runnable action = new Runnable()
         {

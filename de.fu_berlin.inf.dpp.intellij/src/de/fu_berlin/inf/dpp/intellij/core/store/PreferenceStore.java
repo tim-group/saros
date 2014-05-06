@@ -120,6 +120,13 @@ public class PreferenceStore extends AbstractStore implements IPreferenceStore
     }
 
     @Override
+    public void firePropertyChangeEvent(String name, Object oldValue, Object newValue)
+    {
+        //todo
+        System.out.println("PreferenceStore.firePropertyChangeEvent //todo");
+    }
+
+    @Override
     protected String encode(String text)
     {
         return text;

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.editor;
+package de.fu_berlin.inf.dpp.core.editor.colorstorage;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.annotations.Component;

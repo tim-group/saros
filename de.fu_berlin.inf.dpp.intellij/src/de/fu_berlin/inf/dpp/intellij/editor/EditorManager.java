@@ -36,19 +36,13 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-
-
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
-
 import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.ContributionAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.LocationAnnotationManager;
-
+import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
-
-
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -58,6 +52,7 @@ import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
@@ -126,6 +121,7 @@ public class EditorManager
 
     protected SelectionEvent localSelection;
     protected ILineRange localViewport;
+
     protected SPath locallyActiveEditor;
 
 
@@ -501,16 +497,17 @@ public class EditorManager
 
     }
 
+    ColorManager colorManager = new ColorManager(); //todo
+
     protected void execTextEdit(TextEditActivity editorActivity)
     {
         System.out.println(">>>EditorManager.execTextEdit " + editorActivity);
 
-        SPath file = editorActivity.getPath();
-
-        actionManager.editText(file, editorActivity.toOperation());
-
-        User user = editorActivity.getSource();
         SPath path = editorActivity.getPath();
+        User user = editorActivity.getSource();
+        ColorModel colorModel = colorManager.getColorModel(user.getColorID());
+
+        actionManager.editText(path, editorActivity.toOperation(),colorModel.getEditColor());
 
         // inform all registered ISharedEditorListeners about this text edit
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
@@ -535,9 +532,11 @@ public class EditorManager
         }
 
         User user = selection.getSource();
+        ColorModel colorModel = colorManager.getColorModel(user.getColorID());
+
         if (isFollowing(user))
         {
-            actionManager.selectText(path, selection.getOffset(), selection.getLength());
+            actionManager.selectText(path, selection.getOffset(), selection.getLength(),colorModel);
         }
 
         /*
@@ -671,6 +670,30 @@ public class EditorManager
                 offset, length, path));
     }
 
+
+    public void generateViewport(SPath path, ILineRange viewport)
+    {
+
+        System.out.println("EditorManager.generateViewport "+viewport);
+
+        if (this.sarosSession == null)
+        {
+            log.warn("SharedEditorListener not correctly unregistered!");
+            return;
+        }
+
+
+        if (path.equals(locallyActiveEditor))
+        {
+            this.localViewport = viewport;
+        }
+
+
+        fireActivity(new ViewportActivity(sarosSession.getLocalUser(),
+                viewport.getStartLine(), viewport.getNumberOfLines(), path));
+
+      //  editorListenerDispatch.viewportGenerated(part, viewport, path);
+    }
     /**
      * Returns <code>true</code> if there is currently a {@link User} followed,
      * otherwise <code>false</code>.

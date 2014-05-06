@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.vfs.VirtualFile;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
@@ -36,9 +37,12 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableDocumentListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableSelectionListener;
+import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableViewPortListener;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
+
+import java.awt.*;
 
 
 /**
@@ -59,6 +63,7 @@ public class EditorActionManager
     private StoppableDocumentListener documentListener;
     private StoppableEditorFileListener fileListener;
     private StoppableSelectionListener selectionListener;
+    private StoppableViewPortListener viewportListener;
 
     public EditorActionManager(EditorManager manager)
     {
@@ -70,6 +75,7 @@ public class EditorActionManager
 
         this.fileListener = new StoppableEditorFileListener(manager);
         this.selectionListener = new StoppableSelectionListener(manager);
+        this.viewportListener = new StoppableViewPortListener(manager);
 
         if (this.editorAPI.editorFileManager != null)
         {
@@ -134,12 +140,14 @@ public class EditorActionManager
     public void startEditor(Editor editor)
     {
         editor.getSelectionModel().addSelectionListener(selectionListener);
+        editor.getScrollingModel().addVisibleAreaListener(viewportListener);
         documentListener.setDocument(editor.getDocument());
     }
 
     public void stopEditor(Editor editor)
     {
         editor.getSelectionModel().removeSelectionListener(selectionListener);
+        editor.getScrollingModel().removeVisibleAreaListener(viewportListener);
         documentListener.setDocument(null);
     }
 
@@ -188,9 +196,8 @@ public class EditorActionManager
         }
     }
 
-    public void editText(SPath file, Operation operations)
+    public void editText(SPath file, Operation operations, Color color)
     {
-
         Document doc = editorPool.getDocument(file);
         if (doc == null)
         {
@@ -213,18 +220,26 @@ public class EditorActionManager
             else
             {
                 editorAPI.insertText(doc, op.getPosition(), op.getText());
+                Editor editor = editorPool.getEditor(file);
+                if (editor != null)
+                {
+                    editorAPI.textMarkAdd(editor, op.getPosition(), op.getPosition() + op.getTextLength(), color);
+                }
             }
         }
 
         documentListener.setEnabled(true);
     }
 
-    public void selectText(SPath file, int position, int length)
+    public void selectText(SPath file, int position, int length, ColorModel colorModel)
     {
         Editor editor = editorPool.getEditor(file);
         if (editor != null)
         {
-            editorAPI.setSelection(editor, position, position + length); //todo: calculate new line char win and unix differences
+            editorAPI.textMarkRemove(editor, colorModel.getSelect());
+            RangeHighlighter highlighter = editorAPI.textMarkAdd(editor, position, position + length, colorModel.getSelectColor());
+            colorModel.setSelect(highlighter);
+            //editorAPI.setSelection(editor, position, position + length,color); //todo: calculate new line char win and unix differences
 
         }
     }
@@ -255,7 +270,7 @@ public class EditorActionManager
         }
 
         //todo
-        editorAPI.setSelection(editor, selection.getOffset(), selection.getOffset() + selection.getLength());
+        editorAPI.setSelection(editor, selection.getOffset(), selection.getOffset() + selection.getLength(), null);
         editorAPI.setViewPort(editor, range.getStartLine(), range.getStartLine() + range.getNumberOfLines());
 
        /* int lines = editor.getSelectionModel().getSelectionEndPosition().getLine()

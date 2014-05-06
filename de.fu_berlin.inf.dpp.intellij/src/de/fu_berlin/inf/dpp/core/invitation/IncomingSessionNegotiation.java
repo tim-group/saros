@@ -1,6 +1,7 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
+import de.fu_berlin.inf.dpp.core.editor.colorstorage.UserColorID;
 import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.core.invitation.hooks.ISessionNegotiationHook;

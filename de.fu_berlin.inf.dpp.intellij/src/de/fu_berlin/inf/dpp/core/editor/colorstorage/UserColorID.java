@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.invitation;
+package de.fu_berlin.inf.dpp.core.editor.colorstorage;
 
 import java.io.Serializable;
 

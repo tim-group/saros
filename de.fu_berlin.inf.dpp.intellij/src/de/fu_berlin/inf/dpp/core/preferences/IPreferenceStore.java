@@ -36,4 +36,6 @@ public interface IPreferenceStore
 
     void removePropertyChangeListener(IPropertyChangeListener listener);
 
+    void firePropertyChangeEvent(String name, Object oldValue, Object newValue);
+
 }
