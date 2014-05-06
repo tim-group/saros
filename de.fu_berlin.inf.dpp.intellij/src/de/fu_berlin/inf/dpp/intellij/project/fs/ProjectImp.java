@@ -43,6 +43,8 @@ import java.util.Map;
 
 public class ProjectImp implements IProject
 {
+    public static final String DEFAULT_CHARSET = "utf8";
+
     private String name;
     private File path;
 
@@ -406,10 +408,11 @@ public class ProjectImp implements IProject
         }
     }
 
+
     @Override
-    public <T> T getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return null;
+        return this;
     }
 
     @Override

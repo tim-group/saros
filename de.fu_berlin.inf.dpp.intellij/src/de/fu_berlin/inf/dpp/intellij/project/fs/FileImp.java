@@ -144,9 +144,9 @@ public class FileImp extends ResourceImp implements IFile
     }
 
     @Override
-    public <T> T getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return null;
+        return this;
     }
 
     public String toString()

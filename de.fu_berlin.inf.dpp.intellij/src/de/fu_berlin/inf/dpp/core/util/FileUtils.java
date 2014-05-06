@@ -548,7 +548,8 @@ public class FileUtils
 
                     try
                     {
-                        IContainer container =  resource.getAdapter();
+                        IContainer container = ((IContainer) resource
+                                .getAdapter(IContainer.class));
 
                         Pair<Long, Long> subFileCountAndSize = FileUtils
                                 .getFileCountAndSize(

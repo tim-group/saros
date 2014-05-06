@@ -128,9 +128,9 @@ public class FolderImp extends ResourceImp implements IFolder
 
 
     @Override
-    public <T> T getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return null;
+        return this;
     }
 
     @Override

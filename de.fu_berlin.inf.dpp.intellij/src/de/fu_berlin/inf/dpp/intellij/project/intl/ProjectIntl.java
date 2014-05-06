@@ -318,9 +318,9 @@ public class ProjectIntl implements IProject
     }
 
     @Override
-    public Project getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return project;
+        return this;
     }
 
     @Override

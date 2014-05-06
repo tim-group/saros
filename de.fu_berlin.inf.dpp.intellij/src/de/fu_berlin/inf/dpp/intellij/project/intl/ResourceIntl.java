@@ -63,6 +63,8 @@ import java.net.URI;
 
 public abstract class ResourceIntl implements IResource
 {
+    public static final String DEFAULT_CHARSET = "utf8";
+
     protected ProjectIntl project;
     protected File file;
     protected VirtualFile virtualFile;

@@ -72,28 +72,27 @@ public class FolderIntl extends ResourceIntl implements IFolder
     public FolderIntl(ProjectIntl project, VirtualFile file)
     {
         super(project, file);
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
+
+
         this.psiDirectory = psiManager.findDirectory(getVirtualFile());
     }
 
     public FolderIntl(ProjectIntl project, PsiDirectory dir)
     {
         super(project, dir.getVirtualFile());
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
         this.psiDirectory = dir;
     }
 
     public FolderIntl(ProjectIntl project, File file)
     {
         super(project, file);
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
+
         this.psiDirectory = psiManager.findDirectory(getVirtualFile());
     }
 
     public FolderIntl(ProjectIntl project, String path)
     {
         super(project, path);
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
         this.psiDirectory = psiManager.findDirectory(getVirtualFile());
     }
 
@@ -182,9 +181,9 @@ public class FolderIntl extends ResourceIntl implements IFolder
     }
 
     @Override
-    public VirtualFile getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return virtualFile;
+        return this;
     }
 
     @Override

@@ -91,7 +91,6 @@ public class FileIntl extends ResourceIntl implements IFile
     {
         super(project, file);
 
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
         this.psiFile =  psiManager.findFile(file);
     }
 
@@ -99,7 +98,7 @@ public class FileIntl extends ResourceIntl implements IFile
     {
         super(project, psiFile.getVirtualFile());
 
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
+
         this.psiFile = psiFile;
     }
 
@@ -107,7 +106,6 @@ public class FileIntl extends ResourceIntl implements IFile
     {
         super(project, file);
 
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
         this.psiFile =  psiManager.findFile(getVirtualFile());
     }
 
@@ -115,7 +113,7 @@ public class FileIntl extends ResourceIntl implements IFile
     {
         super(project, path);
 
-        this.psiManager =  PsiManager.getInstance(project.getAdapter());
+
         this.psiFile =  psiManager.findFile(getVirtualFile());
     }
 
@@ -209,9 +207,9 @@ public class FileIntl extends ResourceIntl implements IFile
     }
 
     @Override
-    public <T> T getAdapter()
+    public Object getAdapter(Class<? extends IResource> clazz)
     {
-        return null;
+        return this;
     }
 
     public String toString()

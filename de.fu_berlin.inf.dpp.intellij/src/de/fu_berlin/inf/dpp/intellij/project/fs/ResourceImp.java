@@ -39,6 +39,8 @@ import java.net.URI;
 
 public abstract class ResourceImp implements IResource
 {
+    public static final String DEFAULT_CHARSET = "utf8";
+
     protected ProjectImp project;
     protected File file;
     private String defaultCharset = DEFAULT_CHARSET;
