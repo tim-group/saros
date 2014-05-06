@@ -11,8 +11,6 @@ import java.net.URI;
  */
 public interface IResource {
 
-    public static final String DEFAULT_CHARSET = "utf8";
-
     public static final int NONE = 0;
     public static final int FILE = 1;
     public static final int FOLDER = 2;
@@ -58,8 +56,6 @@ public interface IResource {
 
     public void delete(int updateFlags) throws IOException;
 
-   // public void delete(int updateFlags, IProgressMonitor monitor) throws IOException;
-
     public void move(IPath destination, boolean force) throws IOException;
 
     public IResourceAttributes getResourceAttributes();
@@ -69,7 +65,7 @@ public interface IResource {
 
     public URI getLocationURI();
 
-    public <T> T getAdapter();
+    public Object getAdapter(Class<? extends IResource> clazz);
 
     public IPath getLocation();
 
