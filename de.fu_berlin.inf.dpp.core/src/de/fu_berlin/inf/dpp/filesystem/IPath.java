@@ -65,6 +65,7 @@ public interface IPath {
 
     public File toFile();
 
-    IPath removeFirstSegments(int index);
+    public IPath removeFirstSegments(int index);
 
+    public <T> T getAdapter();
 }

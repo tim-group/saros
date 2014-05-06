@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.filesystem;
 
+
 import java.io.IOException;
 
 /**
@@ -34,9 +35,9 @@ public interface IContainer extends IResource {
     public static final int EXCLUDE_DERIVED = 1;
     public boolean exists(IPath path);
 
-    public IResource[] members() ;
+    public IResource[] members();
 
-    public IResource[] members(int memberFlags) throws IOException;
+    public IResource[] members(int memberFlags);
 
     public String getDefaultCharset() throws IOException;
 }

@@ -40,5 +40,5 @@ public interface IFile extends IResource {
 
     public void create(InputStream input, boolean force) throws IOException;
 
-    public IPath getLocation();
+
 }

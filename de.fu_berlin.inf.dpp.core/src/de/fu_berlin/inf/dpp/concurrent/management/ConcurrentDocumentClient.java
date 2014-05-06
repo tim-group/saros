@@ -170,6 +170,9 @@ public class ConcurrentDocumentClient {
         try {
             op = jupiterClient.receive(jupiterActivity);
         } catch (TransformationException e) {
+
+            e.printStackTrace(); //todo!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             log.error("Error during transformation of: " + jupiterActivity, e);
             // TODO this should trigger a consistency check
             return activities;

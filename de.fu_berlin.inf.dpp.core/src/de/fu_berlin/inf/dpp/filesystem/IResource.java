@@ -1,5 +1,6 @@
 package de.fu_berlin.inf.dpp.filesystem;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -68,8 +69,11 @@ public interface IResource {
 
     public URI getLocationURI();
 
-    public Object getAdapter(Class<? extends IResource> clazz);
+    public <T> T getAdapter();
 
     public IPath getLocation();
+
+    public File toFile();
+
 
 }
