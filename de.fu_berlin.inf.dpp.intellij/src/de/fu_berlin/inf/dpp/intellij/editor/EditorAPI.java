@@ -43,6 +43,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
+import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
 import java.awt.*;
 import java.io.File;
@@ -290,9 +291,10 @@ public class EditorAPI extends EditorAPIBridge
         TextAttributes textAttr = new TextAttributes();
         textAttr.setBackgroundColor(color);
 
-        RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.LAST + 1, textAttr, HighlighterTargetArea.EXACT_RANGE);
+        RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.LAST, textAttr, HighlighterTargetArea.EXACT_RANGE);
         highlighter.setGreedyToLeft(false);
         highlighter.setGreedyToRight(false);
+        //highlighter.setLineSeparatorColor(Color.WHITE); //todo
 
         return highlighter;
     }

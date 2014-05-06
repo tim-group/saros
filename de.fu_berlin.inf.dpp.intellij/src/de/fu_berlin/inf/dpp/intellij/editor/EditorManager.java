@@ -37,6 +37,8 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
+import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.ContributionAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.LocationAnnotationManager;
@@ -52,7 +54,6 @@ import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
