@@ -82,7 +82,7 @@ public class FileListTest {
         xstream.registerConverter(BooleanConverter.BINARY);
         xstream.processAnnotations(FileList.class);
 
-        FileList.workspace = Workspace.instance(); //todo
+        FileList.workspace = new Workspace();
     }
 
     private IFile fileInRoot1;

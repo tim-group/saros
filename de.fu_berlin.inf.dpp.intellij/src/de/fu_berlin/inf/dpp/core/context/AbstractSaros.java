@@ -80,6 +80,14 @@ public abstract class AbstractSaros
 
 
     protected static boolean isInitialized;
+
+    protected static boolean isRunning;
+
+    protected AbstractSaros()
+    {
+        isRunning = true;
+    }
+
     /**
      * Returns true if the Saros instance has been initialized so that calling
      * {@link de.fu_berlin.inf.dpp.core.context.SarosContext#reinject(Object)} will be well defined.
@@ -87,6 +95,11 @@ public abstract class AbstractSaros
     public static boolean isInitialized()
     {
         return isInitialized;
+    }
+
+    public static boolean isIsRunning()
+    {
+        return isRunning;
     }
 
     protected static void checkInitialized()

@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import org.apache.log4j.Logger;
 
@@ -46,32 +45,26 @@ import java.io.IOException;
 public class Workspace implements IWorkspace
 {
     public static final Logger log = Logger.getLogger(Workspace.class);
-    private static Workspace _instance;
-
     private SchedulingRoot root;
+
     private File path;
 
-    private Workspace()
+    public Workspace()
     {
-
     }
 
-    public static Workspace instance()
+    public Workspace(File basePath)
     {
-        if (_instance == null)
-        {
-            _instance = new Workspace();
-        }
-
-        return _instance;
+        setPath(basePath);
     }
+
 
     private IWorkspaceDescription description = new WorkspaceDescription();
 
     @Override
     public void run(final IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
     {
-        System.out.println("WorkspaceIntl.run 1 //todo");
+        System.out.println("Workspace.run 1 //todo");
 
         //  new WorkspaceThread(procedure,monitor).start();
         try
@@ -88,7 +81,7 @@ public class Workspace implements IWorkspace
     @Override
     public void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor)
     {
-        System.out.println("WorkspaceIntl.run 2 //todo");
+        System.out.println("Workspace.run 2 //todo");
 
         // new WorkspaceThread(procedure,monitor).start(); //todo
         try
@@ -106,7 +99,7 @@ public class Workspace implements IWorkspace
     {
         if (root == null)
         {
-            throw new RuntimeException("WorkspaceIntl not initialized!");
+            throw new RuntimeException("Workspace not initialized!");
         }
 
         return root;

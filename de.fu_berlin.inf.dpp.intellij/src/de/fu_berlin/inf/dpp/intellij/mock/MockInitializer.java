@@ -42,15 +42,7 @@ public class MockInitializer
 {
 
 
-    public static void createProjects()
-    {
 
-        File projects = new File("../../test_projects");
-        projects.mkdirs();
-        Workspace.instance().createWorkSpace(new File(projects.getAbsolutePath()));
-
-        // WorkspaceIntl.instance().createWorkSpace(new File("c:\\Develop\\Saros\\idea\\test\\"));
-    }
 
     public static void initSecurePrefStore(ISecurePreferences securePrefs)
     {

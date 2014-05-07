@@ -149,10 +149,12 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
     @Override
     public void createComponents(MutablePicoContainer container)
     {
-        IWorkspace workspace = Saros.instance().getWorkspace();
+        //IWorkspace workspace = Saros.instance().getWorkspace();
+        IWorkspace workspace = saros.getWorkspace();
         FileList.workspace = workspace;
         FileListDiff.workspace = workspace;
 
+       // container.addComponent(Saros.class,saros);
         container.addComponent(IPreferenceStore.class, saros.getConfigPrefs());
         container.addComponent(ISecurePreferences.class, saros.getSecurePrefs());
 

@@ -22,19 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij;
 
-
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.psi.PsiManager;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.mock.MockInitializer;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
-import de.fu_berlin.inf.dpp.intellij.project.intl.WorkspaceIntl;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -42,7 +34,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * Saros core panel tool window factory. Here is a starting point of IntelliJ plugin
@@ -72,17 +63,17 @@ public class SarosToolWindowFactory implements ToolWindowFactory
 
         PropertyConfigurator.configure("c:\\Develop\\Saros\\idea\\saros\\de.fu_berlin.inf.dpp.intellij\\src\\log4j.properties");  //todo
 
+        Saros saros = new Saros(project,toolWindow);
 
-        Saros.instance().start(true);
-        Saros.instance().setProject(project);
+        Workspace ws = new Workspace();
+        ws.setPath(new File(project.getBasePath()));
+        saros.setWorkspace(ws);
 
-        SarosMainPanelView stw = new SarosMainPanelView(project, toolWindow);
+        saros.start();
 
-        System.out.println("SarosToolWindowFactory.createToolWindowContent PATH=" + project.getBasePath() + " NAME=" + project.getName());
 
-        //   System.out.println("SarosToolWindowFactory.createToolWindowContent>>>>"+project.getWorkspaceFile().getCanonicalPath());
-       // Workspace.instance().createWorkSpace(new File(project.getBasePath()).getParentFile());
-        Workspace.instance().setPath(new File(project.getBasePath()));
+        SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
+        mainPanel.create();
 
     }
 
@@ -94,26 +85,31 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     public static void main(String[] args)
     {
 
-        Saros.instance().start(true); // start saros
+        final Saros saros = new Saros(null,null);
+        Workspace ws = new Workspace();
+        File projects = new File("../../test_projects");
+        projects.mkdirs();
+        ws.createWorkSpace(new File(projects.getAbsolutePath()));
+        saros.setWorkspace(ws);
 
-        MockInitializer.createProjects(); //todo
+        saros.start();
 
-        SarosMainPanelView sarosMainView = new SarosMainPanelView();
-        sarosMainView.setSize(new Dimension(800, 300));
 
-        //  sarosPanel.pack();
-        sarosMainView.addWindowListener(new WindowAdapter()
+        SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
+        mainPanel.setSize(new Dimension(800, 300));
+
+        mainPanel.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
             {
 
-                Saros.instance().stop();
+                saros.stop();
                 System.exit(0);
             }
         });
 
-
-        sarosMainView.setVisible(true);
+        mainPanel.create();
+        mainPanel.setVisible(true);
 
     }
 

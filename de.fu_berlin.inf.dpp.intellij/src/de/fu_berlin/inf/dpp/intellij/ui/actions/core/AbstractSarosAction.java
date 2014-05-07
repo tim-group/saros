@@ -52,7 +52,12 @@ public abstract class AbstractSarosAction implements ISarosAction
 
     protected AbstractSarosAction()
     {
-        this.saros = Saros.instance();
+
+    }
+
+    public void setSaros(Saros saros)
+    {
+        this.saros = saros;
     }
 
     protected void actionStarted()

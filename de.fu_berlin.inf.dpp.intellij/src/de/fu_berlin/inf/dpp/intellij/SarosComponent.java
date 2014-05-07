@@ -39,7 +39,7 @@ public class SarosComponent implements ApplicationComponent
 
     public SarosComponent()
     {
-        saros = Saros.instance();
+       // saros = Saros.instance();
     }
 
     public void initComponent()

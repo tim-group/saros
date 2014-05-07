@@ -22,15 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
-import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.MutablePicoContainer;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,13 +43,16 @@ public class SarosActionFactory
 {
     private static Logger log = Logger.getLogger(SarosActionFactory.class);
 
-    private static Map<String, ISarosAction> registeredActions = new HashMap<String, ISarosAction>();
+    private Map<String, ISarosAction> registeredActions = new HashMap<String, ISarosAction>();
 
-    private static ConnectServerAction connectServerAction;
+    private ConnectServerAction connectServerAction;
+    private Saros saros;
 
-    static
+    public SarosActionFactory(Saros saros)
     {
-        MutablePicoContainer pico = Saros.instance().getSarosContext().createSimpleChildContainer();
+        this.saros = saros;
+
+        MutablePicoContainer pico = saros.getSarosContext().createSimpleChildContainer();
         //register all actions
         connectServerAction = new ConnectServerAction();
         registerAction(connectServerAction);
@@ -66,15 +66,15 @@ public class SarosActionFactory
         {
             registerAction(new NotImplementedAction(enAction));
         }
-
     }
 
     /**
      * @param action
      * @return
      */
-    private static ISarosAction registerAction(ISarosAction action)
+    private ISarosAction registerAction(AbstractSarosAction action)
     {
+        action.setSaros(saros);
         ISarosAction oldAction = registeredActions.put(action.getActionName(), action);
 
         if (oldAction != null)
@@ -118,7 +118,7 @@ public class SarosActionFactory
      * @param actionName
      * @return
      */
-    public static ISarosAction getAction(String actionName)
+    public ISarosAction getAction(String actionName)
     {
         ISarosAction action = registeredActions.get(actionName);
         if (action == null)
@@ -132,16 +132,16 @@ public class SarosActionFactory
     /**
      * @param action
      */
-    public static void startAction(ISarosAction action)
+    public void startAction(ISarosAction action)
     {
-       // ThreadUtils.runSafeAsync(log,action);
+        // ThreadUtils.runSafeAsync(log,action);
         action.run();
     }
 
     /**
      * @param actionName
      */
-    public static void startAction(String actionName)
+    public void startAction(String actionName)
     {
         startAction(getAction(actionName));
     }
@@ -150,7 +150,7 @@ public class SarosActionFactory
     // Specific actions
     //
 
-    public static ConnectServerAction getConnectServerAction()
+    public ConnectServerAction getConnectServerAction()
     {
         return connectServerAction;
     }

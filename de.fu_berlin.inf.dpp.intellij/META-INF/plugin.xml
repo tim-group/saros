@@ -20,9 +20,9 @@
 
     <application-components>
         <!-- Add your application components here -->
-       <!-- <component>
-            <implementation-class>de.fu_berlin.inf.dpp.intellij.SarosComponent</implementation-class>
-        </component>-->
+        <!-- <component>
+             <implementation-class>de.fu_berlin.inf.dpp.intellij.SarosComponent</implementation-class>
+         </component>-->
     </application-components>
 
     <project-components>
@@ -30,14 +30,17 @@
     </project-components>
 
     <actions>
-       <!-- Add your actions here -->
+        <!-- Add your actions here -->
         <group id="saros.MainMenu" text="Saros" description="Saros menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="saros.about" class="de.fu_berlin.inf.dpp.intellij.ui.menu.AboutSarosHandler" text="About Saros" />
+            <action id="saros.about" class="de.fu_berlin.inf.dpp.intellij.ui.menu.AboutSarosHandler"
+                    text="About Saros"/>
         </group>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Saros" icon="/images/saros.png" anchor="bottom" factoryClass="de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory"/>
+        <toolWindow id="Saros" icon="/images/saros.png" anchor="bottom" secondary="true"
+                    conditionClass="de.fu_berlin.inf.dpp.intellij.SarosCondition"
+                    factoryClass="de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory"/>
     </extensions>
 </idea-plugin>

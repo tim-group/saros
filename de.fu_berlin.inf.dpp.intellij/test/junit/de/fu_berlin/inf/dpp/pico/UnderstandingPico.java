@@ -80,6 +80,8 @@ public class UnderstandingPico {
 
         MutablePicoContainer container = new DefaultPicoContainer(
             new AnnotatedFieldInjection());
+
+
         container.addComponent(B.class);
         assertNotNull(container.getComponent(B.class));
     }

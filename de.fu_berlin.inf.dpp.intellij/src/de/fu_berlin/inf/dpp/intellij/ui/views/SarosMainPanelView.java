@@ -44,12 +44,11 @@ public class SarosMainPanelView extends JFrame
 {
     protected static final Logger log = Logger.getLogger(SarosMainPanelView.class);
 
-    private Project project;
-    private ToolWindow toolWindow;
     private Container parent;
 
     private SarosToolbar sarosToolbar;
     private SarosTreeView sarosTree;
+    private Saros saros;
 
     static
     {
@@ -70,33 +69,32 @@ public class SarosMainPanelView extends JFrame
         }
     }
 
-    public SarosMainPanelView(Project project, ToolWindow toolWindow) throws HeadlessException
-    {
-        this.project = project;
-        this.toolWindow = toolWindow;
-
-        this.parent = toolWindow.getComponent().getParent();
-
-        create();
-    }
-
-    public SarosMainPanelView() throws HeadlessException
+    public SarosMainPanelView(Saros saros) throws HeadlessException
     {
         super("Saros panel");
-        this.parent = this;
 
-        Saros.instance().setMainPanel(this);
+        this.saros = saros;
+        this.saros.setMainPanel(this);
 
-        create();
+        if (saros.getToolWindow() != null)
+        {
+            this.parent = saros.getToolWindow().getComponent().getParent();
+        }
+        else
+        {
+            this.parent = this;
+        }
     }
 
-    private void create()
+
+
+    public void create()
     {
 
         log.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
 
-        sarosToolbar = new SarosToolbar();
-        sarosTree = new SarosTreeView();
+        sarosToolbar = new SarosToolbar(saros);
+        sarosTree = new SarosTreeView(saros);
 
         JToolBar tb = sarosToolbar.create(this);
         parent.add(tb, BorderLayout.NORTH);
@@ -126,25 +124,6 @@ public class SarosMainPanelView extends JFrame
 
     }
 
-    public Project getProject()
-    {
-        return project;
-    }
-
-    public void setProject(Project project)
-    {
-        this.project = project;
-    }
-
-    public ToolWindow getToolWindow()
-    {
-        return toolWindow;
-    }
-
-    public void setToolWindow(ToolWindow toolWindow)
-    {
-        this.toolWindow = toolWindow;
-    }
 
     public SarosToolbar getSarosToolbar()
     {
