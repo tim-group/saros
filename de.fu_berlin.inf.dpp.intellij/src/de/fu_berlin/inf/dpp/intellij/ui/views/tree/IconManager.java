@@ -94,11 +94,13 @@ public class IconManager
                         }
                         else
                         {
-
-                            AbstractTree.LeafInfo info = (AbstractTree.LeafInfo) node.getUserObject();
-                            if (info.getIcon() != null)
+                            if (node.getUserObject() instanceof AbstractTree.LeafInfo)
                             {
-                                setIcon(info.getIcon());
+                                AbstractTree.LeafInfo info = (AbstractTree.LeafInfo) node.getUserObject();
+                                if (info.getIcon() != null)
+                                {
+                                    setIcon(info.getIcon());
+                                }
                             }
                         }
                     }
