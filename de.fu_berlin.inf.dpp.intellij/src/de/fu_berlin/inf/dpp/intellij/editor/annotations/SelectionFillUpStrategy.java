@@ -178,7 +178,7 @@ public class SelectionFillUpStrategy implements IDrawingStrategy
          * with foldings:
          *
          * - One might do some calculations before inserting the Annotation into
-         * the model: Find out there whether the end of the selection coincides
+         * the treeModel: Find out there whether the end of the selection coincides
          * with the end of the text in a line. If so, decrease its length by 1.
          * The line will get highlighted by the SelectionAnnotation (which gets
          * the original length), but the SelectionFillUpAnnotation will think

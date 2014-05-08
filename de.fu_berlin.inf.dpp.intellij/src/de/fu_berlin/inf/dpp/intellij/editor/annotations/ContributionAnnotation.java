@@ -39,7 +39,7 @@ public class ContributionAnnotation extends SarosAnnotation
     protected static final String TYPE = "de.fu_berlin.inf.dpp.annotations.contribution";
 
     /**
-     * The model this annotation belongs to.
+     * The treeModel this annotation belongs to.
      */
     protected IAnnotationModel model;
 

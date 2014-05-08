@@ -1654,7 +1654,7 @@ public class EditorManagerEcl extends AbstractActivityProducerAndConsumer implem
         {
             IDocument doc = provider.getDocument(input);
 
-            // TODO Why do we need to connect to the annotation model here?
+            // TODO Why do we need to connect to the annotation treeModel here?
             IAnnotationModel model = provider.getAnnotationModel(input);
             if (model != null)
             {

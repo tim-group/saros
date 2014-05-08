@@ -157,7 +157,7 @@ public class LocationAnnotationManager {
                 });
 
         // Calculate the position of the new ViewportAnnotation and then add it
-        // to the model
+        // to the treeModel
         try {
             int lines = document.getNumberOfLines();
             top = Math.max(0, Math.min(lines - 1, top));
@@ -260,7 +260,7 @@ public class LocationAnnotationManager {
 
         // TODO For better performance: Currently, all selection-related
         // annotations are created and replaced individually. Since the access
-        // to the annotation model tends to be slow and the replacement may take
+        // to the annotation treeModel tends to be slow and the replacement may take
         // place in batches, one could first create all new selection-related
         // annotations and replace them at once.
 

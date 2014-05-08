@@ -967,8 +967,8 @@ public class EditorManager
 //        {
 //            IEditorInput input = changedEditor.getEditorInput();
 //            IDocumentProvider provider = getDocumentProvider(input);
-//            IAnnotationModel model = provider.getAnnotationModel(input);
-//            contributionAnnotationManager.splitAnnotation(model, offset);
+//            IAnnotationModel treeModel = provider.getAnnotationModel(input);
+//            contributionAnnotationManager.splitAnnotation(treeModel, offset);
 //        }
     }
 

@@ -115,7 +115,7 @@ public class ContributionAnnotationManager {
     }
 
     /**
-     * Inserts a contribution annotation to given model if there is not already
+     * Inserts a contribution annotation to given treeModel if there is not already
      * a contribution annotation at given position. This method should be called
      * after the text has changed.
      *
@@ -213,11 +213,11 @@ public class ContributionAnnotationManager {
     }
 
     /**
-     * Refreshes all contribution annotations in the model by removing and
+     * Refreshes all contribution annotations in the treeModel by removing and
      * reinserting them.
      *
      * @param model
-     *            the annotation model that should be refreshed
+     *            the annotation treeModel that should be refreshed
      */
     @SuppressWarnings("unchecked")
     public void refreshAnnotations(IAnnotationModel model) {
@@ -235,7 +235,7 @@ public class ContributionAnnotationManager {
             Position position = model.getPosition(annotation);
 
             if (position == null) {
-                log.warn("annotation could not be found in the current model: "
+                log.warn("annotation could not be found in the current treeModel: "
                         + annotation);
                 continue;
             }
@@ -298,9 +298,9 @@ public class ContributionAnnotationManager {
     }
 
     /**
-     * Add a contribution annotation to the annotation model and store it into
+     * Add a contribution annotation to the annotation treeModel and store it into
      * the history of the associated user. Old entries are removed from the
-     * history and the annotation model.
+     * history and the annotation treeModel.
      */
     private void addContributionAnnotation(ContributionAnnotation annotation,
             Position position) {
@@ -317,7 +317,7 @@ public class ContributionAnnotationManager {
     }
 
     /**
-     * Removes an annotation from the user's history and the annotation model.
+     * Removes an annotation from the user's history and the annotation treeModel.
      *
      * @param annotation
      */
