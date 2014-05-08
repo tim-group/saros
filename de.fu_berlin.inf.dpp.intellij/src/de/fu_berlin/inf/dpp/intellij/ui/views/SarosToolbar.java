@@ -22,18 +22,21 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,52 +50,96 @@ import java.util.Map;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosToolbar implements SarosActionListener
+public class SarosToolbar
 {
 
     private Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
-    private Project project;
-    private Saros saros;
+    private Saros saros = Saros.instance();
 
     private SarosMainPanelView sarosMainView;
-    private JToolBar toolBar;
+    private JToolBar jToolBar;
 
-
-    public SarosToolbar()
+    private SarosActionListener toolbarActionListener = new SarosActionListener()
     {
-    }
+        @Override
+        public void actionStarted(ISarosAction action)
+        {
+
+        }
+
+        @Override
+        public void actionFinished(ISarosAction action)
+        {
+            initButtons();
+        }
+    };
+
+    private SarosActionListener treeActionListener = new SarosActionListener()
+    {
+        @Override
+        public void actionStarted(ISarosAction action)
+        {
+
+        }
+
+        @Override
+        public void actionFinished(ISarosAction action)
+        {
+            final SarosTreeView sarosTree = sarosMainView.getSarosTree();
+            if (saros.isConnected())
+            {
+                sarosTree.renderConnected();
+            }
+            else
+            {
+                sarosTree.renderDisconnected();
+            }
+
+            Runnable run = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    JTree jTree = sarosTree.getRootTree().getJtree();
+                    DefaultTreeModel model = (DefaultTreeModel) (jTree.getModel());
+                    model.reload();
+
+                    jTree.expandRow(2);
+                }
+            };
+
+            UIUtil.invokeAndWaitIfNeeded(run);
+        }
+    };
 
     /**
-     * @param parent
+     * @param mainPanel
      */
-    public SarosToolbar(SarosMainPanelView parent)
+    public SarosToolbar(SarosMainPanelView mainPanel)
     {
-
-        this.toolBar = create(parent);
-
-
+        this.jToolBar = create(mainPanel);
+        mainPanel.getParent().add(this.jToolBar, BorderLayout.NORTH);
     }
 
     /**
      * @param parent
      * @return
      */
-    protected JToolBar create(SarosMainPanelView parent)
+    private JToolBar create(SarosMainPanelView parent)
     {
         this.sarosMainView = parent;
-        this.saros = Saros.instance();
 
-        toolBar = new JToolBar("Saros IntelliJ toolbar");
-        toolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        jToolBar = new JToolBar("Saros IntelliJ toolbar");
+        jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         addToolbarButtons();
 
-        parent.add(toolBar, BorderLayout.PAGE_START);
+        parent.add(jToolBar, BorderLayout.PAGE_START);
 
         initButtons();
 
-        return toolBar;
+        return jToolBar;
     }
 
     /**
@@ -103,16 +150,15 @@ public class SarosToolbar implements SarosActionListener
 
         ConnectButton connectionButton = new ConnectButton();
         //triggers tree changes
-        connectionButton.getConnectAction().addActionListener(sarosMainView.getSarosTree());
-        connectionButton.getDisconnectAction().addActionListener(sarosMainView.getSarosTree());
+        connectionButton.getConnectAction().addActionListener(treeActionListener);
+        connectionButton.getDisconnectAction().addActionListener(treeActionListener);
         //triggers toolbar buttons enable/disable
-        connectionButton.getConnectAction().addActionListener(this);
-        connectionButton.getDisconnectAction().addActionListener(this);
+        connectionButton.getConnectAction().addActionListener(toolbarActionListener);
+        connectionButton.getDisconnectAction().addActionListener(toolbarActionListener);
 
-        toolBar.add(connectionButton);
+        jToolBar.add(connectionButton);
         toolbarButtons.put(connectionButton.getConnectAction().getActionName(), connectionButton);
         toolbarButtons.put(connectionButton.getDisconnectAction().getActionName(), connectionButton);
-
 
         //add contact button
         addNavigationButton(NewContactAction.NAME, "Add contact to session", "buddy_add_tsk", "addContact");
@@ -124,7 +170,7 @@ public class SarosToolbar implements SarosActionListener
         //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
         FollowButton followButton = new FollowButton();
         toolbarButtons.put(followButton.getActionCommand(), followButton);
-        toolBar.add(followButton);
+        jToolBar.add(followButton);
 
         //reload button
         addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "reload", "reload");
@@ -132,8 +178,8 @@ public class SarosToolbar implements SarosActionListener
         //session leave button
         ISarosAction actionLeave = SarosActionFactory.getAction(LeaveSessionAction.NAME);
         addNavigationButton(actionLeave.getActionName(), "Leave session", "project_share_leave_tsk", "leave");
-        actionLeave.addActionListener(sarosMainView.getSarosTree());
-        actionLeave.addActionListener(this);
+        actionLeave.addActionListener(treeActionListener);
+        actionLeave.addActionListener(toolbarActionListener);
 
     }
 
@@ -148,7 +194,7 @@ public class SarosToolbar implements SarosActionListener
         //Create and initialize the button.
         JButton button = new CommonButton(action, toolTipText, iconName, altText);
         toolbarButtons.put(button.getActionCommand(), button);
-        toolBar.add(button);
+        jToolBar.add(button);
     }
 
     /**
@@ -176,32 +222,13 @@ public class SarosToolbar implements SarosActionListener
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-
-    public void setMainView(SarosMainPanelView mainView)
+    public Map<String, JButton> getToolbarButtons()
     {
-        this.sarosMainView = mainView;
+        return toolbarButtons;
     }
 
-    public Project getProject()
+    public JToolBar getJToolBar()
     {
-        return project;
-    }
-
-    public void setProject(Project project)
-    {
-        this.project = project;
-    }
-
-
-    @Override
-    public void actionStarted(ISarosAction action)
-    {
-
-    }
-
-    @Override
-    public void actionFinished(ISarosAction action)
-    {
-        initButtons();
+        return jToolBar;
     }
 }

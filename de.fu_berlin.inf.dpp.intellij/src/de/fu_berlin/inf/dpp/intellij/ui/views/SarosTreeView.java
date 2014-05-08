@@ -22,11 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
@@ -37,7 +34,6 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
 /**
@@ -49,7 +45,7 @@ import java.awt.*;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class SarosTreeView implements SarosActionListener
+public class SarosTreeView
 {
 
     private Container parent;
@@ -60,12 +56,6 @@ public class SarosTreeView implements SarosActionListener
     private SessionTree sessionTree;
     private ContactTree contactTree;
 
-    /**
-     *
-     */
-    public SarosTreeView()
-    {
-    }
 
     /**
      * @param parent
@@ -86,7 +76,7 @@ public class SarosTreeView implements SarosActionListener
         sessionTree = new SessionTree(rootTree);
         contactTree = new ContactTree(rootTree);
 
-        this.rootTree.getJtree().addMouseListener(new TreeClickListener(contactTree,sessionTree));
+        this.rootTree.getJtree().addMouseListener(new TreeClickListener(contactTree, sessionTree));
 
         //listeners
         TreeExpansionListener expansionListener = new TreeExpansionListener()
@@ -136,45 +126,10 @@ public class SarosTreeView implements SarosActionListener
         return contactTree;
     }
 
-
-    @Override
-    public void actionStarted(ISarosAction action)
-    {
-        // System.out.println("SarosTreeView.actionStarted");
-    }
-
-    @Override
-    public void actionFinished(ISarosAction action)
-    {
-
-        if (saros.isConnected())
-        {
-            renderConnected();
-        }
-        else
-        {
-            renderDisconnected();
-        }
-
-        Runnable run = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                DefaultTreeModel model = (DefaultTreeModel) (rootTree.getJtree().getModel());
-                model.reload();
-
-                rootTree.getJtree().expandRow(2);
-            }
-        };
-
-        UIUtil.invokeAndWaitIfNeeded(run);
-    }
-
     /**
      * Renders event connected
      */
-    public void renderConnected()
+    protected void renderConnected()
     {
         XMPPAccount activeAccount = saros.getAccountStore().getActiveAccount();
 
@@ -192,7 +147,7 @@ public class SarosTreeView implements SarosActionListener
     /**
      * Renders event disconnected
      */
-    public void renderDisconnected()
+    protected void renderDisconnected()
     {
         rootTree.setTitleDefault();
 

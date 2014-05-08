@@ -83,7 +83,7 @@ public class FileSystemTest
     {
         File fp = new File("c:/temp/p1");
         ProjectIntl p = null;//new ProjectIntl("fp");
-       // p.setPath(fp);
+       // p.initPath(fp);
 
         File ff = new File("c:/temp/p1/Test.java");
         FileIntl file = new FileIntl(p, ff);

@@ -304,6 +304,20 @@ public class SessionTree extends AbstractTree
         }
     }
 
+    protected class HostUserInfo extends UserInfo
+    {
+        public HostUserInfo(User user)
+        {
+            super(user);
+        }
+
+        public String toString()
+        {
+            return "Host "+super.toString();
+
+        }
+    }
+
     /**
      *
      */

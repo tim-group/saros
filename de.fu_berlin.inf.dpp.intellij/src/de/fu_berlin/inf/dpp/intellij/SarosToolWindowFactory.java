@@ -47,9 +47,6 @@ import java.io.File;
 
 public class SarosToolWindowFactory implements ToolWindowFactory
 {
-
-    public static Project _project;
-
     /**
      * Plugin starting point via IntelliJ
      *
@@ -59,18 +56,12 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow)
     {
-        _project = project;  //todo
 
         PropertyConfigurator.configure("c:\\Develop\\Saros\\idea\\saros\\de.fu_berlin.inf.dpp.intellij\\src\\log4j.properties");  //todo
 
-        Saros saros = new Saros(project,toolWindow);
-
-        Workspace ws = new Workspace();
-        ws.setPath(new File(project.getBasePath()));
-        saros.setWorkspace(ws);
-
+        Saros saros = Saros.create(project, toolWindow);
+        saros.setWorkspace(new Workspace(project));
         saros.start();
-
 
         SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
         mainPanel.create();
@@ -84,16 +75,16 @@ public class SarosToolWindowFactory implements ToolWindowFactory
      */
     public static void main(String[] args)
     {
-
-        final Saros saros = new Saros(null,null);
-        Workspace ws = new Workspace();
+        final Saros saros = Saros.create(null,null);
         File projects = new File("../../test_projects");
         projects.mkdirs();
-        ws.createWorkSpace(new File(projects.getAbsolutePath()));
+
+        Workspace ws = new Workspace();
+        ws.createWorkSpace(projects);
+
         saros.setWorkspace(ws);
 
         saros.start();
-
 
         SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
         mainPanel.setSize(new Dimension(800, 300));

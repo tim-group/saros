@@ -47,11 +47,14 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
 {
     private JPopupMenu popupMenu = new JPopupMenu();
 
-    private ISarosAction disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
-    private ConnectServerAction connectAction = SarosActionFactory.getConnectServerAction();
+    private final ISarosAction disconnectAction;
+    private final ConnectServerAction connectAction;
 
     public ConnectButton()
     {
+        disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
+        connectAction = SarosActionFactory.getConnectServerAction();
+
         createButton();
     }
 

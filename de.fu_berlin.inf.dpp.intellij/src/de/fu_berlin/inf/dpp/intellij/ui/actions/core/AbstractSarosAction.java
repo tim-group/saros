@@ -44,7 +44,7 @@ public abstract class AbstractSarosAction implements ISarosAction
 {
     protected static final Logger log = Logger.getLogger(AbstractSarosAction.class);
 
-    protected Saros saros;
+    protected Saros saros = Saros.instance();
     protected Container guiFrame;
 
     private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
@@ -55,11 +55,6 @@ public abstract class AbstractSarosAction implements ISarosAction
 
     }
 
-    public void setSaros(Saros saros)
-    {
-        this.saros = saros;
-    }
-
     protected void actionStarted()
     {
         log.info("Action started [" + this.getActionName() + "]");
@@ -67,6 +62,11 @@ public abstract class AbstractSarosAction implements ISarosAction
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list)
         {
+            if (actionListener == null)
+            {
+                continue;
+            }
+
             actionListener.actionStarted(this);
         }
     }
@@ -78,6 +78,11 @@ public abstract class AbstractSarosAction implements ISarosAction
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list)
         {
+            if (actionListener == null)
+            {
+                continue;
+            }
+
             actionListener.actionFinished(this);
         }
     }
@@ -106,7 +111,14 @@ public abstract class AbstractSarosAction implements ISarosAction
     @Override
     public void addActionListener(SarosActionListener actionListener)
     {
-        actionListeners.add(actionListener);
+        if (actionListener != null)
+        {
+            actionListeners.add(actionListener);
+        }
+        else
+        {
+            System.out.println("AbstractSarosAction.addActionListener PROBLEM");
+        }
     }
 
     @Override

@@ -22,8 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import org.apache.log4j.Logger;
 
@@ -55,10 +53,10 @@ public class SarosMainPanelView extends JFrame
         try
         {
             //Set look&fiel //todo
-            //  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             // UIManager.setLookAndFeel("com.apple.laf.AquaLookAndFeel");
             // UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-            //  UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            // UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 
             log.debug("Look&fiel " + UIManager.getCrossPlatformLookAndFeelClassName());
@@ -69,9 +67,12 @@ public class SarosMainPanelView extends JFrame
         }
     }
 
+    /**
+     * @param saros
+     * @throws HeadlessException
+     */
     public SarosMainPanelView(Saros saros) throws HeadlessException
     {
-        super("Saros panel");
 
         this.saros = saros;
         this.saros.setMainPanel(this);
@@ -83,9 +84,9 @@ public class SarosMainPanelView extends JFrame
         else
         {
             this.parent = this;
+            setTitle("Saros panel");
         }
     }
-
 
 
     public void create()
@@ -93,20 +94,14 @@ public class SarosMainPanelView extends JFrame
 
         log.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
 
-        sarosToolbar = new SarosToolbar(saros);
-        sarosTree = new SarosTreeView(saros);
-
-        JToolBar tb = sarosToolbar.create(this);
-        parent.add(tb, BorderLayout.NORTH);
-
+        sarosTree = new SarosTreeView(this);
+        sarosToolbar = new SarosToolbar(this);
 
         Container sessionPane = new JPanel(new BorderLayout());
-
 
         JTree tree = sarosTree.create();
         JScrollPane treeView = new JScrollPane(tree);  //todo
         sessionPane.add(tree);
-
 
         Container chartPane = new JPanel(new BorderLayout());
 
@@ -118,7 +113,6 @@ public class SarosMainPanelView extends JFrame
         Dimension minimumSize = new Dimension(200, 50);
         sessionPane.setMinimumSize(minimumSize);
         splitPane.setMinimumSize(minimumSize);
-
 
         parent.add(splitPane);
 
@@ -133,5 +127,10 @@ public class SarosMainPanelView extends JFrame
     public SarosTreeView getSarosTree()
     {
         return sarosTree;
+    }
+
+    public Container getParent()
+    {
+        return parent;
     }
 }

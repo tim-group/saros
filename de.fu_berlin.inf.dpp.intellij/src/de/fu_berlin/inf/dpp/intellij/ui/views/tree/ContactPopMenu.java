@@ -141,7 +141,7 @@ class ContactPopMenu extends JPopupMenu
 
             System.out.println("ShareProjectAction.actionPerformed>>P=" + project + " M=" + module);
 
-            IResource proj = Workspace.instance().getRoot().addProject(name, new File(path));
+            IResource proj = saros.getWorkspace().getRoot().addProject(name, new File(path));
 
             List<IResource> resources = Arrays.asList(proj);
             JID user = new JID(contactInfo.getRosterEntry().getUser());

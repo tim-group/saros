@@ -43,6 +43,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
 import java.awt.*;
@@ -74,7 +75,7 @@ public class EditorAPI extends EditorAPIBridge
 
     public EditorAPI()
     {
-        Project project = SarosToolWindowFactory._project;
+        Project project = Saros.instance().getProject();
         setProject(project);
     }
 

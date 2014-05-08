@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
@@ -48,16 +49,30 @@ public class Workspace implements IWorkspace
     private SchedulingRoot root;
 
     private File path;
+    private Project project;
 
+    /**
+     * @deprecated use for testing only
+     */
     public Workspace()
     {
     }
 
     public Workspace(File basePath)
     {
-        setPath(basePath);
+        initPath(basePath);
     }
 
+    public Workspace(String basePath)
+    {
+        this(new File(basePath));
+    }
+
+    public Workspace(Project project)
+    {
+        this.project = project;
+        initPath(new File(project.getBasePath()));
+    }
 
     private IWorkspaceDescription description = new WorkspaceDescription();
 
@@ -115,6 +130,10 @@ public class Workspace implements IWorkspace
         this.description = description;
     }
 
+    /**
+     * @deprecated use for tests only
+     * @param path
+     */
     public void createWorkSpace(File path)
     {
         this.root = new SchedulingRoot(path);
@@ -143,7 +162,7 @@ public class Workspace implements IWorkspace
         return path;
     }
 
-    public void setPath(File path)
+    protected void initPath(File path)
     {
         this.root = new SchedulingRoot(path);
         this.path = path;

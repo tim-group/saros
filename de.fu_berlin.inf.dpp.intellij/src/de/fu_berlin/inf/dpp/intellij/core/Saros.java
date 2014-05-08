@@ -80,7 +80,6 @@ public class Saros extends AbstractSaros
     private XMPPConnectionService connectionService;
     private ISarosSessionManager sessionManager;
     private DataTransferManager transferManager;
-    private SarosActionFactory actionFactory;
 
     private XMPPAccountStore accountStore;
 
@@ -108,6 +107,17 @@ public class Saros extends AbstractSaros
     protected IPreferenceStore configPrefs;
 
 
+    public static Saros create(Project project, ToolWindow toolWindow)
+    {
+        if(_instance==null)
+        {
+            _instance = new Saros(project,toolWindow);
+        }
+
+        return _instance;
+    }
+
+
     /**
      * @return
      */
@@ -115,15 +125,7 @@ public class Saros extends AbstractSaros
     {
         if (_instance == null)
         {
-            try
-            {
-                _instance = new Saros();
-            }
-            catch (Exception e)
-            {
-                log.error("FATAL ERROR: Saros could not initialize properly!");
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+           throw new Error("Saros not initialized");
         }
         return _instance;
     }
@@ -131,18 +133,10 @@ public class Saros extends AbstractSaros
     protected SarosContext sarosContext;
 
 
-    public Saros(Project project, ToolWindow toolWindow)
+    private Saros(Project project, ToolWindow toolWindow)
     {
         this.project = project;
         this.toolWindow = toolWindow;
-    }
-
-    /**
-     *
-     */
-    private Saros()
-    {
-
     }
 
 
@@ -185,8 +179,6 @@ public class Saros extends AbstractSaros
         this.sarosContext.getComponents(Object.class);
 
         FeedbackPreferences.setPreferences(new SarosPreferences());
-
-        actionFactory = new SarosActionFactory(this);
 
         this.isInitialized = true;
 
@@ -518,12 +510,6 @@ public class Saros extends AbstractSaros
         return sarosContext;
     }
 
-
-
-    public SarosActionFactory getActionFactory()
-    {
-        return actionFactory;
-    }
 
     public IWorkspace getWorkspace()
     {
