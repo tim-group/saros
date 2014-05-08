@@ -73,19 +73,33 @@ public class TreeClickListener extends MouseAdapter
         {
             return;
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-        if (selPath.getParentPath().equals(contactPath))
-        {
-            ContactTree.ContactInfo contactInfo = (ContactTree.ContactInfo) node.getUserObject();
-            ContactPopMenu menu = new ContactPopMenu(contactInfo);
-            menu.show(e.getComponent(), e.getX(), e.getY());
-        }
-        else if (selPath.getParentPath().equals(sessionPath))
-        {
-            SessionTree.SessionInfo sessionInfo = (SessionTree.SessionInfo) node.getUserObject();
-            SessionPopMenu menu = new SessionPopMenu(sessionInfo);
-            menu.show(e.getComponent(), e.getX(), e.getY());
 
+        if (selPath.getLastPathComponent() instanceof DefaultMutableTreeNode)
+        {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
+            if (selPath.getParentPath().equals(contactPath))
+            {
+                if (node.getUserObject() instanceof ContactTree.ContactInfo)
+                {
+                    ContactTree.ContactInfo contactInfo = (ContactTree.ContactInfo) node.getUserObject();
+                    if (contactInfo.isOnline())
+                    {
+                        ContactPopMenu menu = new ContactPopMenu(contactInfo);
+                        menu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+            else if (selPath.getParentPath().equals(sessionPath))
+            {
+
+                if (node.getUserObject() instanceof SessionTree.SessionInfo)
+                {
+                    SessionTree.SessionInfo sessionInfo = (SessionTree.SessionInfo) node.getUserObject();
+                    SessionPopMenu menu = new SessionPopMenu(sessionInfo);
+                    menu.show(e.getComponent(), e.getX(), e.getY());
+                }
+
+            }
         }
     }
 }

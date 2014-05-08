@@ -138,10 +138,12 @@ public class ContactTree extends AbstractTree implements IRosterListener
             if (presence.getType() == Presence.Type.available)
             {
                 info.setIcon(IconManager.contactOnlineIcon);
+                info.setOnline(true);
             }
             else
             {
                 info.setIcon(IconManager.contactOfflineIcon);
+                info.setOnline(false);
             }
 
             Runnable action = new Runnable()
@@ -168,6 +170,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
 
         private String status;
         private RosterEntry rosterEntry;
+        private boolean isOnline;
 
         private ContactInfo(RosterEntry rosterEntry)
         {
@@ -189,6 +192,16 @@ public class ContactTree extends AbstractTree implements IRosterListener
         public RosterEntry getRosterEntry()
         {
             return rosterEntry;
+        }
+
+        public boolean isOnline()
+        {
+            return isOnline;
+        }
+
+        public void setOnline(boolean isOnline)
+        {
+            this.isOnline = isOnline;
         }
 
         public String toString()

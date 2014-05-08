@@ -22,21 +22,19 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.UIRefreshListener;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.tree.DefaultTreeModel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -51,8 +49,26 @@ public class SessionTree extends AbstractTree
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
     private RootTree rootTree;
-    private List<DefaultMutableTreeNode> sessionNodeList = new ArrayList<DefaultMutableTreeNode>();
-    private List<DefaultMutableTreeNode> userNodeList = new ArrayList<DefaultMutableTreeNode>();
+    private Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
+    private Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
+    private DefaultTreeModel treeModel;
+
+
+    private ISharedProjectListener userListener = new AbstractSharedProjectListener()
+    {
+        @Override
+        public void userLeft(final User user)
+        {
+            removeUserNode(user);
+        }
+
+        @Override
+        public void userJoined(final User user)
+        {
+            addUserNode(user);
+        }
+    };
+
 
     private ISarosSessionListener sessionListener = new ISarosSessionListener()
     {
@@ -77,6 +93,7 @@ public class SessionTree extends AbstractTree
         @Override
         public void sessionStarted(ISarosSession newSarosSession)
         {
+            newSarosSession.addListener(userListener);
             createSessionNode(newSarosSession);
         }
 
@@ -89,6 +106,7 @@ public class SessionTree extends AbstractTree
         @Override
         public void sessionEnded(ISarosSession oldSarosSession)
         {
+            oldSarosSession.removeListener(userListener);
             removeSessionNode(oldSarosSession);
         }
 
@@ -99,17 +117,6 @@ public class SessionTree extends AbstractTree
         }
     };
 
-    private UIRefreshListener followModeListener = new UIRefreshListener()
-    {
-        @Override
-        public void refresh(AbstractSarosAction action)
-        {
-            if (action instanceof FollowModeAction)
-            {
-                createRemoteUserNodes((FollowModeAction) action);
-            }
-        }
-    };
 
     /**
      * @param parent
@@ -119,13 +126,13 @@ public class SessionTree extends AbstractTree
         super(parent);
         this.rootTree = parent;
 
+        this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
         setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
 
         create();
 
         //register listener
         saros.getSessionManager().addSarosSessionListener(sessionListener);
-        SarosActionFactory.getAction(FollowModeAction.NAME).addRefreshListener(followModeListener);
     }
 
     protected void create()
@@ -149,20 +156,21 @@ public class SessionTree extends AbstractTree
 
         DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
 
-        this.sessionNodeList.add(nSession);
+        this.sessionNodeList.put(newSarosSession, nSession);
+
+        treeModel.insertNodeInto(nSession, this, this.getChildCount());
+        treeModel.reload(this);
 
         add(nSession);
 
         setTitle(TREE_TITLE);
 
-        UIUtil.invokeAndWaitIfNeeded(new Runnable()
+        if (!newSarosSession.isHost())
         {
-            @Override
-            public void run()
-            {
-                rootTree.getJtree().expandRow(1);
-            }
-        });
+            addUserNode(newSarosSession.getLocalUser());
+        }
+
+        rootTree.getJtree().expandRow(1);
 
     }
 
@@ -170,38 +178,21 @@ public class SessionTree extends AbstractTree
     private void removeSessionNode(ISarosSession oldSarosSession)
     {
 
-        DefaultMutableTreeNode node;
-
-        boolean empty = true;
-        for (int i = 0; i < getChildCount(); i++)
+        DefaultMutableTreeNode nSession = sessionNodeList.get(oldSarosSession);
+        if (nSession != null)
         {
-            node = (DefaultMutableTreeNode) getChildAt(i);
-            SessionInfo sessionInfo = ((SessionInfo) node.getUserObject());
-            if (sessionInfo.getSession().getID().equalsIgnoreCase(oldSarosSession.getID()))
-            {
-                remove(node);
-                sessionNodeList.remove(node);
-            }
-            else
-            {
-                empty = false;
-            }
+            treeModel.removeNodeFromParent(nSession);
+            sessionNodeList.remove(oldSarosSession);
+
+            removeAllUserNodes();
+
+            treeModel.reload(this);
         }
 
-        if (empty)
+        if (sessionNodeList.size() == 0)
         {
             setTitle(TREE_TITLE_NO_SESSIONS);
         }
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                rootTree.getJtree().expandRow(1);
-                rootTree.getJtree().collapseRow(1);
-            }
-        });
 
     }
 
@@ -210,57 +201,48 @@ public class SessionTree extends AbstractTree
     {
 
         //iterate projects in sessions
-        for (DefaultMutableTreeNode nSession : sessionNodeList)
+        for (DefaultMutableTreeNode nSession : sessionNodeList.values())
         {
+
             IProject p = ((SessionInfo) nSession.getUserObject()).getSession().getProject(projectID);
-            DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(new ProjectInfo(p));
-            nSession.add(nProject);
 
-            //todo: expand node
-//            for (TreeNode path : nSession.getPath())
-//            {
-//
-//                rootTree.getJtree().collapsePath(new TreePath(path));
-//                rootTree.getJtree().expandPath(new TreePath(path));
-//            }
+            if (p != null)
+            {
+                DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(new ProjectInfo(p));
+                treeModel.insertNodeInto(nProject, nSession, nSession.getChildCount());
+                treeModel.reload(nSession);
+            }
         }
+    }
 
+    private void addUserNode(User user)
+    {
+        DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
+        userNodeList.put(user, nUser);
+        treeModel.insertNodeInto(nUser, this, this.getChildCount());
+        treeModel.reload(this);
+    }
+
+    private void removeUserNode(User user)
+    {
+        DefaultMutableTreeNode nUser = userNodeList.get(user);
+        if (nUser != null)
+        {
+            remove(nUser);
+            userNodeList.remove(user);
+            treeModel.reload();
+        }
 
     }
 
-    private void createRemoteUserNodes(FollowModeAction followAction)
+    private void removeAllUserNodes()
     {
-        //todo
-        System.out.println("SessionTree.createRemoteUserNodes");
-
-        //remove old users
-        for (DefaultMutableTreeNode nUser : this.userNodeList)
+        for (DefaultMutableTreeNode nUser : userNodeList.values())
         {
-            remove(nUser);
-        }
-        this.userNodeList.clear();
-
-        //add new users
-        for (User user : followAction.getCurrentRemoteSessionUsers())
-        {
-            DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
-
-            this.userNodeList.add(nUser);
-
-            add(nUser);
+            treeModel.removeNodeFromParent(nUser);
         }
 
-        UIUtil.invokeAndWaitIfNeeded(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                rootTree.getJtree().collapseRow(1);
-                rootTree.getJtree().expandRow(1);
-            }
-        });
-
-
+        userNodeList.clear();
     }
 
     /**
@@ -286,35 +268,38 @@ public class SessionTree extends AbstractTree
             return session;
         }
 
+        public String toString()
+        {
+            return "Host " + title;
+        }
+
     }
 
     protected class UserInfo extends LeafInfo
     {
         private User user;
+        private boolean isOnline = false;
 
         public UserInfo(User user)
         {
             super(user.getHumanReadableName(), user.getShortHumanReadableName());
             this.user = user;
+            this.setIcon(IconManager.contactOnlineIcon);
         }
 
         public User getUser()
         {
             return user;
         }
-    }
 
-    protected class HostUserInfo extends UserInfo
-    {
-        public HostUserInfo(User user)
+        public boolean isOnline()
         {
-            super(user);
+            return isOnline;
         }
 
-        public String toString()
+        public void setOnline(boolean isOnline)
         {
-            return "Host "+super.toString();
-
+            this.isOnline = isOnline;
         }
     }
 

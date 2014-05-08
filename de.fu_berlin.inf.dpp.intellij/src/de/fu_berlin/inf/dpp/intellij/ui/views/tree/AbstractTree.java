@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -45,11 +46,14 @@ public abstract class AbstractTree extends DefaultMutableTreeNode
     protected IconManager iconManager;
 
 
+
+
     protected AbstractTree()
     {
         this.saros = Saros.instance();
         this.parent = this;
         this.iconManager = new IconManager();
+
     }
 
     protected AbstractTree(DefaultMutableTreeNode parent)
