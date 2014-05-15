@@ -22,6 +22,11 @@
 
 package de.fu_berlin.inf.dpp.core.ui;
 
+
+import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtil;
+
+import java.lang.reflect.Field;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -29,9 +34,11 @@ package de.fu_berlin.inf.dpp.core.ui;
  * Time: 14.32
  */
 
-//todo: make non eclipse implementation
-public class Messages  {
-    private static final String BUNDLE_NAME = "de.fu_berlin.inf.dpp.ui.messages"; //$NON-NLS-1$
+public class Messages
+{
+
+    private static final String BUNDLE_NAME = Messages.class.getName();
+
     public static String AddContactWizard_title;
     public static String AddContactWizardPage_nickname;
     public static String AddContactWizardPage_optional;
@@ -237,6 +244,7 @@ public class Messages  {
     public static String JoinSessionWizard_no;
     public static String JoinSessionWizard_title;
     public static String JoinSessionWizard_yes;
+    public static String JoinSessionWizard_info;
     public static String JumpToUserWithWriteAccessPositionAction_title;
     public static String JumpToUserWithWriteAccessPositionAction_tooltip;
     public static String LeaveSessionAction_leave_session_tooltip;
@@ -431,11 +439,24 @@ public class Messages  {
     public static String UserStatusChangeHandler_write;
     public static String UserStatusChangeHandler_you_have_now_access;
 
-    static {
+    static
+    {
         // initialize resource bundle
-       // NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+        MessageUtil.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 
-    private Messages() {
+    private Messages()
+    {
     }
+
+
+    public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException
+    {
+
+        for (Field f : Messages.class.getFields())
+        {
+            System.out.println(f.getGenericType() + " " + f.getName() + " = " + f.get(Messages.class));
+        }
+    }
+
 }
