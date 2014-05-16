@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.core.ui.IEnterProjectNamePage;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -73,5 +74,23 @@ public class EnterProjectNamePage implements IEnterProjectNamePage
     public void updateEnabled(String projectID)
     {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public IProject getSourceProject(String name)
+    {
+        return null;
+    }
+
+    @Override
+    public String getTargetProjectName(String name)
+    {
+        return null;
+    }
+
+    @Override
+    public boolean overwriteResources(String key)
+    {
+        return false;
     }
 }

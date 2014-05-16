@@ -54,7 +54,7 @@ public abstract class SessionNegotiation extends CancelableProcess
 
     /**
      * Timeout on how long the session negotiation should wait for the remote
-     * user to accept the invitation
+     * user to next the invitation
      */
     protected static final long INVITATION_ACCEPTED_TIMEOUT = Long.getLong(
             "de.fu_berlin.inf.dpp.negotiation.session.INVITATION_ACCEPTED_TIMEOUT",

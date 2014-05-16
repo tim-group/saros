@@ -24,10 +24,12 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -103,7 +105,7 @@ class ContactPopMenu extends JPopupMenu
                 File dir = new File(saros.getProject().getBasePath());
                 for (File myDir : dir.listFiles())
                 {
-                    if (myDir.getName().startsWith("."))
+                    if (myDir.getName().startsWith(".") || myDir.isFile())
                     {
                         continue;
                     }
@@ -190,10 +192,23 @@ class ContactPopMenu extends JPopupMenu
 
             try
             {
-                IProject proj = new ProjectImp(dir.getName(), dir);
-                proj.refreshLocal();
+                List<IResource> resources;
 
-                List<IResource> resources = Arrays.asList((IResource) proj);
+                if(dir.isDirectory())
+                {
+                    IProject proj = new ProjectImp(dir.getName(), dir);
+                    proj.refreshLocal();
+
+                    resources = Arrays.asList((IResource) proj);
+                }
+                else
+                {
+                    //todo: not working properly after sharing
+                    ProjectImp proj = new ProjectImp(dir.getParentFile().getName(), dir.getParentFile());
+                    IResource prjFile = new FileImp(proj,dir);
+                    resources = Arrays.asList(prjFile);
+                }
+
                 JID user = new JID(contactInfo.getRosterEntry().getUser());
                 List<JID> contacts = Arrays.asList(user);
 

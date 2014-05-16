@@ -30,7 +30,7 @@ import java.awt.event.ActionListener;
 /**
  * Default navigation panel creates panel with 3 default buttons
  * BACK, NEXT and CANCEL
- *
+ * <p/>
  * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -125,7 +125,7 @@ public class NavigationPanel extends JPanel
         if (cancelButton != null)
         {
             cancelButton.setActionCommand(CANCEL_ACTION);
-            buttonBox.add(Box.createHorizontalStrut(30));
+            buttonBox.add(Box.createHorizontalStrut(10));
             buttonBox.add(cancelButton);
         }
 
@@ -173,7 +173,31 @@ public class NavigationPanel extends JPanel
         }
     }
 
+    /**
+     * Next button visibility
+     *
+     * @param visible
+     */
+    public void setVisibleNext(boolean visible)
+    {
+        if (nextButton != null)
+        {
+            nextButton.setVisible(visible);
+        }
+    }
 
+    /**
+     * Back button visibility
+     *
+     * @param visible
+     */
+    public void setVisibleBack(boolean visible)
+    {
+        if (backButton != null)
+        {
+            backButton.setVisible(visible);
+        }
+    }
     /**
      * Method  is called by framework to define wizard position
      *

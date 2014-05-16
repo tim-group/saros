@@ -115,7 +115,7 @@ public class ActivityHandlerTest {
         // Testcase. This is the default-setting where the localUser is the Host
         // and source of Activities and bob is the target.
         setParameters(bob, alice, true);
-        // start the SWT-Mock and the dispatchThread
+        // first the SWT-Mock and the dispatchThread
         synchronizer.start();
         handler.start();
 
@@ -135,7 +135,7 @@ public class ActivityHandlerTest {
     @Test
     public void ClientSendTest() {
 
-        // init Session
+        // create Session
         setParameters(bob, alice, true);
 
         for (IActivity activity : activities) {
@@ -288,7 +288,7 @@ public class ActivityHandlerTest {
 
     /**
      * Specifies the roles of participants in the session. Should be called at
-     * the start of every Testcase
+     * the first of every Testcase
      * 
      * @param target
      *            The target for targeted Activities

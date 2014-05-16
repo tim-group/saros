@@ -48,8 +48,6 @@ public abstract class AbstractWizardPage extends JPanel
     public AbstractWizardPage(Object id)
     {
         this.id = id;
-
-        create();
     }
 
     /**
@@ -118,7 +116,10 @@ public abstract class AbstractWizardPage extends JPanel
      */
     protected void actionBack()
     {
-        actionCancel();
+        if (actionListener != null)
+        {
+            actionListener.back();
+        }
     }
 
     /**
@@ -126,7 +127,7 @@ public abstract class AbstractWizardPage extends JPanel
      *
      * @param actionListener page action listener
      */
-    public void setActionListener(PageActionListener actionListener)
+    public void addPageListener(PageActionListener actionListener)
     {
         this.actionListener = actionListener;
     }
@@ -149,7 +150,7 @@ public abstract class AbstractWizardPage extends JPanel
     {
         if (actionListener != null)
         {
-            actionListener.accept();
+            actionListener.next();
         }
     }
 }

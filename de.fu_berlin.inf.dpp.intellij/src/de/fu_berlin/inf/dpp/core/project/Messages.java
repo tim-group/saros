@@ -1,7 +1,7 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtil;
+import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtils;
 
 public class Messages {
 
@@ -21,7 +21,7 @@ public class Messages {
     public static String SharedProject_vcs_url_out_of_sync;
     static {
         // initialize resource bundle
-        MessageUtil.initializeMessages(BUNDLE_NAME, Messages.class);
+        MessageUtils.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 
     private Messages() {

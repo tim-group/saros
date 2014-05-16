@@ -142,7 +142,7 @@ public class Saros extends AbstractSaros
 
     public void start()
     {
-        System.out.println("Saros.start");
+        System.out.println("Saros.first");
 
         if (isInitialized)
         {

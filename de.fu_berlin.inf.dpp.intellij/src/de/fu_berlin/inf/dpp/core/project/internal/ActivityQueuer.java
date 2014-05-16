@@ -85,7 +85,7 @@ public class ActivityQueuer
              * all queued JupiterActivities and EditorActivities. Otherwise we
              * will get lost updates because the changes are not saved. See the
              * editor package and its classes for additional details. As we can
-             * start queuing at any point we might miss the editor activated
+             * first queuing at any point we might miss the editor activated
              * activity or we joined the session after those activities were
              * fired on the remote sides.
              */

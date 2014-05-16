@@ -57,7 +57,7 @@ public interface ISarosSessionListener
             User user);
 
     /**
-     * Is fired when a new session is about to start.
+     * Is fired when a new session is about to first.
      *
      * @param newSarosSession
      *            the session that is created. Is never <code>null</code>.

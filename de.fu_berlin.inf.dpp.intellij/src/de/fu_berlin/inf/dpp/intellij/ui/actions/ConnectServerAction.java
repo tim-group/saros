@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
+import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 
@@ -131,13 +131,13 @@ public class ConnectServerAction extends AbstractSarosAction
             //throw new RuntimeException("No current account set!"); //todo: open dialog
 
 
-            final String jabberID = DialogUtil.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf");
+            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf");
             if (jabberID == null)
             {
                 actionFinished();
                 return;
             }
-            final String password = DialogUtil.showInputDialog("Password (e.g. 'dev')", "dev");
+            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev");
             if (password == null)
             {
                 actionFinished();

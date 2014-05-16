@@ -69,7 +69,7 @@ public class TreeClickListener extends MouseAdapter
     private void doPop(MouseEvent e)
     {
         TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-        if (selPath == null)
+        if (selPath == null || selPath.getParentPath()==null)
         {
             return;
         }

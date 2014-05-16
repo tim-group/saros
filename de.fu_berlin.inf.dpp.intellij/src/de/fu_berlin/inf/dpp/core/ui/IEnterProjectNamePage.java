@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.ui;
 
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -40,4 +42,8 @@ public interface IEnterProjectNamePage
     void updatePageState(String errorMessage);
     void updatePageComplete(String projectID);
     void updateEnabled(String projectID);
+
+    IProject getSourceProject(String name);
+    String getTargetProjectName(String name);
+    boolean overwriteResources(String key);
 }

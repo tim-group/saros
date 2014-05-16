@@ -232,7 +232,7 @@ public class SelectionFillUpStrategy implements IDrawingStrategy
             return;
         }
 
-        // Find out where in the horizontal we have to start drawing
+        // Find out where in the horizontal we have to first drawing
         Rectangle r = textWidget.getTextBounds(lastOffsInLine, lastOffsInLine);
         int x = r.x + r.width;
 

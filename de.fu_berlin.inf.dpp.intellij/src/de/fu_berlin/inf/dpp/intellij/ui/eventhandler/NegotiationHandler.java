@@ -28,16 +28,11 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.*;
-
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
-
-
-//import de.fu_berlin.inf.dpp.intellij.ui.dialogs.JoinSessionWizard;
-//import de.fu_berlin.inf.dpp.intellij.ui.dialogs.AddProjectToSessionWizard;
-
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -94,10 +89,12 @@ public class NegotiationHandler implements INegotiationHandler
         @Override
         protected IStatus run(IProgressMonitor monitor)
         {
-        try {
+            try
+            {
                 SessionNegotiation.Status status = process.start(monitor);
 
-                switch (status) {
+                switch (status)
+                {
                     case CANCEL:
                         return Status.CANCEL_STATUS;
                     case ERROR:
@@ -112,7 +109,8 @@ public class NegotiationHandler implements INegotiationHandler
                                         MessageFormat
                                                 .format(
                                                         Messages.NegotiationHandler_canceled_invitation_text,
-                                                        peer));
+                                                        peer)
+                                );
 
                         return new Status(
                                 IStatus.CANCEL,
@@ -120,7 +118,8 @@ public class NegotiationHandler implements INegotiationHandler
                                 MessageFormat
                                         .format(
                                                 Messages.NegotiationHandler_canceled_invitation_text,
-                                                peer));
+                                                peer)
+                        );
 
                     case REMOTE_ERROR:
                         SarosView
@@ -129,7 +128,8 @@ public class NegotiationHandler implements INegotiationHandler
                                         MessageFormat
                                                 .format(
                                                         Messages.NegotiationHandler_error_during_invitation_text,
-                                                        peer, process.getErrorMessage()));
+                                                        peer, process.getErrorMessage())
+                                );
 
                         return new Status(
                                 IStatus.ERROR,
@@ -137,9 +137,12 @@ public class NegotiationHandler implements INegotiationHandler
                                 MessageFormat
                                         .format(
                                                 Messages.NegotiationHandler_error_during_invitation_text,
-                                                peer, process.getErrorMessage()));
+                                                peer, process.getErrorMessage())
+                        );
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 log.error("This exception is not expected here: ", e);
                 return new Status(IStatus.ERROR, Saros.SAROS, e.getMessage(), e);
 
@@ -285,7 +288,7 @@ public class NegotiationHandler implements INegotiationHandler
                  *               which works on a newly started
                  *               IncomingSessionNegotiation. This handler opens
                  *               the JoinSessionWizard, a dialog for the user to
-                 *               decide whether to accept the invitation.
+                 *               decide whether to next the invitation.
                  */
 
 
@@ -354,6 +357,19 @@ public class NegotiationHandler implements INegotiationHandler
 
         ThreadUtils.runSafeSync(log, new Runnable()
         {
+            @Override
+            public void run()
+            {
+                // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
+                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
+                        .getProjectNames());
+            }
+        });
+
+
+
+      /*  ThreadUtils.runSafeSync(log, new Runnable()
+        {
 
             @Override
             public void run()
@@ -369,7 +385,7 @@ public class NegotiationHandler implements INegotiationHandler
                                 | SWT.PRIMARY_MODAL
                 );
 
-                /*
+                *//*
                  * IMPORTANT: as the dialog is non modal it MUST NOT block on
                  * open or there is a good chance to crash the whole GUI
                  *
@@ -382,7 +398,7 @@ public class NegotiationHandler implements INegotiationHandler
                  * could not access it. Therefore the modal dialog cannot be
                  * closed as well because it is stuck on the non modal dialog
                  * which currently serves as main dispatcher !
-                 */
+                 *//*
 
                 wizardDialog.setBlockOnOpen(false);
 
@@ -392,7 +408,7 @@ public class NegotiationHandler implements INegotiationHandler
                 DialogUtils.openWindow(wizardDialog); //todo
             }
         });
-
+*/
     }
 
 }

@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.IDialogConstants;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialogWithToggle;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
@@ -134,7 +135,7 @@ public class HostLeftAloneInSessionHandler {
              * ERROR 16:49:09,455 [Worker-6] (SarosSessionManager.java:782) Internal error in notifying listener of an added project: java.lang.NullPointerException
              * at de.fu_berlin.inf.dpp.ui.decorators.SharedProjectDecorator$1.projectAdded(SharedProjectDecorator.java:81)
              * at de.fu_berlin.inf.dpp.project.SarosSessionManager.projectAdded(SarosSessionManager.java:780)
-             * at de.fu_berlin.inf.dpp.invitation.IncomingProjectNegotiation.accept(IncomingProjectNegotiation.java:241)
+             * at de.fu_berlin.inf.dpp.invitation.IncomingProjectNegotiation.next(IncomingProjectNegotiation.java:241)
              * at de.fu_berlin.inf.dpp.ui.wizards.AddProjectToSessionWizard$2.run(AddProjectToSessionWizard.java:267)
              * at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
              * DEBUG 16:49:09,456 [Worker-6] (CancelableProcess.java:280) process IPN [remote side: jenkins_alice_stf@saros-con.imp.fu-berlin.de/Saros] exit status: OK

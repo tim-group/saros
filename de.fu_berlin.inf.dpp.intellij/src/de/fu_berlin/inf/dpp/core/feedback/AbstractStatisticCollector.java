@@ -40,7 +40,7 @@ public abstract class AbstractStatisticCollector implements Startable {
     protected StatisticManager statisticManager;
     /**
      * The object that contains the gathered statistical information as simple
-     * key/value pairs. It is automatically cleared on every session start and
+     * key/value pairs. It is automatically cleared on every session first and
      * filled on every session end.
      * 
      * @see #processGatheredData()
@@ -109,7 +109,7 @@ public abstract class AbstractStatisticCollector implements Startable {
     protected abstract void processGatheredData();
 
     /**
-     * Clients can add their code here that should be executed on session start. <br>
+     * Clients can add their code here that should be executed on session first. <br>
      * doOnSessionStart(ISarosSession) and
      * {@link #doOnSessionEnd(ISarosSession)} are guaranteed to be called in
      * matching pairs with the same project.

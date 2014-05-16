@@ -99,28 +99,29 @@ public class CollaborationUtils {
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask("Starting session...",
                         IProgressMonitor.UNKNOWN);
-
-                System.out.println("CollaborationUtils.run 1");
-                try {
+             try {
                     sessionManager.startSession(convert(newResources));
                     Set<JID> participantsToAdd = new HashSet<JID>(contacts);
-                    System.out.println("CollaborationUtils.run 2");
+
+                    monitor.internalWorked(50);
 
                     ISarosSession session = sessionManager.getSarosSession();
 
                     if (session == null)
                         return Status.CANCEL_STATUS;
-
+                    monitor.setTaskName("Inviting participants...");
                     sessionManager.invite(participantsToAdd,
                             getShareProjectDescription(session));
-                    System.out.println("CollaborationUtils.run 3");
+
+                    monitor.done();
+
                 } catch (Exception e) {
 
-                    LOG.error("could not start a Saros session", e);
+                    LOG.error("could not first a Saros session", e);
                     return new Status(IStatus.ERROR, Saros.SAROS,
                             e.getMessage(), e);
                 }
-                System.out.println("CollaborationUtils.run 4");
+
                 return Status.OK_STATUS;
             }
         };
@@ -129,7 +130,6 @@ public class CollaborationUtils {
         sessionStartupJob.setUser(true);
         sessionStartupJob.schedule();
 
-        System.out.println("CollaborationUtils.run 5");
     }
 
     /**
@@ -353,24 +353,27 @@ public class CollaborationUtils {
                 resources.add(resource);
         }
 
+      /*
+        //we do not send additional resources for single files
+
         List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
 
-        for (Entry<IProject, Set<IResource>> entry : projectsResources
+       for (Entry<IProject, Set<IResource>> entry : projectsResources
                 .entrySet()) {
 
             IProject project = entry.getKey();
             Set<IResource> resources = entry.getValue();
 
-            if (resources == /* full shared */null)
+            if (resources == *//* full shared *//*null)
                 continue;
 
             additionalFilesForPartialSharing.clear();
 
-            /*
+            *//*
              * we need this file otherwise creating a new project on the remote
              * will produce garbage because the project nature is not set /
              * updated correctly
-             */
+             *//*
             IFile projectFile = project.getFile(".project");
 
             if (projectFile.exists())
@@ -385,7 +388,7 @@ public class CollaborationUtils {
             // if (classpathFile.exists())
             // additionalFilesForPartialSharing.add(classpathFile);
 
-            /*
+            *//*
              * FIXME adding files from this folder may "corrupt" a lot of remote
              * files. The byte content will not be corrupted, but the document
              * provider (editor) will fail to render the file input correctly. I
@@ -394,11 +397,11 @@ public class CollaborationUtils {
              * to also transmit the encoding in FileActivites, because it is
              * possible to change the encoding of files independently of the
              * project encoding settings.
-             */
+             *//*
 
             IFolder settingsFolder = project.getFolder(".settings");
 
-            if (settingsFolder.exists() /* remove to execute block */&& false) {
+            if (settingsFolder.exists() *//* remove to execute block *//*&& false) {
 
                 additionalFilesForPartialSharing.add(settingsFolder);
 
@@ -414,7 +417,7 @@ public class CollaborationUtils {
             }
 
             resources.addAll(additionalFilesForPartialSharing);
-        }
+        }*/
 
         HashMap<IProject, List<IResource>> resources = new HashMap<IProject, List<IResource>>();
 
@@ -441,10 +444,10 @@ public class CollaborationUtils {
                 / (1000F * 1000F * 1000F));
     }
 
-    private static Map<de.fu_berlin.inf.dpp.filesystem.IProject, List<de.fu_berlin.inf.dpp.filesystem.IResource>> convert(
+    private static Map<IProject, List<IResource>> convert(
             Map<IProject, List<IResource>> data) {
 
-        Map<de.fu_berlin.inf.dpp.filesystem.IProject, List<de.fu_berlin.inf.dpp.filesystem.IResource>> result = new HashMap<de.fu_berlin.inf.dpp.filesystem.IProject, List<de.fu_berlin.inf.dpp.filesystem.IResource>>();
+        Map<IProject, List<IResource>> result = new HashMap<de.fu_berlin.inf.dpp.filesystem.IProject, List<de.fu_berlin.inf.dpp.filesystem.IResource>>();
 
         for (Entry<IProject, List<IResource>> entry : data.entrySet())
             result.put(ResourceAdapterFactory.create(entry.getKey()),

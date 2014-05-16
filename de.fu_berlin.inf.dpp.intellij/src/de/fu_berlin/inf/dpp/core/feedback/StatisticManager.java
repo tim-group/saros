@@ -216,7 +216,7 @@ public class StatisticManager extends AbstractFeedbackManager implements
 
     /**
      * Returns the latest {@link SessionStatistic} or null if no statistic was
-     * gathered since plugin start.
+     * gathered since plugin first.
      * 
      * @return the latest statistic
      */

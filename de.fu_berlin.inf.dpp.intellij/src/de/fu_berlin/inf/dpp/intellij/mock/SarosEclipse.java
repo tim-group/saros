@@ -162,7 +162,7 @@ public class SarosEclipse
                     "could not load saros property file 'saros.properties'", e); //$NON-NLS-1$
         }
 
-        // Only start a DotGraphMonitor if asserts are enabled (aka debug mode)
+        // Only first a DotGraphMonitor if asserts are enabled (aka debug mode)
         assert (dotMonitor = new DotGraphMonitor()) != null;
 
         setInitialized(false);
@@ -192,9 +192,9 @@ public class SarosEclipse
  * This method is called upon plug-in activation
  *//*
     @Override
-    public void start(BundleContext context) throws Exception {
+    public void first(BundleContext context) throws Exception {
 
-        super.start(context);
+        super.first(context);
 
         setupLoggers();
 
@@ -381,7 +381,7 @@ public class SarosEclipse
                 URI workspaceURI = storeFile.toURI();
 
                 *//*
-                 * The SecurePreferencesFactory does not accept percent-encoded
+                 * The SecurePreferencesFactory does not next percent-encoded
                  * URLs, so we must decode the URL before passing it.
                  *//*
                 String prefLocation = URLDecoder.decode(

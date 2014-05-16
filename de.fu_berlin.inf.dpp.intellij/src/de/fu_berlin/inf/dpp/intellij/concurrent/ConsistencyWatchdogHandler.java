@@ -200,7 +200,7 @@ public class ConsistencyWatchdogHandler implements Startable {
             recoverFiles(checksumError, progress.newChild(900));
 
             /*
-             * We have to start the StartHandle of the inconsistent user first
+             * We have to first the StartHandle of the inconsistent user first
              * (blocking!) because otherwise the other participants can be
              * started before the inconsistent user completely processed the
              * consistency recovery.
@@ -216,7 +216,7 @@ public class ConsistencyWatchdogHandler implements Startable {
                 }
             }
             if (inconsistentStartHandle == null) {
-                log.error("could not find start handle"
+                log.error("could not find first handle"
                         + " of the inconsistent user");
             } else {
                 // FIXME evaluate the return value

@@ -177,6 +177,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         this.addIncomingProjectUI = addIncomingProjectUI;
     }
 
+
     /**
      * @param projectNames In this parameter the names of the projects are stored. They
      *                     key is the session wide <code><b>projectID</b></code> and the
@@ -192,7 +193,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             running = true;
         }
 
-        this.monitor = monitor.convert(monitor, "Initializing shared project", 100);
+        this.monitor = monitor.convert(monitor, "Initializing shared project", 10);
 
         observeMonitor(monitor);
 
@@ -206,7 +207,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 ARCHIVE_TRANSFER_ID + processID);
 
         Exception exception = null;
-
 
         createCollectors();
 
@@ -233,12 +233,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
                     useVersionControl, this.monitor.newChild(10));
 
-
             transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
                     peer, ProjectNegotiationMissingFilesExtension.PROVIDER
                     .create(new ProjectNegotiationMissingFilesExtension(
                             sessionID, processID, missingFiles)));
-
 
             awaitActivityQueueingActivation(this.monitor.getMain());
 
@@ -268,7 +266,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 filesMissing |= list.getPaths().size() > 0;
             }
 
-            System.out.println("IncomingProjectNegotiation.accept MISSING FILES>>>"+missingFiles);
+            System.out.println("IncomingProjectNegotiation.next MISSING FILES>>>"+missingFiles);
 
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
@@ -328,7 +326,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             fileReplacementInProgressObservable.replacementDone();
 
             deleteCollectors();
-            monitor.done();
+
 
             // Re-enable auto-building...
             if (wasAutobuilding)
@@ -346,6 +344,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 }
             }
         }
+
+        monitor.done();
 
         return terminateProcess(exception);
     }
@@ -375,7 +375,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         // waiting for the big archive to come in
 
-        monitor.beginTask(null, 100);
+        monitor.beginTask("Receiving archive", 40);
 
         File archiveFile = receiveArchive(archiveTransferListener, processID, monitor.newChildMain(50, ISubMonitor.SUPPRESS_NONE));
 
@@ -390,7 +390,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         ISubMonitor zipStreamLoopMonitor = monitor.newChild(50,
                 ISubMonitor.SUPPRESS_NONE);
 
-        zipStreamLoopMonitor.beginTask(null, 100);
+        zipStreamLoopMonitor.beginTask("Unzipping archive", 60);
 
         try
         {
@@ -403,7 +403,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 // Every zipEntry is (again) a ZipArchive, which contains all
                 // missing files for one project.
                 ISubMonitor currentArchiveMonitor = zipStreamLoopMonitor
-                        .newChild(100 / projectCount, ISubMonitor.SUPPRESS_NONE);
+                        .newChild(100 / projectCount-10, ISubMonitor.SUPPRESS_NONE);
+
                 /*
                  * For every entry (which is a zipArchive for a single project)
                  * we have to find out which project it is meant for. So we need
@@ -433,7 +434,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 }, project, currentArchiveMonitor);
 
                 zipInputStream.closeEntry();  //todo
-                currentArchiveMonitor.done();
+               // currentArchiveMonitor.done();
             }
         }
         catch (RuntimeException e)
@@ -450,7 +451,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 archiveFile.delete();
             }
 
-            monitor.done();
+           // monitor.done();
         }
     }
 
@@ -464,7 +465,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             ISubMonitor subMonitor) throws SarosCancellationException, IOException
     {
 
-        subMonitor.beginTask(null, 100);
+        subMonitor.beginTask("Calculating missing files", 60);
+
         int numberOfLoops = projectNames.size();
         List<FileList> missingFiles = new ArrayList<FileList>();
 
@@ -474,7 +476,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
          */
         for (Entry<String, String> entry : projectNames.entrySet())
         {
-            ISubMonitor lMonitor = subMonitor.newChild(100 / numberOfLoops);
+            ISubMonitor lMonitor = subMonitor.newChild(100 / numberOfLoops-10);
+
             String projectID = entry.getKey();
             String projectName = entry.getValue();
             checkCancellation(CancelOption.NOTIFY_PEER);
@@ -534,7 +537,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             requiredFiles.setProjectID(projectID);
             checkCancellation(CancelOption.NOTIFY_PEER);
             missingFiles.add(requiredFiles);
-            lMonitor.done();
+           // lMonitor.done();
         }
         return missingFiles;
     }
@@ -790,11 +793,11 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         if (missingFiles.isEmpty())
         {
             log.debug(this + " : there are no files to synchronize.");
-            subMonitor.done();
+            //subMonitor.done();
             return FileListFactory.createEmptyFileList();
         }
 
-        subMonitor.done();
+       // subMonitor.done();
         return FileListFactory.createPathFileList(missingFiles);
     }
 
@@ -1034,7 +1037,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                     CancelOption.DO_NOT_NOTIFY_PEER);
         }
 
-        monitor.done();
+       //monitor.done();
     }
 
     private void createCollectors()
@@ -1056,11 +1059,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             SarosCancellationException
     {
 
-        monitor.beginTask("Receiving archive file...", 100);
+        monitor.beginTask("Receiving archive file...", 90);
         log.debug("waiting for incoming archive stream request");
 
-        monitor
-                .subTask("Host is compressing project files. Waiting for the archive file...");
+        monitor.subTask("Host is compressing project files. Waiting for the archive file...");
 
         try
         {
@@ -1081,6 +1083,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         monitor.subTask("Receiving archive file...");
 
         log.debug(this + " : receiving archive");
+
 
         IncomingFileTransfer transfer = archiveTransferListener.getRequest()
                 .accept();
@@ -1107,7 +1110,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 archiveFile.delete();
             }
 
-            monitor.done();
+          //  monitor.done();
         }
 
         log.debug(this + " : stored archive in file "

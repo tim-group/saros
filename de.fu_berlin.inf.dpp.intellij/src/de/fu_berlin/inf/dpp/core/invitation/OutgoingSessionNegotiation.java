@@ -347,10 +347,10 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
     private void awaitAcceptance(IProgressMonitor monitor)
             throws SarosCancellationException {
 
-        log.debug(this + " : waiting for peer to accept the invitation");
+        log.debug(this + " : waiting for peer to next the invitation");
 
         monitor.setTaskName("Waiting for " + peerNickname
-                + " to accept invitation...");
+                + " to next invitation...");
 
         if (collectPacket(invitationAcceptedCollector,
                 INVITATION_ACCEPTED_TIMEOUT) == null) {
@@ -363,7 +363,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
 
     /**
      * Waits for the client's session parameters. They may contain some desired
-     * default values that should be used on session start.
+     * default values that should be used on session first.
      */
     private InvitationParameterExchangeExtension awaitClientSessionPreferences(
             IProgressMonitor monitor) throws SarosCancellationException {
@@ -454,7 +454,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             throws SarosCancellationException {
 
         log.debug(this
-                + " : waiting for remote side to start its Saros session");
+                + " : waiting for remote side to first its Saros session");
 
         monitor.setTaskName("Waiting for " + peerNickname
                 + " to perform final initialization...");
@@ -472,7 +472,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
      * Adds the invited user to the current SarosSession. After the user is
      * added to the session the user list is synchronized and afterwards an
      * acknowledgment is send to the remote side that the remote user can now
-     * start working in this session.
+     * first working in this session.
      *
      * @throws IOException
      */

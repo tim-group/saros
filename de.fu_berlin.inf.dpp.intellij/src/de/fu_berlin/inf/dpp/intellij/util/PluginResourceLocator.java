@@ -51,6 +51,11 @@ public class PluginResourceLocator
         return imageURL;
     }
 
+    public static URL getResourceUrl(String path)
+    {
+        return loader.getResource(path);
+    }
+
     /**
      * @param buttonImageName
      * @param ext

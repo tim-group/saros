@@ -60,7 +60,7 @@ public class RemoteCursorStrategy implements IDrawingStrategy
             /*
              * Redraw the surrounding area of the cursor. Because we draw a line
              * with a width larger than 1, we have to clear the area around the
-             * actual coordinates (start a bit more left, and extend a bit to
+             * actual coordinates (first a bit more left, and extend a bit to
              * the right).
              */
             textWidget.redraw(currentCursorPosition.x - CURSOR_WIDTH / 2,

@@ -29,6 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.io.File;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -39,10 +40,10 @@ import java.awt.*;
 
 public class IconManager
 {
-    static final ImageIcon sessionsIcon;
-    static final ImageIcon contactOnlineIcon;
-    static final ImageIcon contactOfflineIcon;
-    static final ImageIcon contactsIcon;
+   public  static final ImageIcon sessionsIcon;
+   public static final ImageIcon contactOnlineIcon;
+   public static final ImageIcon contactOfflineIcon;
+   public static final ImageIcon contactsIcon;
 
     /**
      * Creates icons
@@ -53,6 +54,16 @@ public class IconManager
         contactOnlineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_saros_obj"), "contactOnLine");
         contactOfflineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_offline_obj"), "contactOffLine");
         contactsIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("group"), "contacts");
+    }
+
+    /**
+     *
+     * @param path
+     * @return
+     */
+    public static ImageIcon getIcon(String path)
+    {
+       return new ImageIcon(PluginResourceLocator.getResourceUrl(path));
     }
 
     /**
@@ -116,5 +127,6 @@ public class IconManager
         tree.setCellRenderer(renderer);
 
     }
+
 
 }

@@ -44,36 +44,35 @@ public class WizardController implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        System.out.println("WizardController.actionPerformed " + e + " panel=" + wizard.getWizardModel().getCurrentPanel());
 
-        if (wizard.getWizardModel().getCurrentPanel() == null)
+        if (wizard.getWizardModel().getCurrentPage() == null)
         {
             return;
         }
 
         if (Wizard.NEXT_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPanel().actionNext();
-            AbstractWizardPage nextPage = wizard.getWizardModel().getNextPanel();
+            wizard.getWizardModel().getCurrentPage().actionNext();
+            AbstractWizardPage nextPage = wizard.getWizardModel().getNextPage();
             if (nextPage == null)
             {
-                wizard.getWizardModel().getCurrentPanel().aboutToHidePanel();
+                wizard.getWizardModel().getCurrentPage().aboutToHidePanel();
                 wizard.close();
             }
             else
             {
-                wizard.setCurrentPanel(nextPage);
+                wizard.setCurrentPage(nextPage);
             }
 
         }
         else if (Wizard.BACK_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPanel().actionBack();
-            wizard.setCurrentPanel(wizard.getWizardModel().getBackPanel());
+            wizard.getWizardModel().getCurrentPage().actionBack();
+            wizard.setCurrentPage(wizard.getWizardModel().getBackPage());
         }
         else if (Wizard.CANCEL_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPanel().actionCancel();
+            wizard.getWizardModel().getCurrentPage().actionCancel();
             this.wizard.close();
         }
 

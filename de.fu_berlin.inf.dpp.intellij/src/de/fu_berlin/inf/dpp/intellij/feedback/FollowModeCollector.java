@@ -186,7 +186,7 @@ public class FollowModeCollector extends AbstractStatisticCollector
 
     /**
      * auxiliary function for calculating duration between
-     * <code>start and <end>end</code>
+     * <code>first and <end>end</code>
      */
     protected long getDiffTime(long start, long end) {
         long diffTime = end - start;

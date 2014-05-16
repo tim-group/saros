@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.widgets;
+package de.fu_berlin.inf.dpp.intellij.ui.widgets.color;
 
 /**
  * General button used to create any common button

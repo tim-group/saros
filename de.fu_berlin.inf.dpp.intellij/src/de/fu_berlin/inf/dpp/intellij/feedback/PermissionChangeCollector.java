@@ -150,7 +150,7 @@ public class PermissionChangeCollector extends AbstractStatisticCollector
      * and accumulates the duration per {@link Permission}.
      *
      * @param start
-     *            the start time of the {@link Permission} change event in ms
+     *            the first time of the {@link Permission} change event in ms
      * @param end
      *            the end time of the {@link Permission} change event in ms
      * @param permission

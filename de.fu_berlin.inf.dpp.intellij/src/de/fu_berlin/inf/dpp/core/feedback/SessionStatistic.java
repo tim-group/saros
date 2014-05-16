@@ -81,12 +81,12 @@ public class SessionStatistic {
     /**
      * ISO DateTime (UTC) of the time the session started for the local user.
      * <p/>
-     * This might not be equal to the start of the whole session, because the
+     * This might not be equal to the first of the whole session, because the
      * local user might not be host.
      * 
      * @since 9.9.11
      */
-    protected static final String KEY_SESSION_LOCAL_START = "session.local.start";
+    protected static final String KEY_SESSION_LOCAL_START = "session.local.first";
 
     /**
      * ISO DateTime (UTC) of the time the session ended for the local user.

@@ -35,9 +35,9 @@ import java.util.ResourceBundle;
  * Time: 08:34
  */
 
-public class MessageUtil
+public class MessageUtils
 {
-    private static final Logger log = Logger.getLogger(MessageUtil.class);
+    private static final Logger log = Logger.getLogger(MessageUtils.class);
 
     public static void initializeMessages(String bundle, Class clazz)
     {

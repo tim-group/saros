@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.ui.widgets.SarosProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -47,12 +47,13 @@ public abstract class Job extends Thread
         this.monitor = monitor;
     }
 
-    public Job(String name)
+    public Job(final String name)
     {
         super(name);
-        this.monitor = new SarosProgressMonitor(name);
+        monitor = new SarosProgressMonitor();
+        monitor.setTaskName(name);
 
-        System.out.println("Job.Job");
+
     }
 
     public void setUser(boolean isUser)
@@ -77,6 +78,11 @@ public abstract class Job extends Thread
         if (monitor == null)
         {
             monitor = new NullProgressMonitor();
+        }
+
+        if (monitor instanceof SarosProgressMonitor)
+        {
+            ((SarosProgressMonitor) monitor).startAutoincrement();
         }
 
         run(monitor);

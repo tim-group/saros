@@ -92,7 +92,7 @@ public interface ISarosSessionManager {
             String invitationID, String version, String description);
 
     /**
-     * Will start sharing all projects of the current session with a
+     * Will first sharing all projects of the current session with a
      * participant. This should be called after a the invitation to a session
      * was completed successfully.
      *

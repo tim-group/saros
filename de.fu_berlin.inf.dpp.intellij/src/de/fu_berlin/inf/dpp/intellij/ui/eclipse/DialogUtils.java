@@ -50,24 +50,34 @@ public class DialogUtils
     public static void openInformationMessageDialog(Container shell, String msg, String title)
     {
 
-        JOptionPane.showConfirmDialog(shell,msg,title,JOptionPane.OK_OPTION);
+        JOptionPane.showConfirmDialog(shell, msg, title, JOptionPane.OK_OPTION);
     }
 
+    public static void openWarningMessageDialog(Component shell, String msg, String title)
+    {
+
+        JOptionPane.showInternalMessageDialog(shell, msg, title, JOptionPane.WARNING_MESSAGE);
+    }
 
     public static void popUpFailureMessage(String msg, String title, boolean b)
     {
 
-        openErrorMessageDialog(getDefaultContainer(),msg,title);
+        openErrorMessageDialog(getDefaultContainer(), msg, title);
 
     }
 
     public static void openErrorMessageDialog(Component parent, String msg, String title)
     {
 
-        JOptionPane.showConfirmDialog(parent,msg,title,JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
     }
 
+    public static boolean openQuestionMessageDialog(Component parent, String msg, String title)
+    {
+        int answer = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.QUESTION_MESSAGE);
 
+        return answer == 0;
+    }
 
     public static Container getDefaultContainer()
     {

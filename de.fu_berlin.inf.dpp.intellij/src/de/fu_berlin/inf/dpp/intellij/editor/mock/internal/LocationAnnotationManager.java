@@ -170,7 +170,7 @@ public class LocationAnnotationManager {
                 throw new BadLocationException("Start line -1");
 
             if (end == -1 || end < start)
-                throw new BadLocationException("End line -1 or less than start");
+                throw new BadLocationException("End line -1 or less than first");
 
             ViewportAnnotation va = new ViewportAnnotation(user);
 

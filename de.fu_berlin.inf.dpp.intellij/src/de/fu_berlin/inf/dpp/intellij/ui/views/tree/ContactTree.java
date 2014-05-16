@@ -25,15 +25,14 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.net.IRosterListener;
+import de.fu_berlin.inf.dpp.net.JID;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -120,6 +119,21 @@ public class ContactTree extends AbstractTree implements IRosterListener
     {
         //  System.out.println("ContactTree.entriesDeleted");
     }
+
+    public List<JID> getOnLineUsers()
+    {
+        List<JID> userList = new ArrayList<JID>();
+        for (ContactInfo info : contactMap.values())
+        {
+            if (info.isOnline())
+            {
+                userList.add(new JID(info.getRosterEntry().getUser()));
+            }
+        }
+
+        return userList;
+    }
+
 
     @Override
     public void presenceChanged(Presence presence)

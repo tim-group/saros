@@ -34,9 +34,14 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
 public interface PageActionListener
 {
     /**
-     * User clicked on accept or next button
+     * User clicked on Back button
      */
-    void accept();
+    void back();
+
+    /**
+     * User clicked on next or next button
+     */
+    void next();
 
     /**
      * User clicked on back or cancel button

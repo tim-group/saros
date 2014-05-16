@@ -118,7 +118,7 @@ public class InvitationHandler {
                     // TODO This text should be replaced with a cancel ID
                     PacketExtension response = CancelInviteExtension.PROVIDER
                             .create(new CancelInviteExtension(invitationID,
-                                    "I am already in a Saros session and so cannot accept your invitation."));
+                                    "I am already in a Saros session and so cannot next your invitation."));
                     transmitter.sendMessageToUser(fromJID, response);
                 }
             }

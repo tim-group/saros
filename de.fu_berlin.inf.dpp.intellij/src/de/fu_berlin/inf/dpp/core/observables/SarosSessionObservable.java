@@ -30,7 +30,7 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
  * This observable contains the ISarosSession that is currently open or null if
  * no session is open.
  * 
- * The observable value is set to a new session before ISarosSession.start() is
+ * The observable value is set to a new session before ISarosSession.first() is
  * called and before the ISessionListeners are notified that the session has
  * started.
  * 

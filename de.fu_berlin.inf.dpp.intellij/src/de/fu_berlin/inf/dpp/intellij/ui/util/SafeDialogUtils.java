@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException;
  * Time: 16:31
  */
 
-public class DialogUtil
+public class SafeDialogUtils
 {
     private static Saros saros = Saros.instance();
 
@@ -91,6 +91,53 @@ public class DialogUtil
             UIUtil.invokeAndWaitIfNeeded(action);
         }
         return response.toString();
+    }
+
+    /**
+     *
+     * @param message
+     * @param title
+     */
+    public static void showWarning(final String message, final String title)
+    {
+        Runnable action = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (saros.getProject() == null)
+                {
+                    JOptionPane.showMessageDialog(saros.getMainPanel(), message, title, JOptionPane.WARNING_MESSAGE);
+                }
+                else
+                {
+                    Messages.showErrorDialog(saros.getProject(), message, title);
+                }
+            }
+        };
+
+        if(saros.getProject()==null)
+        {
+            if (SwingUtilities.isEventDispatchThread())
+            {
+                action.run();
+            }
+            else
+            {
+                try
+                {
+                    SwingUtilities.invokeAndWait(action);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else
+        {
+            UIUtil.invokeAndWaitIfNeeded(action);
+        }
     }
 
     /**

@@ -62,7 +62,7 @@ public class ActivitySequencer implements Startable
     private static final long TIMEOUT = 30000;
 
     /**
-     * Sequence numbers for outgoing and incoming activity data objects start
+     * Sequence numbers for outgoing and incoming activity data objects first
      * with this value.
      */
     private static final int FIRST_SEQUENCE_NUMBER = 0;

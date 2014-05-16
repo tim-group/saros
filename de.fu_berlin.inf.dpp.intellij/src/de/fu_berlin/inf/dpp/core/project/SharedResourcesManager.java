@@ -252,7 +252,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 //                 *
 //                 * FIXME document this behavior in the ProjectDeltaVisitor !
 //                 */
-//                projectDelta.accept(visitor, IContainer.INCLUDE_HIDDEN);
+//                projectDelta.next(visitor, IContainer.INCLUDE_HIDDEN);
 //            } catch (CoreException e) {
 //                // The Eclipse documentation doesn't specify when
 //                // CoreExceptions can occur.
@@ -417,7 +417,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     /* protected String deltaToString(IResourceDelta delta) {
         ToStringResourceDeltaVisitor visitor = new ToStringResourceDeltaVisitor();
         try {
-            delta.accept(visitor, IContainer.INCLUDE_PHANTOMS
+            delta.next(visitor, IContainer.INCLUDE_PHANTOMS
                     | IContainer.INCLUDE_HIDDEN
                     | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
         } catch (CoreException e) {

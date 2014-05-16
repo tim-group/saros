@@ -94,7 +94,7 @@ public class WorkspaceIntl implements IWorkspace
     {
         System.out.println("WorkspaceIntl.run 1 //todo");
 
-        //  new WorkspaceThread(procedure,monitor).start();
+        //  new WorkspaceThread(procedure,monitor).first();
         try
         {
             procedure.run(monitor);
@@ -111,7 +111,7 @@ public class WorkspaceIntl implements IWorkspace
     {
         System.out.println("WorkspaceIntl.run 2 //todo");
 
-        // new WorkspaceThread(procedure,monitor).start(); //todo
+        // new WorkspaceThread(procedure,monitor).first(); //todo
         try
         {
             procedure.run(monitor);

@@ -122,7 +122,7 @@ public class ContributionAnnotationManager {
      * @param model
      *            to add the annotation to.
      * @param offset
-     *            start of the annotation to add.
+     *            first of the annotation to add.
      * @param length
      *            length of the annotation.
      * @param source

@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -59,13 +60,28 @@ public class SessionTree extends AbstractTree
         @Override
         public void userLeft(final User user)
         {
-            removeUserNode(user);
+            UIUtil.invokeAndWaitIfNeeded(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    removeUserNode(user);
+                }
+            });
+
         }
 
         @Override
         public void userJoined(final User user)
         {
-            addUserNode(user);
+            UIUtil.invokeAndWaitIfNeeded(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    addUserNode(user);
+                }
+            });
         }
     };
 
@@ -73,47 +89,73 @@ public class SessionTree extends AbstractTree
     private ISarosSessionListener sessionListener = new ISarosSessionListener()
     {
         @Override
-        public void preIncomingInvitationCompleted(IProgressMonitor monitor)
+        public void preIncomingInvitationCompleted(final IProgressMonitor monitor)
         {
 
         }
 
         @Override
-        public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user)
+        public void postOutgoingInvitationCompleted(final IProgressMonitor monitor, final User user)
         {
 
         }
 
         @Override
-        public void sessionStarting(ISarosSession newSarosSession)
+        public void sessionStarting(final ISarosSession newSarosSession)
         {
 
         }
 
         @Override
-        public void sessionStarted(ISarosSession newSarosSession)
+        public void sessionStarted(final ISarosSession newSarosSession)
         {
-            newSarosSession.addListener(userListener);
-            createSessionNode(newSarosSession);
+            UIUtil.invokeAndWaitIfNeeded(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    newSarosSession.addListener(userListener);
+                    createSessionNode(newSarosSession);
+                }
+            });
+
         }
 
         @Override
-        public void sessionEnding(ISarosSession oldSarosSession)
+        public void sessionEnding(final ISarosSession oldSarosSession)
         {
 
         }
 
         @Override
-        public void sessionEnded(ISarosSession oldSarosSession)
+        public void sessionEnded(final ISarosSession oldSarosSession)
         {
-            oldSarosSession.removeListener(userListener);
-            removeSessionNode(oldSarosSession);
+
+            UIUtil.invokeAndWaitIfNeeded(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    oldSarosSession.removeListener(userListener);
+                    removeSessionNode(oldSarosSession);
+                }
+            });
+
+
         }
 
         @Override
-        public void projectAdded(String projectID)
+        public void projectAdded(final String projectID)
         {
-            addProjectNode(projectID);
+            UIUtil.invokeAndWaitIfNeeded(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    addProjectNode(projectID);
+                }
+            });
+
         }
     };
 

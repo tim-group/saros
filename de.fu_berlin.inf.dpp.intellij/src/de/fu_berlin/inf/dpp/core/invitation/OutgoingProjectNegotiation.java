@@ -225,7 +225,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         log.debug(this + " : sending file list");
 
         /*
-         * file lists are normally very small so we "accept" the circumstance
+         * file lists are normally very small so we "next" the circumstance
          * that this step cannot be cancelled.
          */
 

@@ -29,6 +29,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
  * Time: 11.57
  */
 
+import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.JID;

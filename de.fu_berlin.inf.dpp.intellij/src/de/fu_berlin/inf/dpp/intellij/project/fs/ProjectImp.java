@@ -141,7 +141,7 @@ public class ProjectImp implements IProject
     public void accept(IResourceVisitor visitor, int resource, int container)
     {
         //todo: Implement it
-        System.out.println("ProjectIntl.accept //todo");
+        System.out.println("ProjectIntl.next //todo");
     }
 
     /**

@@ -33,18 +33,21 @@ import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.ProcessTools;
 import de.fu_berlin.inf.dpp.core.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.ui.IJoinSession;
-import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
+import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
-import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
 import java.awt.*;
+import java.text.MessageFormat;
 
 
 /**
@@ -52,14 +55,15 @@ import java.awt.*;
  * <p/>
  * TODO Automatically switch to follow mode
  * <p/>
- * TODO Create a separate Wizard class with the following concerns implemented
  * more nicely: Long-Running Operation after each step, cancellation by a remote
  * party, auto-advance.
- *
- * @author rdjemili
  */
-public class JoinSessionWizard extends AbstractWizard implements IJoinSession
+public class JoinSessionWizard implements IJoinSession
 {
+    public static final String PAGE_INFO_ID = "JoinSessionInfo";
+    public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
+
+    private static Container parent = Saros.instance().getMainPanel();
 
     private static final Logger log = Logger.getLogger(JoinSessionWizard.class);
 
@@ -67,88 +71,61 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
 
     private IncomingSessionNegotiation process;
 
-    //  private ShowDescriptionPage descriptionPage;
 
     private SessionNegotiation.Status invitationStatus;
 
-    @Inject
-    private VersionManager manager;
+    private ProgressPage progressPage;
+    private Wizard wizard;
 
-    @Inject
-    private PreferenceUtils preferenceUtils;
-
-    public JoinSessionWizard(IncomingSessionNegotiation process)
+    private PageActionListener actionListener = new PageActionListener()
     {
-        //todo: UI wizard implementation
-        System.out.println("JoinSessionWizard.JoinSessionWizard //todo");
-        this.process = process;
-        this.process.setInvitationUI(this);
-
-
-        final IncomingSessionNegotiation proc = process;
-        final Component comp = Saros.instance().getMainPanel();
-        SwingUtilities.invokeLater(new Runnable()
+        @Override
+        public void back()
         {
 
-            @Override
-            public void run()
-            {
-
-                // Messages.showCheckboxOkCancelDialog(comp, "Do you want to join session?", "Incomming session");
-                int n = JOptionPane.showConfirmDialog(
-                        comp,
-                        "Do you want to join session from [" + proc.getPeer().getName() + "] ?\n" + proc.getDescription(),
-                        "Incoming session",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (n == 0)
-                {
-                    proc.accept(new NullProgressMonitor());
-
-
-                }
-                else
-                {
-                    //clicked NO or closed dialog
-                    proc.localCancel("Not accepted", ProcessTools.CancelOption.NOTIFY_PEER);
-                }
-            }
-        });
-
-        //  final Component comp = Saros.instance().getMainPanel();
-        //  Messages.showInfoMessage(comp, "Do you want to join session?", "Join session");
-        //this.setTitle("Join session wizard");
-
-
-        // SarosPluginContext.initComponent(this);
-
-        // EnterProjectNamePageUtils.setPreferenceUtils(preferenceUtils);
-
-
-        // setWindowTitle(Messages.JoinSessionWizard_title);
-        // setHelpAvailable(false);
-        //  setNeedsProgressMonitor(true);
-
-        // descriptionPage = new ShowDescriptionPage(manager, process);
-        // addPage(descriptionPage);
-
-        //  joinSession();
-    }
-
-    public void joinSession()
-    {
-        process.accept(new NullProgressMonitor());
-    }
-
-    /*  public void createPageControls(Composite pageContainer)
-    {
-        this.descriptionPage.createControl(pageContainer);
-
-        if (getContainer() instanceof WizardDialogAccessible) {
-            ((WizardDialogAccessible) getContainer()).setWizardButtonLabel(
-                    IDialogConstants.FINISH_ID, Messages.JoinSessionWizard_accept);
         }
-    }*/
+
+        @Override
+        public void next()
+        {
+            performFinish();
+        }
+
+        @Override
+        public void cancel()
+        {
+            performCancel();
+        }
+    };
+
+    /**
+     * Creates wizard UI
+     *
+     * @param process
+     */
+    public JoinSessionWizard(IncomingSessionNegotiation process)
+    {
+        this.process = process;
+
+        wizard = new Wizard(Messages.JoinSessionWizard_title);
+        wizard.getNavigationPanel().setBackButton(null);
+
+        wizard.setHeadPanel(new HeaderPanel(Messages.ShowDescriptionPage_title2, Messages.ShowDescriptionPage_description));
+
+        InfoPage infoPage = new InfoPage(PAGE_INFO_ID);
+        infoPage.addText(process.getPeer().getName() + " " + Messages.JoinSessionWizard_info);
+        infoPage.addText(process.getDescription());
+        infoPage.addPageListener(actionListener);
+        infoPage.setNextButtonTitle(Messages.JoinSessionWizard_accept);
+
+        wizard.registerPage(infoPage);
+
+        this.progressPage = new ProgressPage(PAGE_PROGRESS_ID);
+        wizard.registerPage(progressPage);
+
+        wizard.create();
+
+    }
 
 
     @Override
@@ -159,29 +136,32 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
 
         try
         {
-            // getContainer().run(true, false, new IRunnableWithProgress() {
-            /* getContainer().run(true, false, new IRunnableWithProgress() {
-                @Override
-                public void run(IProgressMonitor monitor)
-                        throws InvocationTargetException, InterruptedException {
-                    try {
-                        invitationStatus = process.accept(monitor);
-                    } catch (Exception e) {
-                        throw new InvocationTargetException(e);
-                    }
-                }
-            });*/
 
             ThreadUtils.runSafeAsync(log, new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    IProgressMonitor monitor = new NullProgressMonitor(); //todo
-                    invitationStatus = process.accept(monitor);
+                    IProgressMonitor progress = progressPage.getProgressMonitor(true, true);
+                    invitationStatus = process.accept(progress);
+                    switch (invitationStatus)
+                    {
+                        case OK:
+                            break;
+                        case CANCEL:
+                        case ERROR:
+                            asyncShowCancelMessage(process.getPeer(),
+                                    process.getErrorMessage(), ProcessTools.CancelLocation.LOCAL);
+                            break;
+                        case REMOTE_CANCEL:
+                        case REMOTE_ERROR:
+                            asyncShowCancelMessage(process.getPeer(),
+                                    process.getErrorMessage(), ProcessTools.CancelLocation.REMOTE);
+                            break;
+
+                    }
                 }
             });
-
 
         }
         catch (Exception e)
@@ -193,30 +173,14 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
                 cause = e;
             }
 
-            asyncShowCancelMessage(process.getPeer(), e.getMessage(),
+            asyncShowCancelMessage(process.getPeer(), cause.getMessage(),
                     ProcessTools.CancelLocation.LOCAL);
 
             // give up, close the wizard as we cannot do anything here !
-            return true;
+            return accepted;
         }
 
-        switch (invitationStatus)
-        {
-            case OK:
-                break;
-            case CANCEL:
-            case ERROR:
-                asyncShowCancelMessage(process.getPeer(),
-                        process.getErrorMessage(), ProcessTools.CancelLocation.LOCAL);
-                break;
-            case REMOTE_CANCEL:
-            case REMOTE_ERROR:
-                asyncShowCancelMessage(process.getPeer(),
-                        process.getErrorMessage(), ProcessTools.CancelLocation.REMOTE);
-                break;
-
-        }
-        return true;
+        return accepted;
     }
 
 
@@ -231,7 +195,8 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
                     {
                         process.localCancel(null, ProcessTools.CancelOption.NOTIFY_PEER);
                     }
-                });
+                }
+        );
         return true;
     }
 
@@ -239,8 +204,7 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
      * Get rid of this method, use a listener !
      */
     @Override
-    public void cancelWizard(final JID jid, final String errorMsg,
-            final ProcessTools.CancelLocation cancelLocation)
+    public void cancelWizard(final JID jid, final String errorMsg, final ProcessTools.CancelLocation cancelLocation)
     {
 
         ThreadUtils.runSafeSync(log, new Runnable()
@@ -275,7 +239,7 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
             final ProcessTools.CancelLocation cancelLocation)
     {
-        ThreadUtils.runSafeSync(log, new Runnable()
+        ThreadUtils.runSafeAsync(log, new Runnable()
         {
             @Override
             public void run()
@@ -291,33 +255,41 @@ public class JoinSessionWizard extends AbstractWizard implements IJoinSession
 
         String peer = jid.getBase();
 
-        /* Shell shell = ThreadUtils.getShell();
+        Container shell = parent;
 
-       if (errorMsg != null) {
-           switch (cancelLocation) {
-               case LOCAL:
-                   DialogUtils.openErrorMessageDialog(shell,
-                           Messages.JoinSessionWizard_inv_cancelled,
-                           Messages.JoinSessionWizard_inv_cancelled_text
-                                   + Messages.JoinSessionWizard_8 + errorMsg);
-                   break;
-               case REMOTE:
-                   DialogUtils.openErrorMessageDialog(shell,
+        if (errorMsg != null)
+        {
+            switch (cancelLocation)
+            {
+                case LOCAL:
+                    DialogUtils.openErrorMessageDialog(shell,
+                            Messages.JoinSessionWizard_inv_cancelled,
+                            Messages.JoinSessionWizard_inv_cancelled_text
+                                    + Messages.JoinSessionWizard_8 + errorMsg
+                    );
+                    break;
+                case REMOTE:
+                    DialogUtils.openErrorMessageDialog(shell,
 
-                           Messages.JoinSessionWizard_inv_cancelled, MessageFormat.format(
-                           Messages.JoinSessionWizard_inv_cancelled_text2, peer,
-                           errorMsg));
-           }
-       } else {
-           switch (cancelLocation) {
-               case LOCAL:
-                   break;
-               case REMOTE:
-                   DialogUtils.openInformationMessageDialog(shell,
-                           Messages.JoinSessionWizard_inv_cancelled, MessageFormat
-                           .format(Messages.JoinSessionWizard_inv_cancelled_text3,
-                                   peer));
-           }
-       } */
+                            Messages.JoinSessionWizard_inv_cancelled, MessageFormat.format(
+                                    Messages.JoinSessionWizard_inv_cancelled_text2, peer,
+                                    errorMsg)
+                    );
+            }
+        }
+        else
+        {
+            switch (cancelLocation)
+            {
+                case LOCAL:
+                    break;
+                case REMOTE:
+                    DialogUtils.openInformationMessageDialog(shell,
+                            Messages.JoinSessionWizard_inv_cancelled, MessageFormat
+                                    .format(Messages.JoinSessionWizard_inv_cancelled_text3,
+                                            peer)
+                    );
+            }
+        }
     }
 }

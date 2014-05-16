@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.ui;
 
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtil;
+import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtils;
 
 import java.lang.reflect.Field;
 
@@ -442,7 +442,7 @@ public class Messages
     static
     {
         // initialize resource bundle
-        MessageUtil.initializeMessages(BUNDLE_NAME, Messages.class);
+        MessageUtils.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 
     private Messages()

@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Default wizard model. Class keeps information about
  * wizard position, acts as container for
- *
+ * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
  * Date: 2014-05-14
@@ -39,12 +39,12 @@ import java.util.Map;
 
 public class WizardModel
 {
-    private Map<Object, AbstractWizardPage> stepMap = new HashMap<Object, AbstractWizardPage>();
-    private List<AbstractWizardPage> stepList = new ArrayList<AbstractWizardPage>();
+    private Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();
+    private List<AbstractWizardPage> pageList = new ArrayList<AbstractWizardPage>();
 
-    private AbstractWizardPage backPanel;
-    private AbstractWizardPage currentPanel;
-    private AbstractWizardPage nextPanel;
+    private AbstractWizardPage backPage;
+    private AbstractWizardPage currentPage;
+    private AbstractWizardPage nextPage;
 
     /**
      * Method called internally by framework to add page to container
@@ -54,28 +54,28 @@ public class WizardModel
      */
     protected void registerPanel(Object id, AbstractWizardPage panel)
     {
-        stepMap.put(id, panel);
-        stepList.add(panel);
+        pageMap.put(id, panel);
+        pageList.add(panel);
     }
 
     /**
      * Return panel
      *
-     * @return  AbstractWizardPage
+     * @return AbstractWizardPage
      */
-    public AbstractWizardPage getBackPanel()
+    public AbstractWizardPage getBackPage()
     {
-        return backPanel;
+        return backPage;
     }
 
     /**
      * Current panel
      *
-     * @return  AbstractWizardPage
+     * @return AbstractWizardPage
      */
-    public AbstractWizardPage getCurrentPanel()
+    public AbstractWizardPage getCurrentPage()
     {
-        return currentPanel;
+        return currentPage;
     }
 
     /**
@@ -83,62 +83,92 @@ public class WizardModel
      *
      * @return AbstractWizardPage
      */
-    public AbstractWizardPage getNextPanel()
+    public AbstractWizardPage getNextPage()
     {
-        return nextPanel;
+        return nextPage;
     }
 
     /**
-     * Sets current page by ID
+     * Finds page by ID
      *
-     * @param id page identifier
+     * @param id identifier
+     * @return AbstractWizardPage
      */
-    public void setCurrentPanelId(Object id)
+    public AbstractWizardPage getPageById(Object id)
     {
-        setCurrentPanel(stepMap.get(id));
+        return pageMap.get(id);
     }
 
     /**
-     * Sets current page by index.
+     * Finds page by index
      *
-     * @param index page index in registry
+     * @param index
+     * @return AbstractWizardPage
      */
-    public void setCurrentPanelIndex(int index)
+    public AbstractWizardPage getPageByIndex(int index)
     {
-        setCurrentPanel(stepList.get(index));
+        return pageList.get(index);
     }
 
     /**
-     * Called internally by framework to set current panel
+     * Next page position
      *
-     * @param panel  AbstractWizardPage
+     * @param page
      */
-    protected void setCurrentPanel(AbstractWizardPage panel)
+    public void setNextPage(AbstractWizardPage page)
     {
-        this.currentPanel = panel;
+        this.nextPage = page;
+    }
 
-        if (currentPanel == null)
+    /**
+     * Back page
+     *
+     * @param backPage
+     */
+    public void setBackPage(AbstractWizardPage backPage)
+    {
+        this.backPage = backPage;
+    }
+
+    /**
+     * @param index
+     */
+    protected void setCurrentPositionIndex(int index)
+    {
+        setCurrentPagePosition(getPageByIndex(index));
+    }
+
+    /**
+     * Called internally by framework to set current page
+     *
+     * @param page AbstractWizardPage
+     */
+    protected void setCurrentPagePosition(AbstractWizardPage page)
+    {
+        this.currentPage = page;
+
+        if (currentPage == null)
         {
             return;
         }
 
-        int index = stepList.indexOf(panel);
+        int index = pageList.indexOf(page);
         if (index > 0)
         {
-            this.backPanel = stepList.get(index - 1);
+            this.backPage = pageList.get(index - 1);
         }
         else
         {
-            this.backPanel = null;
+            this.backPage = null;
         }
 
-        if (index < stepList.size() - 1)
+        if (index < pageList.size() - 1)
         {
-            this.nextPanel = stepList.get(index + 1);
+            this.nextPage = pageList.get(index + 1);
         }
         else
         {
-            this.nextPanel = null;
+            this.nextPage = null;
         }
     }
 
@@ -149,6 +179,6 @@ public class WizardModel
      */
     public int getSize()
     {
-        return stepList.size();
+        return pageList.size();
     }
 }

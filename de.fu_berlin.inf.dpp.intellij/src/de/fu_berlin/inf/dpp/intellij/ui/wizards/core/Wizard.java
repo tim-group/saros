@@ -23,8 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
 
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -61,7 +59,7 @@ public class Wizard
 
     private NavigationPanel navigationPanel;
 
-    private Component parent = Saros.instance().getMainPanel();
+    private Component parent = null;//Saros.instance().getMainPanel();
 
     /**
      * Constructor creates wizard structure.
@@ -112,8 +110,8 @@ public class Wizard
 
         if (wizardModel.getSize() > 0)
         {
-            wizardModel.setCurrentPanelIndex(0);
-            setCurrentPanel(wizardModel.getCurrentPanel());
+            wizardModel.setCurrentPositionIndex(0);
+            setCurrentPage(wizardModel.getCurrentPage());
         }
         else
         {
@@ -128,44 +126,43 @@ public class Wizard
      * Registers pages used in wizard.
      * Should be added before using wizard.
      *
-     * @param panel  AbstractWizardPage
+     * @param page  AbstractWizardPage
      */
-    public void registerPage(AbstractWizardPage panel)
+    public void registerPage(AbstractWizardPage page)
     {
-        panel.setWizard(this);
-        cardPanel.add(panel, panel.getId());
-        cardLayout.addLayoutComponent(panel, panel.getId());
-        wizardModel.registerPanel(panel.getId().toString(), panel);
+        page.setWizard(this);
+        cardPanel.add(page, page.getId());
+        cardLayout.addLayoutComponent(page, page.getId());
+        wizardModel.registerPanel(page.getId().toString(), page);
     }
 
     /**
      * Called by framework internally when user navigates wizard
      *
-     * @param panel AbstractWizardPage
+     * @param page AbstractWizardPage
      */
-    protected void setCurrentPanel(AbstractWizardPage panel)
+    protected void setCurrentPage(AbstractWizardPage page)
     {
         navigationPanel.setButtonsEnabled(false);
 
-        AbstractWizardPage oldPanel = wizardModel.getCurrentPanel();
+        AbstractWizardPage oldPanel = wizardModel.getCurrentPage();
 
         if (oldPanel != null)
         {
             oldPanel.aboutToHidePanel();
         }
 
-        wizardModel.setCurrentPanel(panel);
+        wizardModel.setCurrentPagePosition(page);
 
-        if (panel != null)
+        if (page != null)
         {
-            wizardModel.getCurrentPanel().aboutToDisplayPanel();
+            wizardModel.getCurrentPage().aboutToDisplayPanel();
 
-
-            if (wizardModel.getNextPanel() == null)
+            if (wizardModel.getNextPage() == null)
             {
                 navigationPanel.setPosition(NavigationPanel.Position.last);
             }
-            else if (wizardModel.getBackPanel() == null)
+            else if (wizardModel.getBackPage() == null)
             {
                 navigationPanel.setPosition(NavigationPanel.Position.first);
             }
@@ -174,20 +171,20 @@ public class Wizard
                 navigationPanel.setPosition(NavigationPanel.Position.middle);
             }
 
-            if (panel.getNextButtonTitle() != null)
+            if (page.getNextButtonTitle() != null)
             {
-                navigationPanel.getNextButton().setText(panel.getNextButtonTitle());
+                navigationPanel.getNextButton().setText(page.getNextButtonTitle());
             }
             else
             {
                 navigationPanel.getNextButton().setVisible(false);
             }
 
-            cardLayout.show(cardPanel, panel.getId().toString());
-
-            wizardModel.getCurrentPanel().displayingPanel();
+            cardLayout.show(cardPanel, page.getId().toString());
 
             navigationPanel.setButtonsEnabled(true);
+
+            wizardModel.getCurrentPage().displayingPanel();
         }
 
     }

@@ -108,7 +108,7 @@ public class ColorIDSetStorageTest {
 
         ColorIDSet set = storage.getColorIDSet(jids);
 
-        // init
+        // create
         storage.updateColor(set, bob, 1, -1);
 
         // set Alice to an already occupied color

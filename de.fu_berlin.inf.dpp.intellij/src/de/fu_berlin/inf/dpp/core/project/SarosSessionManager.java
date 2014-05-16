@@ -184,7 +184,7 @@ public class SarosSessionManager implements ISarosSessionManager
      * it.
      * <p/>
      * (At the moment, this separation is invisible to the user.
-     * He/she must share a project in order to start a session.)
+     * He/she must share a project in order to first a session.)
      */
     @Override
     public void startSession(
@@ -196,7 +196,7 @@ public class SarosSessionManager implements ISarosSessionManager
             if (!startStopSessionLock.tryLock(LOCK_TIMEOUT,
                     TimeUnit.MILLISECONDS))
             {
-                log.warn("could not start a new session because another operation still tries to start or stop a session");
+                log.warn("could not first a new session because another operation still tries to first or stop a session");
                 return;
             }
         }
@@ -212,7 +212,7 @@ public class SarosSessionManager implements ISarosSessionManager
             if (sessionShutdown)
             {
                 throw new IllegalStateException(
-                        "cannot start the session from the same thread context that is currently about to stop the session: "
+                        "cannot first the session from the same thread context that is currently about to stop the session: "
                                 + Thread.currentThread().getName()
                 );
             }
@@ -220,14 +220,14 @@ public class SarosSessionManager implements ISarosSessionManager
             if (sessionStartup)
             {
                 log.warn(
-                        "recursive execution detected, ignoring session start request",
+                        "recursive execution detected, ignoring session first request",
                         new StackTrace());
                 return;
             }
 
             if (sarosSessionObservable.getValue() != null)
             {
-                log.warn("could not start a new session because a session has already been started");
+                log.warn("could not first a new session because a session has already been started");
                 return;
             }
 
@@ -328,7 +328,7 @@ public class SarosSessionManager implements ISarosSessionManager
             if (!startStopSessionLock.tryLock(LOCK_TIMEOUT,
                     TimeUnit.MILLISECONDS))
             {
-                log.warn("could not stop the current session because another operation still tries to start or stop a session");
+                log.warn("could not stop the current session because another operation still tries to first or stop a session");
                 return;
             }
         }
@@ -344,7 +344,7 @@ public class SarosSessionManager implements ISarosSessionManager
             if (sessionStartup)
             {
                 throw new IllegalStateException(
-                        "cannot stop the session from the same thread context that is currently about to start the session: "
+                        "cannot stop the session from the same thread context that is currently about to first the session: "
                                 + Thread.currentThread().getName()
                 );
             }
@@ -430,7 +430,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
         if (handler == null)
         {
-            log.warn("could not accept invitation because no handler is installed");
+            log.warn("could not next invitation because no handler is installed");
             return;
         }
 
@@ -440,7 +440,7 @@ public class SarosSessionManager implements ISarosSessionManager
         {
             if (!startStopSessionLock.tryLock())
             {
-                log.warn("could not accept invitation because the current session is about to stop");
+                log.warn("could not next invitation because the current session is about to stop");
                 return;
             }
 
@@ -449,7 +449,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
                 if (sessionIDObservable.getValue() != SessionIDObservable.NOT_IN_SESSION)
                 {
-                    log.error("could not accept invitation because there is already a pending invitation");
+                    log.error("could not next invitation because there is already a pending invitation");
                     return;
                 }
 
@@ -488,7 +488,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
         if (handler == null)
         {
-            log.warn("could not accept project negotiation because no handler is installed");
+            log.warn("could not next project negotiation because no handler is installed");
             return;
         }
 
@@ -498,7 +498,7 @@ public class SarosSessionManager implements ISarosSessionManager
         {
             if (!startStopSessionLock.tryLock())
             {
-                log.warn("could not accept project negotation because the current session is about to stop");
+                log.warn("could not next project negotation because the current session is about to stop");
                 return;
             }
 
@@ -528,7 +528,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
         if (handler == null)
         {
-            log.warn("could not start an invitation because no handler is installed");
+            log.warn("could not first an invitation because no handler is installed");
             return;
         }
 
@@ -538,7 +538,7 @@ public class SarosSessionManager implements ISarosSessionManager
         {
             if (!startStopSessionLock.tryLock())
             {
-                log.warn("could not start an invitation because the current session is about to start or stop");
+                log.warn("could not first an invitation because the current session is about to first or stop");
                 return;
             }
 
@@ -680,7 +680,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
         if (handler == null)
         {
-            log.warn("could not start a project negotiation because no handler is installed");
+            log.warn("could not first a project negotiation because no handler is installed");
             return;
         }
 
@@ -690,7 +690,7 @@ public class SarosSessionManager implements ISarosSessionManager
         {
             if (!startStopSessionLock.tryLock())
             {
-                log.warn("could not start a project negotiation because the current session is about to stop");
+                log.warn("could not first a project negotiation because the current session is about to stop");
                 return;
             }
 
@@ -747,7 +747,7 @@ public class SarosSessionManager implements ISarosSessionManager
 
         if (handler == null)
         {
-            log.warn("could not start a project negotiation because no handler is installed");
+            log.warn("could not first a project negotiation because no handler is installed");
             return;
         }
 
@@ -757,7 +757,7 @@ public class SarosSessionManager implements ISarosSessionManager
         {
             if (!startStopSessionLock.tryLock())
             {
-                log.warn("could not start a project negotiation because the current session is about to stop");
+                log.warn("could not first a project negotiation because the current session is about to stop");
                 return;
             }
 
@@ -853,7 +853,7 @@ public class SarosSessionManager implements ISarosSessionManager
             }
             catch (RuntimeException e)
             {
-                log.error("error in notifying listener of session start: ", e);
+                log.error("error in notifying listener of session first: ", e);
             }
         }
     }

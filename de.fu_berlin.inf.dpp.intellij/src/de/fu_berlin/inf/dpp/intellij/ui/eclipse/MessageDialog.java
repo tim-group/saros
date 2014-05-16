@@ -36,19 +36,19 @@ import java.awt.*;
 public class MessageDialog
 {
 
-    public static void openInformation(Container shell,  String title, String message)
+    public static void openInformation(Component shell,  String title, String message)
     {
         JOptionPane.showInternalMessageDialog(shell,title,message,JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void openError(Container shell,  String title, String message)
+    public static void openError(Component shell,  String title, String message)
     {
         JOptionPane.showInternalMessageDialog(shell,title,message,JOptionPane.ERROR_MESSAGE);
     }
 
 
 
-    public static boolean openConfirm(Container shell, String title, String message)
+    public static boolean openConfirm(Component shell, String title, String message)
     {
         int resp = JOptionPane.showConfirmDialog(shell, message, title, JOptionPane.YES_OPTION);
         return resp == 0;

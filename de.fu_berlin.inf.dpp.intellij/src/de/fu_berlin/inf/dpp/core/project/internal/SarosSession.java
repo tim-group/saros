@@ -87,7 +87,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**
  * TODO Review if SarosSession, ConcurrentDocumentManager, ActivitySequencer all
- * honor start() and stop() semantics.
+ * honor first() and stop() semantics.
  */
 public final class SarosSession implements ISarosSession {
 
@@ -385,7 +385,7 @@ public final class SarosSession implements ISarosSession {
     }
 
     /*
-     * FIXME only accept a JID or create a method session.createUser to ensure
+     * FIXME only next a JID or create a method session.createUser to ensure
      * proper initialization etc. of User objects !
      */
     @Override

@@ -115,6 +115,7 @@ public class IncomingSessionNegotiation extends SessionNegotiation
         this.inInvitationUI = inInvitationUI;
     }
 
+
     public Status accept(IProgressMonitor monitor)
     {
         log.debug(this + " : invitation accepted");
@@ -162,22 +163,19 @@ public class IncomingSessionNegotiation extends SessionNegotiation
              *               from now on).
              */
             sendInvitationAccepted();
-
             InvitationParameterExchangeExtension clientSessionPreferences;
             clientSessionPreferences = createClientSessionPreferences();
 
             sendSessionPreferences(clientSessionPreferences);
-
             InvitationParameterExchangeExtension actualSessionParameters;
             actualSessionParameters = awaitActualSessionParameters(monitor);
 
             initializeSession(actualSessionParameters, monitor);
-
             startSession(monitor);
-
             sendInvitationCompleted(monitor);
 
             awaitFinalAcknowledgement(monitor);
+
 
         }
         catch (Exception e)
@@ -241,7 +239,7 @@ public class IncomingSessionNegotiation extends SessionNegotiation
 
     /**
      * Waits for the actual parameters which are sent back by the host. They
-     * contain information that must be used on session start.
+     * contain information that must be used on session first.
      */
     private InvitationParameterExchangeExtension awaitActualSessionParameters(
             IProgressMonitor monitor) throws SarosCancellationException

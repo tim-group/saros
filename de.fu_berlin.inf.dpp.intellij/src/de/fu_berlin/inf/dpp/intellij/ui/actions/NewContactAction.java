@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtil;
+import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 
 /**
  * Adds new contact
@@ -55,7 +55,7 @@ public class NewContactAction extends AbstractSarosAction
         log.info("ADD_CONTACT - not implemented action");
 
 
-        DialogUtil.showError("We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented");
+        SafeDialogUtils.showError("We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented");
 
         actionFinished();
     }
