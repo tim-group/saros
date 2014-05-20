@@ -35,8 +35,10 @@ import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
+import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.concurrent.UndoManager;
 import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
@@ -77,7 +79,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             Component.create(SarosSessionManager.class),
 
             // Core Managers
-          //  Component.create(ConsistencyWatchdogClient.class),   //todo  1
+            Component.create(ConsistencyWatchdogClient.class),
 
             //   Component.create(EditorAPI.class),
             Component.create(IEditorAPI.class, EditorAPI.class),
@@ -153,6 +155,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
         IWorkspace workspace = saros.getWorkspace();
         FileList.workspace = workspace;
         FileListDiff.workspace = workspace;
+        FileUtils.workspace = workspace;
 
        // container.addComponent(Saros.class,saros);
         container.addComponent(IPreferenceStore.class, saros.getConfigPrefs());

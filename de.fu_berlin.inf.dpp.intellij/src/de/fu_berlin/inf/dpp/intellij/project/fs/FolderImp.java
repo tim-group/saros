@@ -55,7 +55,15 @@ public class FolderImp extends ResourceImp implements IFolder
     @Override
     public void create(int updateFlags, boolean local) throws IOException
     {
-        file.mkdirs();
+        if (!file.isAbsolute())
+        {
+            File fileInProject = new File(getProject().getFullPath().toString() + File.separator + file.getPath());
+            fileInProject.mkdirs();
+        }
+        else
+        {
+            file.mkdirs();
+        }
     }
 
     @Override
@@ -117,7 +125,14 @@ public class FolderImp extends ResourceImp implements IFolder
     @Override
     public void delete(int updateFlags) throws IOException
     {
-        FileUtils.deleteDirectory(file);
+        if (file.isAbsolute())
+        {
+            FileUtils.deleteDirectory(file);
+        }
+        else
+        {
+            FileUtils.deleteDirectory(getFullPath().toFile());
+        }
     }
 
     @Override

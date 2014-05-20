@@ -1051,12 +1051,13 @@ public final class SarosSession implements ISarosSession {
         sessionContainer.addComponent(SelectionCollector.class);
         sessionContainer.addComponent(ProjectCollector.class);
 
+
         // Feedback
         sessionContainer.addComponent(ErrorLogManager.class);
         sessionContainer.addComponent(FeedbackManager.class);
 
         // Handlers
-        //sessionContainer.addComponent(ConsistencyWatchdogHandler.class);   //todo 1
+        sessionContainer.addComponent(ConsistencyWatchdogHandler.class);
         // transforming - thread access
         sessionContainer.addComponent(ActivityHandler.class);
         sessionContainer.addComponent(IActivityHandlerCallback.class,

@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
+
 import java.io.File;
 import java.net.URI;
 
@@ -52,6 +53,7 @@ public abstract class ResourceImp implements IResource
     {
         this.project = project;
         this.file = file;
+        this.attributes = new FileResourceAttributes(file);
     }
 
     public ResourceImp(File file)
@@ -72,13 +74,20 @@ public abstract class ResourceImp implements IResource
     @Override
     public boolean exists()
     {
-        return file.exists();
+        return getFullPath().toFile().exists();
     }
 
     @Override
     public IPath getFullPath()
     {
-        return new PathImp(file.getAbsoluteFile());
+        if (project != null && !file.isAbsolute())
+        {
+            return new PathImp(project.getFullPath() + File.separator + file.getPath());
+        }
+        else
+        {
+            return new PathImp(file.getAbsoluteFile());
+        }
     }
 
     @Override

@@ -54,7 +54,6 @@ public class ProjectImp implements IProject
 
     private boolean isOpen;
     private String defaultCharset = DEFAULT_CHARSET;
-    private boolean exist;
     private IPath fullPath;
     private IPath relativePath;
     private IContainer parent;
@@ -70,15 +69,15 @@ public class ProjectImp implements IProject
     public ProjectImp(String name, File path)
     {
         this.name = name;
+        setPath(path);
 
-        scan(path);
+        //scan(path);
     }
 
     public void setPath(File path)
     {
         this.path = path;
 
-        exist = false;
         isAccessible = false;
 
         fullPath = new PathImp(path.getAbsolutePath());
@@ -89,8 +88,6 @@ public class ProjectImp implements IProject
 
     public void scan(File path)
     {
-        setPath(path);
-
         //clear old
         resourceMap.clear();
         fileMap.clear();
@@ -104,7 +101,6 @@ public class ProjectImp implements IProject
             addRecursive(path);
         }
 
-        exist = true;
         isAccessible = true;
     }
 
@@ -215,7 +211,14 @@ public class ProjectImp implements IProject
     @Override
     public IFolder getFolder(IPath path)
     {
-        return getFolder(path.toPortableString());
+        IFolder folder = getFolder(path.toPortableString());
+
+        if(folder==null)
+        {
+            folder = new FolderImp(this,path.toFile());
+        }
+
+        return folder;
     }
 
     @Override
@@ -280,13 +283,9 @@ public class ProjectImp implements IProject
     @Override
     public boolean exists()
     {
-        return exist;
+        return fullPath.toFile().exists();
     }
 
-    public void setExist(boolean exist)
-    {
-        this.exist = exist;
-    }
 
     @Override
     public IPath getFullPath()

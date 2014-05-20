@@ -23,18 +23,22 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
+import de.fu_berlin.inf.dpp.activities.business.*;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
-import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent;
-import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeListener;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.core.observables.FileReplacementInProgressObservable;
+import de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
+import de.fu_berlin.inf.dpp.intellij.project.events.FileSystemChangeListener;
+import de.fu_berlin.inf.dpp.intellij.project.events.IResourceListener;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
@@ -42,7 +46,9 @@ import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 import org.picocontainer.annotations.Inject;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 /**
  * This manager is responsible for handling all resource changes that aren't
@@ -58,8 +64,8 @@ import java.io.IOException;
  * http://www.eclipse.org/articles/Article-Resource-deltas/resource-deltas.html
  */
 @Component(module = "core")
-public class SharedResourcesManager extends AbstractActivityProvider implements
-        ResourceChangeListener, Startable
+public class SharedResourcesManager extends AbstractActivityProducerAndConsumer implements
+        IResourceListener, Startable
 {
     /**
      * The {@link de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent}s we're going to register for.
@@ -94,20 +100,24 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
     protected final StopManager stopManager;
 
-//    private final Map<IProject, SharedProject> sharedProjects = Collections
-//            .synchronizedMap(new HashMap<IProject, SharedProject>());
+    protected FileSystemChangeListener fileSystemListener;
+
+    private final Map<IProject, SharedProject> sharedProjects = Collections.synchronizedMap(new HashMap<IProject, SharedProject>());
     /**
      * Should return <code>true</code> while executing resource changes to avoid
      * an infinite resource event loop.
      */
-//    @Inject
-//    protected FileReplacementInProgressObservable fileReplacementInProgressObservable;
+    @Inject
+    protected FileReplacementInProgressObservable fileReplacementInProgressObservable;
 
     @Inject
     protected IEditorManagerBase editorManager;
 
-//    @Inject
-//    protected ConsistencyWatchdogClient consistencyWatchdogClient;
+    @Inject
+    protected IWorkspace workspace;
+
+    @Inject
+    protected ConsistencyWatchdogClient consistencyWatchdogClient;
 
     protected Blockable stopManagerListener = new Blockable()
     {
@@ -127,36 +137,28 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     @Override
     public void start()
     {
-        sarosSession.addActivityProvider(SharedResourcesManager.this);
+        sarosSession.addActivityProducerAndConsumer(SharedResourcesManager.this);
         stopManager.addBlockable(stopManagerListener);
-//        ResourcesPlugin.getWorkspace().addResourceChangeListener(this,
-//                INTERESTING_EVENTS);
+        workspace.addResourceListener(fileSystemListener);
     }
 
     @Override
     public void stop()
     {
-//        ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-//        sarosSession.removeActivityProvider(this);
-//        stopManager.removeBlockable(stopManagerListener);
+        workspace.removeResourceListener(fileSystemListener);
+        sarosSession.addActivityProducerAndConsumer(this);
+        stopManager.removeBlockable(stopManagerListener);
     }
 
-    /*  private IJobChangeListener jobChangeListener = new JobChangeAdapter() {
-        @Override
-        public void done(IJobChangeEvent event) {
-            Job job = event.getJob();
-            log.trace("Job " + job.getName() + " done");
-            job.removeJobChangeListener(jobChangeListener);
-        }
-    };*/
 
-    // private ResourceActivityFilter pendingActivities = new ResourceActivityFilter();
+    private ResourceActivityFilter pendingActivities = new ResourceActivityFilter();
 
     public SharedResourcesManager(ISarosSession sarosSession,
             StopManager stopManager)
     {
         this.sarosSession = sarosSession;
         this.stopManager = stopManager;
+        this.fileSystemListener = new FileSystemChangeListener(this);
     }
 
     /**
@@ -167,10 +169,12 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     {
         //todo: implement it
 
-        /* if (fileReplacementInProgressObservable.isReplacementInProgress())
+        if (fileReplacementInProgressObservable.isReplacementInProgress())
+        {
             return;
+        }
 
-        if (pause) {
+        /*if (pause) {
             logPauseWarning(event);
             return;
         }
@@ -192,91 +196,116 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }*/
     }
 
-//    protected void handlePostChange(ResourceChangeEvent event) {
-//
-//        if (!sarosSession.hasWriteAccess()) {
-//            return;
-//        }
-//
-//        IResourceDelta delta = event.getDelta();
-//        log.trace(".resourceChanged() - Delta will be processed");
-//        if (delta == null) {
-//            log.error("Unexpected empty delta in " + "SharedResourcesManager: "
-//                    + event);
-//            return;
-//        }
-//
+    protected void handlePostChange(ResourceChangeEvent event)
+    {
+
+        if (!sarosSession.hasWriteAccess())
+        {
+            return;
+        }
+
+     /* IResourceDelta delta = event.getDelta();
+        log.trace(".resourceChanged() - Delta will be processed");
+        if (delta == null)
+        {
+            log.error("Unexpected empty delta in " + "SharedResourcesManager: "
+                    + event);
+            return;
+        }
+*/
 //        if (log.isTraceEnabled())
+//        {
 //            log.trace("handlePostChange\n" + deltaToString(delta));
+//        }
 //
 //        assert delta.getResource() instanceof IWorkspaceRoot;
-//
-//        // Iterate over all projects.
-//        boolean postpone = false;
-//        final boolean useVersionControl = sarosSession.useVersionControl();
-//        IResourceDelta[] projectDeltas = delta.getAffectedChildren();
-//        for (IResourceDelta projectDelta : projectDeltas) {
-//            assert projectDelta.getResource() instanceof IProject;
-//            IProject project = (IProject) projectDelta.getResource();
-//            if (!sarosSession.isShared(ResourceAdapterFactory.create(project)))
-//                continue;
-//
-//            if (!checkOpenClosed(project))
-//                continue;
-//
-//            if (useVersionControl && !checkVCSConnection(project))
-//                continue;
-//
-//            SharedProject sharedProject = sharedProjects.get(project);
-//
-//            if (sharedProject == null)
-//                continue;
-//
-//            VCSAdapter vcs = useVersionControl ? VCSAdapter.getAdapter(project)
-//                    : null;
-//            ProjectDeltaVisitor visitor;
-//            if (vcs == null) {
-//                visitor = new ProjectDeltaVisitor(editorManager, sarosSession,
-//                        sharedProject);
-//            } else {
-//                visitor = vcs.getProjectDeltaVisitor(editorManager,
-//                        sarosSession, sharedProject);
-//            }
-//
-//            try {
-//                /*
-//                 * There is some magic involved here. The ProjectDeltaVisitor
-//                 * will ignore changed files that are currently opened in an
-//                 * editor to prevent transmitting the whole file content of the
-//                 * modified file.
-//                 *
-//                 * FIXME document this behavior in the ProjectDeltaVisitor !
-//                 */
-//                projectDelta.next(visitor, IContainer.INCLUDE_HIDDEN);
-//            } catch (CoreException e) {
-//                // The Eclipse documentation doesn't specify when
-//                // CoreExceptions can occur.
-//                log.debug(format("ProjectDeltaVisitor of project {0} "
-//                        + "failed for some reason.", project.getName()), e);
-//            }
-//            if (visitor.postponeSending()) {
-//                postpone = true;
-//            }
-//            log.trace("Adding new activities " + visitor.pendingActivities);
-//            pendingActivities.enterAll(visitor.pendingActivities);
-//
-//            // if (!postpone)
-//            // assert sharedProject.checkIntegrity();
-//
-//            log.trace("sharedProject.resourceMap: \n"
-//                    + sharedProject.resourceMap);
-//        }
-//        if (!postpone) {
-//            fireActivities();
-//        } else if (!pendingActivities.isEmpty()) {
-//            log.debug("Postponing sending the activities");
-//        }
-//    }
+
+        // Iterate over all projects.
+        boolean postpone = false;
+       /* final boolean useVersionControl = sarosSession.useVersionControl();
+        IResourceDelta[] projectDeltas = delta.getAffectedChildren();
+        for (IResourceDelta projectDelta : projectDeltas)
+        {
+            assert projectDelta.getResource() instanceof IProject;
+            IProject project = (IProject) projectDelta.getResource();
+            if (!sarosSession.isShared(ResourceAdapterFactory.create(project)))
+            {
+                continue;
+            }
+
+            if (!checkOpenClosed(project))
+            {
+                continue;
+            }
+
+            if (useVersionControl && !checkVCSConnection(project))
+            {
+                continue;
+            }
+
+            SharedProject sharedProject = sharedProjects.get(project);
+
+            if (sharedProject == null)
+            {
+                continue;
+            }
+
+            VCSAdapter vcs = useVersionControl ? VCSAdapter.getAdapter(project)
+                    : null;
+            ProjectDeltaVisitor visitor;
+            if (vcs == null)
+            {
+                visitor = new ProjectDeltaVisitor(editorManager, sarosSession,
+                        sharedProject);
+            }
+            else
+            {
+                visitor = vcs.getProjectDeltaVisitor(editorManager,
+                        sarosSession, sharedProject);
+            }
+
+            try
+            {
+                *//*
+                 * There is some magic involved here. The ProjectDeltaVisitor
+                 * will ignore changed files that are currently opened in an
+                 * editor to prevent transmitting the whole file content of the
+                 * modified file.
+                 *
+                 * FIXME document this behavior in the ProjectDeltaVisitor !
+                 *//*
+                projectDelta.next(visitor, IContainer.INCLUDE_HIDDEN);
+            }
+            catch (CoreException e)
+            {
+                // The Eclipse documentation doesn't specify when
+                // CoreExceptions can occur.
+                log.debug(format("ProjectDeltaVisitor of project {0} "
+                        + "failed for some reason.", project.getName()), e);
+            }
+            if (visitor.postponeSending())
+            {
+                postpone = true;
+            }
+            log.trace("Adding new activities " + visitor.pendingActivities);
+            pendingActivities.enterAll(visitor.pendingActivities);
+
+            // if (!postpone)
+            // assert sharedProject.checkIntegrity();
+
+            log.trace("sharedProject.resourceMap: \n"
+                    + sharedProject.resourceMap);
+        }*/
+
+        if (!postpone)
+        {
+            fireActivities();
+        }
+        else if (!pendingActivities.isEmpty())
+        {
+            log.debug("Postponing sending the activities");
+        }
+    }
 
     protected boolean checkOpenClosed(IProject project)
     {
@@ -367,23 +396,29 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      */
     protected void fireActivities()
     {
-        /* if (pendingActivities.isEmpty())
-        return;
-    final List<IResourceActivity> orderedActivities = pendingActivities
-            .retrieveAll();
-    log.trace("Sending activities " + orderedActivities.toString());
-    for (final IActivity activity : orderedActivities) {
-        *//*
+        if (pendingActivities.isEmpty())
+        {
+            return;
+        }
+        final List<IResourceActivity> orderedActivities = pendingActivities
+                .retrieveAll();
+        log.trace("Sending activities " + orderedActivities.toString());
+        for (final IActivity activity : orderedActivities)
+        {
+            /*
              * Make sure we only send a VCSActivity if VC is enabled for this
              * session.
-             *//*
+             */
             if (sarosSession.useVersionControl()
-                    || !(activity instanceof VCSActivity)) {
+                    || !(activity instanceof VCSActivity))
+            {
                 fireActivity(activity);
-            } else {
+            }
+            else
+            {
                 log.error("Tried to send VCSActivity with VC support disabled.");
             }
-        }*/
+        }
     }
 
     /*
@@ -397,7 +432,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      * fileReplacementInProgressObservable. Also, why add a misleading warning
      * in the first place??
      */
-    /* protected void logPauseWarning(ResourceChangeEvent event) {
+   /*protected void logPauseWarning(ResourceChangeEvent event) {
         if (event.getType() == ResourceChangeEvent.POST_CHANGE) {
 
             IResourceDelta delta = event.getDelta();
@@ -414,7 +449,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }
     }*/
 
-    /* protected String deltaToString(IResourceDelta delta) {
+  /*   protected String deltaToString(IResourceDelta delta) {
         ToStringResourceDeltaVisitor visitor = new ToStringResourceDeltaVisitor();
         try {
             delta.next(visitor, IContainer.INCLUDE_PHANTOMS
@@ -431,35 +466,47 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     public void exec(IActivity activity)
     {
 
-        /* if (!(activity instanceof FileActivity
-            || activity instanceof FolderActivity || activity instanceof VCSActivity))
-        return;
+        if (!(activity instanceof FileActivity
+                || activity instanceof FolderActivity || activity instanceof VCSActivity))
+        {
+            return;
+        }
 
-    try {
-        *//*
+        try
+        {
+        /*
              * FIXME this will lockout everything. File changes made in the
              * meantime from another background job are not recognized. See
              * AddMultipleFilesTest STF test which fails randomly.
-             *//*
+             */
             fileReplacementInProgressObservable.startReplacement();
 
             log.trace("execing " + activity.toString() + " in "
                     + Thread.currentThread().getName());
 
-            if (activity instanceof FileActivity) {
+            if (activity instanceof FileActivity)
+            {
                 exec((FileActivity) activity);
-            } else if (activity instanceof FolderActivity) {
+            }
+            else if (activity instanceof FolderActivity)
+            {
                 exec((FolderActivity) activity);
-            } else if (activity instanceof VCSActivity) {
+            }
+            else if (activity instanceof VCSActivity)
+            {
                 exec((VCSActivity) activity);
             }
 
-        } catch (CoreException e) {
+        }
+        catch (CoreException e)
+        {
             log.error("Failed to execute resource activity.", e);
-        } finally {
+        }
+        finally
+        {
             fileReplacementInProgressObservable.replacementDone();
             log.trace("done execing " + activity.toString());
-        }*/
+        }
     }
 
     protected void exec(FileActivity activity) throws CoreException
@@ -488,50 +535,68 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
     private void handleFileRecovery(FileActivity activity) throws CoreException
     {
-        /* SPath path = activity.getPath();
-    IFile file = ((EclipseFileImpl) activity.getPath().getFile())
-            .getDelegate();
+        SPath path = activity.getPath();
+        IFile file = activity.getPath().getFile();
 
-    boolean wasOpenedEditor = editorManager.isOpenEditor(path);
 
-    log.debug("performing recovery for file: "
-            + activity.getPath().getFullPath());
+        boolean wasOpenedEditor = editorManager.isOpenEditor(path);
 
-    try {
-        if (file.exists())
-            editorManager.saveLazy(path);
+        log.debug("performing recovery for file: "
+                + activity.getPath().getFullPath());
 
-    } catch (FileNotFoundException e) {
-        log.warn("file " + file + " no longer exists");
-    }
+        try
+        {
+            if (file.exists())
+            {
+                editorManager.saveLazy(path);
+            }
 
-    if (wasOpenedEditor)
-        editorManager.closeEditor(path);
+        }
+        catch (FileNotFoundException e)
+        {
+            log.warn("file " + file + " no longer exists");
+        }
 
-    wasOpenedEditor &= activity.getType() != Type.REMOVED;
+        if (wasOpenedEditor)
+        {
+            editorManager.closeEditor(path);
+        }
 
-    FileActivity.Type type = activity.getType();
+        wasOpenedEditor &= activity.getType() != FileActivity.Type.REMOVED;
 
-    try {
-        if (type == FileActivity.Type.CREATED)
-            handleFileCreation(activity);
-        else if (type == FileActivity.Type.REMOVED)
-            handleFileDeletion(activity);
-        else
-            log.warn("performing recovery for type " + type
-                    + " is not supported");
-    } finally {
-        *//*
+        FileActivity.Type type = activity.getType();
+
+        try
+        {
+            if (type == FileActivity.Type.CREATED)
+            {
+                handleFileCreation(activity);
+            }
+            else if (type == FileActivity.Type.REMOVED)
+            {
+                handleFileDeletion(activity);
+            }
+            else
+            {
+                log.warn("performing recovery for type " + type
+                        + " is not supported");
+            }
+        }
+        finally
+        {
+            /*
              * always reset Jupiter or we will get into trouble because the
              * vector time is already reseted on the host
-             *//*
+             */
             sarosSession.getConcurrentDocumentClient().reset(path);
         }
 
         if (wasOpenedEditor)
+        {
             editorManager.openEditor(path);
+        }
 
-        consistencyWatchdogClient.performCheck(path);*/
+        consistencyWatchdogClient.performCheck(path);
     }
 
     private void handleFileMove(FileActivity activity) throws CoreException
@@ -554,50 +619,72 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
     private void handleFileDeletion(FileActivity activity) throws CoreException
     {
-        /* IFile file = ((EclipseFileImpl) activity.getPath().getFile())
-.getDelegate();
+        IFile file = activity.getPath().getFile();
 
-if (file.exists())
-FileUtils.delete(file);
-else
-log.warn("could not delete file " + file
-  + " because it does not exist");*/
+
+        if (file.exists())
+        {
+            fileSystemListener.setEnabled(false);
+            fileSystemListener.addIncoming(file.toFile());
+            FileUtils.delete(file);
+            fileSystemListener.setEnabled(true);
+        }
+        else
+        {
+            log.warn("could not delete file " + file
+                    + " because it does not exist");
+        }
     }
 
     private void handleFileCreation(FileActivity activity) throws CoreException
     {
-        /*IFile file = ((EclipseFileImpl) activity.getPath().getFile())
-                .getDelegate();
-
+        IFile file = activity.getPath().getFile();
         byte[] actualContent = FileUtils.getLocalFileContent(file);
         byte[] newContent = activity.getContents();
 
-        if (!Arrays.equals(newContent, actualContent)) {
+        if (!Arrays.equals(newContent, actualContent))
+        {
+            fileSystemListener.setEnabled(false);
+            fileSystemListener.addIncoming(file.toFile());
             FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
                     new NullProgressMonitor());
-        } else {
+            fileSystemListener.setEnabled(true);
+        }
+        else
+        {
             log.info("FileActivity " + activity + " dropped (same content)");
-        }*/
+        }
     }
 
     protected void exec(FolderActivity activity) throws CoreException
     {
 
-        /* SPath path = activity.getPath();
+        SPath path = activity.getPath();
 
-        IFolder folder = ((EclipseFolderImpl) path.getProject().getFolder(
-                path.getProjectRelativePath())).getDelegate();
+        IFolder folder = path.getProject().getFolder(path.getProjectRelativePath());
+        fileSystemListener.setEnabled(false);
+        fileSystemListener.addIncoming(folder.getFullPath().toFile());
 
-        if (activity.getType() == FolderActivity.Type.CREATED) {
+        if (activity.getType() == FolderActivity.Type.CREATED)
+        {
             FileUtils.create(folder);
-        } else if (activity.getType() == FolderActivity.Type.REMOVED) {
-            try {
+        }
+        else if (activity.getType() == FolderActivity.Type.REMOVED)
+        {
+            try
+            {
                 if (folder.exists())
+                {
                     FileUtils.delete(folder);
-            } catch (CoreException e) {
+                }
+            }
+            catch (CoreException e)
+            {
                 log.warn("Removing folder failed: " + folder);
             }
-        }*/
+        }
+
+        fileSystemListener.setEnabled(true);
     }
 
     protected void exec(VCSActivity activity)
@@ -696,6 +783,11 @@ log.warn("could not delete file " + file
                 sharedProject.delete();
                 *//*
         }*/
+    }
+
+    public ISarosSession getSession()
+    {
+        return sarosSession;
     }
 }
 

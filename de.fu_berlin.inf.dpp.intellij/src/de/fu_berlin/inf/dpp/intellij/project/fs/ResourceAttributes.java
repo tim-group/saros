@@ -33,7 +33,7 @@ import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
 public class ResourceAttributes implements IResourceAttributes
 {
-    private boolean readOnly;
+    private boolean readOnly=false;
 
     public ResourceAttributes()
     {

@@ -288,7 +288,7 @@ public class ProjectIntl implements IProject
         getBasePath().renameTo(destination.toFile());
     }
 
-    private IResourceAttributes attributes = new ResourceAttributes();
+    private IResourceAttributes attributes = new FileResourceAttributes(null);
 
     @Override
     public IResourceAttributes getResourceAttributes()

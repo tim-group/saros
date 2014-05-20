@@ -900,6 +900,7 @@ public class EditorManager
         return true;
     }
 
+
     /**
      * This method is called from Eclipse (via the StoppableDocumentListener)
      * whenever the local user has changed some text in an editor.
@@ -976,4 +977,7 @@ public class EditorManager
     {
         return actionManager;
     }
+
+
+
 }

@@ -179,7 +179,23 @@ public abstract class EditorManagerBridge extends AbstractActivityProducerAndCon
     }
 
 
+    @Override
+    public boolean isOpenEditor(SPath path)
+    {
+        return false;
+    }
 
+    @Override
+    public void closeEditor(SPath path)
+    {
+
+    }
+
+    @Override
+    public void openEditor(SPath path)
+    {
+
+    }
 
 
 }

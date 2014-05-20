@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.core.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 
+import java.io.FileNotFoundException;
 import java.util.Set;
 
 /**
@@ -44,4 +45,13 @@ public interface IEditorManagerBase
     void colorChanged();
 
     void refreshAnnotations();
+
+    boolean isOpenEditor(SPath path);
+
+    void saveLazy(SPath path) throws FileNotFoundException;
+
+    void closeEditor(SPath path);
+
+    void openEditor(SPath path);
+
 }

@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import org.apache.log4j.Logger;
 
@@ -94,4 +95,34 @@ public class SchedulingRoot implements ISchedulingRoot
     {
         return null;
     }
+
+    public IProject locateProject(IPath path)
+    {
+        //calculate relative path
+        String sPath = path.toFile().getAbsolutePath();
+        String sWsPath = workspacePath.getAbsolutePath();
+        if (!sPath.startsWith(sWsPath))
+        {
+            return null;
+        }
+
+        String sPathRelative = sPath.substring(sWsPath.length()).toLowerCase();
+        if (sPathRelative.startsWith(File.separator))
+        {
+            sPathRelative = sPathRelative.substring(1);
+        }
+
+
+        for (String projectName : projects.keySet())
+        {
+            if (sPathRelative.startsWith(projectName.toLowerCase()))
+            {
+                return projects.get(projectName);
+            }
+        }
+
+        return null;
+    }
+
+
 }

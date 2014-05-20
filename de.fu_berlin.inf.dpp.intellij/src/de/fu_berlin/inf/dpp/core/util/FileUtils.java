@@ -22,15 +22,16 @@
 
 package de.fu_berlin.inf.dpp.core.util;
 
+import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.util.Pair;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,7 +46,8 @@ public class FileUtils
     private static Logger log = Logger.getLogger(FileUtils.class);
 
     private static final int BUFFER_SIZE = 32 * 1024;
-
+    @Inject
+    public static IWorkspace workspace;
     private FileUtils()
     {
         // no instantiation allowed
@@ -196,9 +198,12 @@ public class FileUtils
                     .addFileExtension("BACKUP_" + i);
         }
 
-        try {
+        try
+        {
             file.move(file.getFullPath().removeLastSegments(1).append(backupPath.lastSegment()), true);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new CoreException(e.getMessage(), e.getCause());
         }
     }
@@ -232,9 +237,12 @@ public class FileUtils
                     wasReadOnly = setReadOnly(parent, false);
                 }
 
-                try {
+                try
+                {
                     file.create(input, true);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
@@ -247,9 +255,9 @@ public class FileUtils
             }
         };
 
-        IWorkspace workspace = null; //todo //ResourcesPlugin.getWorkspace();
+
         workspace.run(createFileProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, null);
+                IWorkspace.AVOID_UPDATE, monitor);
 
     }
 
@@ -267,17 +275,20 @@ public class FileUtils
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                try {
+                try
+                {
                     file.setContents(input, true, true);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
             }
         };
 
-        IWorkspace workspace = null;//todo // ResourcesPlugin.getWorkspace();
+
         workspace.run(replaceFileProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, null);
+                IWorkspace.AVOID_UPDATE, monitor);
     }
 
     /**
@@ -334,9 +345,12 @@ public class FileUtils
                     create(parentFolder);
                 }
 
-                try {
+                try
+                {
                     folder.create(IResource.NONE, true);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
@@ -348,7 +362,7 @@ public class FileUtils
             }
         };
 
-        IWorkspace workspace = null;//todo // ResourcesPlugin.getWorkspace();
+
         workspace.run(createFolderProcedure, workspace.getRoot(),
                 IWorkspace.AVOID_UPDATE, null);
 
@@ -380,10 +394,12 @@ public class FileUtils
 
                 setReadOnly(resource, false);
 
-                try {
-                    resource.delete(IResource.FORCE | IResource.KEEP_HISTORY
-                    );
-                } catch (IOException e) {
+                try
+                {
+                    resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
+                }
+                catch (IOException e)
+                {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
@@ -394,7 +410,7 @@ public class FileUtils
             }
         };
 
-        IWorkspace workspace = null; //todo //ResourcesPlugin.getWorkspace();
+
         workspace.run(deleteProcedure, workspace.getRoot(),
                 IWorkspace.AVOID_UPDATE, null);
 
@@ -430,9 +446,12 @@ public class FileUtils
             {
                 IPath absDestination = destination.makeAbsolute();
 
-                try {
+                try
+                {
                     source.move(absDestination, false);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
@@ -443,7 +462,6 @@ public class FileUtils
             }
         };
 
-        IWorkspace workspace = null;//todo //ResourcesPlugin.getWorkspace();
         workspace.run(moveProcedure, workspace.getRoot(),
                 IWorkspace.AVOID_UPDATE, null);
 
@@ -508,7 +526,7 @@ public class FileUtils
      *                       represents a {@linkplain IContainer container}
      * @param flags          additional flags on how to process the members of containers
      * @return a pair containing the {@linkplain de.fu_berlin.inf.dpp.util.Pair#p file size} and
-     *         {@linkplain de.fu_berlin.inf.dpp.util.Pair#v file count} for the given resources
+     * {@linkplain de.fu_berlin.inf.dpp.util.Pair#v file count} for the given resources
      */
     public static Pair<Long, Long> getFileCountAndSize(
             Collection<? extends IResource> resources, boolean includeMembers,
@@ -536,7 +554,8 @@ public class FileUtils
                     {
                         log.warn(
                                 "failed to retrieve file size of file "
-                                        + resource.getLocationURI(), e);
+                                        + resource.getLocationURI(), e
+                        );
                     }
                     break;
                 case IResource.PROJECT:
@@ -579,14 +598,16 @@ public class FileUtils
      *
      * @param localFile
      * @return Byte array of the file contents. Is <code>null</code> if the file
-     *         does not exist or is out of sync, the reference points to no
-     *         file, or the conversion to a byte array failed.
+     * does not exist or is out of sync, the reference points to no
+     * file, or the conversion to a byte array failed.
      */
     public static byte[] getLocalFileContent(IFile localFile)
     {
+
         InputStream in = null;
         byte[] content = null;
-        try {
+        try
+        {
             in = localFile.getContents();
         }
         catch (IOException e)
@@ -594,7 +615,14 @@ public class FileUtils
             log.warn("could not get content of file " + localFile.getFullPath());
         }
 
-        try{
+        if (in == null)
+        {
+            return null;
+        }
+
+
+        try
+        {
             content = IOUtils.toByteArray(in);
         }
         catch (IOException e)

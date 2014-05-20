@@ -31,7 +31,6 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
 
 @Component(module = "eclipse")
-// TODO rename to EclipseSWTSynchronizer
 public class SWTSynchronizer implements UISynchronizer
 {
 

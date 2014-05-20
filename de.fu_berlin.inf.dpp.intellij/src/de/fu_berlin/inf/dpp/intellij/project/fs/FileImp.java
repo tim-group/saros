@@ -81,7 +81,15 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public InputStream getContents() throws IOException
     {
-        return new FileInputStream(file);
+        if (file.exists())
+        {
+            return new FileInputStream(file);
+        }
+        else
+        {
+            return null;
+        }
+
     }
 
     @Override

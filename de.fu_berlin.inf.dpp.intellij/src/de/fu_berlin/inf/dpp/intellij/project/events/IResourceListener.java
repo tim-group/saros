@@ -20,24 +20,21 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.intellij.project.events;
 
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.intellij.project.events.FileSystemChangeListener;
-import de.fu_berlin.inf.dpp.intellij.project.events.IResourceListener;
+import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
 
-import java.io.File;
+/**
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 2014-05-19
+ * Time: 17:46
+ */
 
-
-public interface ISchedulingRoot
+public interface IResourceListener
 {
+    ISarosSession getSession();
+    void fireActivity(IActivity activity);
 
-    IProject getProject(String project);
-
-    IProject addProject(String title, File file);
-
-    IProject getDefaultProject();
-
-    IProject locateProject(IPath path);
 }

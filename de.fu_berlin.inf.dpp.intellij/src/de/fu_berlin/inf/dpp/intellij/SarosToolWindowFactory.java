@@ -60,7 +60,10 @@ public class SarosToolWindowFactory implements ToolWindowFactory
         PropertyConfigurator.configure("c:\\Develop\\Saros\\idea\\saros\\de.fu_berlin.inf.dpp.intellij\\src\\log4j.properties");  //todo
 
         Saros saros = Saros.create(project, toolWindow);
-        saros.setWorkspace(new Workspace(project));
+        Workspace ws = new Workspace(project);
+
+        //saros.setWorkspace(new Workspace(project));
+        saros.setWorkspace(ws);
         saros.start();
 
         SarosMainPanelView mainPanel = new SarosMainPanelView(saros);

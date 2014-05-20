@@ -48,6 +48,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.InvalidDataException;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -157,4 +158,9 @@ public class SchedulingRootIntl implements ISchedulingRoot
         return null;
     }
 
+    @Override
+    public IProject locateProject(IPath path)
+    {
+        return null;
+    }
 }

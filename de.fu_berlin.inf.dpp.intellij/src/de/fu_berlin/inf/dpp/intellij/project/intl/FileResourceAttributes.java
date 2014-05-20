@@ -46,6 +46,8 @@ package de.fu_berlin.inf.dpp.intellij.project.intl;
 
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
+import java.io.File;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -53,28 +55,27 @@ import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
  * Time: 16.03
  */
 
-public class ResourceAttributes implements IResourceAttributes
+public class FileResourceAttributes implements IResourceAttributes
 {
-    private boolean readOnly;
 
-    public ResourceAttributes()
+    private File file;
+
+    public FileResourceAttributes(File file)
     {
+        this.file = file;
     }
 
-    public ResourceAttributes(boolean readOnly)
-    {
-        this.readOnly = readOnly;
-    }
 
     @Override
     public boolean isReadOnly()
     {
-        return readOnly;
+        return this.file.canRead();
     }
 
     @Override
     public void setReadOnly(boolean readOnly)
     {
-        this.readOnly = readOnly;
+        this.file.setReadable(true);
+        this.file.setWritable(!readOnly);
     }
 }

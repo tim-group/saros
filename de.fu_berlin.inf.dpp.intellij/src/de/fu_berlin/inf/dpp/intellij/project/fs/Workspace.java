@@ -23,13 +23,16 @@
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
+import de.fu_berlin.inf.dpp.intellij.project.events.FileSystemChangeListener;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -47,6 +50,8 @@ public class Workspace implements IWorkspace
 {
     public static final Logger log = Logger.getLogger(Workspace.class);
     private SchedulingRoot root;
+
+    private LocalFileSystem fileSystem = LocalFileSystem.getInstance();
 
     private File path;
     private Project project;
@@ -71,7 +76,8 @@ public class Workspace implements IWorkspace
     public Workspace(Project project)
     {
         this.project = project;
-        initPath(new File(project.getBasePath()));
+        //initPath(new File(project.getBasePath()));
+        createWorkSpace(new File(project.getBasePath()));
     }
 
     private IWorkspaceDescription description = new WorkspaceDescription();
@@ -79,9 +85,11 @@ public class Workspace implements IWorkspace
     @Override
     public void run(final IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
     {
-        System.out.println("Workspace.run 1 //todo");
+        if (monitor == null)
+        {
+            monitor = new NullProgressMonitor();
+        }
 
-        //  new WorkspaceThread(procedure,monitor).first();
         try
         {
             procedure.run(monitor);
@@ -96,9 +104,12 @@ public class Workspace implements IWorkspace
     @Override
     public void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor)
     {
-        System.out.println("Workspace.run 2 //todo");
 
-        // new WorkspaceThread(procedure,monitor).first(); //todo
+        if (monitor == null)
+        {
+            monitor = new NullProgressMonitor();
+        }
+
         try
         {
             procedure.run(monitor);
@@ -131,8 +142,8 @@ public class Workspace implements IWorkspace
     }
 
     /**
-     * @deprecated use for tests only
      * @param path
+     * @deprecated use for tests only
      */
     public void createWorkSpace(File path)
     {
@@ -144,7 +155,6 @@ public class Workspace implements IWorkspace
         {
             if (prj.isDirectory())
             {
-
                 root.addProject(prj.getName(), prj);
             }
         }
@@ -167,4 +177,18 @@ public class Workspace implements IWorkspace
         this.root = new SchedulingRoot(path);
         this.path = path;
     }
+
+    @Override
+    public void addResourceListener(FileSystemChangeListener listener)
+    {
+        listener.setWorkspace(this);
+        fileSystem.addVirtualFileListener(listener);
+    }
+
+    @Override
+    public void removeResourceListener(FileSystemChangeListener listener)
+    {
+        fileSystem.removeVirtualFileListener(listener);
+    }
+
 }

@@ -58,18 +58,35 @@ import javax.swing.*;
  * Time: 13:13
  */
 
-public class SarosProgressBar implements ISubMonitor
+public class SarosProgressBar implements IProgressMonitor
 {
     public static final int MIN_VALUE = 0;
     public static final int MAX_VALUE = 100;
 
     protected int progress;
-    private JProgressBar progressBar;
-    private JLabel infoLabel;
+    protected String info;
+
+    protected DisplayContainer display;
+
     private boolean isCanceled = false;
     private boolean isDone = false;
 
     private FinishListener finishListener;
+
+    /**
+     * Do not use this outside package!
+     */
+    protected SarosProgressBar()
+    {
+    }
+
+    /**
+     * Do not use this outside package!
+     */
+    protected SarosProgressBar(DisplayContainer display)
+    {
+        this.display = display;
+    }
 
     /**
      * Creates progress bar w/o additional information
@@ -89,19 +106,7 @@ public class SarosProgressBar implements ISubMonitor
      */
     public SarosProgressBar(JProgressBar progressBar, JLabel infoLabel)
     {
-        this.progressBar = progressBar;
-        this.infoLabel = infoLabel;
-        this.progressBar.setEnabled(true);
-        this.progressBar.setMinimum(MIN_VALUE);
-        this.progressBar.setMaximum(MAX_VALUE);
-
-        if (infoLabel == null)
-        {
-            this.progressBar.setStringPainted(true);
-        }
-
-        this.progressBar.setVisible(true);
-        this.infoLabel.setVisible(true);
+        this.display = new DisplayContainer(progressBar, infoLabel);
     }
 
     /**
@@ -112,50 +117,7 @@ public class SarosProgressBar implements ISubMonitor
     public void setProgress(int progress)
     {
         this.progress = progress;
-        setProgressInternal(progress);
-    }
-
-    /**
-     * Sets info to UI
-     *
-     * @param info additional progress information
-     */
-    public void setInfo(final String info)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if (infoLabel == null)
-                {
-                    progressBar.setString(info);
-                }
-                else
-                {
-                    infoLabel.setText(info);
-                }
-            }
-        });
-
-    }
-
-    /**
-     * Sets value to UI
-     *
-     * @param progress
-     */
-    private void setProgressInternal(final int progress)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                progressBar.setValue(progress);
-            }
-        });
-
+        this.display.setProgress(progress);
     }
 
     /**
@@ -165,7 +127,7 @@ public class SarosProgressBar implements ISubMonitor
      */
     private boolean isRunning()
     {
-        return !isCanceled && !isDone && progressBar.getValue() < MAX_VALUE;
+        return !isCanceled && !isDone && progress < MAX_VALUE;
     }
 
     @Override
@@ -197,7 +159,8 @@ public class SarosProgressBar implements ISubMonitor
     @Override
     public void setTaskName(String name)
     {
-        setInfo(name);
+        this.display.setInfo(name);
+        this.info = name;
     }
 
     @Override
@@ -214,14 +177,17 @@ public class SarosProgressBar implements ISubMonitor
     @Override
     public void beginTask(String taskName, String type)
     {
-        setInfo(taskName);
+        this.display.setInfo(taskName);
+        this.info = taskName;
+
     }
 
     @Override
     public void beginTask(String taskName, int progress)
     {
         setProgress(progress);
-        setInfo(taskName);
+        this.display.setInfo(taskName);
+        this.info=taskName;
 
     }
 
@@ -234,51 +200,20 @@ public class SarosProgressBar implements ISubMonitor
     @Override
     public ISubMonitor convert(IProgressMonitor monitor)
     {
-        return this;
+        return new SubProgressBar(this);
     }
 
     @Override
     public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
     {
         setProgress(progress);
-        setInfo(title);
+        this.display.setInfo(title);
+        this.info = title;
 
-        return this;
+        return new SubProgressBar(this);
     }
 
 
-    @Override
-    public ISubMonitor newChild(int id)
-    {
-        return this;
-    }
-
-    @Override
-    public IProgressMonitor getMain()
-    {
-        return this;
-    }
-
-    @Override
-    public IProgressMonitor newChildMain(int progress)
-    {
-        setProgress(progress);
-        return this;
-    }
-
-    @Override
-    public IProgressMonitor newChildMain(int progress, int mode)
-    {
-        setProgress(progress);
-        return this;
-    }
-
-    @Override
-    public ISubMonitor newChild(int progress, int mode)
-    {
-        setProgress(progress);
-        return this;
-    }
 
     /**
      * @param finishListener FinishListener
@@ -314,7 +249,7 @@ public class SarosProgressBar implements ISubMonitor
                     @Override
                     public void run()
                     {
-                        int newValue = progressBar.getValue();
+                        int newValue = display.getProgressBar().getValue();
                         newValue += 1;
 
                         if (newValue == MAX_VALUE)
@@ -322,7 +257,7 @@ public class SarosProgressBar implements ISubMonitor
                             newValue = (MAX_VALUE - progress) / 2;
                         }
 
-                        setProgressInternal(newValue);
+                        display.setProgress(newValue);
 
                     }
                 });
@@ -349,6 +284,91 @@ public class SarosProgressBar implements ISubMonitor
          * Fires when progress monitor is finished
          */
         void finished();
+    }
+
+    protected class DisplayContainer
+    {
+        private JProgressBar progressBar;
+        private JLabel infoLabel;
+
+        public DisplayContainer(JProgressBar progressBar, JLabel infoLabel)
+        {
+            this.progressBar = progressBar;
+            this.infoLabel = infoLabel;
+
+            this.progressBar.setEnabled(true);
+            this.progressBar.setMinimum(MIN_VALUE);
+            this.progressBar.setMaximum(MAX_VALUE);
+
+            if (infoLabel == null)
+            {
+                this.progressBar.setStringPainted(true);
+            }
+
+            this.progressBar.setVisible(true);
+            this.infoLabel.setVisible(true);
+        }
+
+        public JProgressBar getProgressBar()
+        {
+            return progressBar;
+        }
+
+        public JLabel getInfoLabel()
+        {
+            return infoLabel;
+        }
+
+        /**
+         * Sets value to UI
+         *
+         * @param progress
+         */
+        protected void setProgress(final int progress)
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    progressBar.setValue(progress);
+                }
+            });
+        }
+
+        /**
+         * Sets info to UI
+         *
+         * @param info additional progress information
+         */
+        protected void setInfo(final String info)
+        {
+            if(info==null)
+                return;
+
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (infoLabel == null)
+                    {
+                        progressBar.setString(info);
+                    }
+                    else
+                    {
+                        infoLabel.setText(info);
+                    }
+                }
+            });
+
+        }
+
+        protected void reset()
+        {
+            setProgress(0);
+            setInfo("");
+        }
     }
 
 }

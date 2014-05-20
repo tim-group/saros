@@ -91,7 +91,8 @@ public class EditorAPI extends EditorAPIBridge
 
     public VirtualFile toVirtualFile(File path)
     {
-        return localFileSystem.findFileByIoFile(path);
+
+       return localFileSystem.refreshAndFindFileByIoFile(path);
     }
 
     public boolean isOpen(VirtualFile file)
