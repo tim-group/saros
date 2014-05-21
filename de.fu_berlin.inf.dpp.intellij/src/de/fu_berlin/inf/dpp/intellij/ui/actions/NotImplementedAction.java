@@ -39,7 +39,7 @@ public class NotImplementedAction extends AbstractSarosAction
 {
     public enum actions
     {
-        reload, preferences
+        preferences
     }
 
     private String name;

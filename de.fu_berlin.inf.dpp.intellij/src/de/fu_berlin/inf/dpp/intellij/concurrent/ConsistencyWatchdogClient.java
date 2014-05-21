@@ -32,6 +32,7 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.util.StackTrace;
@@ -438,13 +439,15 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
 
         try
         {
-            String content = file.getCharset();
+            byte[] bytes = FileUtils.getLocalFileContent(file);
             // if doc is still null give up
-            if (content == null)
+            if (bytes == null)
             {
                 log.warn("Could not check checksum of file " + path.toString());
                 return false;
             }
+
+            String content = new String(bytes);
 
             if ((content.length() != checksum.getLength())
                     || (content.hashCode() != checksum.getHash()))
@@ -462,7 +465,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
                 return true;
             }
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -517,8 +520,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
         }
         else
         {
-            changed = pathsWithWrongChecksums
-                    .remove(checksumActivity.getPath());
+            changed = pathsWithWrongChecksums.remove(checksumActivity.getPath());
         }
         if (!changed)
         {

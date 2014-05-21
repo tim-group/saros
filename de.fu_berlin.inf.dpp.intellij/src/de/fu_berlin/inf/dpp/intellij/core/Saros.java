@@ -171,13 +171,13 @@ public class Saros extends AbstractSaros
         // connectionService.configure(Saros.NAMESPACE,Saros.RESOURCE,true,true,8888,socsCandidates,null,true,null,80,true);   //todo: set parameters from config
         connectionService.configure(Saros.NAMESPACE, Saros.RESOURCE, true, false, 8888, null, null, true, null, 80, true);
 
+
+        this.isInitialized = true;
         // Make sure that all components in the container are
         // instantiated
         this.sarosContext.getComponents(Object.class);
 
         FeedbackPreferences.setPreferences(new SarosPreferences());
-
-        this.isInitialized = true;
 
     }
 

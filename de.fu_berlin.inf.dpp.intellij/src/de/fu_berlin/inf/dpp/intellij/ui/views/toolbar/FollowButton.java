@@ -65,7 +65,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("followmode", "follow");
+        setIcon("images/btn/followmode.png", "follow");
         setActionCommand(FollowModeAction.NAME);
 
         setToolTipText("Enter follow mode");

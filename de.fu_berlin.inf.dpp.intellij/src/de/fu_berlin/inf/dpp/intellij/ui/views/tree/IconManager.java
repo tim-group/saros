@@ -22,14 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.util.PluginResourceLocator;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.io.File;
+import java.net.URL;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -40,30 +40,42 @@ import java.io.File;
 
 public class IconManager
 {
-   public  static final ImageIcon sessionsIcon;
-   public static final ImageIcon contactOnlineIcon;
-   public static final ImageIcon contactOfflineIcon;
-   public static final ImageIcon contactsIcon;
+    public static final Logger log = Logger.getLogger(IconManager.class);
+
+    public static final ImageIcon sessionsIcon;
+    public static final ImageIcon contactOnlineIcon;
+    public static final ImageIcon contactOfflineIcon;
+    public static final ImageIcon contactsIcon;
 
     /**
      * Creates icons
      */
     static
     {
-        sessionsIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("project_share_tsk"), "sessions");
-        contactOnlineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_saros_obj"), "contactOnLine");
-        contactOfflineIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("buddy_offline_obj"), "contactOffLine");
-        contactsIcon = new ImageIcon(PluginResourceLocator.getTreeImageUrl("group"), "contacts");
+        sessionsIcon = getIcon("icons/elcl16/project_share_tsk.png", "sessions");
+        contactOnlineIcon = getIcon("icons/obj16/buddy_saros_obj.png", "contactOnLine");
+        contactOfflineIcon = getIcon("icons/obj16/buddy_offline_obj.png", "contactOffLine");
+        contactsIcon = getIcon("icons/obj16/group.png", "contacts");
     }
 
     /**
-     *
      * @param path
      * @return
      */
-    public static ImageIcon getIcon(String path)
+    public static ImageIcon getIcon(String path, String description)
     {
-       return new ImageIcon(PluginResourceLocator.getResourceUrl(path));
+        if (!path.startsWith("/"))
+        {
+            path = "/" + path;
+        }
+
+        URL url = IconManager.class.getResource(path);
+        if (url == null)
+        {
+            log.error("Could not load icon. Path not exist: " + path);
+        }
+
+        return new ImageIcon(url, description);
     }
 
     /**
@@ -71,7 +83,7 @@ public class IconManager
      *
      * @param tree
      */
-    protected void setIcons(JTree tree)
+    protected void setTreeIcons(JTree tree)
     {
 
         DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()

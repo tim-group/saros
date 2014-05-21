@@ -33,6 +33,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 
 import javax.swing.*;
@@ -161,10 +162,10 @@ public class SarosToolbar
         toolbarButtons.put(connectionButton.getDisconnectAction().getActionName(), connectionButton);
 
         //add contact button
-        addNavigationButton(NewContactAction.NAME, "Add contact to session", "buddy_add_tsk", "addContact");
+        addNavigationButton(NewContactAction.NAME, "Add contact to session", "images/btn/buddy_add_tsk.png", "addContact");
 
         //preferences button
-        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "test_con", "preferences");
+        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "images/btn/test_con.png", "preferences");
 
         //follow button
         //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
@@ -173,11 +174,14 @@ public class SarosToolbar
         jToolBar.add(followButton);
 
         //reload button
-        addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "reload", "reload");
+       // addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "images/btn/reload.png", "reload");
+        ConsistencyButton consistencyButton = new ConsistencyButton();
+        toolbarButtons.put(consistencyButton.getActionCommand(), consistencyButton);
+        jToolBar.add(consistencyButton);
 
         //session leave button
         ISarosAction actionLeave = SarosActionFactory.getAction(LeaveSessionAction.NAME);
-        addNavigationButton(actionLeave.getActionName(), "Leave session", "project_share_leave_tsk", "leave");
+        addNavigationButton(actionLeave.getActionName(), "Leave session", "images/btn/project_share_leave_tsk.png", "leave");
         actionLeave.addActionListener(treeActionListener);
         actionLeave.addActionListener(toolbarActionListener);
 
@@ -186,13 +190,13 @@ public class SarosToolbar
     /**
      * @param action
      * @param toolTipText
-     * @param iconName
+     * @param iconPath
      * @param altText
      */
-    private void addNavigationButton(String action, String toolTipText, String iconName, String altText)
+    private void addNavigationButton(String action, String toolTipText, String iconPath, String altText)
     {
         //Create and initialize the button.
-        JButton button = new CommonButton(action, toolTipText, iconName, altText);
+        JButton button = new CommonButton(action, toolTipText, iconPath, altText);
         toolbarButtons.put(button.getActionCommand(), button);
         jToolBar.add(button);
     }

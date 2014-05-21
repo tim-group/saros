@@ -24,10 +24,12 @@ package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocumentListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.events.DocumentEvent;
+
+
 
 /**
  * This Class represents a checksum of a document. It contains the path, the
@@ -42,11 +44,12 @@ public class DocumentChecksum {
      */
     public static final int NON_EXISTING_DOC = -1;
 
-    protected IDocumentListener dirtyListener = new IDocumentListener() {
+    protected DocumentListener dirtyListener = new DocumentListener() {
 
         @Override
-        public void documentAboutToBeChanged(DocumentEvent event) {
-            // we are only interested in events after the change
+        public void beforeDocumentChange(DocumentEvent documentEvent)
+        {
+
         }
 
         @Override
@@ -64,7 +67,7 @@ public class DocumentChecksum {
     // the hash code of the document
     protected int hash;
 
-    protected IDocument document;
+    protected Document document;
 
     protected boolean dirty;
 
@@ -112,7 +115,7 @@ public class DocumentChecksum {
         }
     }
 
-    public void bind(IDocument doc) {
+    public void bind(Document doc) {
 
         if (this.document == doc)
             return;
@@ -136,8 +139,8 @@ public class DocumentChecksum {
         if (document == null) {
             this.length = this.hash = NON_EXISTING_DOC;
         } else {
-            this.length = document.getLength();
-            this.hash = document.get().hashCode();
+            this.length = document.getTextLength();
+            this.hash = document.getText().hashCode();
         }
 
         dirty = false;

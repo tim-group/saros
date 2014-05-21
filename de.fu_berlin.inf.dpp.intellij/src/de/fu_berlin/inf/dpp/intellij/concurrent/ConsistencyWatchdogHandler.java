@@ -22,6 +22,24 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.business.*;
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.ProgressMonitorDialog;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.synchronize.StartHandle;
+import org.apache.log4j.Logger;
+import org.picocontainer.Startable;
+
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,43 +47,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
-import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.ProgressMonitorDialog;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
-import org.apache.log4j.Logger;
-
-import org.picocontainer.Startable;
-
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
-import de.fu_berlin.inf.dpp.activities.business.ChecksumErrorActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.RecoveryFileActivity;
-import de.fu_berlin.inf.dpp.annotations.Component;
-
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.synchronize.StartHandle;
-
 
 /**
  * This component is responsible for handling Consistency Errors on the host
  */
 @Component(module = "consistency")
-public class ConsistencyWatchdogHandler implements Startable {
+public class ConsistencyWatchdogHandler implements Startable
+{
 
     private static Logger log = Logger
             .getLogger(ConsistencyWatchdogHandler.class);
@@ -76,34 +64,43 @@ public class ConsistencyWatchdogHandler implements Startable {
 
     protected final ISarosSession sarosSession;
 
-    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver()
+    {
         @Override
-        public void receive(ChecksumErrorActivity checksumError) {
+        public void receive(ChecksumErrorActivity checksumError)
+        {
             startRecovery(checksumError);
         }
     };
 
-    protected final AbstractActivityProducerAndConsumer activityProducerAndConsumer = new AbstractActivityProducerAndConsumer() {
+    protected final AbstractActivityProducerAndConsumer activityProducerAndConsumer = new AbstractActivityProducerAndConsumer()
+    {
         @Override
-        public void exec(IActivity activity) {
+        public void exec(IActivity activity)
+        {
             if (!sarosSession.isHost())
+            {
                 return;
+            }
             activity.dispatch(activityReceiver);
         }
     };
 
     @Override
-    public void start() {
+    public void start()
+    {
         sarosSession.addActivityProducerAndConsumer(activityProducerAndConsumer);
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         sarosSession.removeActivityProducerAndConsumer(activityProducerAndConsumer);
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-            IEditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
+            IEditorManager editorManager, ConsistencyWatchdogClient watchdogClient)
+    {
         this.sarosSession = sarosSession;
         this.editorManager = editorManager;
         this.watchdogClient = watchdogClient;
@@ -116,9 +113,9 @@ public class ConsistencyWatchdogHandler implements Startable {
      * pair of JID of the user and a string representation of the paths of the
      * handled files as key. You can use <code>closeChecksumErrorMessage</code>
      * with the same arguments to close this message again.
-     *
      */
-    protected void startRecovery(final ChecksumErrorActivity checksumError) {
+    protected void startRecovery(final ChecksumErrorActivity checksumError)
+    {
 
         log.debug("Received Checksum Error: " + checksumError);
 
@@ -158,7 +155,7 @@ public class ConsistencyWatchdogHandler implements Startable {
                         @Override
                         public void run(IProgressMonitor monitor)
                         {
-                            runRecovery(checksumError,monitor.convert(monitor));
+                            runRecovery(checksumError, monitor.convert(monitor));
                         }
                     });
                 }
@@ -186,12 +183,14 @@ public class ConsistencyWatchdogHandler implements Startable {
     }
 
     protected void runRecovery(ChecksumErrorActivity checksumError,
-            ISubMonitor progress) throws CancellationException {
+            ISubMonitor progress) throws CancellationException
+    {
 
         List<StartHandle> startHandles = null;
 
         progress.beginTask("Performing recovery", 1200);
-        try {
+        try
+        {
 
             startHandles = sarosSession.getStopManager().stop(
                     sarosSession.getUsers(), "Consistency recovery");
@@ -209,41 +208,54 @@ public class ConsistencyWatchdogHandler implements Startable {
 
             // find the StartHandle of the inconsistent user
             StartHandle inconsistentStartHandle = null;
-            for (StartHandle startHandle : startHandles) {
-                if (checksumError.getSource().equals(startHandle.getUser())) {
+            for (StartHandle startHandle : startHandles)
+            {
+                if (checksumError.getSource().equals(startHandle.getUser()))
+                {
                     inconsistentStartHandle = startHandle;
                     break;
                 }
             }
-            if (inconsistentStartHandle == null) {
+            if (inconsistentStartHandle == null)
+            {
                 log.error("could not find first handle"
                         + " of the inconsistent user");
-            } else {
+            }
+            else
+            {
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
                 startHandles.remove(inconsistentStartHandle);
             }
-        } finally {
+        }
+        finally
+        {
             if (startHandles != null)
+            {
                 for (StartHandle startHandle : startHandles)
+                {
                     startHandle.start();
+                }
+            }
             progress.done();
         }
     }
 
     /**
      * @host This is only called on the host
-     *
      * @nonSWT This method should not be called from the SWT Thread!
      */
     protected void recoverFiles(ChecksumErrorActivity checksumError,
-            ISubMonitor progress) {
+            ISubMonitor progress)
+    {
 
         progress
                 .beginTask("Sending files", checksumError.getPaths().size() + 1);
 
-        try {
-            for (SPath path : checksumError.getPaths()) {
+        try
+        {
+            for (SPath path : checksumError.getPaths())
+            {
                 progress.subTask("Recovering file: "
                         + path.getProjectRelativePath());
                 recoverFile(checksumError.getSource(), sarosSession, path,
@@ -254,7 +266,9 @@ public class ConsistencyWatchdogHandler implements Startable {
             activityProducerAndConsumer.fireActivity(new ChecksumErrorActivity(
                     sarosSession.getLocalUser(), checksumError.getSource(), null,
                     checksumError.getRecoveryID()));
-        } finally {
+        }
+        finally
+        {
             progress.done();
         }
     }
@@ -264,17 +278,22 @@ public class ConsistencyWatchdogHandler implements Startable {
      * tell the user to remove it).
      */
     protected void recoverFile(User from, final ISarosSession sarosSession,
-            final SPath path, ISubMonitor progress) {
+            final SPath path, ISubMonitor progress)
+    {
 
         progress.beginTask("Handling file: " + path.toString(), 10);
 
         IFile file = path.getFile();
 
         // Save document before sending to client
-        if (file.exists()) {
-            try {
+        if (file.exists())
+        {
+            try
+            {
                 editorManager.saveLazy(path);
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 log.error("File could not be found, despite existing: " + path,
                         e);
             }
@@ -284,49 +303,39 @@ public class ConsistencyWatchdogHandler implements Startable {
         // Reset jupiter
         sarosSession.getConcurrentDocumentServer().reset(from.getJID(), path);
 
-        progress.worked(1);
+        progress.worked(15);
         final User user = sarosSession.getLocalUser();
 
-        if (file.exists()) {
+        if (file.exists())
+        {
 
-            try {
+            try
+            {
 
                 byte[] content = FileUtils.getLocalFileContent(file);
 
                 if (content == null)
+                {
                     throw new IOException();
+                }
 
                 // Send the file to client
                 activityProducerAndConsumer.fireActivity(RecoveryFileActivity.created(
                         user, path, content, from));
 
-                // Immediately follow up with a new checksum
-                IDocument doc;
-                FileEditorInput input = new FileEditorInput(file);
-                IDocumentProvider provider = EditorManagerEcl
-                        .getDocumentProvider(input);
-                try {
-                    provider.connect(input);
-                    doc = provider.getDocument(input);
+                String checksum = new String(content);
 
-                    final DocumentChecksum checksum = new DocumentChecksum(path);
-                    checksum.bind(doc);
-                    checksum.update();
-
-                    activityProducerAndConsumer.fireActivity(new ChecksumActivity(user,
-                            path, checksum.getHash(), checksum.getLength(), null));
-                } catch (CoreException e) {
-                    log.warn("Could not check checksum of file "
-                            + path.toString());
-                } finally {
-                    provider.disconnect(input);
-                }
-
-            } catch (IOException e) {
+                activityProducerAndConsumer.fireActivity(new ChecksumActivity(user,
+                        path, checksum.hashCode(), checksum.length(), null));
+            }
+            catch (IOException e)
+            {
                 log.error("File could not be read, despite existing: " + path,
                         e);
             }
-        } else {
+        }
+        else
+        {
             // TODO Warn the user...
             // Tell the client to delete the file
             activityProducerAndConsumer.fireActivity(RecoveryFileActivity.removed(user,

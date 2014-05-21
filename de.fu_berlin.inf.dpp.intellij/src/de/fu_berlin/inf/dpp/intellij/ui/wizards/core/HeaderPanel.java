@@ -68,7 +68,7 @@ public class HeaderPanel extends JPanel
     {
         setLayout(new FlowLayout());
 
-        this.icon = IconManager.getIcon("/icons/wizban/invitation.png");
+        this.icon = IconManager.getIcon("/icons/wizban/invitation.png","invitation");
         this.textMain = new JTextArea();
         this.textMain.setEditable(false);
 

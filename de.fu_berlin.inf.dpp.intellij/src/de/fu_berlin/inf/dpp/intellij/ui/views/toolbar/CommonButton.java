@@ -43,20 +43,20 @@ public class CommonButton extends ToolbarButton implements ActionListener
     private ISarosAction sarosAction;
     private String altText;
     private String tooltipText;
-    private String iconName;
+    private String iconPath;
 
     /**
      * @param actionCommand
      * @param tooltipText
-     * @param iconName
+     * @param iconPath
      * @param altText
      */
-    public CommonButton(String actionCommand, String tooltipText, String iconName, String altText)
+    public CommonButton(String actionCommand, String tooltipText, String iconPath, String altText)
     {
         this.actionCommand = actionCommand;
         this.altText = altText;
         this.tooltipText = tooltipText;
-        this.iconName = iconName;
+        this.iconPath = iconPath;
 
         this.sarosAction = SarosActionFactory.getAction(actionCommand);
         sarosAction.setGuiFrame(this);
@@ -68,14 +68,14 @@ public class CommonButton extends ToolbarButton implements ActionListener
      * @param sarosAction
      * @param altText
      * @param tooltipText
-     * @param iconName
+     * @param iconPath
      */
-    public CommonButton(ISarosAction sarosAction, String tooltipText, String iconName, String altText)
+    public CommonButton(ISarosAction sarosAction, String tooltipText, String iconPath, String altText)
     {
         this.sarosAction = sarosAction;
         this.altText = altText;
         this.tooltipText = tooltipText;
-        this.iconName = iconName;
+        this.iconPath = iconPath;
         this.actionCommand = sarosAction.getActionName();
         sarosAction.setGuiFrame(this);
 
@@ -84,7 +84,7 @@ public class CommonButton extends ToolbarButton implements ActionListener
 
     protected void create()
     {
-        setIcon(this.iconName, this.altText);
+        setIcon(this.iconPath, this.altText);
         setActionCommand(this.actionCommand);
 
         setToolTipText(this.tooltipText);

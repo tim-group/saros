@@ -47,7 +47,7 @@ public class RootTree extends AbstractTree
         jtree = new JTree(this);
         jtree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        iconManager.setIcons(jtree);
+        iconManager.setTreeIcons(jtree);
     }
 
     public JTree getJtree()

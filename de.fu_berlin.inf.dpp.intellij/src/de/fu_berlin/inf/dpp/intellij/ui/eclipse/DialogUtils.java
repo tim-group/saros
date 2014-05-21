@@ -74,7 +74,7 @@ public class DialogUtils
 
     public static boolean openQuestionMessageDialog(Component parent, String msg, String title)
     {
-        int answer = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.QUESTION_MESSAGE);
+        int answer = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION);
 
         return answer == 0;
     }

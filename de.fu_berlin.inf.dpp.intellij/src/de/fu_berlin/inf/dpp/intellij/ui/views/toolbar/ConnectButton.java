@@ -45,6 +45,7 @@ import java.util.List;
  */
 public class ConnectButton extends ToolbarButton implements SarosActionListener
 {
+
     private JPopupMenu popupMenu = new JPopupMenu();
 
     private final ISarosAction disconnectAction;
@@ -60,7 +61,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("connect", "Connect");
+        setIcon("images/btn/connect.png", "Connect");
         setActionCommand(ConnectServerAction.NAME);
 
         setToolTipText("Connect to XMPP/jabber server");

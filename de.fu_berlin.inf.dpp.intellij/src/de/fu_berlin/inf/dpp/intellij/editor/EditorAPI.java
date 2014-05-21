@@ -91,7 +91,6 @@ public class EditorAPI extends EditorAPIBridge
 
     public VirtualFile toVirtualFile(File path)
     {
-
        return localFileSystem.refreshAndFindFileByIoFile(path);
     }
 
@@ -103,7 +102,7 @@ public class EditorAPI extends EditorAPIBridge
     public boolean isOpen(Document doc)
     {
         VirtualFile file = fileDocumentManager.getFile(doc);
-        return isOpen(file);
+         return isOpen(file);
     }
 
     class EditorContainer
@@ -170,6 +169,11 @@ public class EditorAPI extends EditorAPIBridge
         };
 
         UIUtil.invokeAndWaitIfNeeded(action);
+    }
+
+    public Document getDocument(final File file)
+    {
+        return fileDocumentManager.getDocument(toVirtualFile(file));
     }
 
     public Document getDocument(final VirtualFile file)

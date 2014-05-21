@@ -22,6 +22,25 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
+import com.intellij.openapi.editor.Document;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.synchronize.Blockable;
+import de.fu_berlin.inf.dpp.synchronize.StopManager;
+import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
+import de.fu_berlin.inf.dpp.util.NamedThreadFactory;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.apache.log4j.Logger;
+import org.picocontainer.Startable;
+import org.picocontainer.annotations.Inject;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,50 +50,26 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.FileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IDocumentProvider;
-import org.apache.log4j.Logger;
-
-import org.picocontainer.Startable;
-
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.annotations.Component;
-
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.synchronize.Blockable;
-import de.fu_berlin.inf.dpp.synchronize.StopManager;
-import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
-import de.fu_berlin.inf.dpp.util.NamedThreadFactory;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
-
 /**
  * This class is an eclipse job run on the host side ONLY.
- *
+ * <p/>
  * The job computes checksums for all files currently managed by Jupiter (the
  * ConcurrentDocumentManager) and sends them to all guests.
- *
+ * <p/>
  * These will call their ConcurrentDocumentManager.check(...) method, to verify
  * that their version is correct.
- *
+ * <p/>
  * Once started with schedule() the job is scheduled to rerun every INTERVAL ms.
  *
  * @author chjacob
- *
+ *         <p/>
  *         TODO Make ConsistencyWatchDog configurable => Timeout, Whether run or
  *         not, etc.
- *
  */
 @Component(module = "consistency")
 public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsumer
-        implements Startable, Blockable {
+        implements Startable, Blockable
+{
 
     private static final Logger LOG = Logger
             .getLogger(ConsistencyWatchdogServer.class);
@@ -97,15 +92,24 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
 
     private boolean locked;
 
-    private final Runnable checksumCalculationTrigger = new Runnable() {
+    @Inject
+    private EditorAPI editorAPI;
+
+    private final Runnable checksumCalculationTrigger = new Runnable()
+    {
 
         @Override
-        public void run() {
-            synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
+        public void run()
+        {
+            synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     if (locked)
+                    {
                         return;
+                    }
 
                     calculateChecksums();
                 }
@@ -115,7 +119,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
 
     public ConsistencyWatchdogServer(ISarosSession session,
             IEditorManager editorManager, StopManager stopManager,
-            UISynchronizer synchronizer) {
+            UISynchronizer synchronizer)
+    {
         this.session = session;
         this.editorManager = editorManager;
         this.stopManager = stopManager;
@@ -123,10 +128,13 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         if (!session.isHost())
+        {
             throw new IllegalStateException(
                     "component can only be run on host side");
+        }
 
         session.addActivityProducerAndConsumer(this);
         stopManager.addBlockable(this);
@@ -142,7 +150,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         session.removeActivityProducerAndConsumer(this);
         stopManager.removeBlockable(this);
 
@@ -152,56 +161,73 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
         boolean isTerminated = false;
         boolean isInterrupted = false;
 
-        try {
+        try
+        {
             isTerminated = executor.awaitTermination(10000,
                     TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             LOG.warn("interrupted while waiting for consistency watchdog to terminate");
             isInterrupted = true;
         }
 
         if (!isTerminated)
+        {
             LOG.error("consistency watchdog is still running");
+        }
 
-        synchronizer.asyncExec(new Runnable() {
+        synchronizer.asyncExec(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 for (DocumentChecksum document : docsChecksums.values())
+                {
                     document.dispose();
+                }
 
                 docsChecksums.clear();
             }
         });
 
         if (isInterrupted)
+        {
             Thread.currentThread().interrupt();
+        }
     }
 
     @Override
-    public void exec(IActivity activity) {
+    public void exec(IActivity activity)
+    {
         // NOP
     }
 
     @Override
-    public void block() {
+    public void block()
+    {
         // sync here to ensure we do not send anything after we return
-        synchronizer.syncExec(new Runnable() {
+        synchronizer.syncExec(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 locked = true;
             }
         });
     }
 
     @Override
-    public void unblock() {
+    public void unblock()
+    {
         // unlock lazy is sufficient as it does not matter if we miss one update
         // cycle
         locked = false;
     }
 
     // UI thread access only !
-    private void calculateChecksums() {
+    private void calculateChecksums()
+    {
 
         Set<SPath> localEditors = editorManager.getLocallyOpenEditors();
         Set<SPath> remoteEditors = editorManager.getRemoteOpenEditors();
@@ -214,88 +240,81 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducerAndConsum
         Iterator<Entry<SPath, DocumentChecksum>> it = docsChecksums.entrySet()
                 .iterator();
 
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             Entry<SPath, DocumentChecksum> entry = it.next();
 
-            if (!allEditors.contains(entry.getKey())) {
+            if (!allEditors.contains(entry.getKey()))
+            {
                 entry.getValue().dispose();
                 it.remove();
             }
         }
 
-        for (SPath docPath : allEditors) {
+        for (SPath docPath : allEditors)
+        {
             updateChecksum(localEditors, remoteEditors, docPath);
         }
     }
 
     // UI thread access only !
     private void updateChecksum(final Set<SPath> localEditors,
-            final Set<SPath> remoteEditors, final SPath docPath) {
+            final Set<SPath> remoteEditors, final SPath docPath)
+    {
 
-        IFile file =  docPath.getFile();
+        IFile file = docPath.getFile();
 
-        IDocument doc = null;
-        IDocumentProvider provider = null;
-        FileEditorInput input = null;
+        Document doc = null;
 
-        try {
+        if (file.exists())
+        {
+            doc = editorAPI.getDocument(file.toFile());
+        }
 
-            if (file.exists()) {
-                input = new FileEditorInput(file);
-                provider = EditorManagerEcl.getDocumentProvider(input);
-                try {
-                    provider.connect(input);
-                    doc = provider.getDocument(input);
-                } catch (CoreException e) {
-                    LOG.warn("could not check checksum of file " + docPath);
-                    provider = null;
-                }
+        // Null means that the document does not exist locally
+        if (doc == null)
+        {
+
+            if (localEditors.contains(docPath))
+            {
+                LOG.error("EditorManagerEcl is in an inconsistent state. "
+                        + "It is reporting a locally open editor but no"
+                        + " document could be found in the underlying file system: "
+                        + docPath);
             }
 
-            // Null means that the document does not exist locally
-            if (doc == null) {
-
-                if (localEditors.contains(docPath)) {
-                    LOG.error("EditorManagerEcl is in an inconsistent state. "
-                            + "It is reporting a locally open editor but no"
-                            + " document could be found in the underlying file system: "
-                            + docPath);
-                }
-
-                if (!remoteEditors.contains(docPath)) {
+            if (!remoteEditors.contains(docPath))
+            {
                     /*
                      * Since session participants do not report this document as
                      * open, they are right (and our EditorPool might be
                      * confused)
                      */
-                    return;
-                }
+                return;
             }
+        }
 
-            DocumentChecksum checksum = docsChecksums.get(docPath);
+        DocumentChecksum checksum = docsChecksums.get(docPath);
 
-            if (checksum == null) {
-                checksum = new DocumentChecksum(docPath);
-                docsChecksums.put(docPath, checksum);
-            }
+        if (checksum == null)
+        {
+            checksum = new DocumentChecksum(docPath);
+            docsChecksums.put(docPath, checksum);
+        }
 
             /*
              * Potentially bind to null doc, which will set the Checksum to
              * represent a missing file (existsFile() == false)
              */
-            checksum.bind(doc);
-            checksum.update();
+        checksum.bind(doc);
+        checksum.update();
 
-            ChecksumActivity checksumActivity = new ChecksumActivity(
-                    session.getLocalUser(), checksum.getPath(), checksum.getHash(),
-                    checksum.getLength(), null);
+        ChecksumActivity checksumActivity = new ChecksumActivity(
+                session.getLocalUser(), checksum.getPath(), checksum.getHash(),
+                checksum.getLength(), null);
 
-            fireActivity(checksumActivity);
+        fireActivity(checksumActivity);
 
-        } finally {
-            if (provider != null && input != null) {
-                provider.disconnect(input);
-            }
-        }
     }
 }
+

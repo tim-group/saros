@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.util.PluginResourceLocator;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -45,22 +44,26 @@ public abstract class ToolbarButton extends JButton
     protected Saros saros = Saros.instance();
 
     /**
-     * @param name
+     * @param path
      * @param altText
      */
-    protected void setIcon(String name, String altText)
+    protected void setIcon(String path, String altText)
     {
-        setButtonIcon(this, name, altText);
+        setButtonIcon(this, path, altText);
     }
+
 
     /**
      * @param button
-     * @param iconName
+     * @param iconPath
      * @param altText
      */
-    public static void setButtonIcon(JButton button, String iconName, String altText)
+    public static void setButtonIcon(JButton button, String iconPath, String altText)
     {
-        URL imageURL = PluginResourceLocator.getButtonImageUrl(iconName);
+        if(!iconPath.startsWith("/"))
+            iconPath = "/"+iconPath;
+
+        URL imageURL = ToolbarButton.class.getResource(iconPath);
         if (imageURL != null)
         {
             //image found

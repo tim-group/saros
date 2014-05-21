@@ -51,7 +51,7 @@ public class Workspace implements IWorkspace
     public static final Logger log = Logger.getLogger(Workspace.class);
     private SchedulingRoot root;
 
-    private LocalFileSystem fileSystem = LocalFileSystem.getInstance();
+    private LocalFileSystem fileSystem;
 
     private File path;
     private Project project;
@@ -76,6 +76,7 @@ public class Workspace implements IWorkspace
     public Workspace(Project project)
     {
         this.project = project;
+        this.fileSystem  = LocalFileSystem.getInstance();
         //initPath(new File(project.getBasePath()));
         createWorkSpace(new File(project.getBasePath()));
     }
