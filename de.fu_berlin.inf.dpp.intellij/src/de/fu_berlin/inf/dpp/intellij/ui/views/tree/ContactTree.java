@@ -99,25 +99,25 @@ public class ContactTree extends AbstractTree implements IRosterListener
     @Override
     public void rosterChanged(Roster roster)
     {
-        // System.out.println("ContactTree.rosterChanged");
+         System.out.println("ContactTree.rosterChanged");
     }
 
     @Override
     public void entriesAdded(Collection<String> addresses)
     {
-        //  System.out.println("ContactTree.entriesAdded");
+          System.out.println("ContactTree.entriesAdded");
     }
 
     @Override
     public void entriesUpdated(Collection<String> addresses)
     {
-        //  System.out.println("ContactTree.entriesUpdated");
+          System.out.println("ContactTree.entriesUpdated");
     }
 
     @Override
     public void entriesDeleted(Collection<String> addresses)
     {
-        //  System.out.println("ContactTree.entriesDeleted");
+          System.out.println("ContactTree.entriesDeleted");
     }
 
     public List<JID> getOnLineUsers()

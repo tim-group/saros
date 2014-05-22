@@ -26,6 +26,7 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -35,6 +36,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -245,13 +247,23 @@ public class SessionTree extends AbstractTree
         //iterate projects in sessions
         for (DefaultMutableTreeNode nSession : sessionNodeList.values())
         {
-
-            IProject p = ((SessionInfo) nSession.getUserObject()).getSession().getProject(projectID);
-
+            ISarosSession session = ((SessionInfo) nSession.getUserObject()).getSession();
+            IProject p = session.getProject(projectID);
             if (p != null)
             {
-                DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(new ProjectInfo(p));
+                ProjectInfo projInfo;
+                if (session.isCompletelyShared(p))
+                {
+                    projInfo = new ProjectInfo(p);
+                }
+                else
+                {
+                    projInfo = new ProjectInfo(p, session.getSharedResources(p));
+
+                }
+                DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(projInfo);
                 treeModel.insertNodeInto(nProject, nSession, nSession.getChildCount());
+
                 treeModel.reload(nSession);
             }
         }
@@ -351,6 +363,7 @@ public class SessionTree extends AbstractTree
     protected class ProjectInfo extends LeafInfo
     {
         private IProject project;
+        private List<IResource> resList;
 
         public ProjectInfo(IProject project)
         {
@@ -358,9 +371,40 @@ public class SessionTree extends AbstractTree
             this.project = project;
         }
 
+        public ProjectInfo(IProject project, List<IResource> resources)
+        {
+            this(project);
+            this.resList = resources;
+
+        }
+
         public IProject getProject()
         {
             return project;
+        }
+
+        public String toString()
+        {
+            if (resList != null)
+            {
+                StringBuilder sbOut = new StringBuilder();
+                sbOut.append(project.getName());
+                sbOut.append(" : ");
+                for (IResource res : resList)
+                {
+                    if(res.getType()==IResource.FILE)
+                    {
+                        sbOut.append(res.getName());
+                        sbOut.append("; ");
+                    }
+                }
+
+                return sbOut.toString();
+            }
+            else
+            {
+                return project.getName();
+            }
         }
     }
 }

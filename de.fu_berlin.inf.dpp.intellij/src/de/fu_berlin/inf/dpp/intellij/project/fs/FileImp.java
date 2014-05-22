@@ -65,11 +65,6 @@ public class FileImp extends ResourceImp implements IFile
         super(project, file);
     }
 
-    public FileImp(File file)
-    {
-        super(file);
-    }
-
 
     @Override
     public String getCharset() throws IOException

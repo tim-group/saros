@@ -129,7 +129,7 @@ public class ConsistencyAction extends AbstractSarosAction
 
     }
 
-    private void handleConsistencyChange(Boolean isInconsistent)
+    private void handleConsistencyChange(final Boolean isInconsistent)
     {
 
         if (sarosSession.isHost() && isInconsistent)
@@ -141,8 +141,15 @@ public class ConsistencyAction extends AbstractSarosAction
         log.debug("Inconsistency indicator goes: " //$NON-NLS-1$
                 + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
 
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                consistencyButton.setInconsistent(isInconsistent);
+            }
+        });
 
-        consistencyButton.setInconsistent(isInconsistent);
 
         if (!isInconsistent)
         {
@@ -154,7 +161,7 @@ public class ConsistencyAction extends AbstractSarosAction
         final Set<SPath> paths = new HashSet<SPath>(
                 watchdogClient.getPathsWithWrongChecksums());
 
-        SWTUtils.runSafeSWTAsync(log, new Runnable()
+        SwingUtilities.invokeLater(new Runnable()
         {
             @Override
             public void run()

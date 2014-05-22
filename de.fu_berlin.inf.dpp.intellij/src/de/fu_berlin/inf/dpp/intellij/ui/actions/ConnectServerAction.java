@@ -131,13 +131,13 @@ public class ConnectServerAction extends AbstractSarosAction
             //throw new RuntimeException("No current account set!"); //todo: open dialog
 
 
-            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf");
+            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf","Login");
             if (jabberID == null)
             {
                 actionFinished();
                 return;
             }
-            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev");
+            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev","Login");
             if (password == null)
             {
                 actionFinished();

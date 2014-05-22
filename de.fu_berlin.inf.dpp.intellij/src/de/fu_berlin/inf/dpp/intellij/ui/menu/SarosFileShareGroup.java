@@ -22,16 +22,19 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.menu;
 
-import com.intellij.find.FindProgressIndicator;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.IconManager;
@@ -66,7 +69,8 @@ public class SarosFileShareGroup extends ActionGroup
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e)
     {
-        if (!Saros.isInitialized())
+        if (!Saros.isInitialized()
+                || Saros.instance().getSessionManager().getSarosSession() != null)
         {
             return new AnAction[0];
         }
@@ -100,28 +104,40 @@ public class SarosFileShareGroup extends ActionGroup
         @Override
         public void actionPerformed(AnActionEvent e)
         {
-            VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
+            VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
 
-            System.out.println("SarosFileShareGroup.actionPerformed " + file);
+            System.out.println("SarosFileShareGroup.actionPerformed " + virtFile);
+
 
             try
             {
-                File dir = new File(file.getPath());
-                List<IResource> resources;
+                File file = new File(virtFile.getPath());
+                ProjectImp project = locateProject(file);
 
-                if (dir.isDirectory())
+                List<IResource> resources = new ArrayList<IResource>();
+
+
+                if (file.isDirectory())
                 {
-                    IProject proj = new ProjectImp(dir.getName(), dir);
-                    proj.refreshLocal();
+                    //check if it is a real project
+                    FolderImp resFolder = new FolderImp(project, file);
+                    if (resFolder.getFullPath().segmentCount() - 1 == project.getFullPath().segmentCount())
+                    {
+                        project.refreshLocal();
+                        resources.add(project);
+                    }
+                    else
+                    {
+                        resources.addAll(getParentFolders(project, project.getFullPath(), resFolder.getFullPath()));
+                        loadChildResources(project, resFolder.toFile(), resources);
+                    }
 
-                    resources = Arrays.asList((IResource) proj);
                 }
                 else
                 {
-                    //todo: not working properly after sharing
-                    ProjectImp proj = new ProjectImp(dir.getParentFile().getName(), dir.getParentFile());
-                    IResource prjFile = new FileImp(proj, dir);
-                    resources = Arrays.asList(prjFile);
+                    FileImp resFile = new FileImp(project, file);
+                    resources.addAll(getParentFolders(project, project.getFullPath(), resFile.getFullPath()));
+                    resources.add(resFile);
                 }
 
                 List<JID> contacts = Arrays.asList(userJID);
@@ -136,9 +152,73 @@ public class SarosFileShareGroup extends ActionGroup
             {
                 e1.printStackTrace();
             }
+        }
 
+        /**
+         * Loads all down tree resourced
+         *
+         * @param project
+         * @param file
+         * @param resources
+         * @throws IOException
+         */
+        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) throws IOException
+        {
+            if (file.isDirectory())
+            {
+                resources.add(new FolderImp(project, file));
+                for (File f : file.listFiles())
+                {
+                    loadChildResources(project, f, resources);
+                }
+            }
+            else
+            {
+                resources.add(new FileImp(project, file));
+            }
 
         }
+
+        /**
+         * Load folders between project and file
+         *
+         * @param project
+         * @param top
+         * @param bottom
+         * @return
+         */
+        private List<IResource> getParentFolders(ProjectImp project, IPath top, IPath bottom)
+        {
+            List<IResource> folders = new ArrayList<IResource>();
+            File base = top.toFile();
+            StringBuilder sbPath = new StringBuilder(base.getAbsolutePath());
+            String[] segments = bottom.segments();
+            for (int i = top.segmentCount(); i < segments.length - 1; i++)
+            {
+                sbPath.append(File.separator);
+                sbPath.append(segments[i]);
+                IFolder folder = new FolderImp(project, new File(sbPath.toString()));
+                folders.add(folder);
+            }
+
+            return folders;
+        }
+
+        /**
+         * @param resource
+         * @return
+         */
+        private ProjectImp locateProject(File resource)
+        {
+            Project p = Saros.instance().getProject();
+            IPath basePath = new PathImp(p.getBasePath());
+            IPath resourcePath = new PathImp(resource);
+            String moduleName = resourcePath.segments()[basePath.segmentCount()];
+            basePath = basePath.append(moduleName);
+
+            return new ProjectImp(moduleName, basePath.toFile());
+        }
+
 
         public String toString()
         {

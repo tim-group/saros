@@ -50,12 +50,12 @@ public class MessageDialog
 
     public static boolean openConfirm(Component shell, String title, String message)
     {
-        int resp = JOptionPane.showConfirmDialog(shell, message, title, JOptionPane.YES_OPTION);
+        int resp = JOptionPane.showConfirmDialog(shell, title, message, JOptionPane.YES_OPTION);
         return resp == 0;
     }
 
     public static boolean openQuestion(Container shell, String title, String message)
     {
-        return openConfirm(shell, message, title);
+        return openConfirm(shell, title, message);
     }
 }

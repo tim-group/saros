@@ -47,10 +47,7 @@ public class FolderImp extends ResourceImp implements IFolder
         super(project, file);
     }
 
-    public FolderImp(File file)
-    {
-        super(file);
-    }
+
 
     @Override
     public void create(int updateFlags, boolean local) throws IOException
@@ -96,13 +93,13 @@ public class FolderImp extends ResourceImp implements IFolder
             if (myFile.isFile() && !myFile.isHidden()
                     && (memberFlags == NONE || memberFlags == FILE))
             {
-                list.add(new FileImp(file));
+                list.add(new FileImp(project,file));
             }
 
             if (myFile.isDirectory() && !myFile.isHidden()
                     && (memberFlags == NONE || memberFlags == FOLDER))
             {
-                list.add(new FolderImp(file));
+                list.add(new FolderImp(project,file));
             }
         }
 

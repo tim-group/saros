@@ -56,10 +56,6 @@ public abstract class ResourceImp implements IResource
         this.attributes = new FileResourceAttributes(file);
     }
 
-    public ResourceImp(File file)
-    {
-        this.file = file;
-    }
 
     public String getDefaultCharset()
     {
@@ -99,7 +95,7 @@ public abstract class ResourceImp implements IResource
     @Override
     public IContainer getParent()
     {
-        return file == null || file.getParentFile() == null ? null : new FolderImp(file.getParentFile());
+        return file == null || file.getParentFile() == null ? null : new FolderImp(project,file.getParentFile());
     }
 
     public ProjectImp getProject()

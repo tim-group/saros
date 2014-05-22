@@ -225,7 +225,7 @@ public final class SarosSession implements ISarosSession {
     @Override
     public void addSharedResources(IProject project, String projectID,
             List<IResource> dependentResources) {
-        if (!isCompletelyShared(project) && dependentResources != null) {
+       /* if (!isCompletelyShared(project) && dependentResources != null) {
             for (IResource iResource : dependentResources) {
                 if (iResource.getType() == IResource.FOLDER) {
                     addMembers(iResource, dependentResources);
@@ -237,7 +237,7 @@ public final class SarosSession implements ISarosSession {
                 selectedResources.clear();
             }
         }
-
+*/
         if (!projectMapper.isShared(project)) {
             projectMapper.addProject(projectID, project,
                     dependentResources != null);

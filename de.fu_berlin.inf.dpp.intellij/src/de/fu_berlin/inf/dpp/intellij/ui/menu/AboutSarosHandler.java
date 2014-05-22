@@ -65,11 +65,6 @@ public class AboutSarosHandler extends AbstractMenuHandler
 
         Project project = e.getData(PlatformDataKeys.PROJECT);
 
-
-        Document d = new DocumentImpl("asdadafdsaf");
-        EditorTextField etf = new EditorTextField();
-        etf.setDocument(d);
-
         Messages.showMessageDialog(project, "Saros plugin for IntelliJ \nVersion 10.1.1\n\nDEVELOPMENT", "About Saros", Messages.getInformationIcon());
 
     }

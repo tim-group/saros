@@ -46,7 +46,7 @@ public class SafeDialogUtils
      * @param initialValue
      * @return
      */
-    public static String showInputDialog(final String message, final String initialValue)
+    public static String showInputDialog(final String message, final String initialValue,final String title)
     {
         final StringBuilder response = new StringBuilder();
         Runnable action = new Runnable()
@@ -61,7 +61,7 @@ public class SafeDialogUtils
                 }
                 else
                 {
-                    String option = Messages.showInputDialog(saros.getProject(), message, initialValue, Messages.getQuestionIcon());
+                    String option = Messages.showInputDialog(saros.getProject(), message,title,Messages.getQuestionIcon(), initialValue,null );
                     response.append(option);
                 }
             }
