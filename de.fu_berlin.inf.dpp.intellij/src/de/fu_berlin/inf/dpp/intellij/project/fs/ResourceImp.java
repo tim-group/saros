@@ -27,7 +27,6 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
-
 import java.io.File;
 import java.net.URI;
 
@@ -95,7 +94,7 @@ public abstract class ResourceImp implements IResource
     @Override
     public IContainer getParent()
     {
-        return file == null || file.getParentFile() == null ? null : new FolderImp(project,file.getParentFile());
+        return file == null || file.getParentFile() == null ? null : new FolderImp(project, file.getParentFile());
     }
 
     public ProjectImp getProject()
@@ -186,5 +185,47 @@ public abstract class ResourceImp implements IResource
         return file.toURI();
     }
 
+    @Override
+    public int hashCode()
+    {
+        int hash = 1;
 
+        hash = hash * 31 + this.file.getName().toLowerCase().hashCode();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof ResourceImp))
+        {
+            return false;
+        }
+
+        ResourceImp other = (ResourceImp) obj;
+
+        String thisPath;
+        if (this.file.isAbsolute() || this.project == null)
+        {
+            thisPath = this.file.getAbsolutePath();
+        }
+        else
+        {
+            thisPath = this.project.getFullPath().toFile().getAbsolutePath() + this.file.getPath();
+        }
+
+        String otherPath;
+        if (other.file.isAbsolute() || other.project == null)
+        {
+            otherPath = other.file.getAbsolutePath();
+        }
+        else
+        {
+            otherPath = other.project.getFullPath().toFile().getAbsolutePath() + File.separator + other.file.getPath();
+        }
+
+       // System.out.println(thisPath + "<>" + otherPath);
+
+        return otherPath.equalsIgnoreCase(thisPath);
+    }
 }

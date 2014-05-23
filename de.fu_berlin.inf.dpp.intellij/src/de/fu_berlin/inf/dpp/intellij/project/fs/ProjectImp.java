@@ -452,7 +452,7 @@ public class ProjectImp implements IProject
     public int hashCode()
     {
         int hash = 1;
-        hash = hash * 17 + this.name.hashCode();
+      //  hash = hash * 17 + this.name.hashCode();
         hash = hash * 31 + this.path.hashCode();
         return hash;
 
@@ -466,6 +466,8 @@ public class ProjectImp implements IProject
 
         ProjectImp other = (ProjectImp)obj;
 
-        return this.name.equals(other.name) && this.path.equals(other.path);
+        return
+                //this.name.equals(other.name) &&
+                        this.path.equals(other.path);
     }
 }
