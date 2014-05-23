@@ -25,6 +25,13 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
+import de.fu_berlin.inf.dpp.session.User;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Leaves session

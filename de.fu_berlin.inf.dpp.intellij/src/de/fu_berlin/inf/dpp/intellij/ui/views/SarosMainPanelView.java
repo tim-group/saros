@@ -101,7 +101,9 @@ public class SarosMainPanelView extends JFrame
 
         JTree tree = sarosTree.create();
         JScrollPane treeView = new JScrollPane(tree);  //todo
-        sessionPane.add(tree);
+        treeView.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        treeView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        sessionPane.add(treeView);
 
         Container chartPane = new JPanel(new BorderLayout());
 

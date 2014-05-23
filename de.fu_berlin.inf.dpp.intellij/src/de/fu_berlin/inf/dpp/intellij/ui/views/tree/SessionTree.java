@@ -227,17 +227,16 @@ public class SessionTree extends AbstractTree
         {
             treeModel.removeNodeFromParent(nSession);
             sessionNodeList.remove(oldSarosSession);
-
             removeAllUserNodes();
-
-            treeModel.reload(this);
         }
 
         if (sessionNodeList.size() == 0)
         {
-            setTitle(TREE_TITLE_NO_SESSIONS);
+            setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
         }
 
+        treeModel.reload(this);
+        rootTree.getJtree().expandRow(2);
     }
 
 
@@ -274,6 +273,9 @@ public class SessionTree extends AbstractTree
         DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
         userNodeList.put(user, nUser);
         treeModel.insertNodeInto(nUser, this, this.getChildCount());
+
+        saros.getMainPanel().getSarosTree().getContactTree().hideContact(user.getJID().getBareJID().toString());
+
         treeModel.reload(this);
     }
 
@@ -284,6 +286,9 @@ public class SessionTree extends AbstractTree
         {
             remove(nUser);
             userNodeList.remove(user);
+
+            saros.getMainPanel().getSarosTree().getContactTree().showContact(user.getJID().getBareJID().toString());
+
             treeModel.reload();
         }
 
@@ -293,7 +298,7 @@ public class SessionTree extends AbstractTree
     {
         for (DefaultMutableTreeNode nUser : userNodeList.values())
         {
-            treeModel.removeNodeFromParent(nUser);
+            removeUserNode(((UserInfo) nUser.getUserObject()).getUser());
         }
 
         userNodeList.clear();
@@ -392,7 +397,7 @@ public class SessionTree extends AbstractTree
                 sbOut.append(" : ");
                 for (IResource res : resList)
                 {
-                    if(res.getType()==IResource.FILE)
+                    if (res.getType() == IResource.FILE)
                     {
                         sbOut.append(res.getName());
                         sbOut.append("; ");

@@ -22,39 +22,13 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-
 /**
- * Disconnects XMPP/Jabber server
- * <p/>
- * <p/>
- * <p/>
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 14.3.18
- * Time: 14.03
+ * Date: 2014-05-23
+ * Time: 10:23
  */
-public class DisconnectServerAction extends AbstractSarosAction  implements IConnectionAction
+
+public interface IConnectionAction
 {
-    public static final String NAME = "disconnect";
-
-
-    @Override
-    public String getActionName()
-    {
-        return NAME;
-    }
-
-
-    @Override
-    public void run()
-    {
-        actionStarted();
-
-        saros.getConnectionService().disconnect();
-
-        log.info("DISCONNECTED");
-
-        actionFinished();
-    }
 }

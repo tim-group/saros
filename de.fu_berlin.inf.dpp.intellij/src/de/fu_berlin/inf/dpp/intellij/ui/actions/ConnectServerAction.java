@@ -41,7 +41,7 @@ import javax.swing.*;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class ConnectServerAction extends AbstractSarosAction
+public class ConnectServerAction extends AbstractSarosAction implements IConnectionAction
 {
     public static final String NAME = "connect";
 

@@ -32,6 +32,7 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.util.*;
 
 /**
@@ -47,6 +48,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
 
     protected RootTree rootTree;
     private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
+    private DefaultTreeModel treeModel;
 
     /**
      * @param parent
@@ -55,7 +57,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
     {
         super(parent);
         this.rootTree = parent;
-
+        this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
         setUserObject(new AbstractTree.CategoryInfo(TREE_TITLE));
 
         create();
@@ -70,24 +72,69 @@ public class ContactTree extends AbstractTree implements IRosterListener
 
     }
 
-
-    public void addContacts(final Collection<RosterEntry> entries)
+    public void createContactNodes()
     {
-
         removeAllChildren();
         DefaultMutableTreeNode node;
 
+        Roster roster = saros.getConnectionService().getRoster();
         //add contacts
-        for (RosterEntry contactEntry : entries)
+        for (RosterEntry contactEntry : roster.getEntries())
         {
             ContactInfo contactInfo = new ContactInfo(contactEntry);
-            contactInfo.setIcon(IconManager.contactOfflineIcon);
+            Presence presence = roster.getPresence(contactEntry.getUser());
+
+            if (presence.getType() == Presence.Type.available)
+            {
+                contactInfo.setOnline(true);
+            }
+            else
+            {
+                contactInfo.setOnline(false);
+            }
+
             node = new DefaultMutableTreeNode(contactInfo);
 
             add(node);
 
             contactMap.put(contactInfo.getKey(), contactInfo);
         }
+    }
+
+    public void showContact(final String key)
+    {
+        ContactInfo contactInfo = contactMap.get(key);
+        if (contactInfo == null || !contactInfo.isHidden())
+        {
+            return;
+        }
+
+        contactInfo.setHidden(false);
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(contactInfo);
+
+        add(node);
+    }
+
+    public void hideContact(final String key)
+    {
+        ContactInfo contactInfo = contactMap.get(key);
+        if (contactInfo == null || contactInfo.isHidden())
+        {
+            return;
+        }
+
+        contactInfo.setHidden(true);
+        for (int i = 0; i < getChildCount(); i++)
+        {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) getChildAt(i);
+            if (contactInfo.equals(node.getUserObject()))
+            {
+                treeModel.removeNodeFromParent(node);
+                node.setUserObject(null);
+                break;
+            }
+        }
+
     }
 
     public void removeContacts()
@@ -99,25 +146,25 @@ public class ContactTree extends AbstractTree implements IRosterListener
     @Override
     public void rosterChanged(Roster roster)
     {
-         System.out.println("ContactTree.rosterChanged");
+
     }
 
     @Override
     public void entriesAdded(Collection<String> addresses)
     {
-          System.out.println("ContactTree.entriesAdded");
+
     }
 
     @Override
     public void entriesUpdated(Collection<String> addresses)
     {
-          System.out.println("ContactTree.entriesUpdated");
+
     }
 
     @Override
     public void entriesDeleted(Collection<String> addresses)
     {
-          System.out.println("ContactTree.entriesDeleted");
+
     }
 
     public List<JID> getOnLineUsers()
@@ -138,25 +185,17 @@ public class ContactTree extends AbstractTree implements IRosterListener
     @Override
     public void presenceChanged(Presence presence)
     {
+        String sUser = new JID(presence.getFrom()).getBareJID().toString();
 
-        final String append = "/Saros";  //todo: why that needed?
-        String user = presence.getFrom();
-        if (user.endsWith(append))
-        {
-            user = user.substring(0, user.length() - append.length());
-        }
-
-        ContactInfo info = contactMap.get(user);
+        ContactInfo info = contactMap.get(sUser);
         if (info != null)
         {
             if (presence.getType() == Presence.Type.available)
             {
-                info.setIcon(IconManager.contactOnlineIcon);
                 info.setOnline(true);
             }
             else
             {
-                info.setIcon(IconManager.contactOfflineIcon);
                 info.setOnline(false);
             }
 
@@ -185,6 +224,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
         private String status;
         private RosterEntry rosterEntry;
         private boolean isOnline;
+        private boolean isHidden = false;
 
         private ContactInfo(RosterEntry rosterEntry)
         {
@@ -213,9 +253,27 @@ public class ContactTree extends AbstractTree implements IRosterListener
             return isOnline;
         }
 
+        public boolean isHidden()
+        {
+            return isHidden;
+        }
+
+        public void setHidden(boolean isHidden)
+        {
+            this.isHidden = isHidden;
+        }
+
         public void setOnline(boolean isOnline)
         {
             this.isOnline = isOnline;
+            if (isOnline)
+            {
+                setIcon(IconManager.contactOnlineIcon);
+            }
+            else
+            {
+                setIcon(IconManager.contactOfflineIcon);
+            }
         }
 
         public String toString()

@@ -24,10 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
@@ -87,30 +84,34 @@ public class SarosToolbar
         @Override
         public void actionFinished(ISarosAction action)
         {
-            final SarosTreeView sarosTree = sarosMainView.getSarosTree();
-            if (saros.isConnected())
+            if (action instanceof IConnectionAction)
             {
-                sarosTree.renderConnected();
-            }
-            else
-            {
-                sarosTree.renderDisconnected();
-            }
 
-            Runnable run = new Runnable()
-            {
-                @Override
-                public void run()
+                final SarosTreeView sarosTree = sarosMainView.getSarosTree();
+                if (saros.isConnected())
                 {
-                    JTree jTree = sarosTree.getRootTree().getJtree();
-                    DefaultTreeModel model = (DefaultTreeModel) (jTree.getModel());
-                    model.reload();
-
-                    jTree.expandRow(2);
+                    sarosTree.renderConnected();
                 }
-            };
+                else
+                {
+                    sarosTree.renderDisconnected();
+                }
 
-            UIUtil.invokeAndWaitIfNeeded(run);
+                Runnable run = new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        JTree jTree = sarosTree.getRootTree().getJtree();
+                        DefaultTreeModel model = (DefaultTreeModel) (jTree.getModel());
+                        model.reload();
+
+                        jTree.expandRow(2);
+                    }
+                };
+
+                UIUtil.invokeAndWaitIfNeeded(run);
+            }
         }
     };
 
@@ -174,7 +175,7 @@ public class SarosToolbar
         jToolBar.add(followButton);
 
         //reload button
-       // addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "images/btn/reload.png", "reload");
+        // addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "images/btn/reload.png", "reload");
         ConsistencyButton consistencyButton = new ConsistencyButton();
         toolbarButtons.put(consistencyButton.getActionCommand(), consistencyButton);
         jToolBar.add(consistencyButton);

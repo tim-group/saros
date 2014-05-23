@@ -137,7 +137,7 @@ public class SarosTreeView
         rootTree.setTitle(rootText);
 
         //add contacts
-        contactTree.addContacts(saros.getConnectionService().getRoster().getEntries());
+        contactTree.createContactNodes();
 
         //add listener for on-line contacts
         saros.getConnectionService().getRoster().addRosterListener(contactTree);
