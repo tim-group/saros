@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.core.filesystem;
 
 import de.fu_berlin.inf.dpp.filesystem.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,22 +45,27 @@ public class ResourceAdapterFactory
             return null;
         }
 
-        // return new EclipsePathImpl(path);
-        return null; // todo
+        path.toFile().mkdirs();
+
+        return path;
     }
 
     public static IProject create(IProject project)
     {
+        project.getFullPath().toFile().mkdirs();
+
         return (IProject) adapt(project);
     }
 
     public static IFile create(IFile file)
     {
+        //todo
         return (IFile) adapt(file);
     }
 
-    public static IFolder create(IFolder folder)
+    public static IFolder create(IFolder folder) throws IOException
     {
+        folder.create(true,true);
         return (IFolder) adapt(folder);
     }
 
@@ -150,6 +156,7 @@ public class ResourceAdapterFactory
     {
         if (resource == null)
         {
+
             return resource;
         }
 

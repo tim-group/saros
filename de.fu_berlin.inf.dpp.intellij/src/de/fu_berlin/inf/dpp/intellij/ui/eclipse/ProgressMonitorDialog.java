@@ -24,10 +24,13 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 
 import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
+
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -36,8 +39,9 @@ import java.lang.reflect.InvocationTargetException;
  * Time: 18:44
  */
 
-public class ProgressMonitorDialog   extends JDialog
+public class ProgressMonitorDialog extends JDialog
 {
+    private Logger log = Logger.getLogger(ProgressMonitorDialog.class);
 
     public ProgressMonitorDialog(Container cont)
     {
@@ -48,9 +52,22 @@ public class ProgressMonitorDialog   extends JDialog
         return null;
     }
 
-    public void run(boolean b1, boolean b2, IRunnableWithProgress progress)  throws InvocationTargetException, InterruptedException
+    public void run(boolean b1, boolean b2, final IRunnableWithProgress progress) throws InvocationTargetException, InterruptedException
     {
-        //todo
-        System.out.println("ProgressMonitorDialog.run //todo");
+
+        //ThreadUtils.runSafeAsync(log,progress);
+
+        final SarosProgressMonitor monitor = new SarosProgressMonitor("File recovery");
+        monitor.startAutoincrement();
+
+//        new Thread(new Runnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                progress.run(monitor);
+//            }
+//        }).start();
+        progress.run(monitor);
     }
 }

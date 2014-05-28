@@ -30,8 +30,13 @@ import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.Job;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
@@ -400,78 +405,57 @@ public class CollaborationUtils
             }
         }
 
-        if (false)
+
+        List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
+
+        for (Entry<IProject, Set<IResource>> entry : projectsResources
+                .entrySet())
         {
-            //we do not send additional resources for single files
 
-            List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
+            IProject project = entry.getKey();
+            Set<IResource> resources = entry.getValue();
 
-            for (Entry<IProject, Set<IResource>> entry : projectsResources
-                    .entrySet())
+            if (resources == //* full shared *//*
+                    null)
             {
+                continue;
+            }
 
-                IProject project = entry.getKey();
-                Set<IResource> resources = entry.getValue();
-
-                if (resources == //* full shared *//*
-                        null)
-                {
-                    continue;
-                }
-
-                additionalFilesForPartialSharing.clear();
+            additionalFilesForPartialSharing.clear();
 
             /*
              * we need this file otherwise creating a new project on the remote
              * will produce garbage because the project nature is not set /
              * updated correctly
              */
-                IFile projectFile = project.getFile(".project");
-
-                if (projectFile.exists())
+            IFolder projectFolder = new FolderImp((ProjectImp) project, project.getFullPath().toFile());
+            for (IResource pFile : projectFolder.members(IResource.FILE))
+            {
+                String sFileName = pFile.getName().toLowerCase();
+                if (sFileName.endsWith(".iml")
+                        || sFileName.endsWith(".iws")
+                        || sFileName.endsWith(".prj"))
                 {
-                    additionalFilesForPartialSharing.add(projectFile);
+                    additionalFilesForPartialSharing.add(pFile);
                 }
+            }
 
-                // do not include them, this is causing malfunctions if developers
-                // do
-                // not use variables in their classpath but absolute paths.
 
-                // IFile classpathFile = project.getFile(".classpath");
-
-                // if (classpathFile.exists())
-                // additionalFilesForPartialSharing.add(classpathFile);
-
-            /*
-             * FIXME adding files from this folder may "corrupt" a lot of remote
-             * files. The byte content will not be corrupted, but the document
-             * provider (editor) will fail to render the file input correctly. I
-             * think we should negotiate the project encodings and forbid
-             * further proceeding if they do not match ! The next step should be
-             * to also transmit the encoding in FileActivites, because it is
-             * possible to change the encoding of files independently of the
-             * project encoding settings.
-             */
-
-                IFolder settingsFolder = project.getFolder(".settings");
-
-           /* if (settingsFolder.exists() *//* remove to execute block *//*&& false) {
-
-                additionalFilesForPartialSharing.add(settingsFolder);
-
-                try {
-                    for (IResource resource : settingsFolder.members()) {
-                        // TODO are sub folders possible ?
-                        if (resource.getType() == IResource.FILE)
-                            additionalFilesForPartialSharing.add(resource);
-                    }
-                } catch (Exception e) {
+            IFolder settingsFolder = project.getFolder(".idea");
+            if (settingsFolder != null && settingsFolder.exists())
+            {
+                try
+                {
+                    addRecursively(additionalFilesForPartialSharing, settingsFolder);
+                }
+                catch (Exception e)
+                {
                     LOG.warn("could not read the contents of the settings folder", e);
                 }
-            }*/
-
-                resources.addAll(additionalFilesForPartialSharing);
             }
+
+            resources.addAll(additionalFilesForPartialSharing);
+
         }
 
         HashMap<IProject, List<IResource>> resources = new HashMap<IProject, List<IResource>>();
@@ -482,6 +466,24 @@ public class CollaborationUtils
         }
 
         return resources;
+    }
+
+    private static void addRecursively(List<IResource> fileList, IResource resource) throws Exception
+    {
+
+        if (resource.getType() == IResource.FILE)
+        {
+            fileList.add(resource);
+        }
+        if (resource.getType() == IResource.FOLDER)
+        {
+            fileList.add(resource);
+            for (IResource myResource : ((FolderImp) resource).members())
+            {
+                addRecursively(fileList, myResource);
+            }
+        }
+
     }
 
     private static String format(long size)

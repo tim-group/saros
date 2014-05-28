@@ -260,8 +260,9 @@ public class RemoteProgressManager
         }
     };
 
-    protected AbstractActivityProvider activityProvider = new AbstractActivityProvider()
+    protected AbstractActivityProducerAndConsumer activityProvider = new AbstractActivityProducerAndConsumer()
     {
+
         @Override
         public void exec(IActivity activity)
         {
@@ -292,7 +293,7 @@ public class RemoteProgressManager
         {
             sarosSession = newSharedProject;
 
-            newSharedProject.addActivityProvider(activityProvider);
+            newSharedProject.addActivityProducerAndConsumer(activityProvider);
             newSharedProject.addListener(sharedProjectListener);
         }
 
@@ -300,7 +301,7 @@ public class RemoteProgressManager
         public void sessionEnded(ISarosSession oldSarosSession)
         {
 
-            oldSarosSession.removeActivityProvider(activityProvider);
+            oldSarosSession.removeActivityProducerAndConsumer(activityProvider);
             oldSarosSession.removeListener(sharedProjectListener);
             for (RemoteProgress progress : progressDialogs.values())
             {

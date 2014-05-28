@@ -53,6 +53,8 @@ public interface IPath {
 
     public IPath addFileExtension(String extension);
 
+    public String getFileExtension();
+
     public IPath removeFileExtension();
 
     public IPath makeAbsolute();

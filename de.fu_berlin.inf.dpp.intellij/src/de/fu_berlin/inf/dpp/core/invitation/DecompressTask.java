@@ -22,12 +22,12 @@
 
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
+import de.fu_berlin.inf.dpp.filesystem.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
@@ -36,6 +36,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -49,6 +50,8 @@ public class DecompressTask implements IWorkspaceRunnable
     private final ZipInputStream in;
     private final IProgressMonitor monitor;
     private final IProject project;
+
+    private List<String> preventExt = Arrays.asList(new String[]{"iml", "ipr", "iws"});
 
     @Inject
     private IPathFactory pathFactory;
@@ -123,13 +126,14 @@ public class DecompressTask implements IWorkspaceRunnable
 
                 if (!file.exists())
                 {
-                    file.create(uncloseable, true
-                    );
+                    file.create(uncloseable, true);
                 }
                 else
                 {
-                    file.setContents(uncloseable, true, true
-                    );
+                    if (!preventExt.contains(file.getFullPath().getFileExtension()))
+                    {
+                        file.setContents(uncloseable, true, true);
+                    }
                 }
 
                 if (LOG.isTraceEnabled())
@@ -175,12 +179,20 @@ public class DecompressTask implements IWorkspaceRunnable
 
         for (IFolder folder : parents)
         {
-            try {
+            try
+            {
                 folder.create(false, true);
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 throw new CoreException(e.getMessage(), e.getCause());
             }
         }
+    }
+
+    public void setPreventExt(String... extensions)
+    {
+        this.preventExt = Arrays.asList(extensions);
     }
 }
 

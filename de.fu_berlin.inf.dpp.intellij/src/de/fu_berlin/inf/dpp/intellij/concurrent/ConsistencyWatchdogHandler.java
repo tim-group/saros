@@ -156,6 +156,7 @@ public class ConsistencyWatchdogHandler implements Startable
                         public void run(IProgressMonitor monitor)
                         {
                             runRecovery(checksumError, monitor.convert(monitor));
+                           // monitor.done();
                         }
                     });
                 }
@@ -192,7 +193,8 @@ public class ConsistencyWatchdogHandler implements Startable
         try
         {
 
-            startHandles = sarosSession.getStopManager().stop(
+            //todo
+           startHandles = sarosSession.getStopManager().stop(
                     sarosSession.getUsers(), "Consistency recovery");
 
             progress.subTask("Sending files to client...");
@@ -207,7 +209,7 @@ public class ConsistencyWatchdogHandler implements Startable
             progress.subTask("Wait for peers...");
 
             // find the StartHandle of the inconsistent user
-            StartHandle inconsistentStartHandle = null;
+          /*  StartHandle inconsistentStartHandle = null;
             for (StartHandle startHandle : startHandles)
             {
                 if (checksumError.getSource().equals(startHandle.getUser()))
@@ -226,7 +228,7 @@ public class ConsistencyWatchdogHandler implements Startable
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
                 startHandles.remove(inconsistentStartHandle);
-            }
+            }*/
         }
         finally
         {

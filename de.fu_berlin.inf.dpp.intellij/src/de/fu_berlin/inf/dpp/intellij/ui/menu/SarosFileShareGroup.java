@@ -39,6 +39,7 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.IconManager;
 import de.fu_berlin.inf.dpp.net.JID;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +59,7 @@ import java.util.List;
 
 public class SarosFileShareGroup extends ActionGroup
 {
-
+    private static Logger log = Logger.getLogger(SarosFileShareGroup.class);
 
     public void actionPerformed(AnActionEvent e)
     {
@@ -69,13 +70,21 @@ public class SarosFileShareGroup extends ActionGroup
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e)
     {
-        if (!Saros.isInitialized()
+        if (e == null || !Saros.isInitialized()
                 || Saros.instance().getSessionManager().getSarosSession() != null)
         {
             return new AnAction[0];
         }
         else
         {
+            VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+            Project project = e.getData(CommonDataKeys.PROJECT);
+            if (virtualFile == null || project == null
+                    || virtualFile.equals(project.getBaseDir()))
+            {
+                return new AnAction[0];
+            }
+
             List<AnAction> list = new ArrayList<AnAction>();
             for (JID user : Saros.instance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers())
             {
@@ -86,6 +95,7 @@ public class SarosFileShareGroup extends ActionGroup
         }
 
     }
+
 
     public class ShareWithUser extends AnAction
     {
@@ -106,9 +116,6 @@ public class SarosFileShareGroup extends ActionGroup
         {
             VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
 
-            System.out.println("SarosFileShareGroup.actionPerformed " + virtFile);
-
-
             try
             {
                 File file = new File(virtFile.getPath());
@@ -121,7 +128,7 @@ public class SarosFileShareGroup extends ActionGroup
                 {
                     //check if it is a real project
                     FolderImp resFolder = new FolderImp(project, file);
-                    if (resFolder.getFullPath().segmentCount() - 1 == project.getFullPath().segmentCount())
+                    if (resFolder.getFullPath().segmentCount() == project.getFullPath().segmentCount())
                     {
                         project.refreshLocal();
                         resources.add(project);
@@ -142,17 +149,16 @@ public class SarosFileShareGroup extends ActionGroup
 
                 List<JID> contacts = Arrays.asList(userJID);
 
-                System.out.println("ShareProjectAction.actionPerformed START U=" + contacts + " P=" + resources);
-
                 CollaborationUtils.startSession(resources, contacts);
 
 
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                log.trace(e1.getMessage(), e1);
             }
         }
+
 
         /**
          * Loads all down tree resourced
@@ -178,6 +184,7 @@ public class SarosFileShareGroup extends ActionGroup
             }
 
         }
+
 
         /**
          * Load folders between project and file
@@ -213,7 +220,14 @@ public class SarosFileShareGroup extends ActionGroup
             Project p = Saros.instance().getProject();
             IPath basePath = new PathImp(p.getBasePath());
             IPath resourcePath = new PathImp(resource);
-            String moduleName = resourcePath.segments()[basePath.segmentCount()];
+            String[] resourceSegments = resourcePath.segments();
+            int nameIndex = basePath.segmentCount();
+            if (nameIndex >= resourceSegments.length)
+            {
+                nameIndex = --nameIndex;
+            }
+
+            String moduleName = resourceSegments[nameIndex];
             basePath = basePath.append(moduleName);
 
             return new ProjectImp(moduleName, basePath.toFile());

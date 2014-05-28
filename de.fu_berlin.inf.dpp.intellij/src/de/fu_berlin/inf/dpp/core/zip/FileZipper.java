@@ -182,6 +182,8 @@ public class FileZipper
 
                 zipStream.putNextEntry(new ZipEntry(entryName));
 
+
+
                 InputStream in = null;
 
                 try

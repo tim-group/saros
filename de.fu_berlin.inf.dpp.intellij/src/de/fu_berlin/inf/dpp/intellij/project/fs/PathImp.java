@@ -161,6 +161,17 @@ public class PathImp implements IPath, Comparable<PathImp>
         return new PathImp(path);
     }
 
+    public String getFileExtension()
+    {
+        String path = _path;
+        if (path.contains("."))
+        {
+            path = path.substring(path.lastIndexOf("."));
+        }
+
+        return path;
+    }
+
     @Override
     public IPath makeAbsolute()
     {

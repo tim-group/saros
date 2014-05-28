@@ -721,9 +721,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     public synchronized boolean localCancel(String errorMsg,
             CancelOption cancelOption)
     {
-        System.out.println("IncomingProjectNegotiation.localCancel");
-//        if(true)
-//        throw new RuntimeException("Why??????????????????????");
 
         if (!super.localCancel(errorMsg, cancelOption))
         {

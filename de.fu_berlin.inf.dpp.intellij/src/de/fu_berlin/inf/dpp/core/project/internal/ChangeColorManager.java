@@ -45,7 +45,7 @@ import java.util.*;
  * @author Stefan Rossbach
  */
 @Component(module = "core")
-public class ChangeColorManager extends AbstractActivityProvider implements
+public class ChangeColorManager extends AbstractActivityProducerAndConsumer implements
         Startable
 {
 
@@ -173,14 +173,14 @@ public class ChangeColorManager extends AbstractActivityProvider implements
 
         }
 
-        sarosSession.addActivityProvider(this);
+        sarosSession.addActivityProducerAndConsumer(this);
         sarosSession.addListener(sessionListener);
     }
 
     @Override
     public synchronized void stop()
     {
-        sarosSession.removeActivityProvider(this);
+        sarosSession.removeActivityProducerAndConsumer(this);
         sarosSession.removeListener(sessionListener);
     }
 

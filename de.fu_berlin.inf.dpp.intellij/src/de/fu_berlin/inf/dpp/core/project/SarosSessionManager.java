@@ -22,6 +22,21 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
+import com.intellij.ide.highlighter.ModuleFileType;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.module.ModifiableModuleModel;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.StdModuleTypes;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.roots.LanguageLevelModuleExtension;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleRootModificationUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.testFramework.IdeaTestUtil;
+import com.intellij.testFramework.PsiTestUtil;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.invitation.*;
@@ -35,6 +50,7 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.internal.SarosSession;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
 import de.fu_berlin.inf.dpp.net.IConnectionListener;
@@ -892,13 +908,40 @@ public class SarosSessionManager implements ISarosSessionManager
     public void projectAdded(String projectID)
     {
 
-       IProject p = getSarosSession().getProject(projectID);
-
-        System.out.println("SarosSessionManager.projectAdded "+projectID+"->"+p);
+        IProject p = getSarosSession().getProject(projectID);
 
         try
         {
             p.refreshLocal(); //todo
+
+           try
+            {
+                //ProjectManager.getInstance().createProject(p.getFullPath().toString(), p.getName());
+            //    String imlName = p.getFullPath() + "/" + p.getName() + ModuleFileType.DOT_DEFAULT_EXTENSION;
+            //    final Module module = ModuleManager.getInstance(Saros.instance().getProject()).newModule(imlName, p.getName());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+
+
+           /* try
+            {
+                ModuleManager moduleManager = ModuleManager.getInstance(Saros.instance().getProject());
+                final ModifiableModuleModel moduleModel = moduleManager.getModifiableModel();
+                String moduleFilePath = p.getFullPath() + "/" + p.getName() + ModuleFileType.DOT_DEFAULT_EXTENSION;
+                moduleModel.newModule(moduleFilePath, StdModuleTypes.JAVA.getId());
+                moduleModel.commit();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }*/
+
+
+            LocalFileSystem.getInstance().refresh(true);
         }
         catch (IOException e)
         {
@@ -919,6 +962,37 @@ public class SarosSessionManager implements ISarosSessionManager
             }
         }
     }
+
+    /*protected Module addModule(final String name, final boolean withSource)
+    {
+        return new WriteCommandAction<Module>(getProject())
+        {
+            @Override
+            protected void run(Result<Module> result) throws Throwable
+            {
+                final VirtualFile depRoot = myFixture.getTempDirFixture().findOrCreateDir(name);
+
+                final ModifiableModuleModel moduleModel = ModuleManager.getInstance(getProject()).getModifiableModel();
+                String moduleName = moduleModel.newModule(depRoot.getPath() + "/" + name + ".iml", StdModuleTypes.JAVA.getId()).getName();
+                moduleModel.commit();
+
+//                final Module dep = ModuleManager.getInstance(getProject()).findModuleByName(moduleName);
+//                ModuleRootModificationUtil.setModuleSdk(dep, ModuleRootManager.getInstance(myModule).getSdk());
+//                if (withSource)
+//                {
+//                    PsiTestUtil.addSourceRoot(dep, depRoot);
+//                }
+//                else
+//                {
+//                    PsiTestUtil.addContentRoot(dep, depRoot);
+//                }
+//                IdeaTestUtil.setModuleLanguageLevel(dep, LanguageLevelModuleExtension.getInstance(myModule).getLanguageLevel());
+
+                result.setResult(dep);
+            }
+        }.execute().getResultObject();
+    }*/
+
 
     private boolean terminateNegotiationProcesses()
     {
