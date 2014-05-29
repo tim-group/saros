@@ -393,7 +393,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducerAndConsum
         }
         finally
         {
-            monitor.done();
+            monitor.getMain().done();
             lock.unlock();
         }
     }
