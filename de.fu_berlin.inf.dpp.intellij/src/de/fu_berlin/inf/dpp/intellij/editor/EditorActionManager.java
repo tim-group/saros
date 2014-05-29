@@ -78,6 +78,7 @@ public class EditorActionManager
         this.selectionListener = new StoppableSelectionListener(manager);
         this.viewportListener = new StoppableViewPortListener(manager);
 
+
         if (this.editorAPI.editorFileManager != null)
         {
             this.editorAPI.editorFileManager.addFileEditorManagerListener(this.fileListener);

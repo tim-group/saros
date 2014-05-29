@@ -209,7 +209,7 @@ public class ConsistencyWatchdogHandler implements Startable
             progress.subTask("Wait for peers...");
 
             // find the StartHandle of the inconsistent user
-          /*  StartHandle inconsistentStartHandle = null;
+            StartHandle inconsistentStartHandle = null;
             for (StartHandle startHandle : startHandles)
             {
                 if (checksumError.getSource().equals(startHandle.getUser()))
@@ -228,7 +228,7 @@ public class ConsistencyWatchdogHandler implements Startable
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
                 startHandles.remove(inconsistentStartHandle);
-            }*/
+            }
         }
         finally
         {
@@ -239,7 +239,7 @@ public class ConsistencyWatchdogHandler implements Startable
                     startHandle.start();
                 }
             }
-            progress.done();
+            progress.getMain().done();
         }
     }
 
