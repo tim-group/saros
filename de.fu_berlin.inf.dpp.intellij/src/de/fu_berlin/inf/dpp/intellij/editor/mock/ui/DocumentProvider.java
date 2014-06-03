@@ -23,14 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.editor.mock.ui;
 
 
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Document;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
@@ -42,46 +38,35 @@ import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
  * Time: 11:08
  */
 
-public class DocumentProvider implements IDocumentProvider
-{
+public class DocumentProvider implements IDocumentProvider {
 
 
     @Override
-    public IDocument getDocument(IEditorInput input)
-    {
-        //todo
-        System.out.println("DocumentProvider.getDocument //todo Name="+input.getFile());
+    public IDocument getDocument(IEditorInput input) {
 
-        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
-        System.out.println("DocumentProvider.getDocument>>>"+vf);
+        EditorAPI api = new EditorAPI(Saros.instance().getProject());
 
-        PsiFile pf = PsiManager.getInstance(Saros.instance().getProject()).findFile(vf);
-
-        return new Document( pf.getViewProvider().getDocument());
+        return new Document(api.getDocument(input.getFile().toFile()));
     }
 
     @Override
-    public void addElementStateListener(IElementStateListener listener)
-    {
+    public void addElementStateListener(IElementStateListener listener) {
         System.out.println("DocumentProvider.addElementStateListener //todo");
     }
 
     @Override
-    public void removeElementStateListener(IElementStateListener listener)
-    {
+    public void removeElementStateListener(IElementStateListener listener) {
         System.out.println("DocumentProvider.removeElementStateListener //todo");
     }
 
     @Override
-    public IAnnotationModel getAnnotationModel(IEditorInput input)
-    {
+    public IAnnotationModel getAnnotationModel(IEditorInput input) {
         System.out.println("DocumentProvider.getAnnotationModel //todo");
         return null;
     }
 
     @Override
-    public void disconnect(IEditorInput input)
-    {
+    public void disconnect(IEditorInput input) {
         System.out.println("DocumentProvider.disconnect //todo");
 //        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
 //        System.out.println("DocumentProvider.disconnect>>>"+vf+" exist="+vf.exists());
@@ -89,8 +74,7 @@ public class DocumentProvider implements IDocumentProvider
     }
 
     @Override
-    public void connect(IEditorInput input) throws CoreException
-    {
+    public void connect(IEditorInput input) throws CoreException {
         System.out.println("DocumentProvider.connect //todo");
 //
 //        VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(input.getFile().toFile());
@@ -101,14 +85,12 @@ public class DocumentProvider implements IDocumentProvider
     }
 
     @Override
-    public boolean canSaveDocument(IEditorInput input)
-    {
+    public boolean canSaveDocument(IEditorInput input) {
         return false;
     }
 
     @Override
-    public void saveDocument(IProgressMonitor monitor, IEditorInput input, IDocument doc, boolean b) throws CoreException
-    {
+    public void saveDocument(IProgressMonitor monitor, IEditorInput input, IDocument doc, boolean b) throws CoreException {
         System.out.println("DocumentProvider.saveDocument //todo");
     }
 }
