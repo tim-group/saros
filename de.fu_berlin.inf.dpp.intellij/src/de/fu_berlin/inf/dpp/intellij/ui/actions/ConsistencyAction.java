@@ -244,8 +244,15 @@ public class ConsistencyAction extends AbstractSarosAction
             @Override
             public void finished()
             {
-                consistencyButton.setEnabled(true);
-                consistencyButton.setInconsistent(watchdogClient.getPathsWithWrongChecksums().size()>0);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        consistencyButton.setEnabled(true);
+                        consistencyButton.setInconsistent(watchdogClient.getPathsWithWrongChecksums().size()>0);
+                    }
+                });
+
+
             }
         });
 
