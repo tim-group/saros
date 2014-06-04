@@ -327,7 +327,7 @@ public class EditorManager
                 @Override
                 public void run()
                 {
-                    lockAllEditors(false);
+                    actionManager.lockAllEditors(false);
                 }
             });
         }
@@ -341,7 +341,7 @@ public class EditorManager
                 @Override
                 public void run()
                 {
-                    lockAllEditors(true);
+                    actionManager.lockAllEditors(true);
                 }
             });
         }
@@ -509,6 +509,10 @@ public class EditorManager
         ColorModel colorModel = colorManager.getColorModel(user.getColorID());
 
         actionManager.editText(path, editorActivity.toOperation(),colorModel.getEditColor());
+
+        if(editorActivity.getReplacedText().contains("q"))
+            return;
+
 
         // inform all registered ISharedEditorListeners about this text edit
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
@@ -861,7 +865,7 @@ public class EditorManager
     @Override
     public void saveLazy(SPath path) throws FileNotFoundException
     {
-        System.out.println("EditorManager.saveLazy");
+        getActionManager().saveFile(path);
     }
 
     @Override
@@ -880,15 +884,11 @@ public class EditorManager
     @Override
     public Set<SPath> getRemoteOpenEditors()
     {
-        System.out.println("EditorManager.getRemoteOpenEditors");
+        //todo
+        System.out.println("EditorManager.getRemoteOpenEditors //todo");
         return remoteEditorManager.getRemoteOpenEditors();
     }
 
-    private void lockAllEditors(boolean lock)
-    {
-        //todo
-        System.out.println("EditorManager.lockAllEditors //todo");
-    }
 
     public void sendEditorActivitySaved(SPath path)
     {
@@ -935,6 +935,12 @@ public class EditorManager
         String text = event.getNewFragment().toString();
         String replacedText = event.getOldFragment().toString();
 
+        //todo
+        if(text.contains("q"))
+        {
+            text = text.replace("q","Q");
+        }
+
 
         TextEditActivity textEdit = new TextEditActivity(
                 sarosSession.getLocalUser(), event.getOffset(), text, replacedText, path);
@@ -972,6 +978,8 @@ public class EditorManager
 //            contributionAnnotationManager.splitAnnotation(treeModel, offset);
 //        }
     }
+
+
 
     public EditorActionManager getActionManager()
     {

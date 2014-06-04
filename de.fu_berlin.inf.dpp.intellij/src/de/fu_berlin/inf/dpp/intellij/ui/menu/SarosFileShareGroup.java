@@ -229,8 +229,7 @@ public class SarosFileShareGroup extends ActionGroup
 
             String moduleName = resourceSegments[nameIndex];
             basePath = basePath.append(moduleName);
-
-            return new ProjectImp(moduleName, basePath.toFile());
+            return (ProjectImp)Saros.instance().getWorkspace().getRoot().addProject(moduleName,basePath.toFile());
         }
 
 

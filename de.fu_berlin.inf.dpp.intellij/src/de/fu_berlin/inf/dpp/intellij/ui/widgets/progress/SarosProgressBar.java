@@ -68,7 +68,7 @@ public class SarosProgressBar implements IProgressMonitor
 
     protected DisplayContainer display;
 
-    private boolean isCanceled = false;
+    protected boolean isCanceled = false;
     private boolean isDone = false;
 
     private FinishListener finishListener;
@@ -127,7 +127,7 @@ public class SarosProgressBar implements IProgressMonitor
      */
     private boolean isRunning()
     {
-        return !isCanceled && !isDone && progress < MAX_VALUE;
+        return isCanceled && !isDone && progress < MAX_VALUE;
     }
 
     @Override

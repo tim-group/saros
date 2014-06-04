@@ -42,7 +42,6 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
@@ -56,8 +55,7 @@ import java.io.File;
  * Time: 12:20
  */
 
-public class EditorAPI extends EditorAPIBridge
-{
+public class EditorAPI extends EditorAPIBridge {
 
     private ProjectManager projectManager;
     private LocalFileSystem localFileSystem;
@@ -73,61 +71,49 @@ public class EditorAPI extends EditorAPIBridge
     private PsiDocumentManager psiDocumentManager;
     private VirtualFileManager virtualFileManager;
 
-    public EditorAPI()
-    {
+    public EditorAPI() {
         Project project = Saros.instance().getProject();
         setProject(project);
     }
 
-    public EditorAPI(Project project)
-    {
+    public EditorAPI(Project project) {
         setProject(project);
     }
 
-    public VirtualFile toVirtualFile(SPath path)
-    {
+    public VirtualFile toVirtualFile(SPath path) {
         return toVirtualFile(path.getFile().toFile());
     }
 
-    public VirtualFile toVirtualFile(File path)
-    {
-       return localFileSystem.refreshAndFindFileByIoFile(path);
+    public VirtualFile toVirtualFile(File path) {
+        return localFileSystem.refreshAndFindFileByIoFile(path);
     }
 
-    public boolean isOpen(VirtualFile file)
-    {
+    public boolean isOpen(VirtualFile file) {
         return editorFileManager.isFileOpen(file);
     }
 
-    public boolean isOpen(Document doc)
-    {
+    public boolean isOpen(Document doc) {
         VirtualFile file = fileDocumentManager.getFile(doc);
-         return isOpen(file);
+        return isOpen(file);
     }
 
-    class EditorContainer
-    {
+    class EditorContainer {
         Editor editor;
     }
 
-    public Editor openEditor(final VirtualFile path)
-    {
+    public Editor openEditor(final VirtualFile path) {
         // editorFileManager.openFile(path, true);
         // return editorFileManager.getSelectedTextEditor();
 
         final EditorContainer result = new EditorContainer();
 
-        Runnable action = new Runnable()
-        {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
-                application.runReadAction(new Runnable()
-                {
+                application.runReadAction(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         editorFileManager.openFile(path, true);
 
                         result.editor = editorFileManager.getSelectedTextEditor();
@@ -144,8 +130,7 @@ public class EditorAPI extends EditorAPIBridge
 
     }
 
-    public Document createDocument(VirtualFile path)
-    {
+    public Document createDocument(VirtualFile path) {
         return fileDocumentManager.getDocument(path);
     }
 
@@ -155,15 +140,12 @@ public class EditorAPI extends EditorAPIBridge
 
     }*/
 
-    public void closeEditor(final VirtualFile file)
-    {
+    public void closeEditor(final VirtualFile file) {
         // editorFileManager.addFileEditorManagerListener(); //todo
 
-        Runnable action = new Runnable()
-        {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 editorFileManager.closeFile(file);
             }
         };
@@ -171,39 +153,31 @@ public class EditorAPI extends EditorAPIBridge
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public Document getDocument(final File file)
-    {
+    public Document getDocument(final File file) {
+
         return fileDocumentManager.getDocument(toVirtualFile(file));
     }
 
-    public Document getDocument(final VirtualFile file)
-    {
+    public Document getDocument(final VirtualFile file) {
         return fileDocumentManager.getDocument(file);
     }
 
-    public void closeEditor(Document doc)
-    {
+    public void closeEditor(Document doc) {
         VirtualFile file = fileDocumentManager.getFile(doc);
         closeEditor(file);
     }
 
-    public Editor getActiveEditor()
-    {
+    public Editor getActiveEditor() {
         return editorFileManager.getSelectedTextEditor();
     }
 
-    public void saveDocument(final Document doc)
-    {
-        application.invokeLater(new Runnable()
-        {
+    public void saveDocument(final Document doc) {
+        application.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
-                application.runWriteAction(new Runnable()
-                {
+            public void run() {
+                application.runWriteAction(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         fileDocumentManager.saveDocument(doc);
                     }
                 });
@@ -212,21 +186,31 @@ public class EditorAPI extends EditorAPIBridge
 
     }
 
+
+    public void reloadFromDisk(final Document doc) {
+        application.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                application.runReadAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        fileDocumentManager.reloadFromDisk(doc);
+                    }
+                });
+            }
+        });
+    }
+
     /**
      * @param doc
      */
-    public void saveAllDocuments(Document doc)
-    {
-        application.invokeLater(new Runnable()
-        {
+    public void saveAllDocuments(Document doc) {
+        application.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
-                application.runWriteAction(new Runnable()
-                {
+            public void run() {
+                application.runWriteAction(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         fileDocumentManager.saveAllDocuments();
                     }
                 });
@@ -240,14 +224,11 @@ public class EditorAPI extends EditorAPIBridge
      * @param lineStart
      * @param lineEnd
      */
-    public void setViewPort(final Editor editor, final int lineStart, final int lineEnd)
-    {
+    public void setViewPort(final Editor editor, final int lineStart, final int lineEnd) {
 
-        Runnable action = new Runnable()
-        {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                 VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, 0);
                 editor.getCaretModel().moveToVisualPosition(posCenter);
@@ -259,23 +240,16 @@ public class EditorAPI extends EditorAPIBridge
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void insertText(final Document doc, final int position, final String text)
-    {
-        Runnable action = new Runnable()
-        {
+    public void insertText(final Document doc, final int position, final String text) {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
-                commandProcessor.executeCommand(project, new Runnable()
-                {
+            public void run() {
+                commandProcessor.executeCommand(project, new Runnable() {
                     @Override
-                    public void run()
-                    {
-                        application.runWriteAction(new Runnable()
-                        {
+                    public void run() {
+                        application.runWriteAction(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 doc.insertString(position, text);
                             }
                         });
@@ -287,10 +261,29 @@ public class EditorAPI extends EditorAPIBridge
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color)
-    {
-        if (color == null || editor == null)
-        {
+    public void setText(final Document doc, final String text) {
+        Runnable action = new Runnable() {
+            @Override
+            public void run() {
+                commandProcessor.executeCommand(project, new Runnable() {
+                    @Override
+                    public void run() {
+                        application.runWriteAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                doc.setText(text);
+                            }
+                        });
+                    }
+                }, "setText()", commandProcessor.getCurrentCommandGroupId());
+            }
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(action);
+    }
+
+    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color) {
+        if (color == null || editor == null) {
             return null;
         }
 
@@ -305,33 +298,24 @@ public class EditorAPI extends EditorAPIBridge
         return highlighter;
     }
 
-    public void textMarkRemove(final Editor editor,RangeHighlighter highlighter)
-    {
-        if(editor==null || highlighter==null)
-        {
+    public void textMarkRemove(final Editor editor, RangeHighlighter highlighter) {
+        if (editor == null || highlighter == null) {
             return;
         }
 
         editor.getMarkupModel().removeHighlighter(highlighter);
     }
 
-    public void deleteText(final Document doc, final int start, final int end)
-    {
-        Runnable action = new Runnable()
-        {
+    public void deleteText(final Document doc, final int start, final int end) {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
-                commandProcessor.executeCommand(project, new Runnable()
-                {
+            public void run() {
+                commandProcessor.executeCommand(project, new Runnable() {
                     @Override
-                    public void run()
-                    {
-                        application.runWriteAction(new Runnable()
-                        {
+                    public void run() {
+                        application.runWriteAction(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 doc.deleteString(start, end);
                             }
                         });
@@ -343,56 +327,14 @@ public class EditorAPI extends EditorAPIBridge
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void setSelection(final Editor editor, final int start, final int end,ColorModel colorMode)
-    {
+    public void setSelection(final Editor editor, final int start, final int end, ColorModel colorMode) {
 
-        Runnable action = new Runnable()
-        {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
-                application.runReadAction(new Runnable()
-                {
+            public void run() {
+                application.runReadAction(new Runnable() {
                     @Override
-                    public void run()
-                    {
-                        //set selection
-                        editor.getSelectionModel().setSelection(start, end);
-
-                        //move scroll
-                        int lineStart = editor.getSelectionModel().getSelectionStartPosition().getLine();
-                        int lineEnd = editor.getSelectionModel().getSelectionEndPosition().getLine();
-
-                        int colStart = editor.getSelectionModel().getSelectionStartPosition().getColumn();
-                        int colEnd = editor.getSelectionModel().getSelectionEndPosition().getColumn();
-
-                        VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
-                        editor.getCaretModel().moveToVisualPosition(posCenter);
-                        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
-
-                        //move cursor
-                        editor.getCaretModel().moveToOffset(start, true);
-                    }
-                });
-            }
-        };
-
-        UIUtil.invokeAndWaitIfNeeded(action);
-
-    }
-    public void _setSelection(final Editor editor, final int start, final int end)
-    {
-        Runnable action = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                application.runReadAction(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-
+                    public void run() {
                         //set selection
                         editor.getSelectionModel().setSelection(start, end);
 
@@ -418,20 +360,53 @@ public class EditorAPI extends EditorAPIBridge
 
     }
 
-    public ModuleManager getModuleManager()
-    {
+    public void _setSelection(final Editor editor, final int start, final int end) {
+        Runnable action = new Runnable() {
+            @Override
+            public void run() {
+                application.runReadAction(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        //set selection
+                        editor.getSelectionModel().setSelection(start, end);
+
+                        //move scroll
+                        int lineStart = editor.getSelectionModel().getSelectionStartPosition().getLine();
+                        int lineEnd = editor.getSelectionModel().getSelectionEndPosition().getLine();
+
+                        int colStart = editor.getSelectionModel().getSelectionStartPosition().getColumn();
+                        int colEnd = editor.getSelectionModel().getSelectionEndPosition().getColumn();
+
+                        VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
+                        editor.getCaretModel().moveToVisualPosition(posCenter);
+                        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+
+                        //move cursor
+                        editor.getCaretModel().moveToOffset(start, true);
+                    }
+                });
+            }
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(action);
+
+    }
+
+    public ModuleManager getModuleManager() {
         return moduleManager;
     }
 
-    public boolean isInitialized()
-    {
+    public boolean isInitialized() {
         return project != null;
     }
 
-    public void setProject(Project project)
-    {
-        if (project != null)
-        {
+    public FileDocumentManager getFileDocumentManager() {
+        return fileDocumentManager;
+    }
+
+    public void setProject(Project project) {
+        if (project != null) {
             this.project = project;
             this.editorFileManager = FileEditorManager.getInstance(project);
             this.psiManager = PsiManager.getInstance(project);
@@ -441,6 +416,7 @@ public class EditorAPI extends EditorAPIBridge
             this.virtualFileManager = VirtualFileManager.getInstance();
             this.projectManager = ProjectManager.getInstance();
             this.localFileSystem = LocalFileSystem.getInstance();
+
             this.application = ApplicationManager.getApplication();
             this.commandProcessor = CommandProcessor.getInstance();
             this.fileDocumentManager = FileDocumentManager.getInstance();

@@ -181,6 +181,21 @@ public class ProjectImp implements IProject
         }
     }
 
+    public void removeFile(File file)
+    {
+        if (file.isDirectory())
+        {
+            IFolder folder = new FolderImp(this, file);
+            folderMap.remove(folder);
+        }
+
+        if (file.isFile())
+        {
+            IFile myFile = new FileImp(this, file);
+            resourceMap.remove(myFile.getProjectRelativePath());
+        }
+    }
+
     @Override
     public IFile getFile(String name)
     {

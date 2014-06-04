@@ -169,7 +169,7 @@ public class Saros extends AbstractSaros
         // List<String> socsCandidates =new ArrayList<String>();
         //  socsCandidates.add("192.168.10.145");
         // connectionService.configure(Saros.NAMESPACE,Saros.RESOURCE,true,true,8888,socsCandidates,null,true,null,80,true);   //todo: set parameters from config
-        connectionService.configure(Saros.NAMESPACE, Saros.RESOURCE, true, false, 8888, null, null, true, null, 80, true);
+        connectionService.configure(Saros.NAMESPACE, Saros.RESOURCE, false, false, 8888, null, null, true, null, 80, true);
 
 
         this.isInitialized = true;

@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import de.fu_berlin.inf.dpp.core.project.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.core.workspace.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import org.apache.log4j.Logger;
@@ -38,85 +38,74 @@ import java.util.Map;
  * Time: 15.36
  */
 
-public class SchedulingRoot implements ISchedulingRoot
-{
+public class SchedulingRoot implements ISchedulingRoot {
     public static final Logger log = Logger.getLogger(SchedulingRoot.class);
 
     private File workspacePath;
     private Map<String, IProject> projects = new HashMap<String, IProject>();
 
-    public SchedulingRoot(File workspacePath)
-    {
+    public SchedulingRoot(File workspacePath) {
         this.workspacePath = workspacePath;
     }
 
-    protected SchedulingRoot()
-    {
+    protected SchedulingRoot() {
     }
 
 
     @Override
-    public IProject getProject(String project)
-    {
+    public IProject getProject(String project) {
 
         IProject prj = projects.get(project);
-        if (prj == null)
-        {
+        if (prj == null) {
             File fPrj = new File(this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR + project);
             ProjectImp myPrj = new ProjectImp(project, fPrj);
 
             addProject(myPrj);
 
             return myPrj;
-        }
-        else
-        {
+        } else {
             return prj;
         }
     }
 
-    public void addProject(IProject proj)
-    {
+    public void addProject(IProject proj) {
         this.projects.put(proj.getName(), proj);
     }
 
-    public ProjectImp addProject(String name, File path)
-    {
-        log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
-        ProjectImp prj = new ProjectImp(name, path);
+    public ProjectImp addProject(String name, File path) {
 
-        addProject(prj);
+        log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
+
+        ProjectImp prj = (ProjectImp) this.projects.get(name);
+        if (prj == null) {
+            prj = new ProjectImp(name, path);
+            addProject(prj);
+        }
 
         return prj;
     }
 
     @Override
-    public IProject getDefaultProject()
-    {
+    public IProject getDefaultProject() {
         return null;
     }
 
-    public IProject locateProject(IPath path)
-    {
+    public IProject locateProject(IPath path) {
         //calculate relative path
         String sPath = path.toFile().getAbsolutePath();
         String sWsPath = workspacePath.getAbsolutePath();
-        if (!sPath.startsWith(sWsPath))
-        {
+        if (!sPath.startsWith(sWsPath)) {
             return null;
         }
 
         String sPathRelative = sPath.substring(sWsPath.length()).toLowerCase();
-        if (sPathRelative.startsWith(File.separator))
-        {
+        if (sPathRelative.startsWith(File.separator)) {
             sPathRelative = sPathRelative.substring(1);
         }
 
 
-        for (String projectName : projects.keySet())
-        {
-            if (sPathRelative.startsWith(projectName.toLowerCase()))
-            {
+        for (String projectName : projects.keySet()) {
+            if (sPathRelative.startsWith(projectName.toLowerCase())) {
                 return projects.get(projectName);
             }
         }

@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import de.fu_berlin.inf.dpp.activities.SPath;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -37,72 +38,63 @@ import java.util.Set;
  * Time: 12:14
  */
 
-public class EditorPool
-{
+public class EditorPool {
     private Map<SPath, Editor> editors = new HashMap<SPath, Editor>();
     private Map<SPath, Document> documents = new HashMap<SPath, Document>();
     private Map<Document, SPath> files = new HashMap<Document, SPath>();
 
-    public EditorPool()
-    {
+    public EditorPool() {
     }
 
-    public void add(SPath file, Editor editor)
-    {
+    public void add(SPath file, Editor editor) {
         editors.put(file, editor);
         add(file, editor.getDocument());
     }
 
-    public void add(SPath file, Document document)
-    {
+    public void add(SPath file, Document document) {
         documents.put(file, document);
         files.put(document, file);
     }
 
-    public void remove(SPath file)
-    {
-        if (editors.containsKey(file))
-        {
+    public void remove(SPath file) {
+        if (editors.containsKey(file)) {
             editors.remove(file);
         }
 
         Document doc = null;
-        if (documents.containsKey(file))
-        {
+        if (documents.containsKey(file)) {
             doc = documents.remove(file);
         }
 
-        if (doc != null)
-        {
+        if (doc != null) {
             files.remove(doc);
         }
 
 
     }
 
-    public Document getDocument(SPath file)
-    {
+    public Collection<Document> getDocuments() {
+        return documents.values();
+    }
+
+    public Document getDocument(SPath file) {
         return documents.get(file);
     }
 
-    public Editor getEditor(SPath file)
-    {
+    public Editor getEditor(SPath file) {
         return editors.get(file);
     }
 
-    public SPath getFile(Document doc)
-    {
+    public SPath getFile(Document doc) {
         return files.get(doc);
     }
 
-    public Set<SPath> getFiles()
-    {
+    public Set<SPath> getFiles() {
         return documents.keySet();
 
     }
 
-    public void clear()
-    {
+    public void clear() {
         documents.clear();
         editors.clear();
         files.clear();

@@ -27,7 +27,7 @@ import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Document;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.Document;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IDocument;
 

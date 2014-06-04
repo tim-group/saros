@@ -81,6 +81,11 @@ public class SubProgressBar extends SarosProgressBar implements ISubMonitor
         return this;
     }
 
+    public boolean isCanceled()
+    {
+        return getMain()!=null? getMain().isCanceled() || isCanceled : isCanceled;
+    }
+
     @Override
     public void done()
     {

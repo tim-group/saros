@@ -78,7 +78,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
         SPath path = manager.getActionManager().toPath(virtualFile);
         if (path != null)
         {
-             manager.getActionManager().getEditorPool().remove(path);
+            // manager.getActionManager().getEditorPool().remove(path);
              manager.generateEditorClosed(path);
         }
     }

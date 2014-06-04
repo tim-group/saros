@@ -20,10 +20,11 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.mock.text;
+package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 
 import com.intellij.openapi.util.TextRange;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.BadLocationException;
+import de.fu_berlin.inf.dpp.intellij.editor.adapter.text.IDocument;
+
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -41,65 +42,36 @@ public class Document implements IDocument
         this.doc = doc;
     }
 
-    @Override
-    public void addDocumentListener(IDocumentListener listener)
-    {
-        System.out.println("Document.addDocumentListener //todo");
-    }
-
-    @Override
-    public void removeDocumentListener(IDocumentListener listener)
-    {
-        System.out.println("Document.removeDocumentListener //todo");
-    }
 
 
     @Override
-    public String get(int offset, int length) throws BadLocationException
+    public String get(int offset, int length)
     {
-        System.out.println("Document.get");
         return doc.getText(new TextRange(offset,offset+length));
-
     }
 
     @Override
     public String get()
     {
-        System.out.println("Document.get");
        return doc.getText();
     }
 
     @Override
-    public void replace(int offset, int length, String text) throws BadLocationException
+    public void replace(int offset, int length, String text)
     {
-        System.out.println("Document.replace>>>"+text);
-
         doc.replaceString(offset,offset+length,text);
     }
 
     @Override
     public int getLength()
     {
-        System.out.println("Document.getLength");
         return doc.getTextLength();
     }
 
     @Override
     public int getNumberOfLines()
     {
-        System.out.println("Document.getNumberOfLines");
         return doc.getLineCount();
     }
 
-    @Override
-    public int getLineOfOffset(int offset) throws BadLocationException
-    {
-        return 0;
-    }
-
-    @Override
-    public int getLineOffset(int top)
-    {
-        return 0;
-    }
 }

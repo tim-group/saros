@@ -24,13 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
-import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
-import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.JID;
 
@@ -49,8 +47,7 @@ import java.util.List;
  * Time: 08:35
  */
 
-class ContactPopMenu extends JPopupMenu
-{
+class ContactPopMenu extends JPopupMenu {
     protected Saros saros = Saros.instance();
 
     private ContactTree.ContactInfo contactInfo;
@@ -60,8 +57,7 @@ class ContactPopMenu extends JPopupMenu
     /**
      *
      */
-    public ContactPopMenu(ContactTree.ContactInfo contactInfo)
-    {
+    public ContactPopMenu(ContactTree.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
 
         editorApi = new EditorAPI(saros.getProject());
@@ -69,8 +65,7 @@ class ContactPopMenu extends JPopupMenu
         JMenu menuShareProject = new JMenu("Work together on...");
         menuShareProject.setIcon(IconManager.sessionsIcon);
 
-        if (saros.getProject() != null)
-        {
+        if (saros.getProject() != null) {
             JMenuItem projectItem = new JMenuItem(saros.getProject().getName());
             projectItem.addActionListener(new ShareProjectAction(saros.getProject()));
 
@@ -78,16 +73,13 @@ class ContactPopMenu extends JPopupMenu
 
             //add sub-projects
             Module[] modules = editorApi.getModuleManager().getModules();
-          //  if (modules.length > 0)
-            if(false)
-            {
+            //  if (modules.length > 0)
+            if (false) {
                 menuShareProject.addSeparator();
 
-                for (Module module : modules)
-                {
+                for (Module module : modules) {
 
-                    if (saros.getProject().getName().equalsIgnoreCase(module.getName()))
-                    {
+                    if (saros.getProject().getName().equalsIgnoreCase(module.getName())) {
                         continue;
                     }
 
@@ -97,16 +89,12 @@ class ContactPopMenu extends JPopupMenu
                     menuShareProject.add(projectItem);
                 }
 
-            }
-            else
-            {
+            } else {
                 //php mode: list of files and dirs
                 menuShareProject.addSeparator();
                 File dir = new File(saros.getProject().getBasePath());
-                for (File myDir : dir.listFiles())
-                {
-                    if (myDir.getName().startsWith(".") || myDir.isFile())
-                    {
+                for (File myDir : dir.listFiles()) {
+                    if (myDir.getName().startsWith(".") || myDir.isFile()) {
                         continue;
                     }
 
@@ -137,30 +125,25 @@ class ContactPopMenu extends JPopupMenu
     /**
      *
      */
-    private class ShareProjectAction implements ActionListener
-    {
+    private class ShareProjectAction implements ActionListener {
         private Project project;
         private Module module;
 
-        private ShareProjectAction(Module module)
-        {
+        private ShareProjectAction(Module module) {
             this.module = module;
         }
 
-        private ShareProjectAction(Project project)
-        {
+        private ShareProjectAction(Project project) {
             this.project = project;
         }
 
-        private ShareProjectAction(Project project, Module module)
-        {
+        private ShareProjectAction(Project project, Module module) {
             this.project = project;
             this.module = module;
         }
 
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
             String name = module == null ? project.getName() : module.getName();
             //  String path = module == null ? project.getBasePath() : module.getModuleFile().getParent().getPath();    //todo
             String path = module == null ? project.getBasePath() + "/TestProject" : module.getProject().getBasePath() + "/" + module.getName();
@@ -177,35 +160,29 @@ class ContactPopMenu extends JPopupMenu
         }
     }
 
-    private class ShareDirectoryAction implements ActionListener
-    {
+    private class ShareDirectoryAction implements ActionListener {
         private final File dir;
 
-        private ShareDirectoryAction(File dir)
-        {
+        private ShareDirectoryAction(File dir) {
             this.dir = dir;
         }
 
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
 
-            try
-            {
+            try {
                 List<IResource> resources;
 
-                if(dir.isDirectory())
-                {
-                    IProject proj = new ProjectImp(dir.getName(), dir);
+                if (dir.isDirectory()) {
+
+                    IProject proj = saros.getWorkspace().getRoot().addProject(dir.getName(), dir);
                     proj.refreshLocal();
 
                     resources = Arrays.asList((IResource) proj);
-                }
-                else
-                {
+                } else {
                     //todo: not working properly after sharing
-                    ProjectImp proj = new ProjectImp(dir.getParentFile().getName(), dir.getParentFile());
-                    IResource prjFile = new FileImp(proj,dir);
+                    IProject proj = saros.getWorkspace().getRoot().addProject(dir.getParentFile().getName(), dir.getParentFile());
+                    IResource prjFile = proj.getFile(new PathImp(dir));
                     resources = Arrays.asList(prjFile);
                 }
 
@@ -215,28 +192,22 @@ class ContactPopMenu extends JPopupMenu
                 System.out.println("ShareProjectAction.actionPerformed START U=" + contacts + " P=" + resources);
 
                 CollaborationUtils.startSession(resources, contacts);
-            }
-            catch (IOException e1)
-            {
+            } catch (IOException e1) {
                 e1.printStackTrace();
             }
         }
     }
 
-    private class DeleteContactAction implements ActionListener
-    {
+    private class DeleteContactAction implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
             System.out.println("DeleteContactAction.actionPerformed: DELETING " + contactInfo);
         }
     }
 
-    private class OpenChartAction implements ActionListener
-    {
+    private class OpenChartAction implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
             System.out.println("OpenChartAction.actionPerformed CHART " + contactInfo);
         }
     }
