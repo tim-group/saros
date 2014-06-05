@@ -62,8 +62,51 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void propertyChanged(@NotNull VirtualFilePropertyEvent virtualFilePropertyEvent) {
+    public void propertyChanged(@NotNull VirtualFilePropertyEvent filePropertyEvent) {
+        if (!enabled) {
+            return;
+        }
 
+        File oldFile = new File(filePropertyEvent.getFile().getPath());
+        if (incomingList.contains(oldFile)) {
+            incomingList.remove(oldFile);
+            return;
+        }
+
+        IPath oldPath = new PathImp(oldFile);
+        IProject project = workspace.getRoot().locateProject(oldPath);
+
+        if (project == null || !project.exists()) {
+            return;
+        }
+
+
+        int projSegmentCount = project.getLocation().segments().length;
+        oldPath = oldPath.removeFirstSegments(projSegmentCount);
+
+        SPath sOldPath = new SPath(project, oldPath);
+
+        IPath newPath = new PathImp(new File(filePropertyEvent.getFile().getParent().getPath() + File.separator + filePropertyEvent.getNewValue()));
+        newPath = newPath.removeFirstSegments(projSegmentCount);
+
+        SPath sNewPath = new SPath(project, newPath);
+
+        User user = resourceManager.getSession().getLocalUser();
+        IActivity activity;
+
+        byte[] bytes = new byte[0];
+        try {
+            bytes = filePropertyEvent.getFile().contentsToByteArray();
+        } catch (IOException e) {
+            workspace.log.error(e.getMessage(), e);
+        }
+
+        activity = new FileActivity(user, FileActivity.Type.MOVED, sNewPath, sOldPath, bytes, FileActivity.Purpose.ACTIVITY);
+
+        ((ProjectImp) project).removeFile(oldFile);
+        ((ProjectImp) project).addFile(newPath.toFile());
+
+        resourceManager.fireActivity(activity);
     }
 
     @Override
@@ -267,7 +310,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent virtualFilePropertyEvent) {
+    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent virtualFileMoveEvent) {
 
     }
 

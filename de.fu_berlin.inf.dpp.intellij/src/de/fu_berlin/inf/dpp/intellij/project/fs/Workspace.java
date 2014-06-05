@@ -77,6 +77,7 @@ public class Workspace implements IWorkspace
     {
         this.project = project;
         this.fileSystem  = LocalFileSystem.getInstance();
+        this.fileSystem.addRootToWatch(project.getBasePath(),true);
         //initPath(new File(project.getBasePath()));
         createWorkSpace(new File(project.getBasePath()));
     }
