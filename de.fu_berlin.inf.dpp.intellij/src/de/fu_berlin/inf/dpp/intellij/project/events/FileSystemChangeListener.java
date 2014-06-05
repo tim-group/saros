@@ -114,7 +114,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             }
 
             activity = FileActivity.created(user, spath, bytes, FileActivity.Purpose.ACTIVITY);
-            editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(),bytes);
+            editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(), bytes);
 
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
@@ -158,10 +158,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         User user = resourceManager.getSession().getLocalUser();
 
         IActivity activity;
-        if (file.isFile()) {
-            activity = FileActivity.removed(user, spath, FileActivity.Purpose.ACTIVITY);
-        } else {
+        if (virtualFileEvent.getFile().isDirectory()) {
             activity = new FolderActivity(user, FolderActivity.Type.REMOVED, spath);
+        } else {
+            activity = FileActivity.removed(user, spath, FileActivity.Purpose.ACTIVITY);
         }
 
         ((ProjectImp) project).removeFile(file);

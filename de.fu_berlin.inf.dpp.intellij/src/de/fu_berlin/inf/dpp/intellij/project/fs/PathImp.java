@@ -36,94 +36,84 @@ import java.util.List;
  * Time: 11.41
  */
 
-public class PathImp implements IPath, Comparable<PathImp>
-{
+public class PathImp implements IPath, Comparable<PathImp> {
     public static final String FILE_SEPARATOR = "/";
 
     private String _path;
 
-    public PathImp(String path)
-    {
-        if(path.startsWith("\\") || path.startsWith("/"))
+    public PathImp(String path) {
+
+        if (path.startsWith("file:/") || path.startsWith("file:\\"))
+            path = path.substring("file:/".length());
+
+        if (path.startsWith("\\") || path.startsWith("/"))
             path = path.substring(1);
+
 
         this._path = path;
         _path = toPortableString();
     }
 
-    public PathImp(File file)
-    {
-        this._path = file.getPath();
-        _path = toPortableString();
+    public PathImp(File file) {
+        this(file.getPath());
     }
 
     @Override
-    public IPath append(IPath path)
-    {
+    public IPath append(IPath path) {
         return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path + path.toPortableString())
                 : new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
     }
 
     @Override
-    public String lastSegment()
-    {
+    public String lastSegment() {
         String[] segments = _path.split(FILE_SEPARATOR);
         return segments[segments.length - 1];
     }
 
     @Override
-    public boolean hasTrailingSeparator()
-    {
+    public boolean hasTrailingSeparator() {
         return _path.endsWith(FILE_SEPARATOR);
     }
 
     @Override
-    public boolean isPrefixOf(IPath path)
-    {
+    public boolean isPrefixOf(IPath path) {
         return path.toString().startsWith(_path);
     }
 
     @Override
-    public int segmentCount()
-    {
+    public int segmentCount() {
         return _path.split(FILE_SEPARATOR).length;
     }
 
     @Override
-    public IPath removeLastSegments(int count)
-    {
+    public IPath removeLastSegments(int count) {
         String[] segments = _path.split(FILE_SEPARATOR);
-        segments = Arrays.copyOf(segments,segments.length - count);
+        segments = Arrays.copyOf(segments, segments.length - count);
 
         return new PathImp(join(segments));
     }
 
     @Override
-    public IPath removeFirstSegments(int count)
-    {
+    public IPath removeFirstSegments(int count) {
         String[] segments = _path.split(FILE_SEPARATOR);
-        segments = Arrays.copyOfRange(segments,count,segments.length);
+        segments = Arrays.copyOfRange(segments, count, segments.length);
 
         return new PathImp(join(segments));
     }
 
     @Override
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return new File(_path).exists();
     }
 
     @Override
-    public String[] segments()
-    {
+    public String[] segments() {
         String[] array = _path.split(FILE_SEPARATOR);
         List<String> list = new ArrayList<String>();
 
-        for (int i = 0; i < array.length; i++)
-        {
+        for (int i = 0; i < array.length; i++) {
             String segment = array[i];
-            if (!segment.isEmpty())
-            {
+            if (!segment.isEmpty()) {
                 list.add(segment);
             }
         }
@@ -132,40 +122,33 @@ public class PathImp implements IPath, Comparable<PathImp>
     }
 
     @Override
-    public IPath append(String path)
-    {
+    public IPath append(String path) {
         return new PathImp(_path.endsWith(FILE_SEPARATOR) ? _path + path : _path + FILE_SEPARATOR + path);
     }
 
     @Override
-    public IPath addTrailingSeparator()
-    {
+    public IPath addTrailingSeparator() {
         return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path) : new PathImp(_path + FILE_SEPARATOR);
 
     }
 
     @Override
-    public IPath addFileExtension(String extension)
-    {
+    public IPath addFileExtension(String extension) {
         return new PathImp(_path + "." + extension);
     }
 
     @Override
-    public IPath removeFileExtension()
-    {
+    public IPath removeFileExtension() {
         String path = _path;
-        if (path.contains("."))
-        {
+        if (path.contains(".")) {
             path = path.substring(0, path.lastIndexOf("."));
         }
         return new PathImp(path);
     }
 
-    public String getFileExtension()
-    {
+    public String getFileExtension() {
         String path = _path;
-        if (path.contains("."))
-        {
+        if (path.contains(".")) {
             path = path.substring(path.lastIndexOf("."));
         }
 
@@ -173,49 +156,40 @@ public class PathImp implements IPath, Comparable<PathImp>
     }
 
     @Override
-    public IPath makeAbsolute()
-    {
+    public IPath makeAbsolute() {
         return new PathImp(new File(_path).getAbsolutePath());
     }
 
     @Override
-    public boolean isAbsolute()
-    {
+    public boolean isAbsolute() {
         return new File(_path).isAbsolute();
     }
 
     @Override
-    public String toPortableString()
-    {
+    public String toPortableString() {
         String path = _path;
 
-        if (path.contains("\\"))
-        {
+        if (path.contains("\\")) {
             path = path.replaceAll("\\\\", FILE_SEPARATOR);
         }
         return path;
     }
 
     @Override
-    public String toOSString()
-    {
+    public String toOSString() {
         return new File(_path).getPath();
     }
 
     @Override
-    public File toFile()
-    {
+    public File toFile() {
         return new File(_path);
     }
 
-    private String join(String... data)
-    {
+    private String join(String... data) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < data.length; i++)
-        {
+        for (int i = 0; i < data.length; i++) {
             sb.append(data[i]);
-            if (i >= data.length - 1)
-            {
+            if (i >= data.length - 1) {
                 break;
             }
             sb.append(FILE_SEPARATOR);
@@ -224,33 +198,28 @@ public class PathImp implements IPath, Comparable<PathImp>
     }
 
     @Override
-    public String getAdapter()
-    {
+    public String getAdapter() {
         return _path;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return _path;
     }
 
     @Override
-    public int compareTo(PathImp o)
-    {
+    public int compareTo(PathImp o) {
         return this._path.compareTo(o._path);
     }
 
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return this._path.toLowerCase().hashCode();
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if(!(obj instanceof PathImp))
+    public boolean equals(Object obj) {
+        if (!(obj instanceof PathImp))
             return false;
 
         PathImp other = (PathImp) obj;
