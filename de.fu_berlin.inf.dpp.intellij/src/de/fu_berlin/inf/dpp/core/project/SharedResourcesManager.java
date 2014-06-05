@@ -48,7 +48,6 @@ import org.picocontainer.Startable;
 import org.picocontainer.annotations.Inject;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -277,12 +276,9 @@ public class SharedResourcesManager extends AbstractActivityProducerAndConsumer 
 
         //We need to try replace directly in document if it is open
         boolean replaced = false;
-        try {
-            String newText = new String(activity.getContents(), EncodingProjectManager.getInstance().getDefaultCharsetName());
-            replaced = editorManager.getActionManager().replaceText(activity.getPath(), newText);
-        } catch (UnsupportedEncodingException ue) {
-            log.error(ue.getMessage(), ue);
-        }
+
+        String newText = new String(activity.getContents(), EncodingProjectManager.getInstance().getDefaultCharset());
+        replaced = editorManager.getActionManager().replaceText(activity.getPath(), newText);
 
         if (replaced) {
             editorManager.getActionManager().saveFile(activity.getPath());

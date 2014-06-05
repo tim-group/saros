@@ -54,6 +54,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     private IResourceListener resourceManager;
     private Workspace workspace;
     private List<File> incomingList = new ArrayList<File>();
+
     private EditorManager editorManager;
 
     public FileSystemChangeListener(IResourceListener resourceManager) {
@@ -67,6 +68,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     @Override
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
+
 
     }
 
@@ -112,6 +114,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             }
 
             activity = FileActivity.created(user, spath, bytes, FileActivity.Purpose.ACTIVITY);
+            editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(),bytes);
 
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
@@ -119,6 +122,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         ((ProjectImp) project).addFile(file);
+
 
         resourceManager.fireActivity(activity);
     }

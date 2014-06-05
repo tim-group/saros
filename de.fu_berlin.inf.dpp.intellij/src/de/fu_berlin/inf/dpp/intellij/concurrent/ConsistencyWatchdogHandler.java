@@ -251,8 +251,7 @@ public class ConsistencyWatchdogHandler implements Startable
             ISubMonitor progress)
     {
 
-        progress
-                .beginTask("Sending files", checksumError.getPaths().size() + 1);
+        progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
 
         try
         {

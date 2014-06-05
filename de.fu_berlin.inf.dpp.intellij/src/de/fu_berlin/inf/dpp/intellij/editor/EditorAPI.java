@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
@@ -172,7 +173,7 @@ public class EditorAPI extends EditorAPIBridge {
     }
 
     public void saveDocument(final Document doc) {
-        application.invokeLater(new Runnable() {
+        application.invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 application.runWriteAction(new Runnable() {
@@ -182,13 +183,13 @@ public class EditorAPI extends EditorAPIBridge {
                     }
                 });
             }
-        });
+        }, ModalityState.NON_MODAL);
 
     }
 
 
     public void reloadFromDisk(final Document doc) {
-        application.invokeLater(new Runnable() {
+        application.invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 application.runReadAction(new Runnable() {
@@ -198,14 +199,14 @@ public class EditorAPI extends EditorAPIBridge {
                     }
                 });
             }
-        });
+        }, ModalityState.NON_MODAL);
     }
 
     /**
      * @param doc
      */
     public void saveAllDocuments(Document doc) {
-        application.invokeLater(new Runnable() {
+        application.invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 application.runWriteAction(new Runnable() {
@@ -215,7 +216,7 @@ public class EditorAPI extends EditorAPIBridge {
                     }
                 });
             }
-        });
+        }, ModalityState.NON_MODAL);
 
     }
 

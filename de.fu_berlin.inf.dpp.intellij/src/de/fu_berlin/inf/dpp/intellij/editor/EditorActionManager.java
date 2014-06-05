@@ -45,6 +45,8 @@ import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -66,6 +68,7 @@ public class EditorActionManager {
     private StoppableSelectionListener selectionListener;
     private StoppableViewPortListener viewportListener;
     private DocumentProvider adapter;
+    public Map<VirtualFile,byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
 
 
     public EditorActionManager(EditorManager manager) {
@@ -133,6 +136,7 @@ public class EditorActionManager {
     }
 
     public void startEditor(Editor editor) {
+        editor.getDocument().setReadOnly(false);
         editor.getSelectionModel().addSelectionListener(selectionListener);
         editor.getScrollingModel().addVisibleAreaListener(viewportListener);
         documentListener.setDocument(editor.getDocument());
@@ -448,6 +452,11 @@ public class EditorActionManager {
 
         if (viewportListener != null)
             viewportListener.setEnabled(enable);
+    }
+
+    public void registerNewFile(VirtualFile virtualFile, byte[] content)
+    {
+        this.newFiles.put(virtualFile,content);
     }
 
     public DocumentProvider getAdapter() {

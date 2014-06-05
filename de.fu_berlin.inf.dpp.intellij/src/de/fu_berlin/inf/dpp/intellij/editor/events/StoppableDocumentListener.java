@@ -48,7 +48,9 @@ package de.fu_berlin.inf.dpp.intellij.editor.events;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -57,69 +59,69 @@ import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
  * can be temporarily disabled which prevents the notification of text change
  * events.
  */
-public class StoppableDocumentListener extends AbstractStoppableListener implements DocumentListener
-{
+public class StoppableDocumentListener extends AbstractStoppableListener implements DocumentListener {
 
     private final EditorManager editorManager;
     private Document document;
+    private Logger log = Logger.getLogger(StoppableDocumentListener.class);
 
-    public StoppableDocumentListener(EditorManager editorManager)
-    {
+    public StoppableDocumentListener(EditorManager editorManager) {
         this.editorManager = editorManager;
     }
 
     @Override
-    public void beforeDocumentChange(DocumentEvent event)
-    {
-        if (!enabled)
-        {
+    public void beforeDocumentChange(DocumentEvent event) {
+        if (!enabled) {
             return;
         }
 
-        editorManager.textAboutToBeChanged(event);
+
+        SPath path = editorManager.getActionManager().getEditorPool().getFile(event.getDocument());
+        if (path == null) {
+            log.warn("Could not find path for editor " + event.getDocument());
+            return;
+        }
+
+        String text = event.getNewFragment().toString();
+        String replacedText = event.getOldFragment().toString();
+
+        //todo
+        if (text.contains("q")) {
+            text = text.replace("q", "Q");
+        }
+
+
+        editorManager.generateTextEdit(event.getOffset(), text, replacedText, path);
     }
 
     @Override
-    public void documentChanged(DocumentEvent documentEvent)
-    {
+    public void documentChanged(DocumentEvent documentEvent) {
         // do nothing. We handled everything in documentAboutToBeChanged
     }
 
-    public EditorManager getEditorManager()
-    {
+    public EditorManager getEditorManager() {
         return editorManager;
     }
 
-    public Document getDocument()
-    {
+    public Document getDocument() {
         return document;
     }
 
-    public void setDocument(Document document)
-    {
-        if(document !=null)
-        {
-            if (this.document == null)
-            {
+    public void setDocument(Document document) {
+        if (document != null) {
+            if (this.document == null) {
                 this.document = document;
                 this.document.addDocumentListener(this);
-            }
-            else if (this.document != document)
-            {
+            } else if (this.document != document) {
                 this.document.removeDocumentListener(this);
                 this.document = document;
 
                 this.document.addDocumentListener(this);
-            }
-            else
-            {
+            } else {
                 //do nothing, as we listen that document
             }
-        }
-        else
-        {
-            if(this.document != null)
-            {
+        } else {
+            if (this.document != null) {
                 this.document.removeDocumentListener(this);
                 this.document = null;
             }
