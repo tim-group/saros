@@ -504,7 +504,7 @@ public final class SarosSession implements ISarosSession {
 
         JID jid = user.getJID();
         if (participants.remove(jid) == null) {
-            log.error("tried to remove user " + user
+            log.error("tried to removeAll user " + user
                     + " who was never added to the session");
             return;
         }

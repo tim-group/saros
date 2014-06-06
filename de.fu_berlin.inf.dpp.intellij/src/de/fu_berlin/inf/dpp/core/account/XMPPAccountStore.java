@@ -91,7 +91,7 @@ public final class XMPPAccountStore {
             accounts.add(activeAccount);
         else if (!accounts.isEmpty() && activeAccount != null) {
             /*
-             * remove us first and re add us, otherwise the active account
+             * removeAll us first and re add us, otherwise the active account
              * object is not in the set and the wrong object will be updated
              */
             accounts.remove(activeAccount);

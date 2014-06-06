@@ -172,6 +172,7 @@ public class SharedResourcesManager extends AbstractActivityProducerAndConsumer 
              * AddMultipleFilesTest STF test which fails randomly.
              */
             fileReplacementInProgressObservable.startReplacement();
+            fileSystemListener.setEnabled(false);
 
             log.trace("execing " + activity.toString() + " in "
                     + Thread.currentThread().getName());
@@ -188,6 +189,7 @@ public class SharedResourcesManager extends AbstractActivityProducerAndConsumer 
             log.error("Failed to execute resource activity.", e);
         } finally {
             fileReplacementInProgressObservable.replacementDone();
+            fileSystemListener.setEnabled(true);
             log.trace("done execing " + activity.toString());
         }
     }
@@ -413,7 +415,7 @@ public class SharedResourcesManager extends AbstractActivityProducerAndConsumer 
         /*synchronized (sharedProjects) {
 
           *//*  SharedProject sharedProject = sharedProjects
-                    .remove(((EclipseProjectImpl) project).getDelegate());
+                    .removeAll(((EclipseProjectImpl) project).getDelegate());
             if (sharedProject != null)
                 sharedProject.delete();
                 *//*

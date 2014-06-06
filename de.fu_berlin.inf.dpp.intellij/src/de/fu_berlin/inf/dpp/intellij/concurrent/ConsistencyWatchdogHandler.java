@@ -276,7 +276,7 @@ public class ConsistencyWatchdogHandler implements Startable
 
     /**
      * Recover a single file for the given user (that is either send the file or
-     * tell the user to remove it).
+     * tell the user to removeAll it).
      */
     protected void recoverFile(User from, final ISarosSession sarosSession,
             final SPath path, ISubMonitor progress)

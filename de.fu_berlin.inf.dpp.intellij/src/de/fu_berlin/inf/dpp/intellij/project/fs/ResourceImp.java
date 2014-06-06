@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -134,6 +135,11 @@ public abstract class ResourceImp implements IResource
             return new PathImp(new File(myPath));
         }
 
+    }
+
+    public SPath getSPath()
+    {
+        return new SPath(project,getProjectRelativePath());
     }
 
     @Override

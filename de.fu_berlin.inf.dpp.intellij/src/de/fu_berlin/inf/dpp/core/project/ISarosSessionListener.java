@@ -23,7 +23,7 @@ public interface ISarosSessionListener
      * synchronization process.
      * </p>
      *
-     * TODO: remove this method as soon as external components like the
+     * TODO: removeAll this method as soon as external components like the
      * whiteboard are maintained in another way (i.e. a component interface)
      *
      * @param monitor
@@ -45,7 +45,7 @@ public interface ISarosSessionListener
      * in the session negotiation.
      * </p>
      *
-     * TODO: remove this method as soon as external components like the
+     * TODO: removeAll this method as soon as external components like the
      * whiteboard are maintained in another way (i.e. a component interface)
      *
      * @param monitor

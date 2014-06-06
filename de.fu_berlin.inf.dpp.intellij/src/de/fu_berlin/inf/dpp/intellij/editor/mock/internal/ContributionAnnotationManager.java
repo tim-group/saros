@@ -72,7 +72,7 @@ public class ContributionAnnotationManager {
         @Override
         public void userLeft(User user) {
             /*
-             * Just remove the annotations from the history. They are removed by
+             * Just removeAll the annotations from the history. They are removed by
              * the EditorManagerEcl from the editors.
              */
             sourceToHistory.remove(user);

@@ -85,12 +85,6 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         String text = event.getNewFragment().toString();
         String replacedText = event.getOldFragment().toString();
 
-        //todo
-        if (text.contains("q")) {
-            text = text.replace("q", "Q");
-        }
-
-
         editorManager.generateTextEdit(event.getOffset(), text, replacedText, path);
     }
 

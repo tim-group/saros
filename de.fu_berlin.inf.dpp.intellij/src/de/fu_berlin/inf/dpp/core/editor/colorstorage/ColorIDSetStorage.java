@@ -65,7 +65,7 @@ public final class ColorIDSetStorage
     {
         this.preferenceStore = prefStore;
         load(); //todo
-        // remove(REMOVE_THRESHOLD); //todo
+        // removeAll(REMOVE_THRESHOLD); //todo
     }
 
     /**

@@ -39,67 +39,53 @@ import java.util.List;
  * Time: 12.01
  */
 
-public class FolderImp extends ResourceImp implements IFolder
-{
+public class FolderImp extends ResourceImp implements IFolder {
 
-    public FolderImp(ProjectImp project, File file)
-    {
+    public FolderImp(ProjectImp project, File file) {
         super(project, file);
     }
 
 
-
     @Override
-    public void create(int updateFlags, boolean local) throws IOException
-    {
-        if (!file.isAbsolute())
-        {
+    public void create(int updateFlags, boolean local) throws IOException {
+        if (!file.isAbsolute()) {
             File fileInProject = new File(getProject().getFullPath().toString() + File.separator + file.getPath());
             fileInProject.mkdirs();
-        }
-        else
-        {
+        } else {
             file.mkdirs();
         }
     }
 
     @Override
-    public void create(boolean force, boolean local) throws IOException
-    {
+    public void create(boolean force, boolean local) throws IOException {
         file.mkdirs();
     }
 
     @Override
-    public boolean exists(IPath path)
-    {
+    public boolean exists(IPath path) {
         return new File(path.toString()).exists();
     }
 
 
     @Override
-    public IResource[] members()
-    {
+    public IResource[] members() {
         return members(NONE);
     }
 
 
     @Override
-    public IResource[] members(int memberFlags)
-    {
+    public IResource[] members(int memberFlags) {
         List<IResource> list = new ArrayList<IResource>();
 
-        for (File myFile : file.listFiles())
-        {
+        for (File myFile : getFullPath().toFile().listFiles()) {
             if (myFile.isFile() && !myFile.isHidden()
-                    && (memberFlags == NONE || memberFlags == FILE))
-            {
-                list.add(new FileImp(project,file));
+                    && (memberFlags == NONE || memberFlags == FILE)) {
+                list.add(new FileImp(project, myFile));
             }
 
             if (myFile.isDirectory() && !myFile.isHidden()
-                    && (memberFlags == NONE || memberFlags == FOLDER))
-            {
-                list.add(new FolderImp(project,file));
+                    && (memberFlags == NONE || memberFlags == FOLDER)) {
+                list.add(new FolderImp(project, myFile));
             }
         }
 
@@ -107,47 +93,38 @@ public class FolderImp extends ResourceImp implements IFolder
     }
 
     @Override
-    public void refreshLocal() throws IOException
-    {
+    public void refreshLocal() throws IOException {
         System.out.println("FolderIntl.refreshLocal //todo");
     }
 
     @Override
-    public int getType()
-    {
+    public int getType() {
         return FOLDER;
     }
 
 
     @Override
-    public void delete(int updateFlags) throws IOException
-    {
-        if (file.isAbsolute())
-        {
+    public void delete(int updateFlags) throws IOException {
+        if (file.isAbsolute()) {
             FileUtils.deleteDirectory(file);
-        }
-        else
-        {
+        } else {
             FileUtils.deleteDirectory(getFullPath().toFile());
         }
     }
 
     @Override
-    public void move(IPath destination, boolean force) throws IOException
-    {
+    public void move(IPath destination, boolean force) throws IOException {
         file.renameTo(destination.toFile());
     }
 
 
     @Override
-    public Object getAdapter(Class<? extends IResource> clazz)
-    {
+    public Object getAdapter(Class<? extends IResource> clazz) {
         return this;
     }
 
     @Override
-    public IPath getLocation()
-    {
+    public IPath getLocation() {
         return this.getFullPath();
     }
 }

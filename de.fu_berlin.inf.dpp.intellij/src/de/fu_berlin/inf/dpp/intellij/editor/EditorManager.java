@@ -57,7 +57,7 @@ import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
-//todo: remove these links
+//todo: removeAll these links
 
 
 /**
@@ -206,7 +206,7 @@ public class EditorManager
 
                     //todo: implement annotations
                     /*
-                     * First need to remove the annotations and then clear the
+                     * First need to removeAll the annotations and then clear the
                      * editorPool
                      */
                     actionManager.removeAnnotationsFromAllEditors(new Predicate<Annotation>() {
@@ -455,17 +455,12 @@ public class EditorManager
     ColorManager colorManager = new ColorManager(); //todo
 
     protected void execTextEdit(TextEditActivity editorActivity) {
-        System.out.println(">>>EditorManager.execTextEdit " + editorActivity);
 
         SPath path = editorActivity.getPath();
         User user = editorActivity.getSource();
         ColorModel colorModel = colorManager.getColorModel(user.getColorID());
 
         actionManager.editText(path, editorActivity.toOperation(), colorModel.getEditColor());
-
-        if (editorActivity.getReplacedText().contains("q"))
-            return;
-
 
         // inform all registered ISharedEditorListeners about this text edit
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),

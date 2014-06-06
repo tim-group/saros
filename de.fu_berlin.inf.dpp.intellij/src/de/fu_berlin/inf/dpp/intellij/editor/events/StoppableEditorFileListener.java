@@ -87,7 +87,6 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             manager.getActionManager().getEditorPool().add(path, fileEditorManager.getSelectedTextEditor());
             manager.getActionManager().startEditor(fileEditorManager.getSelectedTextEditor());
 
-            // manager.generateEditorActivated(path);  //no need to fire event
         }
     }
 
@@ -100,7 +99,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
 
         SPath path = manager.getActionManager().toPath(virtualFile);
         if (path != null) {
-            // manager.getActionManager().getEditorPool().remove(path);
+            manager.getActionManager().getEditorPool().removeEditor(path);
             manager.generateEditorClosed(path);
         }
     }

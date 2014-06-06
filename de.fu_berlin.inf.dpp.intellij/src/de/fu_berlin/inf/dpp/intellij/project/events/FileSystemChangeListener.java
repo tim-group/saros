@@ -27,10 +27,11 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.FileActivity;
 import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
+import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.events.AbstractStoppableListener;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
@@ -67,9 +68,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             return;
         }
 
-        File oldFile = new File(filePropertyEvent.getFile().getPath());
-        if (incomingList.contains(oldFile)) {
-            incomingList.remove(oldFile);
+        File oldFile = new File(filePropertyEvent.getFile().getParent().getPath() + File.separator + filePropertyEvent.getOldValue());
+        File newFile = new File(filePropertyEvent.getFile().getPath());
+
+        if (incomingList.contains(newFile)) {
+            incomingList.remove(newFile);
             return;
         }
 
@@ -82,32 +85,88 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
 
         int projSegmentCount = project.getLocation().segments().length;
+
         oldPath = oldPath.removeFirstSegments(projSegmentCount);
+        SPath oldSPath = new SPath(project, oldPath);
 
-        SPath sOldPath = new SPath(project, oldPath);
-
-        IPath newPath = new PathImp(new File(filePropertyEvent.getFile().getParent().getPath() + File.separator + filePropertyEvent.getNewValue()));
+        IPath newPath = new PathImp(newFile);
         newPath = newPath.removeFirstSegments(projSegmentCount);
 
-        SPath sNewPath = new SPath(project, newPath);
+        SPath newSPath = new SPath(project, newPath);
 
-        User user = resourceManager.getSession().getLocalUser();
-        IActivity activity;
+      //  User user = resourceManager.getSession().getLocalUser();
 
-        byte[] bytes = new byte[0];
-        try {
-            bytes = filePropertyEvent.getFile().contentsToByteArray();
-        } catch (IOException e) {
-            workspace.log.error(e.getMessage(), e);
+        //move activity
+        if (newFile.isFile()) {
+            generateFileMove(oldSPath, newSPath, false);
+           /* byte[] bytes = new byte[0];
+            try {
+                bytes = filePropertyEvent.getFile().contentsToByteArray();
+            } catch (IOException e) {
+                workspace.log.error(e.getMessage(), e);
+            }
+
+            IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);
+            editorManager.getActionManager().getEditorPool().removeAll(oldSPath);
+            resourceManager.fireActivity(activity);*/
+
+        } else {
+            generateFolderMove(oldSPath,newSPath,false);
+            /*IActivity createActivity = new FolderActivity(user, FolderActivity.Type.CREATED, newSPath);
+            resourceManager.fireActivity(createActivity);
+
+            IActivity removeActivity = new FolderActivity(user, FolderActivity.Type.REMOVED, oldSPath);
+            resourceManager.fireActivity(removeActivity);*/
+
         }
 
-        activity = new FileActivity(user, FileActivity.Type.MOVED, sNewPath, sOldPath, bytes, FileActivity.Purpose.ACTIVITY);
+      //  ((ProjectImp) project).addFile(newPath.toFile());
+      //  ((ProjectImp) project).removeFile(oldFile);
+    }
 
-        ((ProjectImp) project).removeFile(oldFile);
-        ((ProjectImp) project).addFile(newPath.toFile());
 
+
+    private void generateFolderMove(SPath oldSPath, SPath newSPath, boolean before) {
+        User user = resourceManager.getSession().getLocalUser();
+        ProjectImp project = (ProjectImp) oldSPath.getProject();
+        IActivity createActivity = new FolderActivity(user, FolderActivity.Type.CREATED, newSPath);
+        resourceManager.fireActivity(createActivity);
+
+        IFolder folder = before ? oldSPath.getFolder() : newSPath.getFolder();
+        for (IResource resource : folder.members()) {
+            SPath oldChildSPath = new FileImp((ProjectImp)oldSPath.getProject(), new File(oldSPath.getFullPath().toOSString() + File.separator + resource.getName())).getSPath();
+            SPath newChildSPath = new FileImp((ProjectImp)newSPath.getProject(), new File(newSPath.getFullPath().toOSString() + File.separator + resource.getName())).getSPath();
+            if (resource.getType() == IResource.FOLDER) {
+                generateFolderMove(oldChildSPath, newChildSPath, before);
+            } else {
+                generateFileMove(oldChildSPath, newChildSPath, before);
+            }
+        }
+
+        IActivity removeActivity = new FolderActivity(user, FolderActivity.Type.REMOVED, oldSPath);
+        resourceManager.fireActivity(removeActivity);
+
+        project.addFile(newSPath.getFile().toFile());
+        project.removeFile(oldSPath.getFile().toFile());
+    }
+
+    private void generateFileMove(SPath oldSPath, SPath newSPath, boolean before) {
+        User user = resourceManager.getSession().getLocalUser();
+        ProjectImp project = (ProjectImp) oldSPath.getProject();
+
+        IFile file = project.getFile(before ? oldSPath.getFullPath() : newSPath.getFullPath());
+        if (file == null)
+            return;
+
+        byte[] bytes = FileUtils.getLocalFileContent(file);
+
+        IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);
+        editorManager.getActionManager().getEditorPool().removeAll(oldSPath);
+        project.addFile(newSPath.getFile().toFile());
+        project.removeFile(oldSPath.getFile().toFile());
         resourceManager.fireActivity(activity);
     }
+
 
     @Override
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
@@ -208,6 +267,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         ((ProjectImp) project).removeFile(file);
+        editorManager.getActionManager().getEditorPool().removeAll(spath);
 
         resourceManager.fireActivity(activity);
     }
@@ -238,29 +298,37 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         int projSegmentCount = project.getLocation().segments().length;
         path = path.removeFirstSegments(projSegmentCount);
 
-        SPath spath = new SPath(project, path);
+        SPath newSPath = new SPath(project, path);
 
         IPath oldPath = new PathImp(new File(virtualFileMoveEvent.getOldParent() + File.separator + virtualFileMoveEvent.getFileName()));
         oldPath = oldPath.removeFirstSegments(projSegmentCount);
 
-        SPath sOldPath = new SPath(project, oldPath);
+        SPath oldSPath = new SPath(project, oldPath);
 
-        User user = resourceManager.getSession().getLocalUser();
-        IActivity activity;
+      //  User user = resourceManager.getSession().getLocalUser();
 
-        byte[] bytes = new byte[0];
-        try {
-            bytes = virtualFileMoveEvent.getFile().contentsToByteArray();
-        } catch (IOException e) {
-            workspace.log.error(e.getMessage(), e);
+        //move activity
+        if (newFile.isFile()) {
+           /* byte[] bytes = new byte[0];
+            try {
+                bytes = virtualFileMoveEvent.getFile().contentsToByteArray();
+            } catch (IOException e) {
+                workspace.log.error(e.getMessage(), e);
+            }
+
+            IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);
+            editorManager.getActionManager().getEditorPool().removeAll(oldSPath);
+            resourceManager.fireActivity(activity);*/
+            generateFileMove(oldSPath,newSPath,false);
+
+        } else {
+            generateFolderMove(oldSPath, newSPath, false);
         }
 
-        activity = new FileActivity(user, FileActivity.Type.MOVED, spath, sOldPath, bytes, FileActivity.Purpose.ACTIVITY);
+//        ((ProjectImp) project).removeFile(oldPath.toFile());
+//        ((ProjectImp) project).addFile(newFile);
+//        editorManager.getActionManager().getEditorPool().removeAll(newSPath);
 
-        ((ProjectImp) project).removeFile(oldPath.toFile());
-        ((ProjectImp) project).addFile(newFile);
-
-        resourceManager.fireActivity(activity);
     }
 
     @Override
@@ -310,7 +378,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent virtualFileMoveEvent) {
+    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent filePropertyEvent) {
 
     }
 

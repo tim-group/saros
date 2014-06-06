@@ -118,7 +118,7 @@ public class OperationHistory {
             history.put(editor, editorHistory);
         }
 
-        // history shouldn't overflow, remove too old elements
+        // history shouldn't overflow, removeAll too old elements
         for (int i = editorHistory.size(); i >= MAX_SIZE; i--) {
             editorHistory.removeLast();
         }

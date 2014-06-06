@@ -58,7 +58,7 @@ import java.util.*;
  * InvitationProcesses.
  */
 @Component(module = "observables")
-// TODO remove the ID part here, there should only be one invitation per JID
+// TODO removeAll the ID part here, there should only be one invitation per JID
 // TODO rename to SessionNegotiationProcessObservable
 public class InvitationProcessObservable {
 
@@ -145,7 +145,7 @@ public class InvitationProcessObservable {
      * Removes an invitation process from the current set.
      * 
      * @param process
-     *            the process to remove
+     *            the process to removeAll
      */
 
     public synchronized void removeInvitationProcess(SessionNegotiation process) {

@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import org.apache.commons.io.FileUtils;
 
@@ -42,8 +41,7 @@ import java.util.Map;
  * Time: 15.37
  */
 
-public class ProjectImp implements IProject
-{
+public class ProjectImp implements IProject {
     public static final String DEFAULT_CHARSET = "utf8";
 
     private String name;
@@ -62,21 +60,18 @@ public class ProjectImp implements IProject
     private IResourceAttributes attributes;
 
 
-    public ProjectImp(String name)
-    {
+    public ProjectImp(String name) {
         this.name = name;
     }
 
-    public ProjectImp(String name, File path)
-    {
+    public ProjectImp(String name, File path) {
         this.name = name;
         setPath(path);
 
         //scan(path);
     }
 
-    public void setPath(File path)
-    {
+    public void setPath(File path) {
         this.path = path;
 
         isAccessible = false;
@@ -87,56 +82,44 @@ public class ProjectImp implements IProject
         attributes = new ResourceAttributes(); //todo
     }
 
-    public void scan(File path)
-    {
+    public void scan(File path) {
         //clear old
         resourceMap.clear();
         fileMap.clear();
         folderMap.clear();
-        if (!path.exists())
-        {
+        if (!path.exists()) {
             path.mkdirs();
-        }
-        else
-        {
+        } else {
             addRecursive(path);
         }
 
         isAccessible = true;
     }
 
-    protected void addRecursive(File file)
-    {
+    protected void addRecursive(File file) {
 
-        if (file.isDirectory())
-        {
-            for (File myFile : file.listFiles())
-            {
+        if (file.isDirectory()) {
+            for (File myFile : file.listFiles()) {
                 addRecursive(myFile);
             }
-        }
-        else
-        {
+        } else {
             addFile(file);
         }
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public IResource findMember(IPath path)
-    {
+    public IResource findMember(IPath path) {
 
         return resourceMap.get(path);
     }
 
 
     @Override
-    public void accept(IResourceVisitor visitor, int resource, int container)
-    {
+    public void accept(IResourceVisitor visitor, int resource, int container) {
         //todo: Implement it
         System.out.println("ProjectIntl.next //todo");
     }
@@ -144,13 +127,11 @@ public class ProjectImp implements IProject
     /**
      * @param res
      */
-    protected void addResource(IResource res)
-    {
+    protected void addResource(IResource res) {
         resourceMap.put(res.getProjectRelativePath(), res);
     }
 
-    protected void addResource(IFile file)
-    {
+    protected void addResource(IFile file) {
         addResource((IResource) file);
         //String key = file.getProjectRelativePath().toString();
         String key = file.getFullPath().toString();
@@ -158,125 +139,101 @@ public class ProjectImp implements IProject
         fileMap.put(key, file);
     }
 
-    protected void addResource(IFolder folder)
-    {
+    protected void addResource(IFolder folder) {
         addResource((IResource) folder);
-       // String key = folder.getProjectRelativePath().toString();
+        // String key = folder.getProjectRelativePath().toString();
         String key = folder.getFullPath().toString();
         folderMap.put(key, folder);
     }
 
-    public void addFile(File file)
-    {
-        if (file.isDirectory())
-        {
+    public void addFile(File file) {
+        if (file.isDirectory()) {
             IFolder folder = new FolderImp(this, file);
             addResource(folder);
         }
 
-        if (file.isFile())
-        {
+        if (file.isFile()) {
             IFile myFile = new FileImp(this, file);
             addResource(myFile);
         }
     }
 
-    public void removeFile(File file)
-    {
-        if (file.isDirectory())
-        {
+    public void removeFile(File file) {
+        if (file.isDirectory()) {
             IFolder folder = new FolderImp(this, file);
             folderMap.remove(folder);
         }
 
-        if (file.isFile())
-        {
+        if (file.isFile()) {
             IFile myFile = new FileImp(this, file);
             resourceMap.remove(myFile.getProjectRelativePath());
         }
     }
 
     @Override
-    public IFile getFile(String name)
-    {
+    public IFile getFile(String name) {
         return fileMap.get(name);
     }
 
     @Override
-    public IFile getFile(IPath path)
-    {
+    public IFile getFile(IPath path) {
         IFile f = getFile(path.toPortableString());
 
-        if (f == null)
-        {
-            f = new FileImp(this, new File(this.path.getPath() + "/" + path.toPortableString()));
+        if (f == null) {
+            if (path.isAbsolute())
+                f = new FileImp(this, new File(path.toPortableString()));
+            else
+                f = new FileImp(this, new File(this.path + "/" + path.toPortableString()));
         }
-
-        System.out.println("ProjectImpl.getFile " + path + " -> " + f+" exist="+f.exists());
-        //System.out.println(fileMap);
 
         return f;
     }
 
     @Override
-    public IFolder getFolder(String name)
-    {
+    public IFolder getFolder(String name) {
         return folderMap.get(name);
     }
 
     @Override
-    public IFolder getFolder(IPath path)
-    {
+    public IFolder getFolder(IPath path) {
         IFolder folder = getFolder(path.toPortableString());
 
-        if(folder==null)
-        {
-            folder = new FolderImp(this,path.toFile());
+        if (folder == null) {
+            folder = new FolderImp(this, path.toFile());
         }
 
         return folder;
     }
 
     @Override
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return isOpen;
     }
 
     @Override
-    public void open() throws IOException
-    {
+    public void open() throws IOException {
         this.isOpen = true;
     }
 
     @Override
-    public boolean exists(IPath path)
-    {
+    public boolean exists(IPath path) {
         return resourceMap.containsKey(path);
     }
 
     @Override
-    public IResource[] members()
-    {
+    public IResource[] members() {
         return resourceMap.values().toArray(new IResource[]{});
     }
 
     @Override
-    public IResource[] members(int memberFlags)
-    {
+    public IResource[] members(int memberFlags) {
         List<IResource> list = new ArrayList<IResource>();
-        for (IResource res : resourceMap.values())
-        {
-            if (memberFlags == FOLDER && res.getType() == FOLDER)
-            {
+        for (IResource res : resourceMap.values()) {
+            if (memberFlags == FOLDER && res.getType() == FOLDER) {
                 list.add(res);
-            }
-            else if (memberFlags == FILE && res.getType() == FILE)
-            {
+            } else if (memberFlags == FILE && res.getType() == FILE) {
                 list.add(res);
-            }
-            else if (memberFlags == NONE)
-            {
+            } else if (memberFlags == NONE) {
                 list.add(res);
             }
         }
@@ -286,137 +243,112 @@ public class ProjectImp implements IProject
     }
 
     @Override
-    public String getDefaultCharset() throws IOException
-    {
+    public String getDefaultCharset() throws IOException {
         return defaultCharset;
     }
 
-    public void setDefaultCharset(String defaultCharset)
-    {
+    public void setDefaultCharset(String defaultCharset) {
         this.defaultCharset = defaultCharset;
     }
 
     @Override
-    public boolean exists()
-    {
+    public boolean exists() {
         return fullPath.toFile().exists();
     }
 
 
     @Override
-    public IPath getFullPath()
-    {
+    public IPath getFullPath() {
         return fullPath;
     }
 
-    public void setFullPath(IPath fullPath)
-    {
+    public void setFullPath(IPath fullPath) {
         this.fullPath = fullPath;
     }
 
-    public void setRelativePath(IPath relativePath)
-    {
+    public void setRelativePath(IPath relativePath) {
         this.relativePath = relativePath;
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     @Override
-    public IContainer getParent()
-    {
+    public IContainer getParent() {
         return parent;
     }
 
-    public void setParent(IContainer parent)
-    {
+    public void setParent(IContainer parent) {
         this.parent = parent;
     }
 
     @Override
-    public IProject getProject()
-    {
+    public IProject getProject() {
         return this;
     }
 
     @Override
-    public IPath getProjectRelativePath()
-    {
+    public IPath getProjectRelativePath() {
         return this.relativePath;
     }
 
     @Override
-    public int getType()
-    {
+    public int getType() {
         return IResource.PROJECT;
     }
 
     @Override
-    public boolean isAccessible()
-    {
+    public boolean isAccessible() {
         return isAccessible;
     }
 
-    public void setAccessible(boolean accessible)
-    {
+    public void setAccessible(boolean accessible) {
         isAccessible = accessible;
     }
 
     @Override
-    public boolean isDerived(boolean checkAncestors)
-    {
+    public boolean isDerived(boolean checkAncestors) {
         return isDerived();
     }
 
     @Override
-    public boolean isDerived()
-    {
+    public boolean isDerived() {
         return parent != null;
     }
 
     @Override
-    public void refreshLocal() throws IOException
-    {
+    public void refreshLocal() throws IOException {
         scan(path);
     }
 
 
     @Override
-    public void delete(int updateFlags) throws IOException
-    {
+    public void delete(int updateFlags) throws IOException {
         FileUtils.deleteDirectory(path);
     }
 
     @Override
-    public void move(IPath destination, boolean force) throws IOException
-    {
-       path.renameTo(destination.toFile());
+    public void move(IPath destination, boolean force) throws IOException {
+        path.renameTo(destination.toFile());
     }
 
     @Override
-    public IResourceAttributes getResourceAttributes()
-    {
+    public IResourceAttributes getResourceAttributes() {
         return attributes;
     }
 
     @Override
-    public void setResourceAttributes(IResourceAttributes attributes) throws IOException
-    {
+    public void setResourceAttributes(IResourceAttributes attributes) throws IOException {
         this.attributes = attributes;
     }
 
     @Override
-    public URI getLocationURI()
-    {
-        try
-        {
+    public URI getLocationURI() {
+        try {
             return new URI(fullPath.toString());
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
 
             return null;
@@ -425,36 +357,30 @@ public class ProjectImp implements IProject
 
 
     @Override
-    public Object getAdapter(Class<? extends IResource> clazz)
-    {
+    public Object getAdapter(Class<? extends IResource> clazz) {
         return this;
     }
 
     @Override
-    public IPath getLocation()
-    {
+    public IPath getLocation() {
         return this.fullPath;
     }
 
     @Override
-    public File toFile()
-    {
+    public File toFile() {
         return path;
     }
 
-    public String toString()
-    {
+    public String toString() {
 
         StringBuilder sb = new StringBuilder(" ");
-        if(name!=null)
-        {
+        if (name != null) {
             sb.append("name=[");
             sb.append(name);
             sb.append("]");
         }
 
-        if(path !=null)
-        {
+        if (path != null) {
             sb.append(" path=[");
             sb.append(path);
             sb.append("]");
@@ -465,25 +391,23 @@ public class ProjectImp implements IProject
 
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 1;
-      //  hash = hash * 17 + this.name.hashCode();
+        //  hash = hash * 17 + this.name.hashCode();
         hash = hash * 31 + this.path.hashCode();
         return hash;
 
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if(!(obj instanceof ProjectImp))
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ProjectImp))
             return false;
 
-        ProjectImp other = (ProjectImp)obj;
+        ProjectImp other = (ProjectImp) obj;
 
         return
                 //this.name.equals(other.name) &&
-                        this.path.equals(other.path);
+                this.path.equals(other.path);
     }
 }

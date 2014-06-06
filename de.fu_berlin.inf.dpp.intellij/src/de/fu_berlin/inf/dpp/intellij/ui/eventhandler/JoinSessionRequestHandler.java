@@ -85,7 +85,7 @@ public final class JoinSessionRequestHandler {
 
         List<JID> list = Collections.singletonList(from);
 
-        // TODO remove calls to CollaborationUtils
+        // TODO removeAll calls to CollaborationUtils
         if (extension.isNewSessionRequested()) {
             CollaborationUtils.startSession(new ArrayList<IResource>(), list);
         } else {

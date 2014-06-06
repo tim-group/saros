@@ -90,7 +90,7 @@ class ResourceActivityFilter {
             VCSActivity vcsActivity = (VCSActivity) (vcsActivities.get(i));
             if (!result.contains(vcsActivity))
                 continue;
-            // Iterate in reverse order so that we can safely remove items.
+            // Iterate in reverse order so that we can safely removeAll items.
             for (int j = result.size() - 1; j > i; j--) {
                 IResourceActivity otherActivity = result.get(j);
                 if (result.contains(otherActivity)

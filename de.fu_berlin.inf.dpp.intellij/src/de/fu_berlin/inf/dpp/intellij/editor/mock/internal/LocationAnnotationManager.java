@@ -70,7 +70,7 @@ public class LocationAnnotationManager {
      * {@link SelectionFillUpAnnotation}s.
      *
      * In principle, this class could also listen to preference changes
-     * directly. But since we want to remove existing annotations when the
+     * directly. But since we want to removeAll existing annotations when the
      * option is disabled, and this class doesn't have access to all open
      * editors, we leave the actual listening to a class that does.
      *

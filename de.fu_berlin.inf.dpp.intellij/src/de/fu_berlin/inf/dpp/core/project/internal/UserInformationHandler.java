@@ -208,7 +208,7 @@ public class UserInformationHandler implements Startable
             while ((System.currentTimeMillis() - synchronizeStart) < USER_LIST_SYNCHRONIZE_TIMEOUT)
             {
 
-                // remove users that left the session in the meantime
+                // removeAll users that left the session in the meantime
                 List<User> currentRemoteUsers = session.getRemoteUsers();
 
                 for (Iterator<User> it = awaitReply.iterator(); it.hasNext(); )
@@ -295,7 +295,7 @@ public class UserInformationHandler implements Startable
                 log.error(
                         "failed to send userFinishedProjectNegotiation-message: "
                                 + user, e);
-                // TODO remove user from session
+                // TODO removeAll user from session
             }
         }
     }
@@ -394,7 +394,7 @@ public class UserInformationHandler implements Startable
 
                 if (user == null)
                 {
-                    log.warn("cannot remove user " + userEntry.jid
+                    log.warn("cannot removeAll user " + userEntry.jid
                             + ", user is not in the session");
                     continue;
                 }

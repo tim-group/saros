@@ -79,7 +79,7 @@ public class ColorIDSetStorageTest {
 
         storage.getColorIDSet(jids);
         storage.remove(0);
-        assertEquals("Storage did not remove entries.", 0, storage.size());
+        assertEquals("Storage did not removeAll entries.", 0, storage.size());
 
         storage.getColorIDSet(jids);
         assertEquals("Storage should not be empty.", 1, storage.size());

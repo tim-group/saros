@@ -115,7 +115,7 @@ public interface IEditorAPI {
      * Attaches listeners to the given editor that will fire the
      * {@link EditorListener} methods on the given editor manager
      *
-     * Connecting to an editorPart multiple times, will automatically remove
+     * Connecting to an editorPart multiple times, will automatically removeAll
      * previous listeners via removeSharedEditorListener(IEditorPart editorPart)
      * (but will print a warning!)
      *

@@ -91,7 +91,7 @@ public class ChangeColorManager extends AbstractActivityProducerAndConsumer impl
 
             if (!sarosSession.isHost())
             {
-                // just remove the color, the host will send the correction
+                // just removeAll the color, the host will send the correction
                 removeColorIdFromPool(user.getColorID());
                 return;
             }
@@ -162,7 +162,7 @@ public class ChangeColorManager extends AbstractActivityProducerAndConsumer impl
         else
         {
             /*
-             * Just remove the (maybe not valid) color ids, the host will
+             * Just removeAll the (maybe not valid) color ids, the host will
              * correct it later
              */
             for (User user : sarosSession.getUsers())
@@ -651,7 +651,7 @@ public class ChangeColorManager extends AbstractActivityProducerAndConsumer impl
                 + colorIDUseCount + " times");
 
         /*
-         * remove the colorID to ensure that getNextAvailableColorID returns
+         * removeAll the colorID to ensure that getNextAvailableColorID returns
          * correct values
          */
         if (colorIDUseCount == 0)

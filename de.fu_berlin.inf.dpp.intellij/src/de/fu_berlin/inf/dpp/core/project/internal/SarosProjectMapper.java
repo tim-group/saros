@@ -221,7 +221,7 @@ public class SarosProjectMapper
      * Removes a project from the currently shared projects. Does nothing if the
      * project is not shared.
      *
-     * @param id the id of the project to remove
+     * @param id the id of the project to removeAll
      */
     public synchronized void removeProject(String id)
     {
@@ -229,7 +229,7 @@ public class SarosProjectMapper
 
         if (project == null)
         {
-            LOG.warn("could not remove project, no project is registerid with ID: "
+            LOG.warn("could not removeAll project, no project is registerid with ID: "
                     + id);
             return;
         }
@@ -359,7 +359,7 @@ public class SarosProjectMapper
      * Removes the given resources from a <b>partially</b> shared project.
      *
      * @param project   a project that was added as a partially shared project
-     * @param resources the resources to remove
+     * @param resources the resources to removeAll
      */
     /*
      * TODO needs proper sync. in the SarosSession class
@@ -373,20 +373,20 @@ public class SarosProjectMapper
 
         if (projectToIDMapping.get(project) == null)
         {
-            LOG.warn("could not remove resources from project " + project
+            LOG.warn("could not removeAll resources from project " + project
                     + " because it is not shared");
             // throw new IllegalStateException(
-            // "could not remove resources from project " + project
+            // "could not removeAll resources from project " + project
             // + " because it is not shared");
             return;
         }
 
         if (completelySharedProjects.contains(project))
         {
-            LOG.warn("cannot remove resources from completely shared project: "
+            LOG.warn("cannot removeAll resources from completely shared project: "
                     + project);
             // throw new IllegalStateException(
-            // "cannot remove resources from completely shared project: " +
+            // "cannot removeAll resources from completely shared project: " +
             // project);
             return;
         }
@@ -398,11 +398,11 @@ public class SarosProjectMapper
     }
 
     /**
-     * Atomically removes and adds resources. The resources to remove will be
+     * Atomically removes and adds resources. The resources to removeAll will be
      * removed first before the resources to add will be added.
      *
      * @param project           a project that was added as a partially shared project
-     * @param resourcesToRemove the resources to remove
+     * @param resourcesToRemove the resources to removeAll
      * @param resourcesToAdd    the resources to add
      */
     /*

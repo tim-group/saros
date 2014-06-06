@@ -127,7 +127,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
         this.projectInfos = projectInfos;
         this.localProjects =new HashMap<String, IProject>();
 
-        //todo: remove logging
+        //todo: removeAll logging
         System.out.println("IncomingProjectNegotiation.IncomingProjectNegotiation logging START");
         final ListIterator<ProjectNegotiationData> iter = projectInfos.listIterator();
         ProjectNegotiationData data;
@@ -743,7 +743,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
     /**
      * Computes the list of files that we're going to request from the host.<br>
-     * If a VCS is used, update files if needed, and remove them from the list
+     * If a VCS is used, update files if needed, and removeAll them from the list
      * of requested files if that's possible.
      *
      * @param currentLocalProject
@@ -807,7 +807,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
      *                            added to the {@link FileListDiff}
      * @param projectID
      * @return A modified FileListDiff which doesn't contain any directories or
-     *         files to remove, but just added and altered files.
+     *         files to removeAll, but just added and altered files.
      */
     protected FileListDiff computeDiff(FileList localFileList,
             FileList remoteFileList, IProject currentLocalProject, String projectID)
@@ -815,7 +815,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     {
         log.debug(this + " : computing file list difference");
 
-        //todo: remove logging
+        //todo: removeAll logging
         System.out.println("IncomingProjectNegotiation.computeDiff REMOTE>>> "+remoteFileList);
         System.out.println("IncomingProjectNegotiation.computeDiff LOCAL>>> "+localFileList);
 
@@ -824,7 +824,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             FileListDiff diff = FileListDiff
                     .diff(localFileList, remoteFileList);
 
-            //todo: remove logging
+            //todo: removeAll logging
             System.out.println("IncomingProjectNegotiation.computeDiff DIFF added>>> "+diff.getAddedPaths());
             System.out.println("IncomingProjectNegotiation.computeDiff DIFF removed>>> "+diff.getRemovedPaths());
             System.out.println("IncomingProjectNegotiation.computeDiff DIFF unaltered>>> "+diff.getUnalteredPaths());

@@ -378,7 +378,7 @@ public class EditorManagerEcl extends AbstractActivityProducerAndConsumer implem
                             .removePropertyChangeListener(annotationPreferenceListener);
 
                     /*
-                     * First need to remove the annotations and then clear the
+                     * First need to removeAll the annotations and then clear the
                      * editorPool
                      */
                     removeAnnotationsFromAllEditors(new Predicate<Annotation>()

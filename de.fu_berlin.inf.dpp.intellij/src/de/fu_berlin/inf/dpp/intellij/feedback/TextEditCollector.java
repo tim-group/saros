@@ -278,7 +278,7 @@ public class TextEditCollector extends AbstractStatisticCollector
             ISarosSession session, IEditorManager editorManager) {
         super(statisticManager, session);
 
-        // TODO: remove
+        // TODO: removeAll
         this.editorManager = editorManager;
     }
 
@@ -423,7 +423,7 @@ public class TextEditCollector extends AbstractStatisticCollector
                  * This local edit occurred inside the time frame
                  * [lastRemote.time - intervalWidth, lastRemote.time +
                  * intervalWidth]. Therefore count it as a parallel text edit
-                 * and remove it from the list, because we are done with it.
+                 * and removeAll it from the list, because we are done with it.
                  */
                 int intervalSeconds = (int) Math.round(intervalWidth / 1000.0);
                 addToMap(parallelTextEdits, intervalSeconds, local.chars);

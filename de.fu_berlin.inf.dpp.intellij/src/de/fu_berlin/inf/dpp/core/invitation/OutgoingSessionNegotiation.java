@@ -91,7 +91,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
 
     @Override
     protected void executeCancellation() {
-        // TODO remove the user from the session !
+        // TODO removeAll the user from the session !
 
         if (currentSessionNegotiations.getProcesses().size() == 0
                 && sarosSession.getRemoteUsers().isEmpty())

@@ -56,10 +56,9 @@ public class EditorPool {
         files.put(document, file);
     }
 
-    public void remove(SPath file) {
-        if (editors.containsKey(file)) {
-            editors.remove(file);
-        }
+    public void removeAll(SPath file) {
+
+        removeEditor(file);
 
         Document doc = null;
         if (documents.containsKey(file)) {
@@ -69,9 +68,14 @@ public class EditorPool {
         if (doc != null) {
             files.remove(doc);
         }
-
-
     }
+
+    public void removeEditor(SPath file) {
+        if (editors.containsKey(file)) {
+            editors.remove(file);
+        }
+    }
+
 
     public Collection<Document> getDocuments() {
         return documents.values();

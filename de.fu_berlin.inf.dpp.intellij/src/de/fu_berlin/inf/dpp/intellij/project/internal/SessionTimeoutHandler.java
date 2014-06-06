@@ -51,7 +51,7 @@ abstract class SessionTimeoutHandler implements Startable {
     protected static final long TIMEOUT = 10000L;
 
     /**
-     * Total timeout in milliseconds to remove a user(host) or stop the
+     * Total timeout in milliseconds to removeAll a user(host) or stop the
      * session(client) if no ping or pong packet is received.
      */
     protected static final long PING_PONG_TIMEOUT = Long.getLong(

@@ -114,7 +114,7 @@ public class EditorActionManager {
 //            if (pooledDoc != null)
 //            {
 //            //    pooledDoc.removeDocumentListener(documentListener);
-//                editorPool.remove(file);
+//                editorPool.removeAll(file);
 //            }
 
                 // editor.getDocument().addDocumentListener(documentListener);
@@ -181,7 +181,7 @@ public class EditorActionManager {
 
                 editorAPI.closeEditor(virtualFile);
             }
-            // editorPool.remove(file);
+            editorPool.removeEditor(file);
 
             //      this.fileListener.setEnabled(true);
         } else {

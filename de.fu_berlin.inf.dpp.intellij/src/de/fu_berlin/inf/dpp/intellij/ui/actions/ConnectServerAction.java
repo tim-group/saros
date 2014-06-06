@@ -124,7 +124,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
         if (activeUser != null)
         {
             account = locateAccount(activeUser);
-            activeUser = null; //remove user name
+            activeUser = null; //removeAll user name
         }
         else if (createNew || saros.getAccountStore().isEmpty())
         {

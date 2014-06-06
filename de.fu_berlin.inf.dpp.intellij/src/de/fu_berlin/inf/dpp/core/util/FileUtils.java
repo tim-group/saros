@@ -139,7 +139,7 @@ public class FileUtils
     /**
      * Writes the given input stream to the given file.
      * <p/>
-     * This operation will remove a possible readOnly flag and re-set if after
+     * This operation will removeAll a possible readOnly flag and re-set if after
      * the operation.
      *
      * @param input the input stream to write to the file
@@ -211,7 +211,7 @@ public class FileUtils
     /**
      * Creates the given file and any missing parent directories.
      * <p/>
-     * This method will try to remove read-only settings on the parent
+     * This method will try to removeAll read-only settings on the parent
      * directories and reset them at the end of the operation.
      *
      * @pre the file must not exist. Use writeFile() for getting this cases

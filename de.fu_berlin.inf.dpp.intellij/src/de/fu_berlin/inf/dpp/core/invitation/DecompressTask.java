@@ -108,7 +108,7 @@ public class DecompressTask implements IWorkspaceRunnable
                 IFile file = project.getFile(path);
 
                 /*
-                 * do not use FileUtils because it will remove read-only access
+                 * do not use FileUtils because it will removeAll read-only access
                  * which might not what the user want
                  */
                 createFoldersForFile(file);

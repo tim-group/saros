@@ -190,7 +190,7 @@ class EditorPool {
     }
 
     /**
-     * Tries to remove an {@link IEditorPart} from {@link EditorPool}. This
+     * Tries to removeAll an {@link IEditorPart} from {@link EditorPool}. This
      * Method also disconnects the editorPart from its data source (identified
      * by associated {@link IFile}) and removes registered listeners:
      * <ul>
@@ -209,7 +209,7 @@ class EditorPool {
      */
     public IPath remove(IEditorPart editorPart, ISarosSession sarosSession) {
 
-        log.trace("EditorPool.remove " + editorPart + "invoked");
+        log.trace("EditorPool.removeAll " + editorPart + "invoked");
 
         IEditorInput input = editorInputMap.remove(editorPart);
         if (input == null) {
@@ -237,7 +237,7 @@ class EditorPool {
             return null;
         }
 
-        // TODO Remove should remove empty HashSets
+        // TODO Remove should removeAll empty HashSets
         if (!getEditors(new SPath(ResourceAdapterFactory.create(file))).remove(
                 editorPart)) {
             log.error("EditorPart was never added to the EditorPool: "

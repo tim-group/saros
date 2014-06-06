@@ -319,7 +319,7 @@ public class StatisticManager extends AbstractFeedbackManager implements
                 + " but we were called from one anyhow.", new StackTrace());
         }
 
-        // fetch the data from the collector and remove him from the active list
+        // fetch the data from the collector and removeAll him from the active list
         statistic.addAll(data);
         if (activeCollectors != null) {
             if (!activeCollectors.remove(collector)) {
