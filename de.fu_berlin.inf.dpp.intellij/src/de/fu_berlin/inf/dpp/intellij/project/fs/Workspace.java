@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
-import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;

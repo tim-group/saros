@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import de.fu_berlin.inf.dpp.core.invitation.FileList;
+import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
+import de.fu_berlin.inf.dpp.core.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -171,7 +174,7 @@ public class FileListTest {
         threeFileList.addAll(resources);
 
         threeEntryList = FileListFactory.createFileList(null, resources, null,
-            false, null);
+                false, null);
 
         resources.add(fileInSubDir2);
 
@@ -215,7 +218,7 @@ public class FileListTest {
     @Test
     public void testDiffGetAddedFilePaths() {
         Collection<IPath> paths = FileListDiff.diff(threeEntryList,
-            fourEntryList).getAddedPaths();
+                fourEntryList).getAddedPaths();
 
         assertPaths(new String[] { "subdir/file2" }, paths);
     }

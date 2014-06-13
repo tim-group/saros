@@ -22,20 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.zip;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 10.00
- */
 
-
-import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.util.StatisticUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;

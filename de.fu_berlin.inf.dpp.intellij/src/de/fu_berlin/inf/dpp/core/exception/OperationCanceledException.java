@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.exception;
+package de.fu_berlin.inf.dpp.core.exception;
 
 //todo: created from Eclipse
 public class OperationCanceledException extends RuntimeException

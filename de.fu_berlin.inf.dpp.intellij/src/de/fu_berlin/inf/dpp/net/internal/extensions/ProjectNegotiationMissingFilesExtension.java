@@ -5,7 +5,7 @@ import java.util.List;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationExtension;
-import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.core.invitation.FileList;
 
 //TODO Move to core (package communication.extensions)
 

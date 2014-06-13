@@ -6,6 +6,7 @@ import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 
+
 /**
  * Interface for handling incoming and outgoing session and project
  * negotiations.

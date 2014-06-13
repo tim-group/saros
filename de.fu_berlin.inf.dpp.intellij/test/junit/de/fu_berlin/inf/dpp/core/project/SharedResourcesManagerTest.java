@@ -12,6 +12,7 @@ import static org.powermock.api.easymock.PowerMock.mockStaticPartial;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import de.fu_berlin.inf.dpp.activities.FileActivity;
@@ -85,7 +86,7 @@ public class SharedResourcesManagerTest {
     }
 
     @Before
-    public void before() throws CoreException {
+    public void before() throws IOException {
         mockStaticPartial(FileUtils.class, "writeFile");
 
         /**

@@ -22,11 +22,11 @@
 
 package de.fu_berlin.inf.dpp.core.util;
 
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.util.Pair;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.commons.io.IOUtils;
@@ -40,16 +40,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.zip.Adler32;
 
-public class FileUtils
-{
+public class FileUtils {
 
     private static Logger log = Logger.getLogger(FileUtils.class);
 
     private static final int BUFFER_SIZE = 32 * 1024;
     @Inject
     public static IWorkspace workspace;
-    private FileUtils()
-    {
+
+    private FileUtils() {
         // no instantiation allowed
     }
 
@@ -59,16 +58,12 @@ public class FileUtils
      * @return checksum of file
      * @throws IOException if checksum calculation has been failed.
      */
-    public static long checksum(IFile file) throws IOException
-    {
+    public static long checksum(IFile file) throws IOException {
 
         InputStream in;
-        try
-        {
+        try {
             in = file.getContents();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new IOException("failed to calculate checksum.", e);
         }
 
@@ -78,15 +73,11 @@ public class FileUtils
 
         int read;
 
-        try
-        {
-            while ((read = in.read(buffer)) != -1)
-            {
+        try {
+            while ((read = in.read(buffer)) != -1) {
                 adler.update(buffer, 0, read);
             }
-        }
-        finally
-        {
+        } finally {
             IOUtils.closeQuietly(in);
         }
 
@@ -102,13 +93,11 @@ public class FileUtils
      *                 <code>false</code> to make writable
      * @return The state before setting read-only to the given value.
      */
-    public static boolean setReadOnly(IResource file, boolean readOnly)
-    {
+    public static boolean setReadOnly(IResource file, boolean readOnly) {
 
         IResourceAttributes attributes = file.getResourceAttributes();
 
-        if (attributes == null)
-        {
+        if (attributes == null) {
             // TODO Throw a FileNotFoundException and deal with it everywhere!
             log.error("File does not exist for setting readOnly == " + readOnly
                     + ": " + file, new StackTrace());
@@ -117,18 +106,14 @@ public class FileUtils
         boolean result = attributes.isReadOnly();
 
         // Already in desired state
-        if (result == readOnly)
-        {
+        if (result == readOnly) {
             return result;
         }
 
         attributes.setReadOnly(readOnly);
-        try
-        {
+        try {
             file.setResourceAttributes(attributes);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // failure is not an option
             log.warn("Failed to set resource readonly == " + readOnly + ": "
                     + file);
@@ -149,14 +134,10 @@ public class FileUtils
      * finished by Eclipse.
      */
     public static void writeFile(InputStream input, IFile file,
-            IProgressMonitor monitor) throws CoreException
-    {
-        if (file.exists())
-        {
+                                 IProgressMonitor monitor) throws IOException {
+        if (file.exists()) {
             updateFile(input, file, monitor);
-        }
-        else
-        {
+        } else {
             createFile(input, file, monitor);
         }
 
@@ -173,11 +154,9 @@ public class FileUtils
      * @throws FileNotFoundException
      */
     public static void backupFile(IFile file, IProgressMonitor monitor)
-            throws CoreException, FileNotFoundException
-    {
+            throws CoreException, FileNotFoundException {
 
-        if (!file.exists())
-        {
+        if (!file.exists()) {
             throw new FileNotFoundException();
         }
 
@@ -187,10 +166,8 @@ public class FileUtils
 
         IPath backupPath = originalBackupPath;
 
-        for (int i = 0; i < 1000; i++)
-        {
-            if (!project.exists(backupPath))
-            {
+        for (int i = 0; i < 1000; i++) {
+            if (!project.exists(backupPath)) {
                 break;
             }
 
@@ -198,12 +175,9 @@ public class FileUtils
                     .addFileExtension("BACKUP_" + i);
         }
 
-        try
-        {
+        try {
             file.move(file.getFullPath().removeLastSegments(1).append(backupPath.lastSegment()), true);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new CoreException(e.getMessage(), e.getCause());
         }
     }
@@ -218,37 +192,29 @@ public class FileUtils
      * handled.
      */
     public static void createFile(final InputStream input, final IFile file,
-            IProgressMonitor monitor) throws CoreException
-    {
+                                  IProgressMonitor monitor) throws IOException {
 
-        IWorkspaceRunnable createFileProcedure = new IWorkspaceRunnable()
-        {
+        IWorkspaceRunnable createFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
+            public void run(IProgressMonitor monitor) throws CoreException {
                 // Make sure directory exists
                 mkdirs(file);
 
                 // Make sure that parent is writable
                 IContainer parent = file.getParent();
                 boolean wasReadOnly = false;
-                if (parent != null)
-                {
+                if (parent != null) {
                     wasReadOnly = setReadOnly(parent, false);
                 }
 
-                try
-                {
+                try {
                     file.create(input, true);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
                 // Reset permissions on parent
-                if (parent != null && wasReadOnly)
-                {
+                if (parent != null && wasReadOnly) {
                     setReadOnly(parent, true);
                 }
 
@@ -267,20 +233,14 @@ public class FileUtils
      * @pre the file must exist
      */
     public static void updateFile(final InputStream input, final IFile file,
-            IProgressMonitor monitor) throws CoreException
-    {
+                                  IProgressMonitor monitor) throws IOException {
 
-        IWorkspaceRunnable replaceFileProcedure = new IWorkspaceRunnable()
-        {
+        IWorkspaceRunnable replaceFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                try
-                {
+            public void run(IProgressMonitor monitor) throws CoreException {
+                try {
                     file.setContents(input, true, true);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
             }
@@ -297,65 +257,54 @@ public class FileUtils
      */
 
 
-    public static IFolder getParentFolder(IResource resource)
-    {
+    public static IFolder getParentFolder(IResource resource) {
 
-        if (resource == null)
-        {
+        if (resource == null) {
             return null;
         }
         IContainer parent = resource.getParent();
-        if (parent == null || parent.getType() != IResource.FOLDER)
-        {
+        if (parent == null || parent.getType() != IResource.FOLDER) {
             return null;
         }
         return (IFolder) parent;
     }
 
-    public static void create(final IFolder folder) throws CoreException
-    {
+    public static void create(final IFolder folder) throws IOException {
 
         // if ((folder == null) || (folder.exists())) {
         // log.debug(".create() Creating folder not possible");
         // return;
         // }
 
-        if (folder == null)
-        {
+        if (folder == null) {
             log.warn(".create() Creating folder not possible -  it is null");
             throw new IllegalArgumentException();
         }
-        if (folder.exists())
-        {
+        if (folder.exists()) {
             log.debug(".create() Creating folder " + folder.getName()
                     + " not possible - it already exists");
             return;
         }
-        IWorkspaceRunnable createFolderProcedure = new IWorkspaceRunnable()
-        {
+        IWorkspaceRunnable createFolderProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
+            public void run(IProgressMonitor monitor) throws CoreException {
 
                 // recursively create folders until parent folder exists
                 // or project root is reached
                 IFolder parentFolder = getParentFolder(folder);
-                if (parentFolder != null)
-                {
-                    create(parentFolder);
-                }
+                try {
 
-                try
-                {
+                    if (parentFolder != null) {
+                        create(parentFolder);
+                    }
+
+
                     folder.create(IResource.NONE, true);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
-                if (monitor.isCanceled())
-                {
+                if (monitor.isCanceled()) {
                     log.warn("Creating folder failed: " + folder);
                 }
 
@@ -368,43 +317,33 @@ public class FileUtils
 
     }
 
-    public static void delete(final IResource resource) throws CoreException
-    {
-        if (!resource.exists())
-        {
+    public static void delete(final IResource resource) throws IOException {
+        if (!resource.exists()) {
             log.warn("File not found for deletion: " + resource,
                     new StackTrace());
             return;
         }
 
-        IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable()
-        {
+        IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                if (!resource.exists())
-                {
+            public void run(IProgressMonitor monitor) throws CoreException {
+                if (!resource.exists()) {
                     return;
                 }
 
-                if (resource.getResourceAttributes() == null)
-                {
+                if (resource.getResourceAttributes() == null) {
                     return;
                 }
 
                 setReadOnly(resource, false);
 
-                try
-                {
+                try {
                     resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
-                if (monitor.isCanceled())
-                {
+                if (monitor.isCanceled()) {
                     log.warn("Removing resource failed: " + resource);
                 }
             }
@@ -426,37 +365,29 @@ public class FileUtils
      * @param source      Resource, that is going to be moved
      */
     public static void move(final IPath destination, final IResource source)
-            throws CoreException
-    {
+            throws IOException {
 
         log.trace(".move(" + destination.toOSString() + " , "
                 + source.getName() + ")");
 
-        if (!source.isAccessible())
-        {
+        if (!source.isAccessible()) {
             log.warn(".move Source file can not be accessed  "
                     + source.getFullPath());
             return;
         }
 
-        IWorkspaceRunnable moveProcedure = new IWorkspaceRunnable()
-        {
+        IWorkspaceRunnable moveProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
+            public void run(IProgressMonitor monitor) throws CoreException {
                 IPath absDestination = destination.makeAbsolute();
 
-                try
-                {
+                try {
                     source.move(absDestination, false);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new CoreException(e.getMessage(), e.getCause());
                 }
 
-                if (monitor.isCanceled())
-                {
+                if (monitor.isCanceled()) {
                     log.warn("Moving resource failed (Cancel Button pressed).");
                 }
             }
@@ -471,45 +402,34 @@ public class FileUtils
      * Makes sure that the parent directories of the given IResource exist,
      * possibly removing write protection.
      */
-    public static boolean mkdirs(IResource resource)
-    {
+    public static boolean mkdirs(IResource resource) {
 
-        if (resource == null)
-        {
+        if (resource == null) {
             return true;
         }
 
         IFolder parent = getParentFolder(resource);
-        if (parent == null || parent.exists())
-        {
+        if (parent == null || parent.exists()) {
             return true;
         }
 
         IContainer root = parent;
-        while (!root.exists())
-        {
+        while (!root.exists()) {
             IContainer temp = root.getParent();
-            if (temp == null)
-            {
+            if (temp == null) {
                 break;
             }
             root = temp;
         }
         boolean wasReadOnly = FileUtils.setReadOnly(root, false);
 
-        try
-        {
+        try {
             create(parent);
-        }
-        catch (CoreException e)
-        {
+        } catch (IOException e) {
             log.error("Could not create Dir: " + parent.getFullPath());
             return false;
-        }
-        finally
-        {
-            if (wasReadOnly)
-            {
+        } finally {
+            if (wasReadOnly) {
                 FileUtils.setReadOnly(root, true);
             }
         }
@@ -530,28 +450,22 @@ public class FileUtils
      */
     public static Pair<Long, Long> getFileCountAndSize(
             Collection<? extends IResource> resources, boolean includeMembers,
-            int flags)
-    {
+            int flags) {
         long totalFileSize = 0;
         long totalFileCount = 0;
 
         Pair<Long, Long> fileCountAndSize = new Pair<Long, Long>(0L, 0L);
 
-        for (IResource resource : resources)
-        {
-            switch (resource.getType())
-            {
+        for (IResource resource : resources) {
+            switch (resource.getType()) {
                 case IResource.FILE:
                     totalFileCount++;
 
-                    try
-                    {
+                    try {
                         long filesize = -1; //todo // EFS.getStore(resource.getLocationURI()).fetchInfo().getLength();
 
                         totalFileSize += filesize;
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         log.warn(
                                 "failed to retrieve file size of file "
                                         + resource.getLocationURI(), e
@@ -560,13 +474,11 @@ public class FileUtils
                     break;
                 case IResource.PROJECT:
                 case IResource.FOLDER:
-                    if (!includeMembers)
-                    {
+                    if (!includeMembers) {
                         break;
                     }
 
-                    try
-                    {
+                    try {
                         IContainer container = ((IContainer) resource
                                 .getAdapter(IContainer.class));
 
@@ -578,9 +490,7 @@ public class FileUtils
                         totalFileSize += subFileCountAndSize.p;
                         totalFileCount += subFileCountAndSize.v;
 
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         log.warn("failed to process container: " + resource, e);
                     }
                     break;
@@ -601,37 +511,27 @@ public class FileUtils
      * does not exist or is out of sync, the reference points to no
      * file, or the conversion to a byte array failed.
      */
-    public static byte[] getLocalFileContent(IFile localFile)
-    {
+    public static byte[] getLocalFileContent(IFile localFile) {
 
         InputStream in = null;
         byte[] content = null;
-        try
-        {
+        try {
             in = localFile.getContents();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             log.warn("could not get content of file " + localFile.getFullPath());
         }
 
-        if (in == null)
-        {
+        if (in == null) {
             return null;
         }
 
 
-        try
-        {
+        try {
             content = IOUtils.toByteArray(in);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             log.warn("could not convert file content to byte array (file: "
                     + localFile.getFullPath() + ")");
-        }
-        finally
-        {
+        } finally {
             IOUtils.closeQuietly(in);
         }
         return content;

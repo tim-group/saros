@@ -26,15 +26,12 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.invitation.*;
-import de.fu_berlin.inf.dpp.invitation.ProcessListener;
+import de.fu_berlin.inf.dpp.invitation.*;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.internal.SarosSession;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
 import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
@@ -480,8 +477,8 @@ public class SarosSessionManager implements ISarosSessionManager
      * This method is called when a new project was added to the session
      *
      * @param from         The one who added the project.
-     * @param projectInfos what projects where added ({@link FileList}, projectName etc.)
-     *                     see: {@link ProjectNegotiationData}
+     * @param projectInfos what projects where added ({@link de.fu_berlin.inf.dpp.core.invitation.FileList}, projectName etc.)
+     *                     see: {@link de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData}
      * @param processID    ID of the exchanging process
      */
     @Override

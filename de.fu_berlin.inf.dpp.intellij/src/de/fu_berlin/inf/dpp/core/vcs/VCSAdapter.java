@@ -24,12 +24,12 @@ package de.fu_berlin.inf.dpp.core.vcs;
 
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
-import de.fu_berlin.inf.dpp.intellij.exception.TeamException;
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.exception.TeamException;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;

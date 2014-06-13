@@ -25,10 +25,10 @@ package de.fu_berlin.inf.dpp.intellij.project;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
@@ -43,6 +43,7 @@ import org.picocontainer.Startable;
 import org.picocontainer.annotations.Inject;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -179,7 +180,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
                 exec((VCSActivity) activity);
             }
 
-        } catch (CoreException e) {
+        } catch (IOException e) {
             log.error("Failed to execute resource activity.", e);
         } finally {
             fileReplacementInProgressObservable.replacementDone();
@@ -188,7 +189,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }
     }
 
-    protected void exec(FileActivity activity) throws CoreException {
+    protected void exec(FileActivity activity) throws IOException  {
 
         if (activity.isRecovery()) {
             handleFileRecovery(activity);
@@ -209,7 +210,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }
     }
 
-    private void handleFileRecovery(FileActivity activity) throws CoreException {
+    private void handleFileRecovery(FileActivity activity) throws IOException {
         SPath path = activity.getPath();
 
         log.debug("performing recovery for file: "
@@ -240,7 +241,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         //consistencyWatchdogClient.performCheck(path);
     }
 
-    private void handleFileMove(FileActivity activity) throws CoreException {
+    private void handleFileMove(FileActivity activity) throws IOException {
         IPath newFilePath = activity.getPath().getFullPath();
         IResource oldResource = activity.getOldPath().getResource();
 
@@ -253,7 +254,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         handleFileCreation(activity);
     }
 
-    private void handleFileDeletion(FileActivity activity) throws CoreException {
+    private void handleFileDeletion(FileActivity activity) throws IOException {
         IFile file = activity.getPath().getFile();
 
 
@@ -268,7 +269,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }
     }
 
-    private void handleFileCreation(FileActivity activity) throws CoreException {
+    private void handleFileCreation(FileActivity activity) throws IOException {
 
         //We need to try replaceAll directly in document if it is open
         boolean replaced = false;
@@ -296,7 +297,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }
     }
 
-    protected void exec(FolderActivity activity) throws CoreException {
+    protected void exec(FolderActivity activity) {
 
         SPath path = activity.getPath();
 
@@ -304,16 +305,19 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         fileSystemListener.setEnabled(false);
         fileSystemListener.addIncoming(folder.getFullPath().toFile());
 
-        if (activity.getType() == FolderActivity.Type.CREATED) {
-            FileUtils.create(folder);
-        } else if (activity.getType() == FolderActivity.Type.REMOVED) {
-            try {
+        try {
+            if (activity.getType() == FolderActivity.Type.CREATED) {
+                FileUtils.create(folder);
+            } else if (activity.getType() == FolderActivity.Type.REMOVED) {
+
                 if (folder.exists()) {
                     FileUtils.delete(folder);
                 }
-            } catch (CoreException e) {
-                log.warn("Removing folder failed: " + folder);
+
             }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new OperationCanceledException("Canceled due to IO error");
         }
 
         fileSystemListener.setEnabled(true);
@@ -390,8 +394,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         }*/
     }
 
-    protected void fireActivityInternal(IActivity activity)
-    {
+    protected void fireActivityInternal(IActivity activity) {
         super.fireActivity(activity);
     }
 

@@ -22,11 +22,10 @@
 
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
-import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -42,8 +41,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class DecompressTask implements IWorkspaceRunnable
-{
+// TODO Consolidate carefully with Saros/E's DecompressArchiveTask
+public class DecompressTask implements IWorkspaceRunnable {
 
     private static final Logger LOG = Logger.getLogger(DecompressTask.class);
 
@@ -51,7 +50,8 @@ public class DecompressTask implements IWorkspaceRunnable
     private final IProgressMonitor monitor;
     private final IProject project;
 
-    private List<String> preventExt = Arrays.asList(new String[]{"iml", "ipr", "iws"});
+    private List<String> preventExt = Arrays
+        .asList(new String[]{"iml", "ipr", "iws"});
 
     @Inject
     private IPathFactory pathFactory;
@@ -65,41 +65,35 @@ public class DecompressTask implements IWorkspaceRunnable
      * @param project project to uncompress the data to
      * @param monitor monitor that is used for progress report and cancellation or
      *                <code>null</code> to use the monitor provided by the
-     *                {@link #run(de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor)} method
+     *                {@link #run(IProgressMonitor)} method
      */
     public DecompressTask(ZipInputStream in, IProject project,
-            IProgressMonitor monitor)
-    {
+        IProgressMonitor monitor) {
         this.in = in;
         this.project = project;
         this.monitor = monitor;
     }
 
-    public void setPathFactory(IPathFactory pathFactory)
-    {
+    public void setPathFactory(IPathFactory pathFactory) {
         this.pathFactory = pathFactory;
     }
 
     // TODO extract as much as possible even on some failures
     @Override
-    public void run(IProgressMonitor monitor) throws CoreException
-    {
-        if (this.monitor != null)
-        {
+    public void run(IProgressMonitor monitor) throws IOException {
+        if (this.monitor != null) {
             monitor = this.monitor;
         }
 
         // TODO calculate size for better progress
 
-        ISubMonitor subMonitor = monitor.convert("Unpacking archive file to workspace", 1);
+        ISubMonitor subMonitor = monitor
+            .convert("Unpacking archive file to workspace", 1);
 
-        try
-        {
+        try {
             ZipEntry entry;
-            while ((entry = in.getNextEntry()) != null)
-            {
-                if (subMonitor.isCanceled())
-                {
+            while ((entry = in.getNextEntry()) != null) {
+                if (subMonitor.isCanceled()) {
                     throw new OperationCanceledException();
                 }
 
@@ -112,61 +106,48 @@ public class DecompressTask implements IWorkspaceRunnable
                  */
                 createFoldersForFile(file);
 
-                InputStream uncloseable = new FilterInputStream(in)
-                {
+                InputStream uncloseable = new FilterInputStream(in) {
                     @Override
-                    public void close() throws IOException
-                    {
+                    public void close() throws IOException {
                         // prevent the ZipInputStream from being closed
                     }
                 };
 
                 subMonitor.subTask("decompressing: " + path);
 
-                if (!file.exists())
-                {
+                if (!file.exists()) {
                     file.create(uncloseable, true);
-                }
-                else
-                {
-                    if (!preventExt.contains(file.getFullPath().getFileExtension()))
-                    {
+                } else {
+                    if (!preventExt
+                        .contains(file.getFullPath().getFileExtension())) {
                         file.setContents(uncloseable, true, true);
                     }
                 }
 
-                if (LOG.isTraceEnabled())
-                {
+                if (LOG.isTraceEnabled()) {
                     LOG.trace("file written to disk: " + path);
                 }
 
                 in.closeEntry();
             }
 
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             LOG.error("failed to unpack archive", e);
-            throw new CoreException("failed to unpack archive", e);
-        }
-        finally
-        {
+            throw e;
+        } finally {
             monitor.subTask("");
             IOUtils.closeQuietly(in);
             monitor.done();
         }
     }
 
-    private void createFoldersForFile(IFile file) throws CoreException
-    {
+    private void createFoldersForFile(IFile file) throws IOException {
         List<IFolder> parents = new ArrayList<IFolder>();
 
         IContainer parent = file.getParent();
 
-        while (parent != null && parent.getType() == IResource.FOLDER)
-        {
-            if (parent.exists())
-            {
+        while (parent != null && parent.getType() == IResource.FOLDER) {
+            if (parent.exists()) {
                 break;
             }
 
@@ -176,21 +157,14 @@ public class DecompressTask implements IWorkspaceRunnable
 
         Collections.reverse(parents);
 
-        for (IFolder folder : parents)
-        {
-            try
-            {
-                folder.create(false, true);
-            }
-            catch (IOException e)
-            {
-                throw new CoreException(e.getMessage(), e.getCause());
-            }
+        for (IFolder folder : parents) {
+
+            folder.create(false, true);
+
         }
     }
 
-    public void setPreventExt(String... extensions)
-    {
+    public void setPreventExt(String... extensions) {
         this.preventExt = Arrays.asList(extensions);
     }
 }

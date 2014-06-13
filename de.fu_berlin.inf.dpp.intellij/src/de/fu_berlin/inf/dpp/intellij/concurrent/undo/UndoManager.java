@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent.undo;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 

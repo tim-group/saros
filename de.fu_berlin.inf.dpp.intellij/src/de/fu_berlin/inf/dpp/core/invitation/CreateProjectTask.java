@@ -26,10 +26,11 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.picocontainer.annotations.Inject;
+
+import java.io.IOException;
 
 public class CreateProjectTask implements IWorkspaceRunnable
 {
@@ -78,7 +79,7 @@ public class CreateProjectTask implements IWorkspaceRunnable
     }
 
     @Override
-    public void run(IProgressMonitor monitor) throws CoreException
+    public void run(IProgressMonitor monitor) throws IOException
     {
         if (this.monitor != null)
         {

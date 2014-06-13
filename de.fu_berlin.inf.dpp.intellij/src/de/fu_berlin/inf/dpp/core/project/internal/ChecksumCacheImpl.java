@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.events.FileContentChangedListener;
+import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import org.apache.log4j.Logger;
 
 

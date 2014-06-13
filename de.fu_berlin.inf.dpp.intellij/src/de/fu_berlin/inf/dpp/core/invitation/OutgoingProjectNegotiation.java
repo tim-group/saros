@@ -4,25 +4,23 @@ import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
-import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
+
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
+
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
-import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.zip.FileZipper;
 import de.fu_berlin.inf.dpp.core.zip.ZipProgressMonitor;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.invitation.FileList;
-import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
@@ -66,7 +64,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     private final static Random PROCESS_ID_GENERATOR = new Random();
 
     @Inject
-    private IEditorManager editorManager;
+    private IEditorManagerBase editorManager;
 
     @Inject
     private IChecksumCache checksumCache;
@@ -587,7 +585,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 pInfos.add(pInfo);
 
             }
-            catch (CoreException e)
+            catch (IOException e)
             {
                 e.printStackTrace();
                 /*

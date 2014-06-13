@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.project.events.FileContentChangedListener;
+import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import org.junit.Test;
 
 

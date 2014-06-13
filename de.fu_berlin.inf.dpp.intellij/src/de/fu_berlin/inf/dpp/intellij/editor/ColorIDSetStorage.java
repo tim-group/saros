@@ -62,33 +62,28 @@ public final class ColorIDSetStorage {
      */
     public ColorIDSetStorage(IPreferenceStore prefStore) {
         this.preferenceStore = prefStore;
-        load();
-        remove(REMOVE_THRESHOLD);
+        // load(); //todo
+        //  remove(REMOVE_THRESHOLD); //todo
     }
 
     /**
      * Returns the matching {@link ColorIDSet} for the given ids if possible.
      *
-     * @param ids
-     *            the ids to lookup
+     * @param ids the ids to lookup
      * @return {@link ColorIDSet} or a new set that includes all ids if no
-     *         matching set was found
-     *
+     * matching set was found
      */
     public synchronized ColorIDSet getColorIDSet(Collection<String> ids) {
-        return getColorIDSet(ids, Collections.<String> emptyList());
+        return getColorIDSet(ids, Collections.<String>emptyList());
     }
 
     /**
      * Returns the matching {@link ColorIDSet} for the given ids if possible.
      *
-     * @param ids
-     *            the ids to lookup
-     * @param additionalIds
-     *            additional ids to add
+     * @param ids           the ids to lookup
+     * @param additionalIds additional ids to add
      * @return {@link ColorIDSet} or a new set that includes all ids and
-     *         additionalIds if no matching set was found
-     *
+     * additionalIds if no matching set was found
      */
     public synchronized ColorIDSet getColorIDSet(Collection<String> ids,
                                                  Collection<String> additionalIds) {
@@ -132,7 +127,6 @@ public final class ColorIDSetStorage {
     }
 
     /**
-     *
      * @return numbers of sets registered
      */
     public synchronized int size() {
@@ -147,9 +141,8 @@ public final class ColorIDSetStorage {
      * @param id
      * @param colorID
      * @param favoriteColorID
-     * @throws IllegalArgumentException
-     *             when the caller tries to set a color multiple times or when
-     *             he tries to add a new user.
+     * @throws IllegalArgumentException when the caller tries to set a color multiple times or when
+     *                                  he tries to add a new user.
      */
     public synchronized void updateColor(ColorIDSet set, String id,
                                          int colorID, int favoriteColorID) throws IllegalArgumentException {
@@ -167,14 +160,13 @@ public final class ColorIDSetStorage {
     /**
      * Removes entries that are older than the given lifespan.
      *
-     * @param lifespan
-     *            in milliseconds
+     * @param lifespan in milliseconds
      */
     synchronized void remove(long lifespan) {
         long threshold = System.currentTimeMillis() - lifespan;
 
         for (Iterator<ColorIDSet> it = currentAvailableSets.iterator(); it
-                .hasNext();) {
+                .hasNext(); ) {
             ColorIDSet colorIdSet = it.next();
 
             if (colorIdSet.getTimestamp() <= threshold)
