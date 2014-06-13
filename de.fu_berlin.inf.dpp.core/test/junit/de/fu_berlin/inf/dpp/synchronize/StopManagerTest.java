@@ -15,9 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.StopActivity;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.StopActivity;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.IActivityListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -42,12 +42,16 @@ public class StopManagerTest {
     @Before
     public void createSessionMocks() {
         alicesSession = EasyMock.createMock(ISarosSession.class);
-        alicesSession.addActivityProvider(EasyMock.isA(StopManager.class));
-        alicesSession.removeActivityProvider(EasyMock.isA(StopManager.class));
 
-        alicesAlice = new User(new JID("alice"), true, true, 1, -1);
-        alicesBob = new User(new JID("bob"), false, false, 2, -1);
-        alicesCarl = new User(new JID("carl"), false, false, 3, -1);
+        alicesSession.addActivityProducer(EasyMock.isA(StopManager.class));
+        alicesSession.removeActivityProducer(EasyMock.isA(StopManager.class));
+
+        alicesSession.addActivityConsumer(EasyMock.isA(StopManager.class));
+        alicesSession.removeActivityConsumer(EasyMock.isA(StopManager.class));
+
+        alicesAlice = new User(new JID("alice"), null, true, true, 1, -1);
+        alicesBob = new User(new JID("bob"), null, false, false, 2, -1);
+        alicesCarl = new User(new JID("carl"), null, false, false, 3, -1);
 
         alicesAlice.setInSession(true);
         alicesBob.setInSession(true);
@@ -68,12 +72,16 @@ public class StopManagerTest {
         EasyMock.replay(alicesSession);
 
         bobsSession = EasyMock.createMock(ISarosSession.class);
-        bobsSession.addActivityProvider(EasyMock.isA(StopManager.class));
-        bobsSession.removeActivityProvider(EasyMock.isA(StopManager.class));
 
-        bobsAlice = new User(new JID("alice"), true, false, 1, -1);
-        bobsBob = new User(new JID("bob"), false, true, 2, -1);
-        bobsCarl = new User(new JID("carl"), false, false, 3, -1);
+        bobsSession.addActivityProducer(EasyMock.isA(StopManager.class));
+        bobsSession.removeActivityProducer(EasyMock.isA(StopManager.class));
+
+        bobsSession.addActivityConsumer(EasyMock.isA(StopManager.class));
+        bobsSession.removeActivityConsumer(EasyMock.isA(StopManager.class));
+
+        bobsAlice = new User(new JID("alice"), null, true, false, 1, -1);
+        bobsBob = new User(new JID("bob"), null, false, true, 2, -1);
+        bobsCarl = new User(new JID("carl"), null, false, false, 3, -1);
 
         bobsAlice.setInSession(true);
         bobsBob.setInSession(true);
@@ -93,12 +101,16 @@ public class StopManagerTest {
         EasyMock.replay(bobsSession);
 
         carlsSession = EasyMock.createMock(ISarosSession.class);
-        carlsSession.addActivityProvider(EasyMock.isA(StopManager.class));
-        carlsSession.removeActivityProvider(EasyMock.isA(StopManager.class));
 
-        carlsAlice = new User(new JID("alice"), true, false, 1, -1);
-        carlsBob = new User(new JID("bob"), false, false, 2, -1);
-        carlsCarl = new User(new JID("carl"), false, true, 3, -1);
+        carlsSession.addActivityProducer(EasyMock.isA(StopManager.class));
+        carlsSession.removeActivityProducer(EasyMock.isA(StopManager.class));
+
+        carlsSession.addActivityConsumer(EasyMock.isA(StopManager.class));
+        carlsSession.removeActivityConsumer(EasyMock.isA(StopManager.class));
+
+        carlsAlice = new User(new JID("alice"), null, true, false, 1, -1);
+        carlsBob = new User(new JID("bob"), null, false, false, 2, -1);
+        carlsCarl = new User(new JID("carl"), null, false, true, 3, -1);
 
         carlsAlice.setInSession(true);
         carlsBob.setInSession(true);
@@ -342,8 +354,12 @@ public class StopManagerTest {
         // Create a special session that allows us to kick bob out of the
         // session and test the cancellation for that case.
         alicesSession = EasyMock.createMock(ISarosSession.class);
-        alicesSession.addActivityProvider(EasyMock.isA(StopManager.class));
-        alicesSession.removeActivityProvider(EasyMock.isA(StopManager.class));
+
+        alicesSession.addActivityProducer(EasyMock.isA(StopManager.class));
+        alicesSession.removeActivityProducer(EasyMock.isA(StopManager.class));
+
+        alicesSession.addActivityConsumer(EasyMock.isA(StopManager.class));
+        alicesSession.removeActivityConsumer(EasyMock.isA(StopManager.class));
 
         alicesSession.getLocalUser();
         EasyMock.expectLastCall().andReturn(alicesAlice).anyTimes();
@@ -533,8 +549,8 @@ public class StopManagerTest {
     }
 
     private static User rewriteUser(User user) {
-        User copy = new User(user.getJID(), user.isHost(), !user.isLocal(),
-            user.getColorID(), -1);
+        User copy = new User(user.getJID(), null, user.isHost(),
+            !user.isLocal(), user.getColorID(), -1);
         copy.setInSession(true);
         return copy;
     }

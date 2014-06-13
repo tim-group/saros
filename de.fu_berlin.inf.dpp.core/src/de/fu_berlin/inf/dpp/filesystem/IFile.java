@@ -22,12 +22,13 @@
 
 package de.fu_berlin.inf.dpp.filesystem;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * This interface is under development. It currently equals its Eclipse
- * counterpart. If not mentioned otherwise all offered method are equivalent to
+ * counterpart. If not mentioned otherwise all offered methods are equivalent to
  * their Eclipse counterpart.
  */
 public interface IFile extends IResource {
@@ -35,10 +36,20 @@ public interface IFile extends IResource {
 
     public InputStream getContents() throws IOException;
 
-    public void setContents(InputStream input, boolean force, boolean keepHistory)
-        throws IOException;
+    /**
+     * Equivalent to the Eclipse call
+     * <code>IFile#setContents(input, force, keepHistory, null)</code>
+     */
+    public void setContents(InputStream input, boolean force,
+        boolean keepHistory) throws IOException;
 
+    /**
+     * Equivalent to the Eclipse call
+     * <code>IFile#create(input, force, null)</code>
+     */
     public void create(InputStream input, boolean force) throws IOException;
 
+    public IPath getLocation();
 
+    public File toFile();
 }

@@ -24,22 +24,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.JupiterActivity;
-import de.fu_berlin.inf.dpp.activities.serializable.IActivityDataObject;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
 
 /**
  * A Saros session consists of one or more shared projects, which are the
- * central concept of the Saros plugin. They are associated with Eclipse
- * projects and make them available for synchronous/real-time collaboration.
+ * central concept of the Saros plugin. They are associated with projects and
+ * make them available for synchronous/real-time collaboration.
  * 
  * @author rdjemili
  */
@@ -178,7 +177,7 @@ public interface ISarosSession {
 
     /**
      * Adds the given shared project listener. This call is ignored if the
-     * listener is all a listener of this shared project.
+     * listener is already a listener of this session.
      * 
      * @param listener
      *            The listener that is to be added.
@@ -187,7 +186,7 @@ public interface ISarosSession {
 
     /**
      * Removes the given shared project listener. This call is ignored if the
-     * listener doesn't belongs to the current listeners of this shared project.
+     * listener does not belong to the current listeners of this session.
      * 
      * @param listener
      *            the listener that is to be removed.
@@ -242,7 +241,10 @@ public interface ISarosSession {
      * 
      * @return the resource qualified JID or <code>null</code> if no user is
      *         found with this JID
+     * @deprecated Do not use this method in new code, ensure you can obtain a
+     *             resource qualified JID and use {@link #getUser(JID)} instead.
      */
+    @Deprecated
     public JID getResourceQualifiedJID(JID jid);
 
     /**
@@ -285,22 +287,60 @@ public interface ISarosSession {
     /**
      * FOR INTERNAL USE ONLY !
      */
-    public void exec(List<IActivityDataObject> activityDataObjects);
+    public void exec(List<IActivity> activities);
 
     /**
-     * Adds an {@link IActivityProvider} and also registers itself as
-     * {@link IActivityListener} at the given provider.
+     * Adds an {@link IActivityProducer} so the production of its activities
+     * will be noticed.
      * 
-     * If the given provider was already added this method does not add it again
-     * but silently returns.
+     * @param producer
+     *            The session will register an {@link IActivityListener} on this
+     *            producer. It is expected that the producer will inform that
+     *            listener about new activities via
+     *            {@link IActivityListener#activityCreated(IActivity)
+     *            activityCreated()}.
+     * 
+     * @see #removeActivityProducer(IActivityProducer)
      */
-    public void addActivityProvider(IActivityProvider provider);
+    public void addActivityProducer(IActivityProducer producer);
 
     /**
-     * Removes the given provider and deregisters itself as
-     * {@link IActivityListener} on that provider.
+     * Removes an {@link IActivityProducer} from the session.
+     * 
+     * @param producer
+     *            The session will unregister its {@link IActivityListener} from
+     *            this producer and it is expected that the producer no longer
+     *            calls {@link IActivityListener#activityCreated(IActivity)
+     *            activityCreated()}.
+     * 
+     * @see #addActivityProducer(IActivityProducer)
      */
-    public void removeActivityProvider(IActivityProvider provider);
+    public void removeActivityProducer(IActivityProducer producer);
+
+    /**
+     * Adds an {@link IActivityConsumer} so it will be called when an activity
+     * is to be executed locally.
+     * 
+     * @param consumer
+     *            The {@link IActivityConsumer#exec(IActivity) exec()} method of
+     *            this consumer will be called. "Consume" is not meant in a
+     *            destructive way: all consumers will be called for every
+     *            activity.
+     * 
+     * @see #removeActivityConsumer(IActivityConsumer)
+     */
+    public void addActivityConsumer(IActivityConsumer consumer);
+
+    /**
+     * Removes an {@link IActivityConsumer} from the session
+     * 
+     * @param consumer
+     *            This consumer will no longer be called when an activity is to
+     *            be executed locally.
+     * 
+     * @see #addActivityConsumer(IActivityConsumer)
+     */
+    public void removeActivityConsumer(IActivityConsumer consumer);
 
     /**
      * Returns a list of all users in this session which have
@@ -423,30 +463,41 @@ public interface ISarosSession {
     public List<IResource> getSharedResources(IProject project);
 
     /**
-     * Adds to the SarosProjectMapper the mapping of JID to project. This is
-     * done to identify the resources host.
+     * Stores a bidirectional mapping between <code>project</code> and
+     * <code>projectID</code>, and allows to identify the resources' owner.
+     * <p>
+     * This information is necessary for receiving (unserializing)
+     * resource-related activities.
      * 
      * @param projectID
-     *            ID of the project
+     *            Session-wide ID of the project
      * @param project
-     *            the IProject itself
+     *            the local representation of the project
      * @param ownerJID
      *            the inviter to this project
+     * 
+     * @see #removeProjectMapping(String, IProject, JID)
      */
-    public void addProjectOwnership(String projectID, IProject project,
+    public void addProjectMapping(String projectID, IProject project,
         JID ownerJID);
 
     /**
-     * Removes the mapping of the project from the SarosProjectMapper.
+     * Removes the bidirectional mapping <code>project</code> and
+     * <code>projectId</code> that was created by
+     * {@link #addProjectMapping(String, IProject, JID) addProjectMapping()} .
+     * <p>
+     * TODO Why are all three parameters needed here? This forces callers to
+     * store the mapping themselves (or retrieve it just before calling this
+     * method).
      * 
      * @param projectID
-     *            ID of the project
+     *            Session-wide ID of the project
      * @param project
-     *            the IProject itself
+     *            the local representation of the project
      * @param ownerJID
      *            the inviter to this project
      */
-    public void removeProjectOwnership(String projectID, IProject project,
+    public void removeProjectMapping(String projectID, IProject project,
         JID ownerJID);
 
     /**
@@ -467,19 +518,26 @@ public interface ISarosSession {
 
     /**
      * FOR INTERNAL USE ONLY !
+     * <p>
+     * Starts queuing of incoming {@linkplain IResourceActivity project-related
+     * activities}, since they cannot be applied before their corresponding
+     * project is received and extracted.
+     * <p>
+     * That queuing relies on an existing project-to-projectID mapping (see
+     * {@link #addProjectMapping(String, IProject, JID)}), otherwise incoming
+     * activities cannot be queued and will be lost.
      * 
-     * Starts queuing project related activities (e.g {@link FileActivity} or
-     * {@link JupiterActivity}) for a shared project.
+     * @param project
+     *            the project for which project-related activities should be
+     *            queued
      * 
-     * @param projectId
-     *            the id of the project for which project related activities
-     *            should be queued
+     * @see #disableQueuing()
      */
-    public void enableQueuing(String projectId);
+    public void enableQueuing(IProject project);
 
     /**
      * FOR INTERNAL USE ONLY !
-     * 
+     * <p>
      * Disables queuing for all shared projects and flushes all queued
      * activities.
      */
@@ -493,18 +551,17 @@ public interface ISarosSession {
     public String getID();
 
     /**
-     * Adds an {@link IActivityProducerAndConsumer} and also registers itself as
-     * {@link IActivityListener} at the given IActivityProducerAndConsumer.
-     *
-     * If the given IActivityProducerAndConsumer was already added this method
-     * does not add it again but silently returns.
+     * Returns the session runtime component with the given key.
+     * 
+     * @param key
+     *            the key of the component
+     * @return the runtime component or <code>null</code> if the component is
+     *         either not available or does not exists
+     * 
+     * @deprecated This method should be used with great care. It is up to to
+     *             the caller to ensure that the returned reference can be
+     *             garbage collected when the session has stopped
      */
-    public void addActivityProducerAndConsumer(
-            IActivityProducerAndConsumer producerAndConsumer);
-
-
-    public void removeActivityProducerAndConsumer(
-            IActivityProducerAndConsumer producerAndConsumer);
-
-
+    @Deprecated
+    public Object getComponent(Object key);
 }

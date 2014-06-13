@@ -29,10 +29,10 @@ import org.jivesoftware.smack.packet.PacketExtension;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionListener;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 
 /**
  * ITransmitter implementation using XMPP, IBB streams and Socks5 streams for
@@ -59,13 +59,13 @@ public class XMPPTransmitter implements ITransmitter, IConnectionListener {
     }
 
     @Override
-    public void sendToSessionUser(JID recipient, PacketExtension extension)
+    public void send(JID recipient, PacketExtension extension)
         throws IOException {
-        sendToSessionUser(null, recipient, extension);
+        send(null, recipient, extension);
     }
 
     @Override
-    public void sendToSessionUser(String connectionID, JID recipient,
+    public void send(String connectionID, JID recipient,
         PacketExtension extension) throws IOException {
         /*
          * The TransferDescription can be created out of the session, the name
@@ -73,9 +73,9 @@ public class XMPPTransmitter implements ITransmitter, IConnectionListener {
          * transparent to users of this method.
          */
         TransferDescription transferDescription = TransferDescription
-            .createCustomTransferDescription().setRecipient(recipient)
+            .newDescription().setRecipient(recipient)
             // .setSender(set by DataTransferManager)
-            .setType(extension.getElementName())
+            .setElementName(extension.getElementName())
             .setNamespace(extension.getNamespace());
 
         byte[] data = extension.toXML().getBytes("UTF-8");
@@ -92,7 +92,7 @@ public class XMPPTransmitter implements ITransmitter, IConnectionListener {
     }
 
     @Override
-    public void sendMessageToUser(JID recipient, PacketExtension extension) {
+    public void sendPacketExtension(JID recipient, PacketExtension extension) {
         Message message = new Message();
         message.addExtension(extension);
         message.setTo(recipient.toString());

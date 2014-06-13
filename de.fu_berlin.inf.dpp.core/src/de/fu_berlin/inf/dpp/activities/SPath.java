@@ -2,13 +2,13 @@ package de.fu_berlin.inf.dpp.activities;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
 
 /**
  * Objects of this class point to a document in the *workspace*, possibly with
@@ -19,6 +19,7 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
  * 
  * @immutable SPaths are value objects and thus immutable.
  */
+@XStreamAlias("SPath")
 public class SPath {
 
     /**
@@ -44,22 +45,12 @@ public class SPath {
     protected IProject project;
 
     /**
-     * Type of the editor (plain text, Java, XML, ...).
-     * 
-     * Maybe <code>null</code>, when the SPath addresses a document and not a
-     * specific editor.
-     * 
-     * @TODO Change to something that can be used to identify different editor
-     *       types in Eclipse.
-     */
-    protected String editorType = "txt";
-
-    /**
      * Default constructor, initializing this SPath as a reference to the
      * resource or editor identified by the given path in the given project.
      * 
      * @param path
-     *            maybe <code>null</code> to represent "no editor"
+     *            May be <code>null</code> to represent "no editor".<br>
+     *            <em>FIXME <code>path == null</code> causes a NPE</em>
      * @throws IllegalArgumentException
      *             if the path is not relative
      */
@@ -84,22 +75,6 @@ public class SPath {
     }
 
     /**
-     * Turns this SPath into an SPathDataObject representing it globally.
-     */
-    public SPathDataObject toSPathDataObject(ISarosSession sarosSession,
-        IPathFactory pathFactory) {
-
-        String id = sarosSession.getProjectID(project);
-        if (id == null)
-            throw new IllegalArgumentException(
-                "Trying to send a SPath which refers to a file in project which is not shared: "
-                    + this);
-
-        return new SPathDataObject(id,
-            pathFactory.fromPath(projectRelativePath), editorType);
-    }
-
-    /**
      * Returns the project relative path of the resource or editor represented
      * by this SPath.
      * 
@@ -109,22 +84,10 @@ public class SPath {
         return projectRelativePath;
     }
 
-    /**
-     * Return the identifier of the editor which this SPath references. This
-     * identifier should be used to select one of several editors displaying the
-     * same resource.
-     * 
-     * TODO Make use of this information
-     */
-    public String getEditorType() {
-        return editorType;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ObjectUtils.hashCode(editorType);
         result = prime * result + ObjectUtils.hashCode(projectRelativePath);
         result = prime * result + ObjectUtils.hashCode(project);
         return result;
@@ -134,18 +97,19 @@ public class SPath {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
+
         if (obj == null)
             return false;
+
         if (!(obj instanceof SPath))
             return false;
 
         SPath other = (SPath) obj;
 
-        if (!ObjectUtils.equals(this.editorType, other.editorType))
-            return false;
         if (!ObjectUtils.equals(this.projectRelativePath,
             other.projectRelativePath))
             return false;
+
         if (!ObjectUtils.equals(this.project, other.project))
             return false;
 
@@ -154,9 +118,7 @@ public class SPath {
 
     @Override
     public String toString() {
-        return "SPath [editorType="
-            + editorType
-            + ", path="
+        return "SPath [path="
             + (projectRelativePath != null ? projectRelativePath
                 .toPortableString() : "<no path>") + ", project="
             + (project != null ? project.getName() : "<no project>") + "]";
@@ -175,7 +137,10 @@ public class SPath {
     }
 
     /**
-     * Returns the IResource represented by this SPath.
+     * Returns the {@linkplain IResource resource} represented by this SPath.
+     * 
+     * @return the resource represented by this SPath or <code>null</code> if
+     *         the resource does not exist locally
      */
     public IResource getResource() {
         return project.findMember(projectRelativePath);
@@ -204,4 +169,6 @@ public class SPath {
         final IPath fullProjectPath = project.getFullPath();
         return fullProjectPath.append(projectRelativePath);
     }
+
+
 }

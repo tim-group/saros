@@ -19,9 +19,9 @@ import de.fu_berlin.inf.dpp.communication.chat.AbstractChatService;
 import de.fu_berlin.inf.dpp.communication.chat.ChatElement;
 import de.fu_berlin.inf.dpp.communication.chat.IChat;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionListener;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 
 public class SingleUserChatService extends AbstractChatService {
 
@@ -114,8 +114,6 @@ public class SingleUserChatService extends AbstractChatService {
 
     };
 
-    private XMPPConnectionService connectionService;
-
     private Map<JID, SingleUserChat> currentChats = new HashMap<JID, SingleUserChat>();
 
     private ChatManager chatManager;
@@ -126,7 +124,6 @@ public class SingleUserChatService extends AbstractChatService {
 
     public SingleUserChatService(XMPPConnectionService connectionService) {
         this.connected = false;
-        this.connectionService = connectionService;
         connectionService.addListener(connectionLister);
     }
 

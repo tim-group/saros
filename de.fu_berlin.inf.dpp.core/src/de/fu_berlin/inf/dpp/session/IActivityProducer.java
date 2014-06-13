@@ -1,15 +1,17 @@
 package de.fu_berlin.inf.dpp.session;
 
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
 
 public interface IActivityProducer {
     /**
-     * Executes the given activity.
-     * 
-     * @swt The implementor may expect that this method is called from the SWT
-     *      thread.
-     *      <p>
-     *      TODO What is the 'Saros core' equivalent of the SWT thread?
+     * Registers the given listener, so it will be informed via
+     * {@link IActivityListener#activityCreated(IActivity)} when an Activity is
+     * created.
      */
-    public void exec(IActivity activity);
+    public void addActivityListener(IActivityListener listener);
+
+    /**
+     * Removes a listener previously registered with addActivityListener.
+     */
+    public void removeActivityListener(IActivityListener listener);
 }

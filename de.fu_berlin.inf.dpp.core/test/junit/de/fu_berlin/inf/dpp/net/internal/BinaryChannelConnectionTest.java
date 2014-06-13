@@ -1,6 +1,7 @@
 package de.fu_berlin.inf.dpp.net.internal;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -8,23 +9,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.jivesoftware.smackx.bytestreams.BytestreamSession;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.net.IncomingTransferObject;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
+import de.fu_berlin.inf.dpp.net.internal.BinaryChannelConnection.IDPool;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 public class BinaryChannelConnectionTest {
 
     private static final int PIPE_BUFFER_SIZE = 1024 * 1024;
 
-    private static class PipedBytestreamSession implements BytestreamSession {
+    private static class PipedBytestreamSession implements ByteStream {
 
         private InputStream in;
         private OutputStream out;
@@ -78,12 +80,11 @@ public class BinaryChannelConnectionTest {
         }
 
         @Override
-        public abstract void addIncomingTransferObject(
-            IncomingTransferObject incomingTransferObject);
+        public abstract void receive(BinaryXMPPExtension extension);
     }
 
-    private BytestreamSession aliceSession;
-    private BytestreamSession bobSession;
+    private ByteStream aliceStream;
+    private ByteStream bobStream;
 
     @Before
     public void setUp() throws IOException {
@@ -96,34 +97,34 @@ public class BinaryChannelConnectionTest {
         aliceOut.connect(bobIn);
         aliceIn.connect(bobOut);
 
-        aliceSession = new PipedBytestreamSession(aliceIn, aliceOut);
-        bobSession = new PipedBytestreamSession(bobIn, bobOut);
+        aliceStream = new PipedBytestreamSession(aliceIn, aliceOut);
+        bobStream = new PipedBytestreamSession(bobIn, bobOut);
     }
 
     private volatile byte[] receivedBytes;
 
     @Test
-    public void testFragmentationOnLargeDataToBeSend() throws Exception {
+    public void testCacheUpdates() throws Exception {
 
-        final CountDownLatch received = new CountDownLatch(1);
+        final List<BinaryXMPPExtension> extensions = new ArrayList<BinaryXMPPExtension>();
+
+        final CountDownLatch received = new CountDownLatch(2);
 
         BinaryChannelConnection alice = new BinaryChannelConnection(new JID(
-            "alice@baumeister.de"), "junit", aliceSession,
-            NetTransferMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+            "alice@baumeister.de"), "junit", aliceStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
                 @Override
-                public void addIncomingTransferObject(
-                    final IncomingTransferObject incomingTransferObject) {
+                public void receive(final BinaryXMPPExtension extension) {
                     // NOP
                 }
             });
 
         BinaryChannelConnection bob = new BinaryChannelConnection(new JID(
-            "bob@baumeister.de"), "junit", bobSession,
-            NetTransferMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+            "bob@baumeister.de"), "junit", bobStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
                 @Override
-                public void addIncomingTransferObject(
-                    final IncomingTransferObject incomingTransferObject) {
-                    receivedBytes = incomingTransferObject.getPayload();
+                public void receive(final BinaryXMPPExtension extension) {
+                    extensions.add(extension);
                     received.countDown();
                 }
             });
@@ -131,8 +132,93 @@ public class BinaryChannelConnectionTest {
         alice.initialize();
         bob.initialize();
 
-        TransferDescription description = TransferDescription
-            .createCustomTransferDescription();
+        final TransferDescription description = TransferDescription
+            .newDescription();
+
+        final byte[] bytesToSend = new byte[512];
+
+        try {
+            description.setNamespace("foo-namespace-0");
+            description.setElementName("bar-0");
+            description.setSender(new JID("sender-0@local"));
+            description.setRecipient(new JID("receiver-0@local"));
+
+            alice.send(description, bytesToSend);
+
+            description.setNamespace("foo-namespace-1");
+            description.setElementName("bar-1");
+            description.setSender(new JID("sender-1@local"));
+            description.setRecipient(new JID("receiver-1@local"));
+
+            alice.send(description, bytesToSend);
+
+            received.await(10000, TimeUnit.MILLISECONDS);
+        } finally {
+            alice.close();
+            bob.close();
+        }
+
+        // send packet 0
+        assertEquals("foo-namespace-0", extensions.get(0)
+            .getTransferDescription().getNamespace());
+
+        assertEquals("bar-0", extensions.get(0).getTransferDescription()
+            .getElementName());
+
+        assertEquals("sender-0@local", extensions.get(0)
+            .getTransferDescription().getSender().toString());
+
+        assertEquals("receiver-0@local", extensions.get(0)
+            .getTransferDescription().getRecipient().toString());
+
+        // send packet 1
+        assertEquals("foo-namespace-1", extensions.get(1)
+            .getTransferDescription().getNamespace());
+
+        assertEquals("bar-1", extensions.get(1).getTransferDescription()
+            .getElementName());
+
+        assertEquals("sender-1@local", extensions.get(1)
+            .getTransferDescription().getSender().toString());
+
+        assertEquals("receiver-1@local", extensions.get(1)
+            .getTransferDescription().getRecipient().toString());
+
+    }
+
+    @Test
+    public void testFragmentationOnLargeDataToBeSend() throws Exception {
+
+        final CountDownLatch received = new CountDownLatch(1);
+
+        BinaryChannelConnection alice = new BinaryChannelConnection(new JID(
+            "alice@baumeister.de"), "junit", aliceStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+                @Override
+                public void receive(final BinaryXMPPExtension extension) {
+                    // NOP
+                }
+            });
+
+        BinaryChannelConnection bob = new BinaryChannelConnection(new JID(
+            "bob@baumeister.de"), "junit", bobStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+                @Override
+                public void receive(final BinaryXMPPExtension extension) {
+                    receivedBytes = extension.getPayload();
+                    received.countDown();
+                }
+            });
+
+        alice.initialize();
+        bob.initialize();
+
+        TransferDescription description = TransferDescription.newDescription();
+
+        description.setNamespace("foo-namespace");
+        description.setElementName("bar");
+        description.setSender(new JID("sender@local"));
+        description.setRecipient(new JID("receiver@local"));
 
         byte[] bytesToSend = new byte[512 * 1024];
 
@@ -166,28 +252,30 @@ public class BinaryChannelConnectionTest {
         final CountDownLatch received = new CountDownLatch((int) packetsToSend);
 
         BinaryChannelConnection alice = new BinaryChannelConnection(new JID(
-            "alice@baumeister.de"), "junit", aliceSession,
-            NetTransferMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+            "alice@baumeister.de"), "junit", aliceStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
                 @Override
-                public void addIncomingTransferObject(
-                    final IncomingTransferObject incomingTransferObject) {
+                public void receive(final BinaryXMPPExtension extension) {
                     // NOP
                 }
             });
 
         BinaryChannelConnection bob = new BinaryChannelConnection(new JID(
-            "bob@baumeister.de"), "junit", bobSession,
-            NetTransferMode.SOCKS5_DIRECT, new StreamConnectionListener() {
+            "bob@baumeister.de"), "junit", bobStream,
+            ConnectionMode.SOCKS5_DIRECT, new StreamConnectionListener() {
                 @Override
-                public void addIncomingTransferObject(
-                    final IncomingTransferObject incomingTransferObject) {
-                    receivedBytes = incomingTransferObject.getPayload();
+                public void receive(final BinaryXMPPExtension extension) {
+                    receivedBytes = extension.getPayload();
                     received.countDown();
                 }
             });
 
-        TransferDescription description = TransferDescription
-            .createCustomTransferDescription();
+        TransferDescription description = TransferDescription.newDescription();
+
+        description.setNamespace("foo-namespace");
+        description.setElementName("bar");
+        description.setSender(new JID("sender@local"));
+        description.setRecipient(new JID("receiver@local"));
 
         byte[] bytesToSend = new byte[(int) packetSize];
 
@@ -212,6 +300,25 @@ public class BinaryChannelConnectionTest {
         assertTrue("remote side crashed", received.getCount() == 0);
 
         assertArrayEquals("fragmentation error", bytesToSend, receivedBytes);
+
+    }
+
+    @Test
+    public void testIDPool() {
+
+        IDPool pool = new IDPool();
+
+        for (int i = 0; i < 32; i++)
+            assertEquals(i, pool.nextID());
+
+        assertEquals(-1, pool.nextID());
+
+        pool.freeID(31);
+        pool.freeID(0);
+
+        assertEquals(0, pool.nextID());
+        assertEquals(31, pool.nextID());
+        assertEquals(-1, pool.nextID());
 
     }
 }

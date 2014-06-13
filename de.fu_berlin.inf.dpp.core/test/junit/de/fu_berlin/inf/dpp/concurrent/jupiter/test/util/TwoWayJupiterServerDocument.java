@@ -2,20 +2,20 @@ package de.fu_berlin.inf.dpp.concurrent.jupiter.test.util;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.inf.dpp.activities.business.JupiterActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Algorithm;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Timestamp;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.TransformationException;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.Jupiter;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.test.util.Document.JupiterDocumentListener;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.User;
 
 public class TwoWayJupiterServerDocument implements NetworkEventHandler,
     DocumentTestChecker {
 
-    public static final User server = JupiterTestCase.createUserMock("server");
+    public static final User server = JupiterTestCase.createUser("server");
 
     private static Logger log = Logger
         .getLogger(TwoWayJupiterServerDocument.class);
@@ -30,11 +30,6 @@ public class TwoWayJupiterServerDocument implements NetworkEventHandler,
         this.doc = new Document(content, con.project, con.path);
         this.algorithm = new Jupiter(false);
         this.connection = con;
-    }
-
-    @Override
-    public JID getJID() {
-        return server.getJID();
     }
 
     @Override
@@ -61,30 +56,28 @@ public class TwoWayJupiterServerDocument implements NetworkEventHandler,
     }
 
     /**
-     * send operation to special jid.
+     * send operation to special user.
      * 
-     * @param jid
+     * @param user
      * @param op
      */
-    public void sendOperation(JID jid, Operation op) {
-        sendOperation(jid, op, 0);
+    public void sendOperation(User user, Operation op) {
+        sendOperation(user, op, 0);
     }
 
-    public void sendOperation(JID jid, Operation op, int delay) {
+    public void sendOperation(User user, Operation op, int delay) {
         /* 1. execute locally */
         doc.execOperation(op);
         /* 2. transform operation. */
         JupiterActivity jupiterActivity = algorithm.generateJupiterActivity(op,
             server, null);
         /* sent to client */
-        connection
-            .sendOperation(new NetworkRequest(server,
-                TwoWayJupiterClientDocument.client.getJID(), jupiterActivity,
-                delay));
+        connection.sendOperation(new NetworkRequest(jupiterActivity, user,
+            delay));
     }
 
     public void sendOperation(Operation op, int delay) {
-        sendOperation(TwoWayJupiterClientDocument.client.getJID(), op, delay);
+        sendOperation(TwoWayJupiterClientDocument.client, op, delay);
     }
 
     public void receiveNetworkEvent(JupiterActivity jupiterActivity) {

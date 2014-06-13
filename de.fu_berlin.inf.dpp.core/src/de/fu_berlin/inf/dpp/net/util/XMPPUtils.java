@@ -22,16 +22,16 @@ import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.jivesoftware.smackx.packet.DiscoverInfo.Identity;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.search.UserSearch;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 
 /**
  * Utility class for classic XMPP operations
- * 
  */
 
 public class XMPPUtils {
@@ -131,6 +131,9 @@ public class XMPPUtils {
             Registration registration = getRegistrationInfo(connection,
                 username);
 
+            /*
+             * TODO registration cannot be null, can it?
+             */
             if (registration != null) {
 
                 // no in band registration
@@ -196,9 +199,10 @@ public class XMPPUtils {
             .hasNext();
 
         if (!discovered && jid.isBareJID() && resourceHint != null
-            && resourceHint.isEmpty())
+            && !resourceHint.isEmpty()) {
             discovered = sdm.discoverInfo(jid.getBase() + "/" + resourceHint)
                 .getIdentities().hasNext();
+        }
 
         return discovered;
     }
@@ -255,7 +259,7 @@ public class XMPPUtils {
      * @return the service for the user directory or <code>null</code> if it
      *         could not be determined
      * 
-     * @See {@link UserSearch#getSearchForm(Connection con, String searchService)}
+     * @See {@link UserSearch#getSearchForm(Connection, String)}
      */
     public static String getUserDirectoryService(Connection connection,
         String service) {
@@ -273,17 +277,25 @@ public class XMPPUtils {
         }
 
         Iterator<DiscoverItems.Item> iter = items.getItems();
+
         while (iter.hasNext()) {
             DiscoverItems.Item item = iter.next();
+
             try {
-                Iterator<Identity> identities = manager.discoverInfo(
-                    item.getEntityID()).getIdentities();
+                DiscoverInfo info = manager.discoverInfo(item.getEntityID());
+
+                if (!info.containsFeature("jabber:iq:search"))
+                    continue;
+
+                Iterator<Identity> identities = info.getIdentities();
+
                 while (identities.hasNext()) {
                     Identity identity = identities.next();
                     if ("user".equalsIgnoreCase(identity.getType())) {
                         return item.getEntityID();
                     }
                 }
+
             } catch (XMPPException e) {
                 log.warn("could not query identity: " + item.getEntityID(), e);
             }
@@ -366,8 +378,6 @@ public class XMPPUtils {
     // TODO: remove this method, add more logic and let the GUI handle search
     // stuff
 
-    // Smack does not uses generics for Row.getValues(String variable)
-    @SuppressWarnings("unchecked")
     private static boolean isListedInUserDirectory(Connection connection,
         JID jid) {
 

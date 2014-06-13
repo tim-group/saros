@@ -1,6 +1,6 @@
 package de.fu_berlin.inf.dpp.session;
 
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
 
 /**
  * @JTourBusStop 1, Activity sending, The IActivityProvider interface:
@@ -28,13 +28,13 @@ import de.fu_berlin.inf.dpp.activities.business.IActivity;
  * In most cases you want to extend {@link AbstractActivityProvider} instead of
  * implementing this interface.
  * 
- * @deprecated Use {@link IActivityProducer} and {@link IActivityConsumer}
+ * @deprecated Use {@link IActivityConsumer} and {@link IActivityProducer}
  *             instead.
  * 
  * @see AbstractActivityProvider
  */
 @Deprecated
-public interface IActivityProvider {
+public interface IActivityProvider extends IActivityProducer, IActivityConsumer {
 
     /**
      * @JTourBusStop 1, Architecture Overview, User Interface -
@@ -53,23 +53,4 @@ public interface IActivityProvider {
      *               Saros-Instance.
      * 
      */
-
-    /**
-     * Executes the given activity.
-     * 
-     * @swt The implementor may expect that this method is called from the SWT
-     *      thread.
-     */
-    public void exec(IActivity activity);
-
-    /**
-     * Adds the given listener to the list of listeners. This IActivityProvider
-     * is expected to inform the listeners when it created an activity.
-     */
-    public void addActivityListener(IActivityListener listener);
-
-    /**
-     * Removes a listener previously registered with addActivityListener.
-     */
-    public void removeActivityListener(IActivityListener listener);
 }

@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -27,15 +24,15 @@ import org.picocontainer.annotations.Nullable;
 import de.fu_berlin.inf.dpp.ISarosContextBindings.IBBTransport;
 import de.fu_berlin.inf.dpp.ISarosContextBindings.Socks5Transport;
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.IConnectionManager;
 import de.fu_berlin.inf.dpp.net.IPacketInterceptor;
 import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.ITransferModeListener;
-import de.fu_berlin.inf.dpp.net.IncomingTransferObject;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.ITransferListener;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 
 /**
  * This class is responsible for handling all transfers of binary data. It
@@ -45,13 +42,10 @@ import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
  * @author coezbek
  * @author jurke
  */
-// FIXME it is currently not possible to configure the transport modes (result
-// of a move to Saros core)
-@Component(module = "net")
-public class DataTransferManager implements IConnectionListener {
 
-    public static final int IBB_TRANSPORT = 1;
-    public static final int SOCKS5_TRANSPORT = 2;
+@Component(module = "net")
+public class DataTransferManager implements IConnectionListener,
+    IConnectionManager {
 
     private static final Logger log = Logger
         .getLogger(DataTransferManager.class);
@@ -60,9 +54,13 @@ public class DataTransferManager implements IConnectionListener {
 
     private static final String DEFAULT_CONNECTION_ID = "default";
 
-    private final TransferModeDispatch transferModeDispatch = new TransferModeDispatch();
+    private static final String IN = "in";
 
-    private CopyOnWriteArrayList<IPacketInterceptor> packetInterceptors = new CopyOnWriteArrayList<IPacketInterceptor>();
+    private static final String OUT = "out";
+
+    private final CopyOnWriteArrayList<IPacketInterceptor> packetInterceptors = new CopyOnWriteArrayList<IPacketInterceptor>();
+
+    private final List<ITransferListener> transferListeners = new CopyOnWriteArrayList<ITransferListener>();
 
     private volatile JID currentLocalJID;
 
@@ -76,10 +74,9 @@ public class DataTransferManager implements IConnectionListener {
 
     private final ITransport fallbackTransport;
 
-    private final Map<String, ConnectionHolder> connections = Collections
-        .synchronizedMap(new HashMap<String, ConnectionHolder>());
-
     private final Lock connectLock = new ReentrantLock();
+
+    private final ConnectionPool connectionPool = new ConnectionPool();
 
     private final Set<String> currentOutgoingConnectionEstablishments = new HashSet<String>();
 
@@ -87,39 +84,28 @@ public class DataTransferManager implements IConnectionListener {
 
     private final IByteStreamConnectionListener byteStreamConnectionListener = new IByteStreamConnectionListener() {
 
-        /**
-         * Adds an incoming transfer.
-         * 
-         * @param transferObject
-         *            An IncomingTransferObject that has the TransferDescription
-         *            as content to provide information of the incoming transfer
-         *            to upper layers.
-         */
         @Override
-        public void addIncomingTransferObject(
-            final IncomingTransferObject transferObject) {
+        public void receive(final BinaryXMPPExtension extension) {
 
-            final TransferDescription description = transferObject
+            final TransferDescription description = extension
                 .getTransferDescription();
 
             boolean dispatchPacket = true;
 
             for (IPacketInterceptor packetInterceptor : packetInterceptors)
-                dispatchPacket &= packetInterceptor
-                    .receivedPacket(transferObject);
+                dispatchPacket &= packetInterceptor.receivedPacket(extension);
 
             if (!dispatchPacket)
                 return;
 
             if (log.isTraceEnabled())
-                log.trace("[" + transferObject.getTransferMode()
+                log.trace("[" + extension.getTransferMode()
                     + "] received incoming transfer object: " + description
-                    + ", size: " + transferObject.getCompressedSize()
-                    + ", RX time: " + transferObject.getTransferDuration()
-                    + " ms");
+                    + ", size: " + extension.getCompressedSize()
+                    + ", RX time: " + extension.getTransferDuration() + " ms");
 
-            if (transferObject.getTransferDescription().compressContent()) {
-                byte[] payload = transferObject.getPayload();
+            if (extension.getTransferDescription().compressContent()) {
+                byte[] payload = extension.getPayload();
                 long compressedPayloadLenght = payload.length;
 
                 try {
@@ -130,66 +116,60 @@ public class DataTransferManager implements IConnectionListener {
                 }
 
                 // FIXME change method signature
-                ((BinaryChannelTransferObject) transferObject).setPayload(
-                    compressedPayloadLenght, payload);
+                extension.setPayload(compressedPayloadLenght, payload);
             }
 
-            transferModeDispatch.transferFinished(description.getSender(),
-                transferObject.getTransferMode(), true,
-                transferObject.getCompressedSize(),
-                transferObject.getUncompressedSize(),
-                transferObject.getTransferDuration());
+            notifyDataReceived(extension.getTransferMode(),
+                extension.getCompressedSize(), extension.getUncompressedSize(),
+                extension.getTransferDuration());
 
-            receiver.processTransferObject(transferObject);
+            receiver.processBinaryXMPPExtension(extension);
         }
 
         @Override
-        public void connectionChanged(String connectionID, JID peer,
-            IByteStreamConnection connection, boolean incomingRequest) {
+        public void connectionChanged(final String connectionID,
+            final JID peer, final IByteStreamConnection connection,
+            final boolean incomingRequest) {
 
-            synchronized (connections) {
-                log.debug("bytestream connection changed "
-                    + connection.getMode() + " [to: " + peer + "|inc: "
-                    + incomingRequest + "|id: " + connectionID + "]");
+            // FIXME init first, than add to pool and finally start the receiver
+            // thread !
 
-                ConnectionHolder holder = connections.get(toConnectionIDToken(
-                    connectionID, peer));
-                if (holder == null) {
-                    holder = new ConnectionHolder();
-                    connections.put(toConnectionIDToken(connectionID, peer),
-                        holder);
-                }
+            final String id = toConnectionIDToken(connectionID,
+                incomingRequest ? IN : OUT, peer);
 
-                if (!incomingRequest) {
-                    IByteStreamConnection old = holder.out;
-                    assert (old == null || !old.isConnected());
-                    holder.out = connection;
+            log.debug("bytestream connection changed " + connection.getMode()
+                + " [to: " + peer + "|inc: " + incomingRequest + "|id: "
+                + connectionID + "]");
+
+            /*
+             * this may return the current connection if the pool is closed so
+             * close it anyway
+             */
+            final IByteStreamConnection current = connectionPool.add(id,
+                connection);
+
+            if (current != null) {
+                current.close();
+                if (current == connection) {
+                    log.warn("closed connection [id=" + id + "]: " + current
+                        + " , no connections are currently allowed");
+
+                    return;
                 } else {
-                    IByteStreamConnection old = holder.in;
-                    assert (old == null || !old.isConnected());
-                    holder.in = connection;
+                    log.warn("existing connection [id=" + id + "] " + current
+                        + " was replaced with connection " + connection);
                 }
-
-                connection.initialize();
             }
 
-            transferModeDispatch
-                .transferModeChanged(peer, connection.getMode());
+            connection.initialize();
         }
 
         @Override
         public void connectionClosed(String connectionID, JID peer,
             IByteStreamConnection connection) {
             closeConnection(connectionID, peer);
-            transferModeDispatch
-                .transferModeChanged(peer, NetTransferMode.NONE);
         }
     };
-
-    private static class ConnectionHolder {
-        private IByteStreamConnection out;
-        private IByteStreamConnection in;
-    }
 
     public DataTransferManager(XMPPConnectionService connectionService,
         IReceiver receiver,
@@ -204,12 +184,14 @@ public class DataTransferManager implements IConnectionListener {
         connectionService.addListener(this);
     }
 
-    public void addTransferModeListener(ITransferModeListener listener) {
-        transferModeDispatch.add(listener);
+    @Override
+    public void addTransferListener(ITransferListener listener) {
+        transferListeners.add(listener);
     }
 
-    public void removeTransferModeListener(ITransferModeListener listener) {
-        transferModeDispatch.remove(listener);
+    @Override
+    public void removeTransferListener(ITransferListener listener) {
+        transferListeners.remove(listener);
     }
 
     public void sendData(String connectionID,
@@ -285,9 +267,10 @@ public class DataTransferManager implements IConnectionListener {
             long transferStartTime = System.currentTimeMillis();
             connection.send(transferData, payload);
 
-            transferModeDispatch.transferFinished(transferData.getRecipient(),
-                connection.getMode(), false, payload.length, sizeUncompressed,
-                System.currentTimeMillis() - transferStartTime);
+            notifyDataSent(connection.getMode(), payload.length,
+                sizeUncompressed, System.currentTimeMillis()
+                    - transferStartTime);
+
         } catch (IOException e) {
             log.error(
                 transferData.getRecipient() + " failed to send " + transferData
@@ -299,11 +282,13 @@ public class DataTransferManager implements IConnectionListener {
     /**
      * @deprecated
      */
+    @Override
     @Deprecated
     public void connect(JID peer) throws IOException {
         connect(DEFAULT_CONNECTION_ID, peer);
     }
 
+    @Override
     public void connect(String connectionID, JID peer) throws IOException {
         if (connectionID == null)
             throw new NullPointerException("connectionID is null");
@@ -322,37 +307,47 @@ public class DataTransferManager implements IConnectionListener {
      *            {@link JID} of the peer to disconnect the
      *            {@link IByteStreamConnection}
      */
+    @Override
     @Deprecated
     public boolean closeConnection(JID peer) {
         return closeConnection(DEFAULT_CONNECTION_ID, peer);
     }
 
+    @Override
     public boolean closeConnection(String connectionIdentifier, JID peer) {
-        ConnectionHolder holder = connections.remove(toConnectionIDToken(
-            connectionIdentifier, peer));
 
-        if (holder == null)
-            return false;
+        final String outID = toConnectionIDToken(connectionIdentifier, OUT,
+            peer);
 
-        if (holder.out != null)
-            holder.out.close();
+        final String inID = toConnectionIDToken(connectionIdentifier, IN, peer);
 
-        if (holder.in != null)
-            holder.in.close();
+        final IByteStreamConnection out = connectionPool.remove(outID);
+        final IByteStreamConnection in = connectionPool.remove(inID);
 
-        return holder.out != null || holder.in != null;
+        boolean closed = false;
 
+        if (out != null) {
+            closed |= true;
+            out.close();
+            log.debug("closed connection [id=" + outID + "]: " + out);
+        }
+
+        if (in != null) {
+            closed |= true;
+            in.close();
+            log.debug("closed connection [id=" + inID + "]: " + in);
+        }
+
+        return closed;
     }
 
     /**
-     * Sets the transport that should be used to establish direct connections.
-     * The transports will be used on the next successful connection to a XMPP
-     * server and will not affect the transports that are currently used.
+     * {@inheritDoc} The transports will be used on the next successful
+     * connection to a XMPP server and will not affect the transports that are
+     * currently used.
      * 
-     * @param transportMask
-     *            bit wise OR mask that contain the transport to use, -1 for all
-     *            available transports or 0 for no transport at all
      */
+    @Override
     public synchronized void setTransport(int transportMask) {
         this.transportMask = transportMask;
     }
@@ -360,15 +355,17 @@ public class DataTransferManager implements IConnectionListener {
     /**
      * @deprecated
      */
+    @Override
     @Deprecated
-    public NetTransferMode getTransferMode(JID jid) {
+    public ConnectionMode getTransferMode(JID jid) {
         return getTransferMode(null, jid);
     }
 
-    public NetTransferMode getTransferMode(String connectionID, JID jid) {
+    @Override
+    public ConnectionMode getTransferMode(String connectionID, JID jid) {
         IByteStreamConnection connection = getCurrentConnection(connectionID,
             jid);
-        return connection == null ? NetTransferMode.NONE : connection.getMode();
+        return connection == null ? ConnectionMode.NONE : connection.getMode();
     }
 
     private IByteStreamConnection connectInternal(String connectionID, JID peer)
@@ -376,7 +373,8 @@ public class DataTransferManager implements IConnectionListener {
 
         IByteStreamConnection connection = null;
 
-        String connectionIDToken = toConnectionIDToken(connectionID, peer);
+        final String connectionIDToken = toConnectionIDToken(connectionID, OUT,
+            peer);
 
         synchronized (currentOutgoingConnectionEstablishments) {
             if (!currentOutgoingConnectionEstablishments
@@ -488,6 +486,8 @@ public class DataTransferManager implements IConnectionListener {
         this.connection = connection;
         this.currentLocalJID = new JID(connection.getUser());
 
+        connectionPool.open();
+
         for (ITransport transport : availableTransports) {
             transport.initialize(connection, byteStreamConnectionListener);
         }
@@ -513,50 +513,7 @@ public class DataTransferManager implements IConnectionListener {
                 connectLock.unlock();
         }
 
-        List<ConnectionHolder> currentConnections;
-
-        synchronized (connections) {
-            currentConnections = new ArrayList<ConnectionHolder>();
-
-            for (ConnectionHolder holder : connections.values()) {
-                ConnectionHolder current = new ConnectionHolder();
-                current.out = holder.out;
-                current.in = holder.in;
-                currentConnections.add(current);
-            }
-        }
-
-        /*
-         * Just close one side as this will trigger closeConnection via the
-         * listener which will close the other side too
-         */
-
-        for (ConnectionHolder holder : currentConnections) {
-            IByteStreamConnection connection;
-
-            if (holder.out != null)
-                connection = holder.out;
-            else
-                connection = holder.in;
-
-            assert (connection != null);
-
-            log.trace("closing " + connection.getMode() + " connection");
-
-            try {
-                connection.close();
-            } catch (Exception e) {
-                log.error("error closing " + connection.getMode()
-                    + " connection ", e);
-            }
-        }
-
-        if (connections.size() > 0)
-            log.warn("new connections were established during connection shutdown: "
-                + connections.toString());
-
-        connections.clear();
-
+        connectionPool.close();
         connection = null;
     }
 
@@ -582,14 +539,12 @@ public class DataTransferManager implements IConnectionListener {
     /**
      * Left over and <b>MUST</b> only used by the STF
      * 
+     * @param extension
      * @deprecated
-     * @param incomingTransferObject
      */
     @Deprecated
-    public void addIncomingTransferObject(
-        IncomingTransferObject incomingTransferObject) {
-        byteStreamConnectionListener
-            .addIncomingTransferObject(incomingTransferObject);
+    public void addIncomingTransferObject(BinaryXMPPExtension extension) {
+        byteStreamConnectionListener.receive(extension);
     }
 
     /**
@@ -607,27 +562,54 @@ public class DataTransferManager implements IConnectionListener {
      */
     private IByteStreamConnection getCurrentConnection(String connectionID,
         JID jid) {
-        synchronized (connections) {
-            ConnectionHolder holder = connections.get(toConnectionIDToken(
-                connectionID, jid));
 
-            if (holder == null)
-                return null;
+        IByteStreamConnection connection;
 
-            if (holder.out != null)
-                return holder.out;
+        connection = connectionPool.get(toConnectionIDToken(connectionID, OUT,
+            jid));
 
-            return holder.in;
-        }
+        if (connection != null)
+            return connection;
+
+        return connectionPool.get(toConnectionIDToken(connectionID, IN, jid));
     }
 
     private static String toConnectionIDToken(String connectionIdentifier,
-        JID jid) {
+        String mode, JID jid) {
 
         if (connectionIdentifier == null)
             connectionIdentifier = DEFAULT_CONNECTION_ID;
 
-        return connectionIdentifier.concat(":").concat(jid.toString());
+        return connectionIdentifier + ":" + mode + ":" + jid.toString();
+    }
+
+    private void notifyDataSent(final ConnectionMode mode,
+        final long sizeCompressed, final long sizeUncompressed,
+        final long duration) {
+
+        for (final ITransferListener listener : transferListeners) {
+            try {
+                listener.sent(mode, sizeCompressed, sizeUncompressed, duration);
+            } catch (RuntimeException e) {
+                log.error("invoking sent() on listener: " + listener
+                    + " failed", e);
+            }
+        }
+    }
+
+    private void notifyDataReceived(final ConnectionMode mode,
+        final long sizeCompressed, final long sizeUncompressed,
+        final long duration) {
+
+        for (final ITransferListener listener : transferListeners) {
+            try {
+                listener.received(mode, sizeCompressed, sizeUncompressed,
+                    duration);
+            } catch (RuntimeException e) {
+                log.error("invoking received() on listener: " + listener
+                    + " failed", e);
+            }
+        }
     }
 
     private static byte[] deflate(byte[] input) {

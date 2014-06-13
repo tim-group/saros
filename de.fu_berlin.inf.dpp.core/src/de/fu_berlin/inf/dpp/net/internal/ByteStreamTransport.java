@@ -9,8 +9,8 @@ import org.jivesoftware.smackx.bytestreams.BytestreamListener;
 import org.jivesoftware.smackx.bytestreams.BytestreamManager;
 import org.jivesoftware.smackx.bytestreams.BytestreamRequest;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 /**
  * Abstract skeleton for different transport methods.
@@ -128,8 +128,8 @@ public abstract class ByteStreamTransport implements ITransport {
             throw new IOException(this + " transport is not initialized");
 
         return new BinaryChannelConnection(new JID(peer), connectionIdentifier,
-            manager.establishSession(peer.toString(), connectionIdentifier),
-            getNetTransferMode(), listener);
+            new XMPPByteStreamAdapter(manager.establishSession(peer,
+                connectionIdentifier)), getNetTransferMode(), listener);
     }
 
     /**
@@ -153,7 +153,8 @@ public abstract class ByteStreamTransport implements ITransport {
             throw new IOException(this + " transport is not initialized");
 
         return new BinaryChannelConnection(new JID(request.getFrom()),
-            request.getSessionID(), request.accept(), getNetTransferMode(),
+            request.getSessionID(),
+            new XMPPByteStreamAdapter(request.accept()), getNetTransferMode(),
             listener);
     }
 
@@ -180,5 +181,5 @@ public abstract class ByteStreamTransport implements ITransport {
      */
     abstract protected BytestreamManager createManager(Connection connection);
 
-    abstract protected NetTransferMode getNetTransferMode();
+    abstract protected ConnectionMode getNetTransferMode();
 }

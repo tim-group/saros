@@ -2,8 +2,12 @@ package de.fu_berlin.inf.dpp.misc.xstream;
 
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
+/**
+ * @deprecated Use {@link UserConverter} instead.
+ */
+@Deprecated
 public class JIDConverter extends AbstractSingleValueConverter {
 
     @SuppressWarnings({ "rawtypes" })
@@ -21,5 +25,4 @@ public class JIDConverter extends AbstractSingleValueConverter {
     public String toString(Object obj) {
         return URLCodec.encode(((JID) obj).toString());
     }
-
 }

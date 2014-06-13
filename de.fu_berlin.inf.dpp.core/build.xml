@@ -11,7 +11,7 @@
 	<!-- import the ant4eclipse pde macros -->
 	<import file="${ant4eclipse.dir}/macros/a4e-pde-macros.xml" />
 
-	<!-- define the runnable location here -->
+	<!-- define the workspace location here -->
 	<property name="workspaceDirectory" value="${basedir}/.." />	
 	
 	<property name="src.dir" value="${basedir}/src" />

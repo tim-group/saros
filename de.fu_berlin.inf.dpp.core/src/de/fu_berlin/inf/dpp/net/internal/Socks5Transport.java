@@ -32,8 +32,8 @@ import org.jivesoftware.smackx.bytestreams.socks5.Socks5BytestreamRequest;
 import org.jivesoftware.smackx.bytestreams.socks5.Socks5BytestreamSession;
 import org.jivesoftware.smackx.bytestreams.socks5.Socks5Proxy;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.NamedThreadFactory;
 
 /**
@@ -415,8 +415,8 @@ public class Socks5Transport extends ByteStreamTransport {
                 configureSocks5Socket(inSession);
 
                 return new BinaryChannelConnection(new JID(peer),
-                    connectionIdentifier, inSession,
-                    NetTransferMode.SOCKS5_DIRECT, listener);
+                    connectionIdentifier, new XMPPByteStreamAdapter(inSession),
+                    ConnectionMode.SOCKS5_DIRECT, listener);
             } else {
                 LOG.debug(prefix() + "incoming connection is mediated.");
             }
@@ -440,8 +440,9 @@ public class Socks5Transport extends ByteStreamTransport {
                 configureSocks5Socket(outSession);
 
                 return new BinaryChannelConnection(new JID(peer),
-                    connectionIdentifier, outSession,
-                    NetTransferMode.SOCKS5_DIRECT, listener);
+                    connectionIdentifier,
+                    new XMPPByteStreamAdapter(outSession),
+                    ConnectionMode.SOCKS5_DIRECT, listener);
             }
 
         } catch (IOException e) {
@@ -463,7 +464,8 @@ public class Socks5Transport extends ByteStreamTransport {
             inSession, outSession, true);
 
         return new BinaryChannelConnection(new JID(peer), connectionIdentifier,
-            session, NetTransferMode.SOCKS5_MEDIATED, listener);
+            new XMPPByteStreamAdapter(session),
+            ConnectionMode.SOCKS5_MEDIATED, listener);
     }
 
     /**
@@ -526,8 +528,9 @@ public class Socks5Transport extends ByteStreamTransport {
                 if (outSession.isDirect()) {
                     configureSocks5Socket(outSession);
                     return new BinaryChannelConnection(new JID(peer),
-                        connectionIdentifier, outSession,
-                        NetTransferMode.SOCKS5_DIRECT, listener);
+                        connectionIdentifier, new XMPPByteStreamAdapter(
+                            outSession), ConnectionMode.SOCKS5_DIRECT,
+                        listener);
                 }
 
                 LOG.debug(prefix()
@@ -592,8 +595,8 @@ public class Socks5Transport extends ByteStreamTransport {
                     configureSocks5Socket(inSession);
 
                     return new BinaryChannelConnection(new JID(peer),
-                        connectionIdentifier, inSession,
-                        NetTransferMode.SOCKS5_DIRECT, listener);
+                        connectionIdentifier, new XMPPByteStreamAdapter(
+                            inSession), ConnectionMode.SOCKS5_DIRECT, listener);
                 }
 
             } catch (TimeoutException e) {
@@ -614,8 +617,8 @@ public class Socks5Transport extends ByteStreamTransport {
                 inSession, outSession, false);
 
             return new BinaryChannelConnection(new JID(peer),
-                connectionIdentifier, session, NetTransferMode.SOCKS5_MEDIATED,
-                listener);
+                connectionIdentifier, new XMPPByteStreamAdapter(session),
+                ConnectionMode.SOCKS5_MEDIATED, listener);
 
         } finally {
             runningRemoteConnects.remove(sessionID);
@@ -640,8 +643,7 @@ public class Socks5Transport extends ByteStreamTransport {
         if (manager == null)
             throw new IOException(this + " transport is not initialized");
 
-        return manager.establishSession(peer.toString(),
-            getResponseSessionID(sessionID));
+        return manager.establishSession(peer, getResponseSessionID(sessionID));
     }
 
     @Override
@@ -654,7 +656,7 @@ public class Socks5Transport extends ByteStreamTransport {
     }
 
     @Override
-    public NetTransferMode getNetTransferMode() {
+    public ConnectionMode getNetTransferMode() {
         throw new IllegalStateException(
             "transfer mode is determined during connection establishment");
     }
@@ -849,6 +851,6 @@ public class Socks5Transport extends ByteStreamTransport {
 
     @Override
     public String toString() {
-        return "Socks5Transport";
+        return "XMPP-Socks5-Transport";
     }
 }

@@ -26,7 +26,7 @@ import java.io.File;
 
 /**
  * This interface is under development. It currently equals its Eclipse
- * counterpart. If not mentioned otherwise all offered method are equivalent to
+ * counterpart. If not mentioned otherwise all offered methods are equivalent to
  * their Eclipse counterpart.
  */
 public interface IPath {
@@ -53,8 +53,6 @@ public interface IPath {
 
     public IPath addFileExtension(String extension);
 
-    public String getFileExtension();
-
     public IPath removeFileExtension();
 
     public IPath makeAbsolute();
@@ -67,7 +65,8 @@ public interface IPath {
 
     public File toFile();
 
-    public IPath removeFirstSegments(int index);
+    public IPath removeFirstSegments(int count);
 
-    public <T> T getAdapter();
+    public String getFileExtension();
+
 }

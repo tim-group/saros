@@ -15,18 +15,18 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.StopActivity;
-import de.fu_berlin.inf.dpp.activities.business.StopActivity.State;
-import de.fu_berlin.inf.dpp.activities.business.StopActivity.Type;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.StopActivity;
+import de.fu_berlin.inf.dpp.activities.StopActivity.State;
+import de.fu_berlin.inf.dpp.activities.StopActivity.Type;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.observables.ObservableValue;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
@@ -46,7 +46,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
  * remove the block of remote users.
  */
 @Component(module = "core")
-public final class StopManager extends AbstractActivityProducerAndConsumer implements
+public final class StopManager extends AbstractActivityProvider implements
     Startable {
 
     private static final Logger log = Logger.getLogger(StopManager.class);
@@ -218,8 +218,6 @@ public final class StopManager extends AbstractActivityProducerAndConsumer imple
     public List<StartHandle> stop(final Collection<User> users,
         final String cause) throws CancellationException {
 
-        System.out.println("StopManager.stop <<<< 1");
-
         final List<StartHandle> resultingHandles = Collections
             .synchronizedList(new LinkedList<StartHandle>());
         final LinkedList<Thread> threads = new LinkedList<Thread>();
@@ -343,7 +341,7 @@ public final class StopManager extends AbstractActivityProducerAndConsumer imple
         boolean acknowledged = false;
         synchronized (notificationLock) {
             while ((System.currentTimeMillis() < timeoutToExceed)
-                && user.isInSarosSession()) {
+                && user.isInSession()) {
 
                 acknowledged = !expectedAcknowledgments.contains(expectedAck);
 
@@ -392,7 +390,7 @@ public final class StopManager extends AbstractActivityProducerAndConsumer imple
 
     /**
      * The goal of this method is to ensure that the local user cannot cause any
-     * editing activityDataObjects (FileActivities and TextEditActivities).
+     * editing activities (FileActivities and TextEditActivities).
      * 
      * @param lock
      *            if true the session gets locked, else it gets unlocked
@@ -577,12 +575,12 @@ public final class StopManager extends AbstractActivityProducerAndConsumer imple
          *               provider with the session. The session will install a
          *               listener on this provider.
          */
-        sarosSession.addActivityProducerAndConsumer(this);
+        installProvider(sarosSession);
     }
 
     @Override
     public void stop() {
-        sarosSession.removeActivityProducerAndConsumer(this);
+        uninstallProvider(sarosSession);
         lockSession(false);
         clearExpectedAcknowledgments();
     }

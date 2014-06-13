@@ -19,9 +19,7 @@
  */
 package de.fu_berlin.inf.dpp.session;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
-import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 /**
  * A user is a representation of a person sitting in front of an eclipse
@@ -37,7 +35,7 @@ import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
  * eclipse instance, all others are remote users.
  * 
  * The public and mutable properties are the {@link User.Permission} and
- * {@link #isInSarosSession()}.
+ * {@link #isInSession()}.
  * 
  * @entityObject A user is a entity object, i.e. it can change over time.
  */
@@ -61,18 +59,40 @@ public class User {
 
     private volatile boolean isInSession;
 
-    public User(JID jid, boolean isHost, boolean isLocal, int colorID,
-        int favoriteColorID) {
+    private final String nickname;
+
+    public User(JID jid, String nickname, boolean isHost, boolean isLocal,
+        int colorID, int favoriteColorID) {
 
         this.jid = jid;
         this.isHost = isHost;
         this.isLocal = isLocal;
         this.colorID = colorID;
         this.favoriteColorID = favoriteColorID;
+
+        if (nickname == null || nickname.trim().isEmpty())
+            this.nickname = jid.getBareJID().toString();
+        else
+            this.nickname = nickname;
     }
 
+    /**
+     * @deprecated Will be replaced. Do not use this method in new code.
+     * @return
+     */
+    @Deprecated
     public JID getJID() {
         return jid;
+    }
+
+    /**
+     * Returns the nickname of the user. The nickname persist through the whole
+     * session and will therefore not change.
+     * 
+     * @return the nickname of the user
+     */
+    public String getNickname() {
+        return nickname;
     }
 
     /**
@@ -131,7 +151,7 @@ public class User {
      * @return <code>true</code> if the user is part of the session,
      *         <code>false</code> otherwise
      */
-    public boolean isInSarosSession() {
+    public boolean isInSession() {
         return isInSession;
     }
 
@@ -203,45 +223,6 @@ public class User {
      */
     public boolean isClient() {
         return !isHost();
-    }
-
-    /**
-     * Returns the alias for the user (if any set) with JID in brackets,
-     * Example: "Alice (alice@saros-con.imp.fu-berlin.de)"
-     */
-
-    public String getHumanReadableName() {
-        return User.getHumanReadableName(null, getJID());
-    }
-
-    /**
-     * Returns the alias for the user (if any set) with JID in brackets,
-     * Example: "Alice (alice@saros-con.imp.fu-berlin.de)"
-     * 
-     * @param connectionService
-     * @param user
-     * @return
-     */
-    public static String getHumanReadableName(
-        XMPPConnectionService connectionService, JID user) {
-
-        String nickName = XMPPUtils.getNickname(connectionService, user);
-        String jidBase = user.getBase();
-
-        if (nickName != null && !nickName.equals(jidBase))
-            jidBase = nickName + " (" + jidBase + ")";
-
-        return jidBase;
-    }
-
-    public String getShortHumanReadableName() {
-
-        String nickName = XMPPUtils.getNickname(null, getJID());
-
-        if (nickName != null && !nickName.equals(getJID().getBase()))
-            return nickName;
-
-        return getJID().getName();
     }
 
     /**

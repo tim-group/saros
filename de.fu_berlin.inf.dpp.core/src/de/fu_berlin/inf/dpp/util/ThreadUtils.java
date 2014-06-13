@@ -37,11 +37,9 @@ public class ThreadUtils {
                 try {
                     runnable.run();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     logToUse.error("Internal Error:", e);
                     logToUse.error("Original caller:", stackTrace);
                 } catch (Error e) {
-                    e.printStackTrace();
                     logToUse.error("Internal Fatal Error:", e);
                     logToUse.error("Original caller:", stackTrace);
                     // Re-throw errors (such as an OutOfMemoryError)

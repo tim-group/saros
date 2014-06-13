@@ -59,11 +59,4 @@ public interface IPathFactory {
      *             if the resulting path object is not a relative path
      */
     public IPath fromString(String name);
-
-    /**
-     *
-     * @param path
-     * @return
-     */
-    public IPath fromPortableString(String path);
 }

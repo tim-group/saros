@@ -1,20 +1,13 @@
 package de.fu_berlin.inf.dpp.session;
 
-/**
- * TODO Formulate a sound description for this interface as its ancestor
- * (IActivityProvider) allows now straightforward splitting.
- */
+import de.fu_berlin.inf.dpp.activities.IActivity;
+
 public interface IActivityConsumer {
     /**
-     * Registers the given listener, so it will be informed via
-     * {@link IActivityListener#activityCreated(de.fu_berlin.inf.dpp.activities.business.IActivity)
-     * IActivityListener.activityCreated()} when this IActivityConsumer received
-     * an Activity.
+     * Executes the given activity.
+     * <p>
+     * The implementor may expect that this method is called from the EDT
+     * thread.
      */
-    public void addActivityListener(IActivityListener listener);
-
-    /**
-     * Removes a listener previously registered with addActivityListener.
-     */
-    public void removeActivityListener(IActivityListener listener);
+    public void exec(IActivity activity);
 }

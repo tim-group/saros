@@ -1,12 +1,11 @@
 package de.fu_berlin.inf.dpp.filesystem;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
 /**
  * This interface is under development. It currently equals its Eclipse
- * counterpart. If not mentioned otherwise all offered method are equivalent to
+ * counterpart. If not mentioned otherwise all offered methods are equivalent to
  * their Eclipse counterpart.
  */
 public interface IResource {
@@ -18,8 +17,6 @@ public interface IResource {
     public static final int ROOT = 8;
     public static final int FORCE = 16;
     public static final int KEEP_HISTORY = 32;
-
-    public static final int DEPTH_INFINITE = 64;
 
     public boolean exists();
 
@@ -54,8 +51,16 @@ public interface IResource {
 
     public boolean isDerived();
 
+    /**
+     * Equivalent to the Eclipse call
+     * <code>IResource#delete(updateFlags, null)</code>
+     */
     public void delete(int updateFlags) throws IOException;
 
+    /**
+     * Equivalent to the Eclipse call
+     * <code>IResource#delete(destination, force, null)</code>
+     */
     public void move(IPath destination, boolean force) throws IOException;
 
     public IResourceAttributes getResourceAttributes();
@@ -66,10 +71,5 @@ public interface IResource {
     public URI getLocationURI();
 
     public Object getAdapter(Class<? extends IResource> clazz);
-
-    public IPath getLocation();
-
-    public File toFile();
-
 
 }

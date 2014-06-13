@@ -4,6 +4,8 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 
+import de.fu_berlin.inf.dpp.net.internal.BinaryXMPPExtension;
+
 public interface IReceiver {
 
     /**
@@ -49,26 +51,22 @@ public interface IReceiver {
     public void processPacket(Packet packet);
 
     /**
-     * Installs a {@linkplain SarosPacketCollector collector}. Use this method
+     * Installs a {@linkplain PacketCollector collector}. Use this method
      * instead of {@link #addPacketListener} if the logic is using a polling
      * mechanism.
      * 
      * @param filter
      *            a filter that packets must match to be added to the collector.
-     * @return a {@linkplain SarosPacketCollector collector} which <b>must</b>
+     * @return a {@linkplain PacketCollector collector} which <b>must</b>
      *         be canceled if it is no longer used
      * 
-     * @see SarosPacketCollector#cancel()
+     * @see PacketCollector#cancel()
      */
-    public SarosPacketCollector createCollector(PacketFilter filter);
+    public PacketCollector createCollector(PacketFilter filter);
 
     /**
-     * Transforms a transfer object back into a packet and dispatches the given
-     * packet to all registered packet listeners.
-     * 
-     * @param transferObject
-     *            the transfer object to dispatch
+     * FOR INTERNAL USE
      */
-    public void processTransferObject(IncomingTransferObject transferObject);
+    public void processBinaryXMPPExtension(BinaryXMPPExtension extension);
 
 }

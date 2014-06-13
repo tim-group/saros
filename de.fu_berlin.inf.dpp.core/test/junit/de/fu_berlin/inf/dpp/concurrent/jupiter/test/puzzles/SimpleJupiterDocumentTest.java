@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.activities.business.JupiterActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Algorithm;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.Jupiter;
@@ -45,7 +45,7 @@ public class SimpleJupiterDocumentTest extends JupiterTestCase {
         doc.execOperation(op);
         assertEquals("abdc", doc.getDocument());
 
-        User user = JupiterTestCase.createUserMock("user");
+        User user = JupiterTestCase.createUser("user");
 
         JupiterActivity jupiterActivity = algo.generateJupiterActivity(op,
             user, null);
