@@ -22,7 +22,14 @@
 
 package de.fu_berlin.inf.dpp.core.project.events;
 
-public interface FileContentChangedListener
-{
-    public void fileContentChanged(String path);
+/**
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 2014-06-13
+ * Time: 14:14
+ */
+
+public interface FileContentChangedListener {
+
+    void fileContentChanged(String path);
 }

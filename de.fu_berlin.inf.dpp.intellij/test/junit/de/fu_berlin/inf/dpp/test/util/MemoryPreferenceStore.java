@@ -1,9 +1,9 @@
 package de.fu_berlin.inf.dpp.test.util;
 
-import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
+import de.fu_berlin.inf.dpp.intellij.exception.StorageException;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IPropertyChangeListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.events.PropertyChangeEvent;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.events.IPropertyChangeListener;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.events.PropertyChangeEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;

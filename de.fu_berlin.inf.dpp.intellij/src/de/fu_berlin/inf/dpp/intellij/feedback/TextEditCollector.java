@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
 import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;

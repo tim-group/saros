@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.feedback;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
 import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;

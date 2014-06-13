@@ -40,7 +40,7 @@ import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableDocumentListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableSelectionListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableViewPortListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.text.Annotation;
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
 

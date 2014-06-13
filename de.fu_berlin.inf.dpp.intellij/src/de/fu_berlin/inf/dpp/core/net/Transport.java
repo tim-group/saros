@@ -57,7 +57,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+ //todo: used to create DataTransferManager only. Remove later.
+@Deprecated
 public class Transport implements ITransport {
 
     private List<ChannelConnection> establishedConnections = new ArrayList<ChannelConnection>();

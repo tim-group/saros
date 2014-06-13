@@ -1,7 +1,7 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
-import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IPropertyChangeListener;
+import de.fu_berlin.inf.dpp.intellij.exception.StorageException;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.events.IPropertyChangeListener;
 
 import java.io.IOException;
 

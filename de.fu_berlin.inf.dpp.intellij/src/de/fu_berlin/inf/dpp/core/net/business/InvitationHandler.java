@@ -32,6 +32,7 @@ import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -41,8 +42,6 @@ import org.picocontainer.annotations.Inject;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-
-import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 
 /**
  * Business Logic for handling incoming Session- and ProjectNegotiation requests

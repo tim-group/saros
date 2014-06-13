@@ -30,10 +30,10 @@ import java.util.List;
 
 import de.fu_berlin.inf.dpp.communication.extensions.PingExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.PongExtension;
-import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;

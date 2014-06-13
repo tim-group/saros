@@ -1,6 +1,6 @@
 package de.fu_berlin.inf.dpp.test.util;
 
-import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
+import de.fu_berlin.inf.dpp.intellij.exception.StorageException;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 
 import java.io.IOException;

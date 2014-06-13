@@ -23,8 +23,8 @@ import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFil
 import java.util.*;
 
 
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
+import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 
 
 import java.io.BufferedInputStream;
@@ -38,10 +38,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
-import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
+import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -55,8 +56,6 @@ import org.picocontainer.annotations.Inject;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
-
-import de.fu_berlin.inf.dpp.core.observables.FileReplacementInProgressObservable;
 
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.session.ISarosSession;

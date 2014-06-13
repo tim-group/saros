@@ -5,12 +5,12 @@ import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcceptedExtension
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcknowledgedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationCompletedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationParameterExchangeExtension;
-import de.fu_berlin.inf.dpp.core.editor.colorstorage.UserColorID;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.project.internal.NicknameNegotiationHook;
 import de.fu_berlin.inf.dpp.core.ui.IJoinSession;
+import de.fu_berlin.inf.dpp.editor.colorstorage.UserColorID;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools;

@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.ui;
 
 import de.fu_berlin.inf.dpp.core.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.PlatformUI;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IWindowListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbench;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbenchWindow;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.PlatformUI;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.events.IWindowListener;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbench;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbenchWindow;
 import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;

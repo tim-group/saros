@@ -22,8 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -41,16 +40,14 @@ import javax.swing.*;
  * Date: 14.3.18
  * Time: 14.03
  */
-public class ConnectServerAction extends AbstractSarosAction implements IConnectionAction
-{
+public class ConnectServerAction extends AbstractSarosAction implements IConnectionAction {
     public static final String NAME = "connect";
 
     private String activeUser;
     private boolean createNew = false;
 
     @Override
-    public String getActionName()
-    {
+    public String getActionName() {
         return NAME;
     }
 
@@ -59,16 +56,14 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
      *
      * @param activeUser
      */
-    public void setActiveUser(String activeUser)
-    {
+    public void setActiveUser(String activeUser) {
         this.activeUser = activeUser;
     }
 
     /**
      * @param createNew
      */
-    public void setCreateNew(boolean createNew)
-    {
+    public void setCreateNew(boolean createNew) {
         this.createNew = createNew;
     }
 
@@ -78,37 +73,28 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
      * @param user
      * @return
      */
-    protected XMPPAccount locateAccount(String user)
-    {
+    protected XMPPAccount locateAccount(String user) {
         int index = user.indexOf("@");
         String server = null;
-        if (index > -1)
-        {
+        if (index > -1) {
             String[] pair = user.split("@");
             user = pair[0];
             server = pair[1];
         }
 
-        for (XMPPAccount account : saros.getAccountStore().getAllAccounts())
-        {
-            if (server == null)
-            {
-                if (user.equalsIgnoreCase(account.getUsername()))
-                {
+        for (XMPPAccount account : saros.getAccountStore().getAllAccounts()) {
+            if (server == null) {
+                if (user.equalsIgnoreCase(account.getUsername())) {
                     return account;
                 }
-            }
-            else
-            {
-                if (server.equalsIgnoreCase(account.getServer()) && user.equalsIgnoreCase(account.getUsername()))
-                {
+            } else {
+                if (server.equalsIgnoreCase(account.getServer()) && user.equalsIgnoreCase(account.getUsername())) {
                     return account;
                 }
             }
 
 
-            if (user.startsWith(account.getUsername()))
-            {
+            if (user.startsWith(account.getUsername())) {
                 return account;
             }
         }
@@ -117,60 +103,48 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         XMPPAccount account;
         boolean isNew = false;
-        if (activeUser != null)
-        {
+        if (activeUser != null) {
             account = locateAccount(activeUser);
             activeUser = null; //removeAll user name
-        }
-        else if (createNew || saros.getAccountStore().isEmpty())
-        {
+        } else if (createNew || saros.getAccountStore().isEmpty()) {
             //throw new RuntimeException("No current account set!"); //todo: open dialog
 
 
-            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf","Login");
-            if (jabberID == null)
-            {
+            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf", "Login");
+            if (jabberID == null) {
                 actionFinished();
                 return;
             }
-            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev","Login");
-            if (password == null)
-            {
+            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+            if (password == null) {
                 actionFinished();
                 return;
             }
-            //  account = saros.getAccountStore().createAccount(jabberID,password,saros.NAMESPACE,saros.SAROS_SERVER,80,false,false);
-            account = new XMPPAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
+            account = saros.getAccountStore().createAccount(jabberID, password, saros.NAMESPACE, saros.SAROS_SERVER, 80, false, false);
+            //account = new XMPPAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
             isNew = true;
-        }
-        else
-        {
+        } else {
             account = saros.getAccountStore().getActiveAccount();
         }
 
         log.info("Connecting server: [" + account.getUsername() + "@" + account.getServer() + "]");
 
-        try
-        {
+        try {
 
 
             saros.getConnectionService().connect(new ConnectionConfiguration(account.getServer()), account.getUsername(), account.getPassword());
 
             //store account
             if (isNew &&
-                    !saros.getAccountStore().exists(account.getUsername(), account.getDomain(), account.getServer(), account.getPort()))
-            {
+                    !saros.getAccountStore().exists(account.getUsername(), account.getDomain(), account.getServer(), account.getPort())) {
 
                 account = saros.getAccountStore().createAccount(account.getUsername(), account.getPassword(), account.getDomain(), account.getServer(), account.getPort(), account.useTLS(), account.useSASL());
             }
             saros.getAccountStore().setAccountActive(account);
-        }
-        catch (XMPPException e)
-        {
+        } catch (XMPPException e) {
             // Messages.showErrorDialog("Bad login or password. Try again!","Error");
             JOptionPane.showMessageDialog(guiFrame, "Bad login or password. Try again!", "Error", JOptionPane.ERROR_MESSAGE);
 

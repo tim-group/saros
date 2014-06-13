@@ -24,10 +24,10 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
+import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.workspace.ISchedulingRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -104,7 +104,7 @@ public class Workspace implements IWorkspace
     }
 
     @Override
-    public void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor)
+    public void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor)
     {
 
         if (monitor == null)
@@ -123,7 +123,7 @@ public class Workspace implements IWorkspace
     }
 
     @Override
-    public ISchedulingRoot getRoot()
+    public IWorkspaceRoot getRoot()
     {
         if (root == null)
         {

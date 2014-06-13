@@ -35,8 +35,8 @@ import java.util.Set;
 import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.LineRange;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.TextSelection;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.text.LineRange;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.text.TextSelection;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;

@@ -1040,8 +1040,7 @@ public final class SarosSession implements ISarosSession {
 
         this.pathFactory = context.getComponent(IPathFactory.class);
 
-        this.sessionID = context.getComponent(SessionIDObservable.class)
-                .getValue();
+        this.sessionID = context.getComponent(SessionIDObservable.class).getValue();
         this.projectMapper = new SarosProjectMapper();
         this.activityQueuer = new ActivityQueuer();
         this.sarosContext = context;

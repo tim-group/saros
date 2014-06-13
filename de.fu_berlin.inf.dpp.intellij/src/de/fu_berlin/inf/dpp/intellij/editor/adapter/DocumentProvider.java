@@ -26,9 +26,6 @@ package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorActionManager;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.text.IDocument;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
-
-import java.io.File;
 
 
 /**

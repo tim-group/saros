@@ -30,11 +30,11 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.PlatformUI;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.PartInitException;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbench;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbenchPage;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbenchWindow;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.PlatformUI;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.exceptions.PartInitException;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbench;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbenchPage;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbenchWindow;
 import org.apache.log4j.Logger;
 
 

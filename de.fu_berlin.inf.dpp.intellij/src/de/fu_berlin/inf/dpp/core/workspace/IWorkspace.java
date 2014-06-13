@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.workspace;
 
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 
@@ -35,9 +35,9 @@ public interface IWorkspace
 
     void run(IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException;
 
-    void run(IWorkspaceRunnable procedure, ISchedulingRoot root, int mode, IProgressMonitor monitor);
+    void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor);
 
-    ISchedulingRoot getRoot();
+    IWorkspaceRoot getRoot();
 
     IWorkspaceDescription getDescription();
 

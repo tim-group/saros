@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
-import de.fu_berlin.inf.dpp.core.exceptions.StorageException;
+import de.fu_berlin.inf.dpp.intellij.exception.StorageException;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 
 import java.io.IOException;

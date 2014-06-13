@@ -22,22 +22,22 @@
 
 package de.fu_berlin.inf.dpp.core.context;
 
+import de.fu_berlin.inf.dpp.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.communication.chat.muc.MultiUserChatService;
 import de.fu_berlin.inf.dpp.communication.chat.single.SingleUserChatService;
-import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.core.communication.chart.muc.negotiation.MUCNegotiationManager;
-import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
-import de.fu_berlin.inf.dpp.core.observables.*;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.intellij.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.*;
 
@@ -52,8 +52,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.xmpp.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.RosterTracker;
 import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
-import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
-import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
+import de.fu_berlin.inf.dpp.observables.*;
 import de.fu_berlin.inf.dpp.versioning.VersionManager;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -142,7 +141,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(SessionIDObservable.class),
             Component.create(SarosSessionObservable.class),
             Component.create(AwarenessInformationCollector.class),
-            Component.create(FollowingActivitiesManager.class),
+           // Component.create(FollowingActivitiesManager.class),  //todo
 
             // Handlers
             Component.create(CancelInviteHandler.class),

@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.editor.bridge;
 
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.core.editor.internal.IEditorInput;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

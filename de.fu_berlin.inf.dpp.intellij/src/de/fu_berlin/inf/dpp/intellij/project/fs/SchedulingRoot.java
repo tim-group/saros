@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import de.fu_berlin.inf.dpp.core.workspace.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import org.apache.log4j.Logger;
@@ -38,7 +38,7 @@ import java.util.Map;
  * Time: 15.36
  */
 
-public class SchedulingRoot implements ISchedulingRoot {
+public class SchedulingRoot implements IWorkspaceRoot {
     public static final Logger log = Logger.getLogger(SchedulingRoot.class);
 
     private File workspacePath;

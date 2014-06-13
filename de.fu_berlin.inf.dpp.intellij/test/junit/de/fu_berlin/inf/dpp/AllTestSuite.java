@@ -7,9 +7,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 
-de.fu_berlin.inf.dpp.accountManagement.TestSuite.class,
-
-de.fu_berlin.inf.dpp.core.editor.colorstorage.TestSuite.class,
+de.fu_berlin.inf.dpp.account.TestSuite.class,
 
 de.fu_berlin.inf.dpp.invitation.TestSuite.class,
 

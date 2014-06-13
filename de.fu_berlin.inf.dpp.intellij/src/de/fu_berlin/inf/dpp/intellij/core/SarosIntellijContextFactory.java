@@ -22,10 +22,10 @@
 
 package de.fu_berlin.inf.dpp.intellij.core;
 
+import de.fu_berlin.inf.dpp.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
-import de.fu_berlin.inf.dpp.core.context.AbstractSarosContextFactory;
-import de.fu_berlin.inf.dpp.core.context.ISarosContextFactory;
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.ISarosContextFactory;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
@@ -87,6 +87,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             //  Component.create(EditorManagerEcl.class),
            // Component.create(IEditorManager.class, EditorManagerEcl.class),
             Component.create(IEditorManager.class, EditorManager.class),
+            Component.create(EditorManager.class, EditorManager.class),
             // disabled because of privacy violations
             // see
             // http://opus.haw-hamburg.de/volltexte/2011/1391/pdf/ba_krassmann_online.pdf

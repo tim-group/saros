@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.workspace.ISchedulingRoot;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.picocontainer.annotations.Inject;
@@ -88,7 +88,7 @@ public class CreateProjectTask implements IWorkspaceRunnable
         ISubMonitor subMonitor = monitor.convert(
                 "Creating new project... ", base == null ? 2 : 3);
 
-        ISchedulingRoot workspaceRoot = workspace.getRoot();
+        IWorkspaceRoot workspaceRoot = workspace.getRoot();
 
         project = workspaceRoot.getProject(name);
 

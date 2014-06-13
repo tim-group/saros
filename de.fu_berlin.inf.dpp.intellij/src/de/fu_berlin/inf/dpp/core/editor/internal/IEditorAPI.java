@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.core.editor.internal;
 
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 
@@ -126,7 +126,7 @@ public interface IEditorAPI {
      *             the EditorManagerEcl or EditorPart are null
      *
      */
-    public void addSharedEditorListener(IEditorManager editorManager,
+    public void addSharedEditorListener(IEditorManagerBase editorManager,
             IEditorPart editorPart);
 
     /**
@@ -142,7 +142,7 @@ public interface IEditorAPI {
      *             if the given editorPart has never been registered via
      *             {@link #addSharedEditorListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl, IEditorPart)}.
      */
-    public void removeSharedEditorListener(IEditorManager editorManager,
+    public void removeSharedEditorListener(IEditorManagerBase editorManager,
             IEditorPart editorPart);
 
     /**
@@ -171,7 +171,7 @@ public interface IEditorAPI {
      *             if the given EditorManagerEcl has never been registered via
      *             {@link #addEditorPartListener(de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl)}
      */
-    public void removeEditorPartListener(IEditorManager editorManager);
+    public void removeEditorPartListener(IEditorManagerBase editorManager);
 
     /**
      * Register a PartListener on the currently active WorkbenchWindow using the
@@ -185,7 +185,7 @@ public interface IEditorAPI {
      * @throws IllegalArgumentException
      *             if the EditorManagerEcl is null
      */
-    public void addEditorPartListener(IEditorManager editorManager);
+    public void addEditorPartListener(IEditorManagerBase editorManager);
 
     public boolean existUnsavedFiles(IProject project);
 }

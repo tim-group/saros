@@ -24,8 +24,8 @@ package de.fu_berlin.inf.dpp.intellij.editor.bridge;
 
 import com.intellij.openapi.editor.Editor;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IEditorInput;
+import de.fu_berlin.inf.dpp.core.editor.internal.IEditorInput;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -81,9 +81,9 @@ public class EditorPart implements IEditorPart
         return null;
     }
 
+
     @Override
-    public void doSave(IProgressMonitor monitor)
-    {
+    public void doSave(IProgressMonitor monitor) {
 
     }
 

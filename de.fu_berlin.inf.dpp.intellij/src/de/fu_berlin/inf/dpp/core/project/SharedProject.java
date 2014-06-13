@@ -9,8 +9,8 @@ import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IContainer;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IResourceVisitor;
+import de.fu_berlin.inf.dpp.intellij.mock.resources.IContainer;
+import de.fu_berlin.inf.dpp.intellij.mock.resources.IResourceVisitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -474,7 +474,7 @@ public class SharedProject {
         };
         try {
             //todo
-//            project.accept(visitor, de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IResource.DEPTH_INFINITE,
+//            project.accept(visitor, de.fu_berlin.inf.dpp.intellij.mock.resources.IResource.DEPTH_INFINITE,
 //                    IContainer.EXCLUDE_DERIVED);
             illegalState = illegalState || visitor.visit(null);
         } catch (Exception e) {

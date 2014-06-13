@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
@@ -93,16 +93,15 @@ public class EditorAPIBridge  implements IEditorAPI
     }
 
     @Override
-    public void addSharedEditorListener(IEditorManager editorManager, IEditorPart editorPart)
-    {
+    public void addSharedEditorListener(IEditorManagerBase editorManager, IEditorPart editorPart) {
 
     }
 
     @Override
-    public void removeSharedEditorListener(IEditorManager editorManager, IEditorPart editorPart)
-    {
+    public void removeSharedEditorListener(IEditorManagerBase editorManager, IEditorPart editorPart) {
 
     }
+
 
     @Override
     public SPath getActiveEditorPath()
@@ -117,16 +116,15 @@ public class EditorAPIBridge  implements IEditorAPI
     }
 
     @Override
-    public void removeEditorPartListener(IEditorManager editorManager)
-    {
+    public void removeEditorPartListener(IEditorManagerBase editorManager) {
 
     }
 
     @Override
-    public void addEditorPartListener(IEditorManager editorManager)
-    {
+    public void addEditorPartListener(IEditorManagerBase editorManager) {
 
     }
+
 
     @Override
     public boolean existUnsavedFiles(IProject project)

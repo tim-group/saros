@@ -30,7 +30,7 @@ package de.fu_berlin.inf.dpp.core.zip;
  */
 
 
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.util.StatisticUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;

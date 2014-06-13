@@ -24,8 +24,8 @@ package de.fu_berlin.inf.dpp.intellij.core;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import de.fu_berlin.inf.dpp.core.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.account.XMPPAccount;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
 import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
@@ -50,6 +50,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.proxy.ProxyInfo;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -234,7 +235,8 @@ public class Saros extends AbstractSaros
     {
         if (accountStore == null)
         {
-            this.accountStore = new XMPPAccountStore(configPrefs, securePrefs);
+            this.accountStore = new XMPPAccountStore();
+            this.accountStore.setAccountFile(new File("SarosXMPPAccount.info"),"saros123");
             //  MockInitializer.initAccountStore(accountStore); //todo
         }
         return accountStore;

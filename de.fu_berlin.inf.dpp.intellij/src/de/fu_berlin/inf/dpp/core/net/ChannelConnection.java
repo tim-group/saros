@@ -53,12 +53,8 @@ import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import java.io.IOException;
 
-/**
- * Created by: r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.19 Time: 15.37
- */
-
+//todo: used in Transport only, remove later
+@Deprecated
 public class ChannelConnection implements IByteStreamConnection {
 
     private JID to;

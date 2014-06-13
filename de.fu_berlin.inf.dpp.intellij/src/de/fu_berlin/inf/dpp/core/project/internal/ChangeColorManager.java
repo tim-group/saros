@@ -26,11 +26,13 @@ import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.ChangeColorActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSet;
-import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSetStorage;
-import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
+
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
-import de.fu_berlin.inf.dpp.core.editor.colorstorage.UserColorID;
+
+import de.fu_berlin.inf.dpp.editor.colorstorage.ColorIDSet;
+import de.fu_berlin.inf.dpp.editor.colorstorage.UserColorID;
+import de.fu_berlin.inf.dpp.intellij.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.*;
 import org.apache.log4j.Logger;
@@ -273,6 +275,15 @@ public class ChangeColorManager extends AbstractActivityProvider implements
         editorManager.refreshAnnotations();
     }
 
+    private Collection<String> asIDCollection(Collection<User> users) {
+        List<String> result = new ArrayList<String>(users.size());
+
+        for (User user : users)
+            result.add(user.getJID().getBareJID().toString());
+
+        return result;
+    }
+
     /*
      * original algorithm by: fzieris and pschlott, modified and integrated by
      * srossbach
@@ -284,14 +295,12 @@ public class ChangeColorManager extends AbstractActivityProvider implements
      * then all colors are UserColorId.UNKNOWN)
      */
     private void reassignSessionColorIDs(List<User> currentUsers, User user,
-            boolean joined)
-    {
+                                         boolean joined) {
         assert sarosSession.isHost() : "only the session host can assign a color id";
 
         log.debug("reassigning color IDs for the current session users");
 
-        synchronized (this)
-        {
+        synchronized (this) {
 
             /*
              * release all colors, see join / left, the host must handle the
@@ -301,36 +310,28 @@ public class ChangeColorManager extends AbstractActivityProvider implements
 
             // we need to release all current colors
             for (User currentUser : currentUsers)
-            {
                 addColorIdToPool(currentUser.getColorID());
-            }
 
             /*
              * if a user just joined, he must be in the current users list. if
              * he left, his color became available in the pool
              */
             if (joined)
-            {
                 currentUsers.add(user);
-            }
             else
-            {
                 addColorIdToPool(user.getColorID());
-            }
 
             Map<User, Integer> assignedColors = assumeNoFavoriteColorCollisions(currentUsers);
 
             assert assignedColors.size() == currentUsers.size();
 
             ColorIDSet colorIDSet = colorIDSetStorage
-                    .getColorIDSet(asJIDCollection(currentUsers));
+                    .getColorIDSet(asIDCollection(currentUsers));
 
-            resolveColorConflicts:
-            {
+            resolveColorConflicts: {
 
                 // no conflict = OK
-                if (isOptimalColorAssignment(assignedColors))
-                {
+                if (isOptimalColorAssignment(assignedColors)) {
                     log.debug("color conflict resolve result = NO CONFLICT");
                     break resolveColorConflicts;
                 }
@@ -343,8 +344,7 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                  * resolved colors again ... see above assignedColors is
                  * initialized with the current favorite colors
                  */
-                if (lastKnownFavoriteColors.equals(assignedColors))
-                {
+                if (lastKnownFavoriteColors.equals(assignedColors)) {
 
                     applyStoredColors(assignedColors, colorIDSet);
 
@@ -356,8 +356,7 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                      * the reuse of colors.
                      */
                     if (favoriteUserColors.containsValue(UserColorID.UNKNOWN)
-                            && isValidColorAssignment(assignedColors))
-                    {
+                            && isValidColorAssignment(assignedColors)) {
                         log.debug("color conflict resolve result = FAVORITE COLORS UNKNOWN, USING PREVIOUS COLOR ASSIGNMENT");
                         break resolveColorConflicts;
                     }
@@ -365,13 +364,10 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                     /*
                      * if color assignment is optimal, assignment is resolved.
                      */
-                    if (isOptimalColorAssignment(assignedColors))
-                    {
+                    if (isOptimalColorAssignment(assignedColors)) {
                         log.debug("color conflict resolve result = ALREADY SOLVED");
                         break resolveColorConflicts;
-                    }
-                    else
-                    {
+                    } else {
                         // the colorIdSet was not optimal, reassign colors
                         assignedColors = assumeNoFavoriteColorCollisions(currentUsers);
                     }
@@ -385,15 +381,11 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                  * optimal assignment
                  */
                 if (!favoriteUserColors.containsValue(UserColorID.UNKNOWN))
-                {
                     assert isOptimalColorAssignment(assignedColors);
-                }
 
                 /* release all colors again as they will be removed again */
                 for (int colorID : assignedColors.values())
-                {
                     addColorIdToPool(colorID);
-                }
 
                 log.debug("color conflict resolve result = RESOLVED");
 
@@ -407,10 +399,8 @@ public class ChangeColorManager extends AbstractActivityProvider implements
         }
 
         for (User currentUser : currentUsers)
-        {
             broadcastColorIDChange(currentUser, currentUsers,
                     currentUser.getColorID());
-        }
 
         editorManager.colorChanged();
         editorManager.refreshAnnotations();
@@ -459,12 +449,11 @@ public class ChangeColorManager extends AbstractActivityProvider implements
     }
 
     private synchronized void applyStoredColors(
-            Map<User, Integer> assignedColors, ColorIDSet colorIDSet)
-    {
+            Map<User, Integer> assignedColors, ColorIDSet colorIDSet) {
 
-        for (Map.Entry<User, Integer> e : assignedColors.entrySet())
-        {
-            e.setValue(colorIDSet.getColor(e.getKey().getJID()));
+        for (Map.Entry<User, Integer> e : assignedColors.entrySet()) {
+            e.setValue(colorIDSet.getColor(e.getKey().getJID().getBareJID()
+                    .toString()));
         }
 
     }
@@ -501,14 +490,14 @@ public class ChangeColorManager extends AbstractActivityProvider implements
     }
 
     private synchronized Map<User, Integer> getLastKnownFavoriteColors(
-            Map<User, Integer> assignedColors, ColorIDSet colorIDSet)
-    {
+            Map<User, Integer> assignedColors, ColorIDSet colorIDSet) {
         Map<User, Integer> lastKnownFavoriteColors = new LinkedHashMap<User, Integer>();
 
-        for (User currentUser : assignedColors.keySet())
-        {
-            lastKnownFavoriteColors.put(currentUser,
-                    colorIDSet.getFavoriteColor(currentUser.getJID()));
+        for (User currentUser : assignedColors.keySet()) {
+            lastKnownFavoriteColors.put(
+                    currentUser,
+                    colorIDSet.getFavoriteColor(currentUser.getJID().getBareJID()
+                            .toString()));
         }
         return lastKnownFavoriteColors;
     }
@@ -690,11 +679,10 @@ public class ChangeColorManager extends AbstractActivityProvider implements
         usedColorIDs.put(colorID, colorIDUseCount);
     }
 
-    private synchronized void updateColorSet(Collection<User> users)
-    {
+    private synchronized void updateColorSet(Collection<User> users) {
 
         ColorIDSet colorIDSet = colorIDSetStorage
-                .getColorIDSet(asJIDCollection(users));
+                .getColorIDSet(asIDCollection(users));
 
         log.debug("updating color id set: "
                 + Arrays.toString(colorIDSet.getParticipants().toArray()));
@@ -704,24 +692,19 @@ public class ChangeColorManager extends AbstractActivityProvider implements
          * exception
          */
         for (User user : users)
-        {
-            colorIDSetStorage.updateColor(colorIDSet, user.getJID(),
-                    UserColorID.UNKNOWN, UserColorID.UNKNOWN);
-        }
+            colorIDSetStorage.updateColor(colorIDSet, user.getJID()
+                            .getBareJID().toString(), UserColorID.UNKNOWN,
+                    UserColorID.UNKNOWN);
 
-        for (User user : users)
-        {
+        for (User user : users) {
             if (!isValidColorID(user.getColorID()))
-            {
                 continue;
-            }
 
             /*
              * the host still sends color updates so it is ok to abort here and
              * leaving the color set in a dirty state
              */
-            if (!colorIDSet.isAvailable(user.getColorID()))
-            {
+            if (!colorIDSet.isAvailable(user.getColorID())) {
                 assert !sarosSession.isHost() : "invalid color state on host side";
                 break;
             }
@@ -730,8 +713,9 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                     + user.getColorID() + "' fav id '"
                     + favoriteUserColors.get(user) + "'");
 
-            colorIDSetStorage.updateColor(colorIDSet, user.getJID(),
-                    user.getColorID(), favoriteUserColors.get(user));
+            colorIDSetStorage.updateColor(colorIDSet, user.getJID()
+                            .getBareJID().toString(), user.getColorID(),
+                    favoriteUserColors.get(user));
         }
     }
 

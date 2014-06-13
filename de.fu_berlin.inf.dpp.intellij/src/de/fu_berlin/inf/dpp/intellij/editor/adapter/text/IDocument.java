@@ -22,8 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.adapter.text;
 
-import de.fu_berlin.inf.dpp.intellij.editor.mock.exceptions.BadLocationException;
-
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>

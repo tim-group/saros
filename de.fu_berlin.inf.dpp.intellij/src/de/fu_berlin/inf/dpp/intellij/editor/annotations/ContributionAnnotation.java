@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.annotations;
 
-import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.text.IAnnotationModel;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 

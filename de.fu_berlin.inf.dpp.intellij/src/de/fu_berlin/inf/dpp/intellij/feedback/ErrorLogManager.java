@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.intellij.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractFeedbackManager;
 import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManagerConfiguration;
