@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.editor.colorstorage;
 
 
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import java.io.Serializable;
 import java.util.*;

@@ -22,15 +22,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
+import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.extensions.JoinSessionRejectedExtension;
+
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 
 

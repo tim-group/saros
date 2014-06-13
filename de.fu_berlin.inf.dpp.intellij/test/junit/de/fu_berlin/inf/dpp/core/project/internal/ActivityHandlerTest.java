@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.core.project.internal.ActivityHandler;
 import de.fu_berlin.inf.dpp.core.project.internal.IActivityHandlerCallback;
 import org.easymock.EasyMock;
@@ -19,27 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.activities.QueueItem;
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.ChangeColorActivity;
-import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
-import de.fu_berlin.inf.dpp.activities.business.ChecksumErrorActivity;
-import de.fu_berlin.inf.dpp.activities.business.EditorActivity;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.IResourceActivity;
-import de.fu_berlin.inf.dpp.activities.business.ITargetedActivity;
-import de.fu_berlin.inf.dpp.activities.business.JupiterActivity;
-import de.fu_berlin.inf.dpp.activities.business.PermissionActivity;
-import de.fu_berlin.inf.dpp.activities.business.ProgressActivity;
-import de.fu_berlin.inf.dpp.activities.business.StartFollowingActivity;
-import de.fu_berlin.inf.dpp.activities.business.StopActivity;
-import de.fu_berlin.inf.dpp.activities.business.StopFollowingActivity;
-import de.fu_berlin.inf.dpp.activities.business.TextEditActivity;
-import de.fu_berlin.inf.dpp.activities.business.TextSelectionActivity;
-import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
-import de.fu_berlin.inf.dpp.activities.business.ViewportActivity;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -337,7 +317,7 @@ public class ActivityHandlerTest {
     private User createUser(boolean local) {
         User user = EasyMock.createMock(User.class);
         EasyMock.expect(user.isLocal()).andStubReturn(local);
-        EasyMock.expect(user.isInSarosSession()).andStubReturn(true);
+        EasyMock.expect(user.isInSession()).andStubReturn(true);
         EasyMock.replay(user);
         return user;
     }

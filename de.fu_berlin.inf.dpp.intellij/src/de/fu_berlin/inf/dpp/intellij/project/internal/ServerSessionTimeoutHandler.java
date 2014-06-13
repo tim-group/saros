@@ -28,18 +28,18 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.communication.extensions.PingExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.PongExtension;
 import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.extensions.PingExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.PongExtension;
 
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -124,15 +124,16 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
                     }
 
                     try {
-                        transmitter.sendToSessionUser(
+                        transmitter.send(
                                 ISarosSession.SESSION_CONNECTION_ID, user.getJID(),
                                 PingExtension.PROVIDER.create(new PingExtension(
-                                        currentSessionID)));
+                                        currentSessionID))
+                        );
                     } catch (IOException e) {
 
                         removedUsers.add(user);
 
-                        if (!user.isInSarosSession())
+                        if (!user.isInSession())
                             continue;
 
                         LOG.error("failed to send ping to: " + user, e);
@@ -260,7 +261,7 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
 
             UserPongStatus status = it.next();
 
-            if (status.user.isInSarosSession())
+            if (status.user.isInSession())
                 users.add(status.user);
         }
 
@@ -277,7 +278,7 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
 
             UserPongStatus status = it.next();
 
-            if (!status.user.isInSarosSession())
+            if (!status.user.isInSession())
                 it.remove();
         }
     }

@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.core.editor.colorstorage;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;

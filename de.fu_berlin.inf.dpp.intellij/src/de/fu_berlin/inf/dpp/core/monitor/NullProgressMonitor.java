@@ -28,79 +28,67 @@ package de.fu_berlin.inf.dpp.core.monitor;
  * Date: 14.3.19 Time: 12.08
  */
 
-public class NullProgressMonitor implements IProgressMonitor
-{
+public class NullProgressMonitor implements IProgressMonitor {
     @Override
-    public boolean isCanceled()
-    {
+    public boolean isCanceled() {
         return false; // To change body of implemented methods use File |
         // Settings | File Templates.
     }
 
     @Override
-    public void setCanceled(boolean cancel)
-    {
+    public void setCanceled(boolean cancel) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void worked(int delta)
-    {
+    public void worked(int delta) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void subTask(String remaingTime)
-    {
+    public void subTask(String remaingTime) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void setTaskName(String name)
-    {
+    public void setTaskName(String name) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void done()
-    {
+    public void done() {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void beginTask(String taskName, String type)
-    {
+    public void beginTask(String taskName, String type) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void beginTask(String taskNam, int size)
-    {
+    public void beginTask(String taskNam, int size) {
         // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
     @Override
-    public void internalWorked(double work)
-    {
+    public void internalWorked(double work) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ISubMonitor convert(IProgressMonitor monitor)
-    {
+    public ISubMonitor convert() {
         return new NullProgressSubMonitor(this);
     }
 
     @Override
-    public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
-    {
+    public ISubMonitor convert(String title, int progress) {
         return new NullProgressSubMonitor(this);
     }
 }

@@ -22,18 +22,16 @@
 
 package de.fu_berlin.inf.dpp.core.net.business;
 
-import de.fu_berlin.inf.dpp.core.invitation.SessionNegotiation;
-import de.fu_berlin.inf.dpp.core.observables.InvitationProcessObservable;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
-
+import de.fu_berlin.inf.dpp.communication.extensions.CancelInviteExtension;
+import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.extensions.CancelInviteExtension;
-
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
 
 @Component(module = "net")
 public class CancelInviteHandler {
@@ -41,7 +39,7 @@ public class CancelInviteHandler {
     private static final Logger log = Logger
             .getLogger(CancelInviteHandler.class.getName());
 
-    private InvitationProcessObservable invitationProcesses;
+    private SessionNegotiationObservable invitationProcesses;
 
     private PacketListener cancelInvitationExtensionListener = new PacketListener() {
 
@@ -56,7 +54,7 @@ public class CancelInviteHandler {
     };
 
     public CancelInviteHandler(IReceiver receiver,
-            InvitationProcessObservable invitationProcessObservable) {
+                               SessionNegotiationObservable invitationProcessObservable) {
 
         this.invitationProcesses = invitationProcessObservable;
 
@@ -65,10 +63,10 @@ public class CancelInviteHandler {
     }
 
     public void invitationCanceled(JID sender, String invitationID,
-            String errorMsg) {
+                                   String errorMsg) {
 
         SessionNegotiation invitationProcess = invitationProcesses
-                .getInvitationProcess(sender, invitationID);
+                .get(sender, invitationID);
 
         if (invitationProcess == null) {
             log.warn("Inv[unkown user]: Received invitation cancel message for unknown invitation process. Ignoring...");

@@ -62,7 +62,7 @@ public class ViewportAnnotation extends SarosAnnotation implements
     public ViewportAnnotation(User source)
     {
         super(ViewportAnnotation.TYPE, true, "Visible scope of "
-                + source.getHumanReadableName(), source);
+                + source.getNickname(), source);
 
         Display display = Display.getDefault();
 

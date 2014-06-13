@@ -22,7 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.net.JID;
+
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 /**
  * Simple callback interface for monitoring events that occur in the

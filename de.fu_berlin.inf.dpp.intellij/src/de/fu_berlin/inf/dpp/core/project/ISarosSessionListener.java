@@ -1,6 +1,7 @@
 package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 

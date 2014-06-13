@@ -36,7 +36,7 @@ import java.util.List;
  * Time: 11.41
  */
 
-public class PathImp implements IPath, Comparable<PathImp> {
+public class PathImp implements IPath {
     public static final String FILE_SEPARATOR = "/";
 
     private String _path;
@@ -146,6 +146,7 @@ public class PathImp implements IPath, Comparable<PathImp> {
         return new PathImp(path);
     }
 
+    @Override
     public String getFileExtension() {
         String path = _path;
         if (path.contains(".")) {
@@ -170,7 +171,7 @@ public class PathImp implements IPath, Comparable<PathImp> {
         String path = _path;
 
         if (path.contains("\\")) {
-            path = path.replaceAll("\\\\", FILE_SEPARATOR);
+            path = path.replace('\\', '/');
         }
         return path;
     }
@@ -197,18 +198,9 @@ public class PathImp implements IPath, Comparable<PathImp> {
         return sb.toString();
     }
 
-    @Override
-    public String getAdapter() {
-        return _path;
-    }
 
     public String toString() {
         return _path;
-    }
-
-    @Override
-    public int compareTo(PathImp o) {
-        return this._path.compareTo(o._path);
     }
 
 

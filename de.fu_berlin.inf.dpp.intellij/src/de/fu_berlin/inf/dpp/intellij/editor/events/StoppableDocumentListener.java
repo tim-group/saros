@@ -63,6 +63,7 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
 
     private final EditorManager editorManager;
     private Document document;
+
     private Logger log = Logger.getLogger(StoppableDocumentListener.class);
 
     public StoppableDocumentListener(EditorManager editorManager) {
@@ -70,11 +71,10 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
     }
 
     @Override
-    public void beforeDocumentChange(DocumentEvent event) {
+    public synchronized void beforeDocumentChange(DocumentEvent event) {
         if (!enabled) {
             return;
         }
-
 
         SPath path = editorManager.getActionManager().getEditorPool().getFile(event.getDocument());
         if (path == null) {
@@ -89,7 +89,7 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
     }
 
     @Override
-    public void documentChanged(DocumentEvent documentEvent) {
+    public void documentChanged(DocumentEvent event) {
         // do nothing. We handled everything in documentAboutToBeChanged
     }
 
@@ -121,6 +121,5 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
             }
 
         }
-
     }
 }

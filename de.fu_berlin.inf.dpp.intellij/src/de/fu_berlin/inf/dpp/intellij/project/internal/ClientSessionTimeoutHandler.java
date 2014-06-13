@@ -24,6 +24,8 @@ package de.fu_berlin.inf.dpp.intellij.project.internal;
 
 import java.io.IOException;
 
+import de.fu_berlin.inf.dpp.communication.extensions.PingExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.PongExtension;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
 import org.apache.log4j.Logger;
@@ -32,8 +34,6 @@ import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.internal.extensions.PingExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.PongExtension;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
@@ -109,10 +109,11 @@ public final class ClientSessionTimeoutHandler extends SessionTimeoutHandler {
                 }
 
                 try {
-                    transmitter.sendToSessionUser(
+                    transmitter.send(
                             ISarosSession.SESSION_CONNECTION_ID, session.getHost()
                                     .getJID(), PongExtension.PROVIDER
-                                    .create(new PongExtension(currentSessionID)));
+                                    .create(new PongExtension(currentSessionID))
+                    );
                 } catch (IOException e) {
                     LOG.error("failed to send pong", e);
                     handleNetworkError(session.getHost().getJID(), "TxFailure");

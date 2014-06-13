@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.session.User;
 
 public class ColorIDSetTest {
@@ -29,12 +29,12 @@ public class ColorIDSetTest {
         userList = new ArrayList<User>();
         userMap = new HashMap<JID, UserColorID>();
 
-        alice = new User(new JID("alice@saros.org/Wonderland"), false, false,
-            0, -1);
-        bob = new User(new JID("bob@saros.org/Jamaica"), false, false, 1, -1);
-        carl = new User(new JID("carl@lagerfeld.org/Paris"), false, false, 2,
+        alice = new User(new JID("alice@saros.org/Wonderland"), null, false,
+            true, -1,1);
+        bob = new User(new JID("bob@saros.org/Jamaica"),null, false, false, 1, -1);
+        carl = new User(new JID("carl@lagerfeld.org/Paris"),null, false, false, 2,
             -1);
-        dave = new User(new JID("dave@saros.org/Hell"), false, false, 0, -1);
+        dave = new User(new JID("dave@saros.org/Hell"),null, false, false, 0, -1);
     }
 
     private ColorIDSet createColorIDSet(Collection<User> users) {

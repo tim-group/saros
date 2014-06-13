@@ -32,7 +32,6 @@ import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressBar;
@@ -264,7 +263,7 @@ public class ConsistencyAction extends AbstractSarosAction
                 progress.startAutoincrement();
                 progress.beginTask(
                         Messages.ConsistencyAction_progress_perform_recovery, 10);
-                watchdogClient.runRecovery(progress.convert(null));
+                watchdogClient.runRecovery(progress.convert());
 
               //  progress.done();
             }

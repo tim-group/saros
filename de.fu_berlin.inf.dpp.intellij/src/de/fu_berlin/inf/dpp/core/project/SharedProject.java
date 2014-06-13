@@ -1,18 +1,23 @@
 package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
+
 import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeEvent;
 import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
-import de.fu_berlin.inf.dpp.filesystem.*;
+
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IContainer;
+import de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IResourceVisitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
+
 import static java.text.MessageFormat.format;
 import java.util.HashMap;
 import java.util.Map;
@@ -468,8 +473,9 @@ public class SharedProject {
             }
         };
         try {
-            project.accept(visitor, IResource.DEPTH_INFINITE,
-                    IContainer.EXCLUDE_DERIVED);
+            //todo
+//            project.accept(visitor, de.fu_berlin.inf.dpp.intellij.mock.editor.core.resources.IResource.DEPTH_INFINITE,
+//                    IContainer.EXCLUDE_DERIVED);
             illegalState = illegalState || visitor.visit(null);
         } catch (Exception e) {
             return false;

@@ -22,19 +22,20 @@
 
 package de.fu_berlin.inf.dpp.core.net.business;
 
+import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
-import de.fu_berlin.inf.dpp.net.internal.extensions.KickUserExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.LeaveSessionExtension;
+
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.JID;
 
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -116,7 +117,7 @@ public class LeaveAndKickHandler {
         }
 
         stopSession(sarosSession, "Removed from the session",
-                user.getHumanReadableName()
+                user.getNickname()
                         + " removed you from the current session.");
     }
 
@@ -147,7 +148,7 @@ public class LeaveAndKickHandler {
          */
         if (user.isHost()) {
             stopSession(sarosSession, "Closing the session",
-                    "Session was closed by inviter " + user.getHumanReadableName()
+                    "Session was closed by inviter " + user.getNickname()
                             + ".");
 
         }

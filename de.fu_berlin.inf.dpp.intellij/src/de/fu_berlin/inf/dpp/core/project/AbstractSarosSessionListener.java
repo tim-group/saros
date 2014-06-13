@@ -22,8 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -36,16 +35,13 @@ public class AbstractSarosSessionListener implements ISarosSessionListener
 {
 
     @Override
-    public void preIncomingInvitationCompleted(IProgressMonitor monitor)
-    {
-        // do nothing
+    public void preIncomingInvitationCompleted(IProgressMonitor monitor) {
+
     }
 
     @Override
-    public void postOutgoingInvitationCompleted(IProgressMonitor monitor,
-            User user)
-    {
-        // do nothing
+    public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user) {
+
     }
 
     @Override

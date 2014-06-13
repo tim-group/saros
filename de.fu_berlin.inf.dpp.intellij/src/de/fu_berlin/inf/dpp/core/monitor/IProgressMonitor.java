@@ -8,29 +8,16 @@ package de.fu_berlin.inf.dpp.core.monitor;
  * Time: 11.08
  */
 
-public interface IProgressMonitor
+public interface IProgressMonitor extends de.fu_berlin.inf.dpp.monitoring.IProgressMonitor
 {
     public static final int UNKNOWN = 0;
 
-    boolean isCanceled();
-
-    void setCanceled(boolean cancel);
-
-    void worked(int delta);
-
-    void subTask(String remaingTime);
-
-    void setTaskName(String name);
-
-    void done();
 
     void beginTask(String taskName, String type);
 
-    void beginTask(String taskNam, int size);
-
     void internalWorked(double work);
 
-    ISubMonitor convert(IProgressMonitor monitor);
+    ISubMonitor convert();
 
-    ISubMonitor convert(IProgressMonitor monitor, String title, int progress);
+    ISubMonitor convert(String title, int progress);
 }

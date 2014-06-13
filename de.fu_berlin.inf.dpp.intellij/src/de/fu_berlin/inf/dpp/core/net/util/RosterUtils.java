@@ -45,8 +45,8 @@
 package de.fu_berlin.inf.dpp.core.net.util;
 
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.AndFilter;

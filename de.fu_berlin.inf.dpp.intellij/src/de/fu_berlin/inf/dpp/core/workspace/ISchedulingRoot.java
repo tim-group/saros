@@ -24,8 +24,6 @@ package de.fu_berlin.inf.dpp.core.workspace;
 
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.intellij.project.events.FileSystemChangeListener;
-import de.fu_berlin.inf.dpp.intellij.project.events.IResourceListener;
 
 import java.io.File;
 

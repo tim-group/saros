@@ -1,6 +1,6 @@
 package de.fu_berlin.inf.dpp;
 
-import de.fu_berlin.inf.dpp.core.versioning.TestSuite;
+import de.fu_berlin.inf.dpp.versioning.TestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -12,8 +12,6 @@ de.fu_berlin.inf.dpp.accountManagement.TestSuite.class,
 de.fu_berlin.inf.dpp.core.editor.colorstorage.TestSuite.class,
 
 de.fu_berlin.inf.dpp.invitation.TestSuite.class,
-
-de.fu_berlin.inf.dpp.net.internal.extensions.TestSuite.class,
 
 de.fu_berlin.inf.dpp.core.project.TestSuite.class,
 

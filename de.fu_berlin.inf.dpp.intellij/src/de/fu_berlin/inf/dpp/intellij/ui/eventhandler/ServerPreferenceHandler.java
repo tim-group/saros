@@ -26,8 +26,8 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionListener;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 

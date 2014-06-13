@@ -25,12 +25,12 @@ package de.fu_berlin.inf.dpp.intellij.project.internal;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
 import de.fu_berlin.inf.dpp.core.project.internal.IActivitySequencerCallback;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;

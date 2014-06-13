@@ -65,7 +65,7 @@ public class DecompressTask implements IWorkspaceRunnable
      * @param project project to uncompress the data to
      * @param monitor monitor that is used for progress report and cancellation or
      *                <code>null</code> to use the monitor provided by the
-     *                {@link #run(IProgressMonitor)} method
+     *                {@link #run(de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor)} method
      */
     public DecompressTask(ZipInputStream in, IProject project,
             IProgressMonitor monitor)
@@ -91,8 +91,7 @@ public class DecompressTask implements IWorkspaceRunnable
 
         // TODO calculate size for better progress
 
-        ISubMonitor subMonitor = monitor.convert(monitor,
-                "Unpacking archive file to workspace", 1);
+        ISubMonitor subMonitor = monitor.convert("Unpacking archive file to workspace", 1);
 
         try
         {
@@ -104,7 +103,7 @@ public class DecompressTask implements IWorkspaceRunnable
                     throw new OperationCanceledException();
                 }
 
-                IPath path = pathFactory.fromPortableString(entry.getName());
+                IPath path = pathFactory.fromString(entry.getName());
                 IFile file = project.getFile(path);
 
                 /*

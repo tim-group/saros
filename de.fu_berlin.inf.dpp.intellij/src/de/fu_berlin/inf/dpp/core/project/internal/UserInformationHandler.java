@@ -23,13 +23,13 @@
 package de.fu_berlin.inf.dpp.core.project.internal;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.net.internal.extensions.UserFinishedProjectNegotiationExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.UserListExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.UserListReceivedExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.UserFinishedProjectNegotiationExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.UserListExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.UserListReceivedExtension;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
+import de.fu_berlin.inf.dpp.net.PacketCollector;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
@@ -179,7 +179,7 @@ public class UserInformationHandler implements Startable
         log.debug("synchronizing user list (A)" + usersAdded + ", (R) "
                 + usersRemoved + " with user(s) " + remoteUsers);
 
-        final SarosPacketCollector collector = receiver
+        final PacketCollector collector = receiver
                 .createCollector(UserListReceivedExtension.PROVIDER
                         .getPacketFilter(currentSessionID));
 
@@ -189,7 +189,7 @@ public class UserInformationHandler implements Startable
             {
                 try
                 {
-                    transmitter.sendToSessionUser(
+                    transmitter.send(
                             ISarosSession.SESSION_CONNECTION_ID, user.getJID(),
                             UserListExtension.PROVIDER.create(extension));
                 }
@@ -287,7 +287,7 @@ public class UserInformationHandler implements Startable
         {
             try
             {
-                transmitter.sendToSessionUser(
+                transmitter.send(
                         ISarosSession.SESSION_CONNECTION_ID, user.getJID(), packet);
             }
             catch (IOException e)
@@ -381,8 +381,8 @@ public class UserInformationHandler implements Startable
                     continue;
                 }
 
-                user = new User(userEntry.jid, false, false, userEntry.colorID,
-                        userEntry.favoriteColorID);
+                user = new User(userEntry.jid, userEntry.nickname, false,
+                        false, userEntry.colorID, userEntry.favoriteColorID);
 
                 user.setPermission(userEntry.permission);
                 session.addUser(user);
@@ -411,7 +411,7 @@ public class UserInformationHandler implements Startable
         log.debug("sending user list received confirmation to " + to);
         try
         {
-            transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+            transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     to, UserListReceivedExtension.PROVIDER
                     .create(new UserListReceivedExtension(currentSessionID)));
         }

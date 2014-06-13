@@ -24,10 +24,13 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 import java.util.Set;
 
+import de.fu_berlin.inf.dpp.communication.extensions.SessionStatusRequestExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.SessionStatusResponseExtension;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -35,9 +38,7 @@ import org.jivesoftware.smack.packet.Packet;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.extensions.SessionStatusRequestExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.SessionStatusResponseExtension;
+
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 
@@ -102,7 +103,7 @@ public final class SessionStatusRequestHandler {
                     getSessionDescription(session));
         }
 
-        transmitter.sendMessageToUser(from,
+        transmitter.sendPacketExtension(from,
                 SessionStatusResponseExtension.PROVIDER.create(response));
     }
 

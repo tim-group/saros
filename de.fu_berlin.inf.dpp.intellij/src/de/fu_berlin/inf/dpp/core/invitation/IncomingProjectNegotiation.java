@@ -1,28 +1,31 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import de.fu_berlin.inf.dpp.core.context.ISarosContext;
-import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
+import de.fu_berlin.inf.dpp.ISarosContext;
+import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
+import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.util.StatisticUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
+import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.invitation.FileList;
-import de.fu_berlin.inf.dpp.invitation.FileListDiff;
-import de.fu_berlin.inf.dpp.invitation.FileListFactory;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.invitation.*;
+import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
-import de.fu_berlin.inf.dpp.net.JID;
+
 
 import java.util.*;
 
 
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingRequest;
+
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -38,6 +41,7 @@ import java.util.zip.ZipInputStream;
 import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -48,12 +52,9 @@ import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.picocontainer.annotations.Inject;
 
-import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
-import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelLocation;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelOption;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 
 import de.fu_berlin.inf.dpp.core.observables.FileReplacementInProgressObservable;
 
@@ -61,13 +62,24 @@ import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 
-import de.fu_berlin.inf.dpp.core.util.Utils;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 
 // MAJOR TODO refactor this class !!!
 public class IncomingProjectNegotiation extends ProjectNegotiation
 {
+    /**
+     * //todo
+     * While sending all the projects with a big archive containing the project
+     * archives, we create a temp-File. This file is named "projectID" +
+     * projectIDDelimiter + "a random number chosen by 'Java'" + ".zip" This
+     * delimiter is the string that separates projectID and this random number.
+     * Now we can assign the zip archive to the matching project.
+     * <p/>
+     * WARNING: If changed compatibility is broken
+     */
+    protected final String projectIDDelimiter = "&&&&";
+
 
     private static Logger log = Logger
             .getLogger(IncomingProjectNegotiation.class);
@@ -102,6 +114,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
     @Inject
     private IPathFactory pathFactory;
 
+    // TODO pull up, when this class is in core
+    @Inject
+    private ISarosSessionManager sessionManager;
+
     /**
      * maps the projectID to the project in workspace
      */
@@ -114,7 +130,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
     private boolean running;
 
-    private SarosPacketCollector startActivityQueuingRequestCollector;
+    private PacketCollector startActivityQueuingRequestCollector;
 
     public IncomingProjectNegotiation(ISarosSession sarosSession, JID peer,
             String processID, List<ProjectNegotiationData> projectInfos,
@@ -193,7 +209,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             running = true;
         }
 
-        this.monitor = monitor.convert(monitor, "Initializing shared project", 10);
+        this.monitor = monitor.convert( "Initializing shared project", 10);
 
         observeMonitor(monitor);
 
@@ -233,10 +249,11 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
                     useVersionControl, this.monitor.newChild(10));
 
-            transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+            transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     peer, ProjectNegotiationMissingFilesExtension.PROVIDER
-                    .create(new ProjectNegotiationMissingFilesExtension(
-                            sessionID, processID, missingFiles)));
+                            .create(new ProjectNegotiationMissingFilesExtension(
+                                    sessionID, processID, missingFiles))
+            );
 
             awaitActivityQueueingActivation(this.monitor.getMain());
 
@@ -247,15 +264,16 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
                 if(entry.getKey()==null || entry.getValue()==null)
                     continue;
 
-                sarosSession.addProjectOwnership(entry.getKey(),
+                sarosSession.addProjectMapping(entry.getKey(),
                         ResourceAdapterFactory.create(entry.getValue()), jid);
-                sarosSession.enableQueuing(entry.getKey());
+                sarosSession.enableQueuing(entry.getValue());
             }
 
-            transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+            transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     getPeer(), StartActivityQueuingResponse.PROVIDER
-                    .create(new StartActivityQueuingResponse(sessionID,
-                            processID)));
+                            .create(new StartActivityQueuingResponse(sessionID,
+                                    processID))
+            );
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
@@ -681,7 +699,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
          */
         for (Entry<String, IProject> entry : localProjects.entrySet())
         {
-            sarosSession.removeProjectOwnership(entry.getKey(),
+            sarosSession.removeProjectMapping(entry.getKey(),
                     ResourceAdapterFactory.create(entry.getValue()), jid);
         }
 
@@ -760,7 +778,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
             IOException
     {
 
-        ISubMonitor subMonitor = monitor.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(
                 "Compute required Files...", 1);
 
         FileListDiff filesToSynchronize = null;
@@ -803,7 +821,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
      *
      * @param localFileList       The file list of the local project.
      * @param remoteFileList      The file list of the remote project.
-     * @param currentLocalProject The project in workspace. Every file we need to add/replace is
+     * @param currentLocalProject The project in workspace. Every file we need to add/replaceAll is
      *                            added to the {@link FileListDiff}
      * @param projectID
      * @return A modified FileListDiff which doesn't contain any directories or
@@ -1112,7 +1130,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation
 
         log.debug(this + " : stored archive in file "
                 + archiveFile.getAbsolutePath() + ", size: "
-                + Utils.formatByte(archiveFile.length()));
+                + StatisticUtils.formatByte(archiveFile.length()));
 
         return archiveFile;
     }

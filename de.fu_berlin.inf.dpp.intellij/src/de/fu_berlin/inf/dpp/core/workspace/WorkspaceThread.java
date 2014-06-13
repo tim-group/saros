@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.core.workspace;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

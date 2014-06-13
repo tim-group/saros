@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.events;
 
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 
 /**
@@ -35,6 +35,5 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 public interface IResourceListener
 {
     ISarosSession getSession();
-    void fireActivity(IActivity activity);
 
 }

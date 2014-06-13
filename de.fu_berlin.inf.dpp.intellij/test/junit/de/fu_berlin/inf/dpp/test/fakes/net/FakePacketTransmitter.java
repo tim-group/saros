@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
 
 class FakePacketTransmitter implements ITransmitter {
 
@@ -46,20 +46,9 @@ class FakePacketTransmitter implements ITransmitter {
         receiver.processPacket(packet);
     }
 
-    @Override
-    public void sendToSessionUser(String connectionID, JID recipient,
-        PacketExtension extension) throws IOException {
-        sendMessageToUser(recipient, extension);
-    }
 
     @Override
-    public void sendToSessionUser(JID recipient, PacketExtension extension)
-        throws IOException {
-        sendMessageToUser(recipient, extension);
-    }
-
-    @Override
-    public void sendMessageToUser(JID jid, PacketExtension extension) {
+    public void sendPacketExtension(JID jid, PacketExtension extension) {
         Message message = new Message();
         message.addExtension(extension);
         message.setTo(jid.toString());
@@ -68,5 +57,16 @@ class FakePacketTransmitter implements ITransmitter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void send(JID recipient, PacketExtension extension) throws IOException {
+
+            send(recipient, extension);
+    }
+
+    @Override
+    public void send(String connectionID, JID recipient, PacketExtension extension) throws IOException {
+        send(recipient, extension);
     }
 }

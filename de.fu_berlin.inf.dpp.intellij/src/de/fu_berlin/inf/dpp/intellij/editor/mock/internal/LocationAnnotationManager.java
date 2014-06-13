@@ -262,7 +262,7 @@ public class LocationAnnotationManager {
         // annotations are created and replaced individually. Since the access
         // to the annotation treeModel tends to be slow and the replacement may take
         // place in batches, one could first create all new selection-related
-        // annotations and replace them at once.
+        // annotations and replaceAll them at once.
 
         if (isCursor) {
             if (offset > 0) {

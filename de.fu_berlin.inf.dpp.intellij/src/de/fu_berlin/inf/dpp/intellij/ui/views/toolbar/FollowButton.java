@@ -95,7 +95,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
         for (User user : action.getCurrentRemoteSessionUsers())
         {
             isUser = true;
-            String userName = user.getHumanReadableName();
+            String userName = user.getNickname();
             String userNameShort = userName;
             int index = userNameShort.indexOf("@");
             if (index > -1)
@@ -109,7 +109,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
             if (currentUser != null)
             {
-                String currentUserName = currentUser.getShortHumanReadableName();
+                String currentUserName = currentUser.getNickname();
                 if (currentUserName.equalsIgnoreCase(userNameShort))
                 {
                     menuItem.setEnabled(false);

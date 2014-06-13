@@ -33,8 +33,9 @@ import java.util.Map.Entry;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -42,7 +43,6 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.annotations.Component;
 
-import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -117,7 +117,7 @@ import de.fu_berlin.inf.dpp.session.User;
  * textedits.remote.user.1.pastes=0<br>
  * </code>
  *
- * TODO: replace the HashMaps by AutoHashMaps which initializes missing values
+ * TODO: replaceAll the HashMaps by AutoHashMaps which initializes missing values
  * with a default. This will lead to easier code and help to get rid of these
  * constructs:
  *

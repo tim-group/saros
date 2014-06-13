@@ -21,21 +21,22 @@
  */
 
 package de.fu_berlin.inf.dpp.core.project.internal;
+import java.util.concurrent.CancellationException;
 
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.PermissionActivity;
-import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.synchronize.StartHandle;
-import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
-import java.util.concurrent.CancellationException;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.PermissionActivity;
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.session.User.Permission;
+import de.fu_berlin.inf.dpp.synchronize.StartHandle;
+import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**
  * This manager is responsible for handling {@link Permission} changes.
@@ -43,46 +44,40 @@ import java.util.concurrent.CancellationException;
  * @author rdjemili
  */
 @Component(module = "core")
-public class PermissionManager extends AbstractActivityProducerAndConsumer implements Startable
-{
+public class PermissionManager extends AbstractActivityProvider implements
+        Startable {
     private final ISarosSession sarosSession;
 
     private static final Logger log = Logger.getLogger(PermissionManager.class);
 
-    public PermissionManager(ISarosSession sarosSession)
-    {
+    public PermissionManager(ISarosSession sarosSession) {
         this.sarosSession = sarosSession;
     }
 
-    private final AbstractActivityReceiver receiver = new AbstractActivityReceiver()
-    {
+    private final AbstractActivityReceiver receiver = new AbstractActivityReceiver() {
 
         @Override
-        public void receive(PermissionActivity activity)
-        {
+        public void receive(PermissionActivity activity) {
             handlePermissionChange(activity);
         }
 
     };
 
     @Override
-    public void start()
-    {
-        sarosSession.addActivityProducerAndConsumer(this);
+    public void start() {
+        installProvider(sarosSession);
     }
 
     @Override
-    public void stop()
-    {
-        sarosSession.removeActivityProducerAndConsumer(this);
+    public void stop() {
+        uninstallProvider(sarosSession);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exec(IActivity activity)
-    {
+    public void exec(IActivity activity) {
         activity.dispatch(receiver);
     }
 
@@ -92,47 +87,49 @@ public class PermissionManager extends AbstractActivityProducerAndConsumer imple
      *
      * @param activity
      */
-    private void handlePermissionChange(PermissionActivity activity)
-    {
+    private void handlePermissionChange(PermissionActivity activity) {
 
         User user = activity.getAffectedUser();
-        if (!user.isInSarosSession())
-        {
+        if (!user.isInSession()) {
             log.warn("could not change permissions of user " + user
                     + " because the user is longer part of the session");
             return;
         }
 
-        User.Permission permission = activity.getPermission();
+        Permission permission = activity.getPermission();
         this.sarosSession.setPermission(user, permission);
     }
 
     /**
      * Initiates a {@link Permission} change for a specific user.
      *
-     * @param user          The user who's {@link Permission} has to be changed
-     * @param newPermission The new {@link Permission} of the user
-     * @param synchronizer  An Abstraction of the SWT-Thread
-     * @throws CancellationException
-     * @throws InterruptedException
      * @host This method may only called by the host.
      * @noSWT This method mustn't be called from the SWT UI thread
+     *
      * @blocking Returning after the {@link Permission} change is complete
+     *
+     * @param user
+     *            The user who's {@link Permission} has to be changed
+     * @param newPermission
+     *            The new {@link Permission} of the user
+     * @param synchronizer
+     *            An Abstraction of the SWT-Thread
+     *
+     *
+     * @throws CancellationException
+     * @throws InterruptedException
      */
 
     public void initiatePermissionChange(final User user,
-            final User.Permission newPermission, UISynchronizer synchronizer)
-            throws CancellationException, InterruptedException
-    {
+                                         final Permission newPermission, UISynchronizer synchronizer)
+            throws CancellationException, InterruptedException {
 
         final User localUser = sarosSession.getLocalUser();
 
-        Runnable fireActivityrunnable = new Runnable()
-        {
+        Runnable fireActivityrunnable = new Runnable() {
 
             @Override
-            public void run()
-            {
+            public void run() {
                 fireActivity(new PermissionActivity(localUser, user,
                         newPermission));
 
@@ -141,14 +138,11 @@ public class PermissionManager extends AbstractActivityProducerAndConsumer imple
             }
         };
 
-        if (user.isHost())
-        {
+        if (user.isHost()) {
             synchronizer.syncExec(ThreadUtils.wrapSafe(log,
                     fireActivityrunnable));
 
-        }
-        else
-        {
+        } else {
             StartHandle startHandle = sarosSession.getStopManager().stop(user,
                     "Permission change");
 
@@ -156,11 +150,8 @@ public class PermissionManager extends AbstractActivityProducerAndConsumer imple
                     fireActivityrunnable));
 
             if (!startHandle.start())
-            {
                 log.error("Didn't unblock. "
                         + "There still exist unstarted StartHandles.");
-            }
         }
     }
 }
-

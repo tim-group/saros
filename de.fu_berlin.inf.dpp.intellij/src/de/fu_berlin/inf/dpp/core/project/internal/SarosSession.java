@@ -33,36 +33,34 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.feedback.FeedbackManager;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.SharedResourcesManager;
+import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
-import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.feedback.*;
 import de.fu_berlin.inf.dpp.intellij.project.internal.ClientSessionTimeoutHandler;
 import de.fu_berlin.inf.dpp.intellij.project.internal.ServerSessionTimeoutHandler;
-import de.fu_berlin.inf.dpp.session.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.annotations.Inject;
 
-
+import de.fu_berlin.inf.dpp.ISarosContext;
+import de.fu_berlin.inf.dpp.activities.EditorActivity;
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.FolderActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
+import de.fu_berlin.inf.dpp.activities.NOPActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.EditorActivity;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.IResourceActivity;
-import de.fu_berlin.inf.dpp.activities.business.JupiterActivity;
-import de.fu_berlin.inf.dpp.activities.business.NOPActivity;
-import de.fu_berlin.inf.dpp.activities.business.TextSelectionActivity;
-import de.fu_berlin.inf.dpp.activities.business.ViewportActivity;
-import de.fu_berlin.inf.dpp.activities.serializable.IActivityDataObject;
+import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
+import de.fu_berlin.inf.dpp.activities.ViewportActivity;
+import de.fu_berlin.inf.dpp.communication.extensions.ActivitiesExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 
@@ -72,13 +70,20 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.misc.xstream.SPathConverter;
+import de.fu_berlin.inf.dpp.misc.xstream.UserConverter;
+import de.fu_berlin.inf.dpp.net.IConnectionManager;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
-import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
-import de.fu_berlin.inf.dpp.net.internal.extensions.KickUserExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.LeaveSessionExtension;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
 
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
+import de.fu_berlin.inf.dpp.session.IActivityListener;
+import de.fu_berlin.inf.dpp.session.IActivityProducer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
+import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
@@ -87,14 +92,14 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**
  * TODO Review if SarosSession, ConcurrentDocumentManager, ActivitySequencer all
- * honor first() and stop() semantics.
+ * honor start() and stop() semantics.
  */
 public final class SarosSession implements ISarosSession {
 
     private static final Logger log = Logger.getLogger(SarosSession.class);
 
     @Inject
-    private UISynchronizer synchronizer= new SWTSynchronizer(); //todo
+    private UISynchronizer synchronizer;
 
     /* Dependencies */
 
@@ -108,7 +113,7 @@ public final class SarosSession implements ISarosSession {
     private PreferenceUtils preferenceUtils;
 
     @Inject
-    private DataTransferManager transferManager;
+    private IConnectionManager connectionManager;
 
     private final IPathFactory pathFactory;
 
@@ -120,7 +125,9 @@ public final class SarosSession implements ISarosSession {
 
     private final ActivityHandler activityHandler;
 
-    private final CopyOnWriteArrayList<IActivityProducerAndConsumer> activityProducerAndConsumers = new CopyOnWriteArrayList<IActivityProducerAndConsumer>();
+    private final CopyOnWriteArrayList<IActivityProducer> activityProducers = new CopyOnWriteArrayList<IActivityProducer>();
+
+    private final CopyOnWriteArrayList<IActivityConsumer> activityConsumers = new CopyOnWriteArrayList<IActivityConsumer>();
 
     /* Instance fields */
     private final User localUser;
@@ -157,6 +164,8 @@ public final class SarosSession implements ISarosSession {
 
     private final ActivityQueuer activityQueuer;
 
+    private final Object componentAccessLock = new Object();
+
     // HACK to be able to move most parts to core
     private final SharedResourcesManager resourceManager;
 
@@ -191,44 +200,48 @@ public final class SarosSession implements ISarosSession {
             /**
              * @JTourBusStop 10, Activity sending, Local Execution:
              *
-             *               Afterwards every registered
-             *               IActivityProducerAndConsumer is informed about the
-             *               remote activity that should be executed locally.
+             *               Afterwards every registered ActivityConsumer is
+             *               informed about the remote activity that should be
+             *               executed locally.
              */
-            for (IActivityProducerAndConsumer executor : activityProducerAndConsumers) {
-                executor.exec(activity);
+            for (IActivityConsumer consumer : activityConsumers) {
+                consumer.exec(activity);
                 updatePartialSharedResources(activity);
             }
         }
     };
 
+    private SPathConverter pathConverter;
+    private UserConverter userConverter;
+
+    // FIXME those parameter passing feels strange, find a better way
     /**
      * Constructor for host.
      */
-    public SarosSession(int localColorID, ISarosContext sarosContext) {
+    public SarosSession(String nickname, int colorID, ISarosContext sarosContext) {
 
-        this(sarosContext, /* unused */null, localColorID, /* unused */
-                -1);
+        this(sarosContext, /* unused */null, colorID, /* unused */
+                -1, nickname, /* unused */null);
     }
 
     /**
      * Constructor for client.
      */
-    public SarosSession(JID hostJID, int localColorID,
-            ISarosContext sarosContext, JID inviterID, int inviterColorID) {
+    public SarosSession(JID hostJID, String clientNickname,
+                        String hostNickname, int clientColorID, int hostColorID,
+                        ISarosContext sarosContext) {
 
-        this(sarosContext, hostJID, localColorID, inviterColorID);
-
-        assert inviterID.equals(hostJID) : "non host inviting is disabled";
+        this(sarosContext, hostJID, clientColorID, hostColorID, clientNickname,
+                hostNickname);
     }
 
     @Override
     public void addSharedResources(IProject project, String projectID,
-            List<IResource> dependentResources) {
-       /* if (!isCompletelyShared(project) && dependentResources != null) {
-            for (IResource iResource : dependentResources) {
-                if (iResource.getType() == IResource.FOLDER) {
-                    addMembers(iResource, dependentResources);
+                                   List<IResource> dependentResources) {
+        if (!isCompletelyShared(project) && dependentResources != null) {
+            for (IResource resource : dependentResources) {
+                if (resource.getType() == IResource.FOLDER) {
+                    addMembers(resource);
                 }
             }
             if (selectedResources != null) {
@@ -237,7 +250,7 @@ public final class SarosSession implements ISarosSession {
                 selectedResources.clear();
             }
         }
-*/
+
         if (!projectMapper.isShared(project)) {
             projectMapper.addProject(projectID, project,
                     dependentResources != null);
@@ -323,7 +336,7 @@ public final class SarosSession implements ISarosSession {
 
     @Override
     public void initiatePermissionChange(final User user,
-            final Permission newPermission) throws CancellationException,
+                                         final Permission newPermission) throws CancellationException,
             InterruptedException {
 
         if (!localUser.isHost())
@@ -385,7 +398,7 @@ public final class SarosSession implements ISarosSession {
     }
 
     /*
-     * FIXME only next a JID or create a method session.createUser to ensure
+     * FIXME only accept a JID or create a method session.createUser to ensure
      * proper initialization etc. of User objects !
      */
     @Override
@@ -394,7 +407,13 @@ public final class SarosSession implements ISarosSession {
         // TODO synchronize this method !
 
         JID jid = user.getJID();
+
+        if (!jid.isResourceQualifiedJID())
+            throw new IllegalArgumentException("network id of user " + user
+                    + " is not unique, resource part of JID is missing");
+
         user.setInSession(true);
+
         if (participants.putIfAbsent(jid, user) != null) {
             log.error("user " + user + " added twice to SarosSession",
                     new StackTrace());
@@ -425,21 +444,12 @@ public final class SarosSession implements ISarosSession {
             }
         }
 
-        ThreadUtils.runSafeAsync(log,new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                listenerDispatch.userJoined(user);
-            }
-        });
-
-       /* synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userJoined(user);
             }
-        }));*/
+        }));
 
         log.info("user " + user + " joined session");
     }
@@ -493,7 +503,7 @@ public final class SarosSession implements ISarosSession {
     @Override
     public void removeUser(final User user) {
         synchronized (this) {
-            if (!user.isInSarosSession()) {
+            if (!user.isInSession()) {
                 log.warn("user " + user
                         + " is already or is currently removed from the session");
                 return;
@@ -504,7 +514,7 @@ public final class SarosSession implements ISarosSession {
 
         JID jid = user.getJID();
         if (participants.remove(jid) == null) {
-            log.error("tried to removeAll user " + user
+            log.error("tried to remove user " + user
                     + " who was never added to the session");
             return;
         }
@@ -537,7 +547,7 @@ public final class SarosSession implements ISarosSession {
 
         // Disconnect bytestream connection when user leaves session to
         // prevent idling connection when not needed anymore.
-        transferManager.closeConnection(ISarosSession.SESSION_CONNECTION_ID,
+        connectionManager.closeConnection(ISarosSession.SESSION_CONNECTION_ID,
                 jid);
 
         log.info("user " + user + " left session");
@@ -555,7 +565,7 @@ public final class SarosSession implements ISarosSession {
                     "the local user cannot kick itself out of the session");
 
         try {
-            transmitter.sendToSessionUser(SESSION_CONNECTION_ID, user.getJID(),
+            transmitter.send(SESSION_CONNECTION_ID, user.getJID(),
                     KickUserExtension.PROVIDER
                             .create(new KickUserExtension(getID())));
         } catch (IOException e) {
@@ -589,12 +599,21 @@ public final class SarosSession implements ISarosSession {
             throw new IllegalStateException();
         }
 
-        started = true;
         sessionContainer.start();
 
         for (User user : getRemoteUsers())
             activitySequencer.registerUser(user);
 
+        // TODO Pull that out
+        pathConverter = new SPathConverter(this, pathFactory);
+        ActivitiesExtension.PROVIDER.registerConverter(pathConverter);
+
+        userConverter = new UserConverter(this);
+        ActivitiesExtension.PROVIDER.registerConverter(userConverter);
+
+        synchronized (componentAccessLock) {
+            started = true;
+        }
     }
 
     /**
@@ -610,7 +629,10 @@ public final class SarosSession implements ISarosSession {
             throw new IllegalStateException();
         }
 
-        stopped = true;
+        synchronized (componentAccessLock) {
+            stopped = true;
+        }
+
         sarosContext.removeChildContainer(sessionContainer);
         sessionContainer.stop();
         sessionContainer.dispose();
@@ -624,9 +646,9 @@ public final class SarosSession implements ISarosSession {
 
         for (User user : usersToNotify) {
             try {
-                transmitter.sendToSessionUser(SESSION_CONNECTION_ID, user
-                        .getJID(), LeaveSessionExtension.PROVIDER
-                        .create(new LeaveSessionExtension(getID())));
+                transmitter.send(SESSION_CONNECTION_ID, user.getJID(),
+                        LeaveSessionExtension.PROVIDER
+                                .create(new LeaveSessionExtension(getID())));
             } catch (IOException e) {
                 log.warn("failed to notify user " + user
                         + " about local session stop", e);
@@ -634,8 +656,12 @@ public final class SarosSession implements ISarosSession {
         }
 
         for (User user : getRemoteUsers())
-            transferManager.closeConnection(
+            connectionManager.closeConnection(
                     ISarosSession.SESSION_CONNECTION_ID, user.getJID());
+
+        // TODO Pull that out
+        ActivitiesExtension.PROVIDER.unregisterConverter(pathConverter);
+        ActivitiesExtension.PROVIDER.unregisterConverter(userConverter);
     }
 
     @Override
@@ -698,19 +724,19 @@ public final class SarosSession implements ISarosSession {
      */
 
     @Override
-    public void exec(List<IActivityDataObject> ados) {
-        final List<IActivity> activities = new ArrayList<IActivity>();
+    public void exec(List<IActivity> activities) {
+        final List<IActivity> valid = new ArrayList<IActivity>();
 
-        for (IActivityDataObject ado : activityQueuer.process(ados)) {
-            try {
-                activities.add(ado.getActivity(this, pathFactory));
-            } catch (IllegalArgumentException e) {
-                log.error("could not deserialize activity data object: " + ado,
-                        e);
-            }
+        // Check every incoming activity for validity
+        for (IActivity activity : activities) {
+            if (activity.isValid())
+                valid.add(activity);
+            else
+                log.error("could not handle incoming activity: " + activity);
         }
 
-        activityHandler.handleIncomingActivities(activities);
+        List<IActivity> processed = activityQueuer.process(valid);
+        activityHandler.handleIncomingActivities(processed);
     }
 
     /*
@@ -718,7 +744,7 @@ public final class SarosSession implements ISarosSession {
      * handled by the activity handler and not here !
      */
     private void sendActivity(final List<User> recipients,
-            final IActivity activity) {
+                              final IActivity activity) {
         if (recipients == null)
             throw new IllegalArgumentException();
 
@@ -755,8 +781,7 @@ public final class SarosSession implements ISarosSession {
             return;
 
         try {
-            activitySequencer.sendActivity(recipients,
-                    activity.getActivityDataObject(this, pathFactory));
+            activitySequencer.sendActivity(recipients, activity);
         } catch (IllegalArgumentException e) {
             log.warn("could not serialize activity: " + activity, e);
         }
@@ -846,17 +871,25 @@ public final class SarosSession implements ISarosSession {
     }
 
     @Override
-    public void addActivityProducerAndConsumer(
-            IActivityProducerAndConsumer provider) {
-        if (activityProducerAndConsumers.addIfAbsent(provider))
-            provider.addActivityListener(this.activityListener);
+    public void addActivityProducer(IActivityProducer producer) {
+        if (activityProducers.addIfAbsent(producer))
+            producer.addActivityListener(activityListener);
     }
 
     @Override
-    public void removeActivityProducerAndConsumer(
-            IActivityProducerAndConsumer provider) {
-        activityProducerAndConsumers.remove(provider);
-        provider.removeActivityListener(this.activityListener);
+    public void removeActivityProducer(IActivityProducer producer) {
+        if (activityProducers.remove(producer))
+            producer.removeActivityListener(activityListener);
+    }
+
+    @Override
+    public void addActivityConsumer(IActivityConsumer consumer) {
+        activityConsumers.addIfAbsent(consumer);
+    }
+
+    @Override
+    public void removeActivityConsumer(IActivityConsumer consumer) {
+        activityConsumers.remove(consumer);
     }
 
     @Override
@@ -869,31 +902,30 @@ public final class SarosSession implements ISarosSession {
         return projectMapper.getPartiallySharedResources();
     }
 
-    private void addMembers(IResource iResource,
-            List<IResource> dependentResources) {
-        if (iResource.getType() == IResource.FOLDER
-                || iResource.getType() == IResource.PROJECT) {
+    /**
+     * Recursively add non-shared resources
+     *
+     * @param resource
+     *            of type {@link IResource#FOLDER} or {@link IResource#FILE}
+     */
+    private void addMembers(IResource resource) {
+        if (isShared(resource))
+            return;
 
-            if (!isShared(iResource)) {
-                selectedResources.add(iResource);
-            } else {
-                return;
-            }
+        selectedResources.add(resource);
+
+        if (resource.getType() == IResource.FOLDER) {
             List<IResource> childResources = null;
             try {
-                childResources = Arrays.asList(((IContainer) iResource)
+                childResources = Arrays.asList(((IContainer) resource)
                         .members());
-            } catch (Exception e) {
-                log.error("Can't get children of ProjectIntl/Folder. ", e);
+            } catch (IOException e) {
+                log.error("Can't get children of folder " + resource, e);
+                return;
             }
-            if (childResources != null && (childResources.size() > 0)) {
-                for (IResource childResource : childResources) {
-                    addMembers(childResource, dependentResources);
-                }
-            }
-        } else if (iResource.getType() == IResource.FILE) {
-            if (!isShared(iResource)) {
-                selectedResources.add(iResource);
+
+            for (IResource childResource : childResources) {
+                addMembers(childResource);
             }
         }
     }
@@ -935,8 +967,8 @@ public final class SarosSession implements ISarosSession {
     }
 
     @Override
-    public void addProjectOwnership(String projectID, IProject project,
-            JID ownerJID) {
+    public void addProjectMapping(String projectID, IProject project,
+                                  JID ownerJID) {
         if (projectMapper.getProject(projectID) == null) {
             projectMapper.addProject(projectID, project, true);
             projectMapper.addOwnership(ownerJID, project);
@@ -946,13 +978,30 @@ public final class SarosSession implements ISarosSession {
     }
 
     @Override
-    public void removeProjectOwnership(String projectID, IProject project,
-            JID ownerJID) {
+    public void removeProjectMapping(String projectID, IProject project,
+                                     JID ownerJID) {
         if (projectMapper.getProject(projectID) != null) {
             projectMapper.removeOwnership(ownerJID, project);
             projectMapper.removeProject(projectID);
             // HACK
             resourceManager.projectRemoved(project);
+        }
+    }
+
+    @Override
+    public Object getComponent(Object key) {
+        /*
+         * Ensure that we return null when the session is about to start or stop
+         * because the MutablePicoContainer#start/stop/dispose method is
+         * synchronized and may cause a deadlock if the method is called from
+         * the UI thread while a component may call #syncExec inside the start
+         * or stop methods.
+         */
+        synchronized (componentAccessLock) {
+            if (stopped || !started)
+                return null;
+
+            return sessionContainer.getComponent(key);
         }
     }
 
@@ -972,8 +1021,8 @@ public final class SarosSession implements ISarosSession {
     }
 
     @Override
-    public void enableQueuing(String projectId) {
-        activityQueuer.enableQueuing(projectId);
+    public void enableQueuing(IProject project) {
+        activityQueuer.enableQueuing(project);
     }
 
     @Override
@@ -985,7 +1034,7 @@ public final class SarosSession implements ISarosSession {
     }
 
     private SarosSession(ISarosContext context, JID host, int localColorID,
-            int hostColorID) {
+                         int hostColorID, String localNickname, String hostNickname) {
 
         context.initComponent(this);
 
@@ -1002,8 +1051,8 @@ public final class SarosSession implements ISarosSession {
 
         assert localUserJID != null;
 
-        localUser = new User(localUserJID, host == null, true, localColorID,
-                localColorID);
+        localUser = new User(localUserJID, localNickname, host == null, true,
+                localColorID, localColorID);
 
         localUser.setInSession(true);
 
@@ -1011,7 +1060,8 @@ public final class SarosSession implements ISarosSession {
             hostUser = localUser;
             participants.put(hostUser.getJID(), hostUser);
         } else {
-            hostUser = new User(host, true, false, hostColorID, hostColorID);
+            hostUser = new User(host, hostNickname, true, false, hostColorID,
+                    hostColorID);
             hostUser.setInSession(true);
             participants.put(hostUser.getJID(), hostUser);
             participants.put(localUser.getJID(), localUser);
@@ -1037,6 +1087,7 @@ public final class SarosSession implements ISarosSession {
         sessionContainer.addComponent(ChangeColorManager.class);
         sessionContainer.addComponent(SharedResourcesManager.class);
         sessionContainer.addComponent(PermissionManager.class);
+        sessionContainer.addComponent(FollowingActivitiesManager.class);
 
         // Statistic collectors. Make sure to add new collectors to the
         // StatisticCollectorTest as well
@@ -1050,7 +1101,6 @@ public final class SarosSession implements ISarosSession {
         sessionContainer.addComponent(FollowModeCollector.class);
         sessionContainer.addComponent(SelectionCollector.class);
         sessionContainer.addComponent(ProjectCollector.class);
-
 
         // Feedback
         sessionContainer.addComponent(ErrorLogManager.class);
@@ -1107,25 +1157,11 @@ public final class SarosSession implements ISarosSession {
 
     /**
      * This method is only meant to be used by a unit tests to verify the
-     * cleanup of IActivityProducerAndConsumers.
+     * cleanup of activity providers.
      *
-     * @return the size of the internal IActivityProducerAndConsumers collection
+     * @return the size of the internal activity providers collection
      */
-    public int getActivityProducerAndConsumerCount() {
-        return activityProducerAndConsumers.size();
-    }
-
-    @Override
-    public void addActivityProvider(IActivityProvider provider)
-    {
-        //todo
-        System.out.println("SarosSession.addActivityProvider //todo");
-    }
-
-    @Override
-    public void removeActivityProvider(IActivityProvider provider)
-    {
-        //todo
-        System.out.println("SarosSession.removeActivityProvider //todo");
+    public int getActivityProviderCount() {
+        return Math.max(activityConsumers.size(), activityProducers.size());
     }
 }

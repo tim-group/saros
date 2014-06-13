@@ -36,7 +36,6 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.invitation.FileList.MetaData;
 import org.picocontainer.annotations.Inject;
 
@@ -216,7 +215,7 @@ public class FileListDiff {
         IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable() {
             @Override
             public void run(IProgressMonitor progress) throws CoreException,IOException {
-                ISubMonitor subMonitor = monitor.convert(progress);
+                ISubMonitor subMonitor = monitor.convert();
                 for (IPath path : toDelete) {
                     IResource resource = path.hasTrailingSeparator() ? localProject
                             .getFolder(path) : localProject.getFile(path);

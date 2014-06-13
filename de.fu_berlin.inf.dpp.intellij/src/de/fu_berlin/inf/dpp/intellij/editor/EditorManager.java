@@ -24,8 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.*;
+import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
@@ -38,7 +37,6 @@ import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.*;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.ContributionAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.internal.LocationAnnotationManager;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
@@ -68,7 +66,7 @@ import java.util.Set;
  */
 
 public class EditorManager
-        // extends AbstractActivityProducerAndConsumer
+
         extends EditorManagerBridge
         implements IEditorManager {
 
@@ -101,14 +99,16 @@ public class EditorManager
 
     protected RemoteWriteAccessManager remoteWriteAccessManager;
 
-    protected ISarosSession sarosSession;
+    //todo: make it protected later
+    public ISarosSession sarosSession;
 
     /**
      * The user that is followed or <code>null</code> if no user is followed.
      */
     protected User followedUser = null;
 
-    protected boolean hasWriteAccess;
+    //todo: make it protected later
+    public boolean hasWriteAccess;
 
     protected boolean isLocked;
 
@@ -168,7 +168,8 @@ public class EditorManager
             hasWriteAccess = sarosSession.hasWriteAccess();
             sarosSession.addListener(sharedProjectListener);
 
-            sarosSession.addActivityProducerAndConsumer(EditorManager.this);
+            installProvider(sarosSession);
+
             //annotationModelHelper = new AnnotationModelHelper();
             locationAnnotationManager = new LocationAnnotationManager(preferenceStore);
             contributionAnnotationManager = new ContributionAnnotationManager(newSarosSession, preferenceStore);
@@ -224,7 +225,7 @@ public class EditorManager
                     dirtyStateListener.unregisterAll();
 
                     sarosSession.removeListener(sharedProjectListener);
-                    sarosSession.removeActivityProducerAndConsumer(EditorManager.this);
+                    uninstallProvider(sarosSession);
 
                     sarosSession = null;
                     //annotationModelHelper = null;
@@ -527,7 +528,7 @@ public class EditorManager
     public void exec(IActivity activity) {
 
         User sender = activity.getSource();
-        if (!sender.isInSarosSession()) {
+        if (!sender.isInSession()) {
             log.warn("skipping execution of activity " + activity
                     + " for user " + sender + " who is not in the current session");
             return;
@@ -813,7 +814,7 @@ public class EditorManager
      * @param newText
      * @param path
      */
-    public void generateTextEdit(int offset, String oldText, String newText, SPath path) {
+    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
 
         if(sarosSession==null)
             return;

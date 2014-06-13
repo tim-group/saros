@@ -8,10 +8,10 @@ import java.util.Collections;
 import java.util.List;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.test.util.MemoryPreferenceStore;
 
 public class ColorIDSetStorageTest {

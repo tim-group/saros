@@ -32,7 +32,6 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
-import de.fu_berlin.inf.dpp.invitation.FileList;
 
 public class FileListFactory
 {

@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.core.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.session.IActivityListener;
 
 import java.io.FileNotFoundException;
 import java.util.Set;
@@ -53,5 +54,9 @@ public interface IEditorManagerBase
     void closeEditor(SPath path);
 
     void openEditor(SPath path);
+
+    void addActivityListener(IActivityListener listener);
+
+    void removeActivityListener(IActivityListener listener);
 
 }

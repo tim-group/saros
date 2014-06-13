@@ -101,13 +101,13 @@ public class BlockingProgressMonitor implements IProgressMonitor//extends Progre
     }
 
     @Override
-    public ISubMonitor convert(IProgressMonitor monitor)
+    public ISubMonitor convert()
     {
         return null;
     }
 
     @Override
-    public ISubMonitor convert(IProgressMonitor monitor, String title, int progress)
+    public ISubMonitor convert(String title, int progress)
     {
         return null;
     }

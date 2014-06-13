@@ -22,8 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.activities.QueueItem;
-import de.fu_berlin.inf.dpp.activities.business.*;
+import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.concurrent.management.TransformationResult;
@@ -399,7 +398,7 @@ public final class ActivityHandler implements Startable
                      * unwanted inconsistencies if that activity was a resource
                      * activity.
                      */
-                    if (source == null || !source.isInSarosSession())
+                    if (source == null || !source.isInSession())
                     {
                         LOG.warn("dropping activity for user that is no longer in session: "
                                 + activity);

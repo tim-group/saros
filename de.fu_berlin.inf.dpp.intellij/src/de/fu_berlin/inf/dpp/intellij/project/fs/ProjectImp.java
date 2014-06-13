@@ -47,6 +47,7 @@ public class ProjectImp implements IProject {
     private String name;
     private File path;
 
+
     private Map<IPath, IResource> resourceMap = new HashMap<IPath, IResource>();
     private Map<String, IFile> fileMap = new HashMap<String, IFile>();
     private Map<String, IFolder> folderMap = new HashMap<String, IFolder>();
@@ -117,12 +118,6 @@ public class ProjectImp implements IProject {
         return resourceMap.get(path);
     }
 
-
-    @Override
-    public void accept(IResourceVisitor visitor, int resource, int container) {
-        //todo: Implement it
-        System.out.println("ProjectIntl.next //todo");
-    }
 
     /**
      * @param res
@@ -361,12 +356,12 @@ public class ProjectImp implements IProject {
         return this;
     }
 
-    @Override
+
     public IPath getLocation() {
         return this.fullPath;
     }
 
-    @Override
+
     public File toFile() {
         return path;
     }

@@ -50,10 +50,4 @@ public class PathFactory implements IPathFactory
         return new PathImp(name);
     }
 
-    @Override
-    public IPath fromPortableString(String path)
-    {
-        return new PathImp(path);
-    }
-
 }

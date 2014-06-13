@@ -27,6 +27,8 @@ import de.fu_berlin.inf.dpp.intellij.editor.mock.PlatformUI;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.events.IWindowListener;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbench;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.ui.IWorkbenchWindow;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.Connection;
@@ -34,8 +36,6 @@ import org.jivesoftware.smack.packet.Presence;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionListener;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**

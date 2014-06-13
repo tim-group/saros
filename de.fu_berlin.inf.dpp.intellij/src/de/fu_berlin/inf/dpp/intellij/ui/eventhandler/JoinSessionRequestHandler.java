@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRequestExtension;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketListener;
@@ -17,9 +20,6 @@ import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.extensions.JoinSessionRejectedExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.JoinSessionRequestExtension;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 
@@ -94,7 +94,7 @@ public final class JoinSessionRequestHandler {
     }
 
     private void sendRejection(JID to) {
-        transmitter.sendMessageToUser(to, JoinSessionRejectedExtension.PROVIDER
+        transmitter.sendPacketExtension(to, JoinSessionRejectedExtension.PROVIDER
                 .create(new JoinSessionRejectedExtension()));
     }
 }

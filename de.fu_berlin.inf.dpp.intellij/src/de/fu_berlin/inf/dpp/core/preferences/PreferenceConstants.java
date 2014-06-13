@@ -154,4 +154,6 @@ public class PreferenceConstants {
      */
     public static final String CONSOLESHARING_ENABLED = "consolesharing.enabled";
 
+    public static final String SESSION_NICKNAME = "session.nickname";
+
 }

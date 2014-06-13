@@ -22,8 +22,9 @@
 
 package de.fu_berlin.inf.dpp.core.ui;
 
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools;
-import de.fu_berlin.inf.dpp.net.JID;
+
+import de.fu_berlin.inf.dpp.invitation.ProcessTools;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

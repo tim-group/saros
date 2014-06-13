@@ -24,11 +24,14 @@ package de.fu_berlin.inf.dpp.core.net.business;
 
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.communication.extensions.CancelInviteExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcknowledgedExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.InvitationOfferingExtension;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.net.internal.extensions.CancelInviteExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcknowledgedExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationOfferingExtension;
+
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -38,9 +41,8 @@ import org.picocontainer.annotations.Inject;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
+
 import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 
 /**
  * Business Logic for handling incoming Session- and ProjectNegotiation requests
@@ -105,22 +107,23 @@ public class InvitationHandler {
                  *               (host). Afterwards, the control is handed over
                  *               to the SessionManager.
                  */
-                if (sessionIDObservable.getValue().equals(
-                        SessionIDObservable.NOT_IN_SESSION)) {
-                    PacketExtension response = InvitationAcknowledgedExtension.PROVIDER
-                            .create(new InvitationAcknowledgedExtension(
-                                    invitationID));
-                    transmitter.sendMessageToUser(fromJID, response);
+                     if (sessionIDObservable.getValue().equals(
+                            SessionIDObservable.NOT_IN_SESSION)) {
+                        PacketExtension response = InvitationAcknowledgedExtension.PROVIDER
+                                .create(new InvitationAcknowledgedExtension(
+                                        invitationID));
+                        transmitter.sendPacketExtension(fromJID, response);
 
-                    sessionManager.invitationReceived(fromJID, sessionID,
-                            invitationID, version, description);
-                } else {
-                    // TODO This text should be replaced with a cancel ID
-                    PacketExtension response = CancelInviteExtension.PROVIDER
-                            .create(new CancelInviteExtension(invitationID,
-                                    "I am already in a Saros session and so cannot next your invitation."));
-                    transmitter.sendMessageToUser(fromJID, response);
-                }
+                        sessionManager.invitationReceived(fromJID, sessionID,
+                                invitationID, version, description);
+                    } else {
+                        // TODO This text should be replaced with a cancel ID
+                        PacketExtension response = CancelInviteExtension.PROVIDER
+                                .create(new CancelInviteExtension(invitationID,
+                                        "I am already in a Saros session and so cannot next your invitation."));
+                        transmitter.sendPacketExtension(fromJID, response);
+                    }
+
             }
         }, InvitationOfferingExtension.PROVIDER.getPacketFilter());
 

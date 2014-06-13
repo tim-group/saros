@@ -32,9 +32,9 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.subscription.SubscriptionHandler;
-import de.fu_berlin.inf.dpp.net.subscription.SubscriptionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
+import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionListener;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 

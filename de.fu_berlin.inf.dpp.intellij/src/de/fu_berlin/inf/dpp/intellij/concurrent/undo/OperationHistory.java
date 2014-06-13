@@ -1,25 +1,3 @@
-/*
- *
- *  DPP - Serious Distributed Pair Programming
- *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
- *  (c) NFQ (www.nfq.com) - 2014
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
- */
-
 package de.fu_berlin.inf.dpp.intellij.concurrent.undo;
 
 import java.util.HashMap;
@@ -74,7 +52,7 @@ public class OperationHistory {
             int result = 1;
             result = prime * result + OperationHistory.this.hashCode();
             result = prime * result
-                    + ((operation == null) ? 0 : operation.hashCode());
+                + ((operation == null) ? 0 : operation.hashCode());
             result = prime * result + ((type == null) ? 0 : type.hashCode());
             return result;
         }
@@ -105,7 +83,7 @@ public class OperationHistory {
     /**
      * Adds an Operation to the history. Too old elements are removed if the
      * list is full.
-     *
+     * 
      * @param editor
      *            in which the operation was executed
      */
@@ -118,7 +96,7 @@ public class OperationHistory {
             history.put(editor, editorHistory);
         }
 
-        // history shouldn't overflow, removeAll too old elements
+        // history shouldn't overflow, remove too old elements
         for (int i = editorHistory.size(); i >= MAX_SIZE; i--) {
             editorHistory.removeLast();
         }
@@ -179,7 +157,7 @@ public class OperationHistory {
      *         (exclusive) in reverse order (oldest first)
      */
     protected List<EditorHistoryEntry> entriesToLatestOfType(Type type,
-            SPath editor) {
+        SPath editor) {
 
         List<EditorHistoryEntry> result = new LinkedList<EditorHistoryEntry>();
 
@@ -198,7 +176,7 @@ public class OperationHistory {
     }
 
     public void replaceType(SPath editor, Operation operation, Type oldType,
-            Type newType) {
+        Type newType) {
 
         EditorHistoryEntry oldEntry = new EditorHistoryEntry(oldType, operation);
         EditorHistoryEntry newEntry = new EditorHistoryEntry(newType, operation);
@@ -207,7 +185,7 @@ public class OperationHistory {
 
         if (editorHistory == null)
             throw new IllegalArgumentException("Cannot replace type of "
-                    + operation + ", history empty for editor " + editor);
+                + operation + ", history empty for editor " + editor);
 
         ListIterator<EditorHistoryEntry> it = editorHistory.listIterator(0);
 
@@ -219,7 +197,7 @@ public class OperationHistory {
         }
 
         throw new IllegalArgumentException("Cannot replace type of "
-                + operation + ", not in history");
+            + operation + ", not in history");
     }
 
     public void clearEditorHistory(SPath editor) {
@@ -232,7 +210,7 @@ public class OperationHistory {
 
     public List<EditorHistoryEntry> getAllEntries(SPath editor) {
         return (history.get(editor) != null) ? history.get(editor)
-                : new LinkedList<EditorHistoryEntry>();
+            : new LinkedList<EditorHistoryEntry>();
     }
 
     public boolean canUndo(SPath editor) {

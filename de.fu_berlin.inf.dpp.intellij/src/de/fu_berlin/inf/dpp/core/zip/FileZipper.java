@@ -31,11 +31,11 @@ package de.fu_berlin.inf.dpp.core.zip;
 
 
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.util.StatisticUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 
-import de.fu_berlin.inf.dpp.core.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -231,7 +231,7 @@ public class FileZipper
 
         log.debug(String.format("created archive %s I/O: [%s]",
                 archive.getAbsolutePath(),
-                Utils.throughput(archive.length(), stopWatch.getTime())));
+                StatisticUtils.throughput(archive.length(), stopWatch.getTime())));
 
     }
 

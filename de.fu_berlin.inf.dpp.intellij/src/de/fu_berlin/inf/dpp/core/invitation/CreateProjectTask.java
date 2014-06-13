@@ -85,7 +85,7 @@ public class CreateProjectTask implements IWorkspaceRunnable
             monitor = this.monitor;
         }
 
-        ISubMonitor subMonitor = monitor.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(
                 "Creating new project... ", base == null ? 2 : 3);
 
         ISchedulingRoot workspaceRoot = workspace.getRoot();

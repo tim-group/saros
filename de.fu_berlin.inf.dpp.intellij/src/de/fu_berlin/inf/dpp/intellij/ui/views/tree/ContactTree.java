@@ -24,8 +24,8 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.net.IRosterListener;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.roster.IRosterListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;

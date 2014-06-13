@@ -77,7 +77,8 @@ public class FolderImp extends ResourceImp implements IFolder {
     public IResource[] members(int memberFlags) {
         List<IResource> list = new ArrayList<IResource>();
 
-        for (File myFile : getFullPath().toFile().listFiles()) {
+        IPath fullPath = getFullPath();
+        for (File myFile : fullPath.toFile().listFiles()) {
             if (myFile.isFile() && !myFile.isHidden()
                     && (memberFlags == NONE || memberFlags == FILE)) {
                 list.add(new FileImp(project, myFile));
@@ -123,8 +124,4 @@ public class FolderImp extends ResourceImp implements IFolder {
         return this;
     }
 
-    @Override
-    public IPath getLocation() {
-        return this.getFullPath();
-    }
 }

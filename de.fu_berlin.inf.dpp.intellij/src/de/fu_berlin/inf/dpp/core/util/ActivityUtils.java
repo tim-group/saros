@@ -22,16 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.util;
 
-import de.fu_berlin.inf.dpp.activities.SPathDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.ChecksumActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.IActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.TextSelectionActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.ViewportActivityDataObject;
+
+import de.fu_berlin.inf.dpp.activities.*;
 
 import java.util.*;
 
 /**
- * Class contains static helper methods for {@link IActivityDataObject ADOs}.
+ * Class contains static helper methods for {@link IActivity ADOs}.
  */
 public class ActivityUtils {
 
@@ -40,25 +37,25 @@ public class ActivityUtils {
      * {@linkplain ChecksumActivityDataObject checksum ADOs}.
      * 
      * @param activities
-     *            collection containing {@linkplain IActivityDataObject ADOs}
+     *            collection containing {@linkplain IActivity ADOs}
      * @return <code>true</code> if the collection contains only checksum ADOs,
      *         <code>false</code> otherwise
      */
     public static boolean containsChecksumsOnly(
-        Collection<IActivityDataObject> activities) {
+        Collection<IActivity> activities) {
 
         if (activities.isEmpty())
             return false;
 
-        for (IActivityDataObject a : activities)
-            if (!(a instanceof ChecksumActivityDataObject))
+        for (IActivity a : activities)
+            if (!(a instanceof ChecksumActivity))
                 return false;
 
         return true;
     }
 
     /**
-     * Tries to reduce the number of {@link IActivityDataObject ADOs} so that:
+     * Tries to reduce the number of {@link IActivity ADOs} so that:
      * <p/>
      * <p/>
      * 
@@ -77,16 +74,16 @@ public class ActivityUtils {
      * @return a list which may contains a reduced amount of ADOs
      */
 
-    public static List<IActivityDataObject> optimize(
-        Collection<IActivityDataObject> activities) {
+    public static List<IActivity> optimize(
+        Collection<IActivity> activities) {
 
-        List<IActivityDataObject> result = new ArrayList<IActivityDataObject>(
+        List<IActivity> result = new ArrayList<IActivity>(
             activities.size());
 
         boolean[] dropDAOIdx = new boolean[activities.size()];
 
-        Map<SPathDataObject, Integer> selections = new HashMap<SPathDataObject, Integer>();
-        Map<SPathDataObject, Integer> viewports = new HashMap<SPathDataObject, Integer>();
+        Map<SPath, Integer> selections = new HashMap<SPath, Integer>();
+        Map<SPath, Integer> viewports = new HashMap<SPath, Integer>();
 
         /*
          * keep only the latest selection/viewport activities per project and
@@ -95,11 +92,11 @@ public class ActivityUtils {
 
         int daoIdx = 0;
 
-        for (IActivityDataObject dao : activities) {
+        for (IActivity dao : activities) {
 
-            if (dao instanceof TextSelectionActivityDataObject) {
+            if (dao instanceof TextSelectionActivity) {
 
-                SPathDataObject daoPath = ((TextSelectionActivityDataObject) dao)
+                SPath daoPath = ((TextSelectionActivity) dao)
                     .getPath();
 
                 Integer idx = selections.get(daoPath);
@@ -108,8 +105,8 @@ public class ActivityUtils {
                     dropDAOIdx[idx] = true;
 
                 selections.put(daoPath, daoIdx);
-            } else if (dao instanceof ViewportActivityDataObject) {
-                SPathDataObject daoPath = ((ViewportActivityDataObject) dao)
+            } else if (dao instanceof ViewportActivity) {
+                SPath daoPath = ((ViewportActivity) dao)
                     .getPath();
 
                 Integer idx = viewports.get(daoPath);
@@ -125,7 +122,7 @@ public class ActivityUtils {
 
         daoIdx = 0;
 
-        for (IActivityDataObject dao : activities)
+        for (IActivity dao : activities)
             if (!dropDAOIdx[daoIdx++])
                 result.add(dao);
 

@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
 
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>

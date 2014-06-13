@@ -30,8 +30,8 @@ import java.util.List;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.annotations.Component;

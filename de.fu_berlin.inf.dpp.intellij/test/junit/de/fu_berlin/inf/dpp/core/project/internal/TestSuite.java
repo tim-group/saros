@@ -6,8 +6,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ActivityHandlerTest.class,
-        ActivityQueuerTest.class,
-        ActivitySequencerTest.class,
+
         ChecksumCacheTest.class,
         SarosProjectMapperTest.class,
         UserInformationHandlerTest.class

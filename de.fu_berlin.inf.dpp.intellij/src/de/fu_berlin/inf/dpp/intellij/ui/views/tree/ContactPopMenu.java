@@ -30,7 +30,7 @@ import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

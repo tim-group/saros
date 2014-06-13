@@ -83,7 +83,7 @@ public class UserStatusChangeHandler
                                 MessageFormat
                                         .format(
                                                 Messages.UserStatusChangeHandler_you_have_now_access,
-                                                user.getHumanReadableName(),
+                                                user.getNickname(),
                                                 user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
                                                         : Messages.UserStatusChangeHandler_read_only
                                         )
@@ -94,7 +94,7 @@ public class UserStatusChangeHandler
                                 Messages.UserStatusChangeHandler_permission_changed,
                                 MessageFormat.format(
                                         Messages.UserStatusChangeHandler_he_has_now_access,
-                                        user.getHumanReadableName(),
+                                        user.getNickname(),
                                         user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
                                                 : Messages.UserStatusChangeHandler_read_only));
 
@@ -107,7 +107,7 @@ public class UserStatusChangeHandler
             SarosView.showNotification(
                     Messages.UserStatusChangeHandler_user_joined, MessageFormat
                             .format(Messages.UserStatusChangeHandler_user_joined_text,
-                                    user.getHumanReadableName()));
+                                    user.getNickname()));
         }
 
         @Override
@@ -115,7 +115,7 @@ public class UserStatusChangeHandler
             SarosView.showNotification(
                     Messages.UserStatusChangeHandler_user_left, MessageFormat
                             .format(Messages.UserStatusChangeHandler_user_left_text,
-                                    user.getHumanReadableName()));
+                                    user.getNickname()));
         }
     };
 

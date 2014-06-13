@@ -30,8 +30,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
  */
 
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools;
-import de.fu_berlin.inf.dpp.core.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.ui.IJoinSession;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
@@ -42,7 +40,10 @@ import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
+import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 
@@ -151,12 +152,12 @@ public class JoinSessionWizard implements IJoinSession
                         case CANCEL:
                         case ERROR:
                             asyncShowCancelMessage(process.getPeer(),
-                                    process.getErrorMessage(), ProcessTools.CancelLocation.LOCAL);
+                                    process.getErrorMessage(), CancelLocation.LOCAL);
                             break;
                         case REMOTE_CANCEL:
                         case REMOTE_ERROR:
                             asyncShowCancelMessage(process.getPeer(),
-                                    process.getErrorMessage(), ProcessTools.CancelLocation.REMOTE);
+                                    process.getErrorMessage(), CancelLocation.REMOTE);
                             break;
 
                     }
@@ -174,7 +175,7 @@ public class JoinSessionWizard implements IJoinSession
             }
 
             asyncShowCancelMessage(process.getPeer(), cause.getMessage(),
-                    ProcessTools.CancelLocation.LOCAL);
+                    CancelLocation.LOCAL);
 
             // give up, close the wizard as we cannot do anything here !
             return accepted;
@@ -193,7 +194,7 @@ public class JoinSessionWizard implements IJoinSession
                     @Override
                     public void run()
                     {
-                        process.localCancel(null, ProcessTools.CancelOption.NOTIFY_PEER);
+                        process.localCancel(null, CancelOption.NOTIFY_PEER);
                     }
                 }
         );
@@ -204,7 +205,7 @@ public class JoinSessionWizard implements IJoinSession
      * Get rid of this method, use a listener !
      */
     @Override
-    public void cancelWizard(final JID jid, final String errorMsg, final ProcessTools.CancelLocation cancelLocation)
+    public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation)
     {
 
         ThreadUtils.runSafeSync(log, new Runnable()
@@ -237,7 +238,7 @@ public class JoinSessionWizard implements IJoinSession
     }
 
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
-            final ProcessTools.CancelLocation cancelLocation)
+            final CancelLocation cancelLocation)
     {
         ThreadUtils.runSafeAsync(log, new Runnable()
         {
@@ -250,7 +251,7 @@ public class JoinSessionWizard implements IJoinSession
     }
 
     private void showCancelMessage(JID jid, String errorMsg,
-            ProcessTools.CancelLocation cancelLocation)
+            CancelLocation cancelLocation)
     {
 
         String peer = jid.getBase();

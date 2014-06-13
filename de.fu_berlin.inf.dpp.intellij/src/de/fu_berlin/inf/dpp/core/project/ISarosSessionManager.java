@@ -1,17 +1,40 @@
-package de.fu_berlin.inf.dpp.core.project;
+/*
+ *
+ *  DPP - Serious Distributed Pair Programming
+ *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
+ *  (c) NFQ (www.nfq.com) - 2014
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 1, or (at your option)
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * /
+ */
 
-import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
+package de.fu_berlin.inf.dpp.core.project;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
 
 /**
  * An interface behind which the {@link SarosSessionManager} hides its
@@ -47,8 +70,8 @@ public interface ISarosSessionManager {
      *            the host of the session.
      * @return the new Saros session.
      */
-    public ISarosSession joinSession(JID host, int clientColor, JID inviter,
-            int hostColor);
+    public ISarosSession joinSession(JID host, String clientNickname,
+                                     String hostNickname, int clientColor, int hostColor);
 
     /**
      * Leaves the currently active session. If the local user is the host, this
@@ -89,10 +112,10 @@ public interface ISarosSessionManager {
      *            what this session invitation is about
      */
     public void invitationReceived(JID from, String sessionID,
-            String invitationID, String version, String description);
+                                   String invitationID, String version, String description);
 
     /**
-     * Will first sharing all projects of the current session with a
+     * Will start sharing all projects of the current session with a
      * participant. This should be called after a the invitation to a session
      * was completed successfully.
      *
@@ -140,7 +163,7 @@ public interface ISarosSessionManager {
      *            ID of the exchanging process
      */
     public void incomingProjectReceived(JID from,
-            List<ProjectNegotiationData> projectInfos, String processID);
+                                        List<ProjectNegotiationData> projectInfos, String processID);
 
     /**
      * Call this when a new project was added.
@@ -159,11 +182,6 @@ public interface ISarosSessionManager {
      * Call this after a ISarosSession has been started.
      */
     void sessionStarted(ISarosSession sarosSession);
-
-    /**
-     * Call this on the client after the invitation has been completed.
-     */
-    void preIncomingInvitationCompleted(IProgressMonitor monitor);
 
     /**
      * Call this on the host after the invitation was accepted and has been

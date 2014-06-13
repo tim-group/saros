@@ -28,8 +28,6 @@ import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools;
-import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.*;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
@@ -52,11 +50,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoWithProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.SelectProjectPage;
-import de.fu_berlin.inf.dpp.invitation.FileList;
-import de.fu_berlin.inf.dpp.invitation.FileListDiff;
-import de.fu_berlin.inf.dpp.invitation.FileListFactory;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.invitation.*;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.commons.lang.StringUtils;
@@ -672,7 +668,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard
             throw new IllegalStateException("no session running");
         }
 
-        ISubMonitor subMonitor = monitor.convert(monitor,
+        ISubMonitor subMonitor = monitor.convert(
                 "Searching for files that will be modified...",
                 projectMapping.size() * 2);
 

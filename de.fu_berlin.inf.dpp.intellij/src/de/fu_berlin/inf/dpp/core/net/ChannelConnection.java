@@ -44,11 +44,12 @@
 
 package de.fu_berlin.inf.dpp.core.net;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
+
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
 import de.fu_berlin.inf.dpp.net.internal.IByteStreamConnection;
 import de.fu_berlin.inf.dpp.net.internal.IByteStreamConnectionListener;
 import de.fu_berlin.inf.dpp.net.internal.TransferDescription;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import java.io.IOException;
 
@@ -61,12 +62,12 @@ import java.io.IOException;
 public class ChannelConnection implements IByteStreamConnection {
 
     private JID to;
-    private NetTransferMode mode;
+    private ConnectionMode mode;
     private IByteStreamConnectionListener listener;
     private volatile boolean closed;
     private volatile int sendPackets;
 
-    public ChannelConnection(JID to, NetTransferMode mode,
+    public ChannelConnection(JID to, ConnectionMode mode,
         IByteStreamConnectionListener listener) {
         this.to = to;
         this.mode = mode;
@@ -96,7 +97,7 @@ public class ChannelConnection implements IByteStreamConnection {
     }
 
     @Override
-    public NetTransferMode getMode() {
+    public ConnectionMode getMode() {
         return mode;
     }
 

@@ -1,22 +1,16 @@
 package de.fu_berlin.inf.dpp.core.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
-import de.fu_berlin.inf.dpp.core.context.ISarosContext;
-import de.fu_berlin.inf.dpp.core.observables.InvitationProcessObservable;
-import de.fu_berlin.inf.dpp.core.observables.ProjectNegotiationObservable;
+import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.SarosSession;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
+import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,23 +19,22 @@ import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
-
-import de.fu_berlin.inf.dpp.session.ISarosSession;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ SarosSession.class, SarosSessionManager.class })
+@PrepareForTest({SarosSession.class, SarosSessionManager.class})
 public class SarosSessionManagerTest {
 
     private class DummyError extends Error {
         private static final long serialVersionUID = 1L;
     }
 
-    private class StateVerifyListener extends AbstractSarosSessionListener
-    {
+    private class StateVerifyListener extends AbstractSarosSessionListener {
         int state = -1;
 
         @Override
@@ -66,7 +59,7 @@ public class SarosSessionManagerTest {
 
         private void checkAndSetState(int expectedState, int newState) {
             assertEquals("listener methods invoked in wrong order", state,
-                expectedState);
+                    expectedState);
             state = newState;
         }
     }
@@ -100,20 +93,21 @@ public class SarosSessionManagerTest {
     public void setUp() throws Exception {
         SarosSession session = PowerMock.createNiceMock(SarosSession.class);
         XMPPConnectionService network = PowerMock
-            .createNiceMock(XMPPConnectionService.class);
+                .createNiceMock(XMPPConnectionService.class);
 
         PreferenceUtils preferences = PowerMock
-            .createNiceMock(PreferenceUtils.class);
+                .createNiceMock(PreferenceUtils.class);
 
         PowerMock.expectNew(SarosSession.class, EasyMock.anyInt(),
-            EasyMock.anyObject(ISarosContext.class)).andStubReturn(session);
+                EasyMock.anyObject(ISarosContext.class)).andStubReturn(session);
 
         PowerMock.replayAll();
 
         manager = new SarosSessionManager(network,
-            new SarosSessionObservable(), new SessionIDObservable(),
-            new InvitationProcessObservable(),
-            new ProjectNegotiationObservable(), preferences);
+                new SarosSessionObservable(),
+                new SessionIDObservable(),
+                new SessionNegotiationObservable(),
+                new ProjectNegotiationObservable(), preferences);
     }
 
     @Test
@@ -216,7 +210,7 @@ public class SarosSessionManagerTest {
             public void sessionEnding(ISarosSession oldSarosSession) {
                 try {
                     manager
-                        .startSession(new HashMap<IProject, List<IResource>>());
+                            .startSession(new HashMap<IProject, List<IResource>>());
                 } catch (RuntimeException e) {
                     exception.set(e);
                 }

@@ -31,21 +31,21 @@ import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
-import de.fu_berlin.inf.dpp.core.net.BlockableTransport;
 import de.fu_berlin.inf.dpp.core.net.Transport;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
+import de.fu_berlin.inf.dpp.intellij.core.misc.BlockableTransport;
 import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.proxy.ProxyInfo;
@@ -219,9 +219,9 @@ public class Saros extends AbstractSaros
             //todo
             final CountDownLatch connectAcknowledge = new CountDownLatch(1);
             final CountDownLatch connectProceed = new CountDownLatch(1);
-            Transport fallbackTransport = new Transport(NetTransferMode.IBB);
+            Transport fallbackTransport = new Transport(ConnectionMode.IBB);
             BlockableTransport mainTransport = new BlockableTransport(
-                    new HashSet<JID>(), NetTransferMode.SOCKS5_DIRECT,
+                    new HashSet<JID>(), ConnectionMode.SOCKS5_DIRECT,
                     connectAcknowledge, connectProceed);
 
             this.transferManager = new DataTransferManager(connectionService, null, mainTransport, fallbackTransport); //todo

@@ -22,44 +22,37 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.activities.SPathDataObject;
-import de.fu_berlin.inf.dpp.activities.business.EditorActivity;
-import de.fu_berlin.inf.dpp.activities.business.EditorActivity.Type;
-import de.fu_berlin.inf.dpp.activities.serializable.AbstractProjectActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.EditorActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.IActivityDataObject;
-import de.fu_berlin.inf.dpp.activities.serializable.JupiterActivityDataObject;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.EditorActivity.Type;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.session.User;
 
 import java.util.*;
 
 /**
- * This class enables the queuing of {@linkplain IActivityDataObject serialized
- * activities} for given projects.
+ * This class enables the queuing of {@linkplain IActivity activities} for given
+ * projects.
  */
-public class ActivityQueuer
-{
+public class ActivityQueuer {
 
-    private final List<AbstractProjectActivityDataObject> activityQueue;
+    private final List<IResourceActivity> activityQueue;
 
-    private final Set<String> projectsThatShouldBeQueued;
+    private final Set<IProject> projectsThatShouldBeQueued;
 
     private boolean stopQueuing;
 
-    public ActivityQueuer()
-    {
-        activityQueue = new ArrayList<AbstractProjectActivityDataObject>();
-        projectsThatShouldBeQueued = new HashSet<String>();
+    public ActivityQueuer() {
+        activityQueue = new ArrayList<IResourceActivity>();
+        projectsThatShouldBeQueued = new HashSet<IProject>();
         stopQueuing = false;
     }
 
     /**
-     * Processes the incoming {@linkplain IActivityDataObject serialized
-     * activities} and decides which activities should be queued. All resource
-     * related {@linkplain AbstractProjectActivityDataObject project activities}
-     * which relate to a project that is configured for queuing using
-     * {@link #enableQueuing(String)} will be queued. The method returns all
-     * other activities which should not be queued.
+     * Processes the incoming {@linkplain IActivity activities} and decides
+     * which activities should be queued. All {@linkplain IResourceActivity
+     * resource related activities} which relate to a project that is configured
+     * for queuing using {@link #enableQueuing(IProject)} will be queued. The
+     * method returns all other activities which should not be queued.
      * <p/>
      * If a flushing of the queue was previously requested by calling
      * {@link #disableQueuing()} than the method will return a list of all
@@ -68,63 +61,52 @@ public class ActivityQueuer
      * @param activities
      * @return the activities that are not queued
      */
-    public synchronized List<IActivityDataObject> process(
-            List<IActivityDataObject> activities)
-    {
-        List<IActivityDataObject> activitiesThatWillBeExecuted = new ArrayList<IActivityDataObject>();
+    public synchronized List<IActivity> process(List<IActivity> activities) {
+        List<IActivity> activitiesThatWillBeExecuted = new ArrayList<IActivity>();
 
-        if (stopQueuing)
-        {
+        if (stopQueuing) {
             if (activityQueue.isEmpty())
-            {
                 return activities;
-            }
 
             /*
              * HACK: ensure that an editor activated activity is included for
              * all queued JupiterActivities and EditorActivities. Otherwise we
              * will get lost updates because the changes are not saved. See the
              * editor package and its classes for additional details. As we can
-             * first queuing at any point we might miss the editor activated
+             * start queuing at any point we might miss the editor activated
              * activity or we joined the session after those activities were
              * fired on the remote sides.
              */
 
-            Map<SPathDataObject, List<JID>> editorADOs = new HashMap<SPathDataObject, List<JID>>();
+            final Map<SPath, List<User>> editorActivities = new HashMap<SPath, List<User>>();
 
-            for (AbstractProjectActivityDataObject pado : activityQueue)
-            {
+            for (IResourceActivity resourceActivity : activityQueue) {
 
-                // path cannot be null, see handleProjectActivities
-                SPathDataObject path = pado.getPath();
-                JID source = pado.getSource();
+                // path cannot be null, see for-loop below
+                SPath path = resourceActivity.getPath();
+                User source = resourceActivity.getSource();
 
-                if (pado instanceof EditorActivityDataObject)
-                {
+                if (resourceActivity instanceof EditorActivity) {
 
-                    EditorActivityDataObject eado = (EditorActivityDataObject) pado;
+                    EditorActivity ea = (EditorActivity) resourceActivity;
 
-                    if (!alreadyRememberedEditorADO(editorADOs, path, source)
-                            && eado.getType() != Type.ACTIVATED)
-                    {
-                        activitiesThatWillBeExecuted
-                                .add(new EditorActivityDataObject(eado.getSource(),
-                                        EditorActivity.Type.ACTIVATED, path));
+                    if (!alreadyRememberedEditorActivity(editorActivities,
+                            path, source) && ea.getType() != Type.ACTIVATED) {
+                        activitiesThatWillBeExecuted.add(new EditorActivity(ea
+                                .getSource(), Type.ACTIVATED, path));
                     }
 
-                    rememberEditorADO(editorADOs, path, source);
-                }
-                else if (pado instanceof JupiterActivityDataObject
-                        && !alreadyRememberedEditorADO(editorADOs, path, source))
-                {
+                    rememberEditorActivity(editorActivities, path, source);
+                } else if (resourceActivity instanceof JupiterActivity
+                        && !alreadyRememberedEditorActivity(editorActivities, path,
+                        source)) {
 
-                    activitiesThatWillBeExecuted
-                            .add(new EditorActivityDataObject(pado.getSource(),
-                                    Type.ACTIVATED, path));
+                    activitiesThatWillBeExecuted.add(new EditorActivity(
+                            resourceActivity.getSource(), Type.ACTIVATED, path));
 
-                    rememberEditorADO(editorADOs, path, source);
+                    rememberEditorActivity(editorActivities, path, source);
                 }
-                activitiesThatWillBeExecuted.add(pado);
+                activitiesThatWillBeExecuted.add(resourceActivity);
             }
 
             activitiesThatWillBeExecuted.addAll(activities);
@@ -133,32 +115,34 @@ public class ActivityQueuer
             return activitiesThatWillBeExecuted;
         }
 
-        for (IActivityDataObject dataObject : activities)
-        {
+        for (IActivity activity : activities) {
+            if (activity instanceof IResourceActivity) {
+                IResourceActivity resourceActivity = (IResourceActivity) activity;
 
-            if (dataObject instanceof AbstractProjectActivityDataObject)
-            {
-                AbstractProjectActivityDataObject projectDataObject = (AbstractProjectActivityDataObject) dataObject;
-                handleProjectActivities(projectDataObject,
-                        activitiesThatWillBeExecuted);
+                SPath path = resourceActivity.getPath();
+
+                // can't queue activities without path
+                if (path != null
+                        && projectsThatShouldBeQueued.contains(path.getProject())) {
+                    activityQueue.add(resourceActivity);
+                    continue;
+                }
             }
-            else
-            {
-                activitiesThatWillBeExecuted.add(dataObject);
-            }
+
+            activitiesThatWillBeExecuted.add(activity);
         }
+
         return activitiesThatWillBeExecuted;
     }
 
     /**
-     * Enables the queuing of {@link IActivityDataObject serialized activities}
-     * related to the project with the given id.
+     * Enables the queuing of {@link IActivity serialized activities} related to
+     * the given project.
      *
-     * @param projectId
+     * @param project
      */
-    public synchronized void enableQueuing(String projectId)
-    {
-        projectsThatShouldBeQueued.add(projectId);
+    public synchronized void enableQueuing(IProject project) {
+        projectsThatShouldBeQueued.add(project);
         stopQueuing = false;
     }
 
@@ -174,54 +158,27 @@ public class ActivityQueuer
      * at the same time. When multiple invitations at the same moment will
      * be possible, this implementation needs to be changed.
      */
-    public synchronized void disableQueuing()
-    {
+    public synchronized void disableQueuing() {
         stopQueuing = true;
     }
 
-    private void handleProjectActivities(
-            AbstractProjectActivityDataObject projectDataObject,
-            List<IActivityDataObject> activitiesThatWillBeExecuted)
-    {
-        SPathDataObject path = projectDataObject.getPath();
-        if (path == null)
-        {
-            // can't queue without path
-            activitiesThatWillBeExecuted.add(projectDataObject);
-        }
-        else if (projectsThatShouldBeQueued.contains(path.getProjectID()))
-        {
-            activityQueue.add(projectDataObject);
-        }
-        else
-        {
-            activitiesThatWillBeExecuted.add(projectDataObject);
-        }
+    private boolean alreadyRememberedEditorActivity(
+            Map<SPath, List<User>> editorActivities, SPath spath, User user) {
+
+        List<User> users = editorActivities.get(spath);
+        return users != null && users.contains(user);
     }
 
-    private boolean alreadyRememberedEditorADO(
-            Map<SPathDataObject, List<JID>> editorADOs, SPathDataObject spdo,
-            JID jid)
-    {
+    private void rememberEditorActivity(
+            Map<SPath, List<User>> editorActivities, SPath spath, User user) {
+        List<User> users = editorActivities.get(spath);
 
-        List<JID> jids = editorADOs.get(spdo);
-        return jids != null && jids.contains(jid);
-    }
-
-    private void rememberEditorADO(Map<SPathDataObject, List<JID>> editorADOs,
-            SPathDataObject spdo, JID jid)
-    {
-        List<JID> jids = editorADOs.get(spdo);
-
-        if (jids == null)
-        {
-            jids = new ArrayList<JID>();
-            editorADOs.put(spdo, jids);
+        if (users == null) {
+            users = new ArrayList<User>();
+            editorActivities.put(spath, users);
         }
 
-        if (!jids.contains(jid))
-        {
-            jids.add(jid);
-        }
+        if (!users.contains(user))
+            users.add(user);
     }
 }

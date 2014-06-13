@@ -140,7 +140,7 @@ public class SarosUI {
                 @Override
                 public void run(final IProgressMonitor monitor) {
 
-                    final ISubMonitor progress = monitor.convert(monitor);
+                    final ISubMonitor progress = monitor.convert();
 
                     try {
 

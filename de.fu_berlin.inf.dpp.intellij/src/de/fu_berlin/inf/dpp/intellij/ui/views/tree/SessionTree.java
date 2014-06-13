@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -313,7 +313,7 @@ public class SessionTree extends AbstractTree
 
         private SessionInfo(ISarosSession session)
         {
-            super(session.getID(), session.getHost().getShortHumanReadableName());
+            super(session.getID(), session.getHost().getNickname());
             this.session = session;
         }
 
@@ -341,7 +341,7 @@ public class SessionTree extends AbstractTree
 
         public UserInfo(User user)
         {
-            super(user.getHumanReadableName(), user.getShortHumanReadableName());
+            super(user.getNickname(), user.getNickname());
             this.user = user;
             this.setIcon(IconManager.contactOnlineIcon);
         }

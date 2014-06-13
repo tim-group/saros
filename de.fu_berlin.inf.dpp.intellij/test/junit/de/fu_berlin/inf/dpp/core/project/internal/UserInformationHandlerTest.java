@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.net.PacketCollector;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.easymock.EasyMock;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.junit.Before;
@@ -12,8 +14,6 @@ import org.junit.Test;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -24,13 +24,13 @@ public class UserInformationHandlerTest {
     private ITransmitter transmitter;
     private IReceiver receiver;
     private ISarosSession session;
-    private SarosPacketCollector dummyCollector;
+    private PacketCollector dummyCollector;
 
     @Before
     public void setUp() {
         transmitter = EasyMock.createNiceMock(ITransmitter.class);
         receiver = EasyMock.createNiceMock(IReceiver.class);
-        dummyCollector = EasyMock.createNiceMock(SarosPacketCollector.class);
+        dummyCollector = EasyMock.createNiceMock(PacketCollector.class);
 
         EasyMock.expect(
             receiver.createCollector(EasyMock.isA(PacketFilter.class)))
@@ -47,7 +47,7 @@ public class UserInformationHandlerTest {
         UserInformationHandler handler = new UserInformationHandler(session,
             transmitter, receiver);
 
-        User alice = new User(new JID("alice@test/Saros"), false, false, 0, 0);
+        User alice = new User(new JID("alice@test/Saros"),null, false, false, 0, 0);
 
         handler.start();
 
@@ -64,7 +64,7 @@ public class UserInformationHandlerTest {
         UserInformationHandler handler = new UserInformationHandler(session,
             transmitter, receiver);
 
-        User alice = new User(new JID("alice@test/Saros"), false, false, 0, 0);
+        User alice = new User(new JID("alice@test/Saros"),null, false, false, 0, 0);
 
         handler.start();
 
@@ -81,7 +81,7 @@ public class UserInformationHandlerTest {
         UserInformationHandler handler = new UserInformationHandler(session,
             transmitter, receiver);
 
-        User alice = new User(new JID("alice@test/Saros"), false, false, 0, 0);
+        User alice = new User(new JID("alice@test/Saros"),null, false, false, 0, 0);
 
         handler.start();
 
@@ -98,7 +98,7 @@ public class UserInformationHandlerTest {
         UserInformationHandler handler = new UserInformationHandler(session,
             transmitter, receiver);
 
-        User alice = new User(new JID("alice@test/Saros"), false, false, 0, 0);
+        User alice = new User(new JID("alice@test/Saros"),null, false, false, 0, 0);
 
         handler.start();
 
@@ -116,8 +116,8 @@ public class UserInformationHandlerTest {
         UserInformationHandler handler = new UserInformationHandler(session,
             transmitter, receiver);
 
-        User alice = new User(new JID("alice@test/Saros"), false, false, 0, 0);
-        User bob = new User(new JID("bob@test/Saros"), false, false, 0, 0);
+        User alice = new User(new JID("alice@test/Saros"),null, false, false, 0, 0);
+        User bob = new User(new JID("bob@test/Saros"),null, false, false, 0, 0);
 
         alice.setInSession(false);
 

@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.EditorManagerEcl;
+import de.fu_berlin.inf.dpp.intellij.editor.mock.EditorManagerEcl;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.Annotation;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModel;
 import de.fu_berlin.inf.dpp.intellij.editor.mock.text.IAnnotationModelExtension;

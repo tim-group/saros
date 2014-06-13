@@ -61,7 +61,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
         if (path != null) {
 
             if (manager.getActionManager().newFiles.containsKey(virtualFile)) {
-                //File is new, need to replace content
+                //File is new, need to replaceAll content
                 byte[] bytes = new byte[0];
                 try {
                     bytes = virtualFile.contentsToByteArray();

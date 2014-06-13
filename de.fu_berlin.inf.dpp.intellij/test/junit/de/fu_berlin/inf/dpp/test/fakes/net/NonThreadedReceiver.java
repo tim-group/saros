@@ -4,14 +4,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.fu_berlin.inf.dpp.net.PacketCollector;
+import de.fu_berlin.inf.dpp.net.internal.BinaryXMPPExtension;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.IncomingTransferObject;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector.CancelHook;
+
 
 class NonThreadedReceiver implements IReceiver {
 
@@ -40,11 +40,11 @@ class NonThreadedReceiver implements IReceiver {
     }
 
     @Override
-    public SarosPacketCollector createCollector(PacketFilter filter) {
-        final SarosPacketCollector collector = new SarosPacketCollector(
-            new CancelHook() {
+    public PacketCollector createCollector(PacketFilter filter) {
+        final PacketCollector collector = new PacketCollector(
+            new PacketCollector.CancelHook() {
                 @Override
-                public void cancelPacketCollector(SarosPacketCollector collector) {
+                public void cancelPacketCollector(PacketCollector collector) {
                     removePacketListener(collector);
                 }
             }, filter);
@@ -54,7 +54,7 @@ class NonThreadedReceiver implements IReceiver {
     }
 
     @Override
-    public void processTransferObject(IncomingTransferObject transferObject) {
-        // NOP
+    public void processBinaryXMPPExtension(BinaryXMPPExtension extension) {
+
     }
 }

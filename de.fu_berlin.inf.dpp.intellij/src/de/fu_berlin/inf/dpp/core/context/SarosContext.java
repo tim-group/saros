@@ -22,46 +22,21 @@
 
 package de.fu_berlin.inf.dpp.core.context;
 
-import de.fu_berlin.inf.dpp.core.invitation.DecompressTask;
-import de.fu_berlin.inf.dpp.net.internal.extensions.*;
+import de.fu_berlin.inf.dpp.ISarosContext;
+import de.fu_berlin.inf.dpp.communication.extensions.*;
 import de.fu_berlin.inf.dpp.misc.pico.ChildContainer;
 import de.fu_berlin.inf.dpp.misc.pico.ChildContainerProvider;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
-import de.fu_berlin.inf.dpp.net.XStreamExtensionProvider;
+import de.fu_berlin.inf.dpp.misc.xstream.XStreamExtensionProvider;
+import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;
 import org.picocontainer.*;
 import org.picocontainer.injectors.*;
 
 import java.util.List;
 
-//import org.osgi.service.prefs.Preferences;
-//import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
-//import de.fu_berlin.inf.dpp.internal.extensions.ActivitiesExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.CancelInviteExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.CancelProjectNegotiationExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.InvitationAcceptedExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.InvitationAcknowledgedExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.InvitationCompletedExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.InvitationOfferingExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.InvitationParameterExchangeExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.JoinSessionRejectedExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.JoinSessionRequestExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.KickUserExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.LeaveSessionExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.PingExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.PongExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.ProjectNegotiationMissingFilesExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.ProjectNegotiationOfferingExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.SessionStatusRequestExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.SessionStatusResponseExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.StartActivityQueuingRequest;
-//import de.fu_berlin.inf.dpp.internal.extensions.StartActivityQueuingResponse;
-//import de.fu_berlin.inf.dpp.internal.extensions.UserFinishedProjectNegotiationExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.UserListExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.UserListReceivedExtension;
-//import de.fu_berlin.inf.dpp.internal.extensions.VersionExchangeExtension;
 
 /**
  * Encapsulates a {@link org.picocontainer.PicoContainer} and its Saros-specific

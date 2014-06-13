@@ -29,7 +29,6 @@ import de.fu_berlin.inf.dpp.core.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.core.communication.chart.muc.negotiation.MUCNegotiationManager;
 import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSetStorage;
-import de.fu_berlin.inf.dpp.core.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
@@ -38,18 +37,24 @@ import de.fu_berlin.inf.dpp.core.observables.*;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
 import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.*;
-import de.fu_berlin.inf.dpp.net.discovery.DiscoveryManager;
+
 import de.fu_berlin.inf.dpp.net.internal.*;
 import de.fu_berlin.inf.dpp.net.stun.IStunService;
 import de.fu_berlin.inf.dpp.net.stun.internal.StunServiceImpl;
-import de.fu_berlin.inf.dpp.net.subscription.SubscriptionHandler;
 import de.fu_berlin.inf.dpp.net.upnp.IUPnPAccess;
 import de.fu_berlin.inf.dpp.net.upnp.IUPnPService;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPAccessImpl;
 import de.fu_berlin.inf.dpp.net.upnp.internal.UPnPServiceImpl;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.net.xmpp.discovery.DiscoveryManager;
+import de.fu_berlin.inf.dpp.net.xmpp.roster.RosterTracker;
+import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
+import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
+import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
+import de.fu_berlin.inf.dpp.versioning.VersionManager;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
 
@@ -131,7 +136,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
 
             // Observables
             Component.create(FileReplacementInProgressObservable.class),
-            Component.create(InvitationProcessObservable.class),
+            Component.create(SessionNegotiationObservable.class),
             Component.create(ProjectNegotiationObservable.class),
             Component.create(IsInconsistentObservable.class),
             Component.create(SessionIDObservable.class),

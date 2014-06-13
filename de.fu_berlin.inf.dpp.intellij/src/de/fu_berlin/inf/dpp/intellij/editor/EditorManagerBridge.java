@@ -23,19 +23,12 @@
 package de.fu_berlin.inf.dpp.intellij.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.RemoteEditorManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProducerAndConsumer;
-import de.fu_berlin.inf.dpp.session.IActivityListener;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import org.apache.log4j.Logger;
-
-import java.io.FileNotFoundException;
-import java.util.Set;
 
 /**
  * //todo: temporary class to be removed after full migration
@@ -46,7 +39,7 @@ import java.util.Set;
  * Time: 09:00
  */
 
-public abstract class EditorManagerBridge extends AbstractActivityProducerAndConsumer implements IEditorManager
+public abstract class EditorManagerBridge extends AbstractActivityProvider implements IEditorManager
 {
 
     protected static final Logger log = Logger.getLogger(EditorManagerBridge.class.getName());

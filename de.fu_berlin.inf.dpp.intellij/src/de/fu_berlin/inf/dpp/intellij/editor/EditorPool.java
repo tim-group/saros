@@ -76,6 +76,23 @@ public class EditorPool {
         }
     }
 
+    public void replaceAll(SPath oldPath, SPath newPath) {
+        if (editors.containsKey(oldPath)) {
+            Editor editor = editors.remove(oldPath);
+            if (editor != null)
+                editors.put(newPath, editor);
+        }
+
+        if (documents.containsKey(oldPath)) {
+            Document doc = documents.remove(oldPath);
+
+            if (doc != null) {
+                files.put(doc, newPath);
+            }
+        }
+
+
+    }
 
     public Collection<Document> getDocuments() {
         return documents.values();

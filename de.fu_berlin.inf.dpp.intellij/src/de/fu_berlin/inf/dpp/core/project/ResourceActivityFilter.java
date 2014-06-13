@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.FolderActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
+import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.FolderActivity;
-import de.fu_berlin.inf.dpp.activities.business.IResourceActivity;
-import de.fu_berlin.inf.dpp.activities.business.VCSActivity;
 
 /**
  * A ResourceActivityFilter stores pending activities for the
- * {@link SharedResourcesManager}, then orders and filters them.
+ * {@link de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager}, then orders and filters them.
  */
 class ResourceActivityFilter {
     private static final Logger log = Logger

@@ -25,8 +25,7 @@ package de.fu_berlin.inf.dpp.core.exceptions;
 /**
  * Exception used for signaling that the user canceled an operation
  */
-public class RemoteCancellationException extends SarosCancellationException
-{
+public class RemoteCancellationException extends Exception {
 
     private static final long serialVersionUID = 3663315740957551184L;
 

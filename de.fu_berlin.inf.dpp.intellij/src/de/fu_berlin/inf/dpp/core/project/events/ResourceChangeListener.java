@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.project.events;
 
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

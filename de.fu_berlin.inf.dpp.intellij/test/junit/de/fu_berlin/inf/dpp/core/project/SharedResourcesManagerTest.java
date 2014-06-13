@@ -14,10 +14,11 @@ import static org.powermock.api.easymock.PowerMock.replayAll;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.project.SharedResourcesManager;
+import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import org.easymock.EasyMock;
@@ -30,9 +31,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity.Purpose;
-import de.fu_berlin.inf.dpp.activities.business.FileActivity.Type;
+
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -129,7 +128,7 @@ public class SharedResourcesManagerTest {
     }
 
     private FileActivity fileCreationWithContent(byte[] content) {
-        return new FileActivity(createNiceMock(User.class), Type.CREATED, path,
-            null, content, Purpose.ACTIVITY);
+        return new FileActivity(createNiceMock(User.class), FileActivity.Type.CREATED, path,
+            null, content, FileActivity.Purpose.ACTIVITY);
     }
 }

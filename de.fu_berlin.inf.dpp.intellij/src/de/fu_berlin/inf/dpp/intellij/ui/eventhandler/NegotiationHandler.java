@@ -22,7 +22,15 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
-import de.fu_berlin.inf.dpp.core.invitation.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+
+import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
@@ -31,19 +39,22 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.*;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressMonitorAdapterFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
-import de.fu_berlin.inf.dpp.invitation.FileList;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.XMPPConnectionService;
-import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
+
+import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+
 
 /**
  * This handler is responsible for presenting and running the session and
@@ -52,29 +63,30 @@ import java.util.List;
  *
  * @author srossbach
  */
-public class NegotiationHandler implements INegotiationHandler
-{
-    private static final Logger log = Logger.getLogger(NegotiationHandler.class);
+public class NegotiationHandler implements INegotiationHandler {
+
+    private static final Logger LOG = Logger
+            .getLogger(NegotiationHandler.class);
 
     /**
+     *
      * OutgoingInvitationJob wraps the instance of
      * {@link OutgoingSessionNegotiation} and cares about handling the
      * exceptions like local or remote cancellation.
-     * <p/>
+     *
      * It notifies the user about the progress using the Eclipse Jobs API and
      * interrupts the process if the session closes.
+     *
      */
-    private class OutgoingInvitationJob extends Job
-    {
+    private class OutgoingInvitationJob extends Job {
 
         private OutgoingSessionNegotiation process;
         private String peer;
 
-        public OutgoingInvitationJob(OutgoingSessionNegotiation process)
-        {
+        public OutgoingInvitationJob(OutgoingSessionNegotiation process) {
             super(MessageFormat.format(
                     Messages.NegotiationHandler_inviting_user,
-                    User.getHumanReadableName(connectionService, process.getPeer())));
+                    getNickname(process.getPeer())));
             this.process = process;
             this.peer = process.getPeer().getBase();
 
@@ -82,19 +94,16 @@ public class NegotiationHandler implements INegotiationHandler
             setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
             setProperty(IProgressConstants.ICON_PROPERTY,
                     ImageManager
-                            .getImageDescriptor("/icons/elcl16/project_share_tsk.png")
-            );
+                            .getImageDescriptor("/icons/elcl16/project_share_tsk.png"));
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor)
-        {
-            try
-            {
-                SessionNegotiation.Status status = process.start(monitor);
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
+                SessionNegotiation.Status status = process
+                        .start(ProgressMonitorAdapterFactory.convertTo(monitor));
 
-                switch (status)
-                {
+                switch (status) {
                     case CANCEL:
                         return Status.CANCEL_STATUS;
                     case ERROR:
@@ -118,8 +127,7 @@ public class NegotiationHandler implements INegotiationHandler
                                 MessageFormat
                                         .format(
                                                 Messages.NegotiationHandler_canceled_invitation_text,
-                                                peer)
-                        );
+                                                peer));
 
                     case REMOTE_ERROR:
                         SarosView
@@ -128,8 +136,7 @@ public class NegotiationHandler implements INegotiationHandler
                                         MessageFormat
                                                 .format(
                                                         Messages.NegotiationHandler_error_during_invitation_text,
-                                                        peer, process.getErrorMessage())
-                                );
+                                                        peer, process.getErrorMessage()));
 
                         return new Status(
                                 IStatus.ERROR,
@@ -137,13 +144,10 @@ public class NegotiationHandler implements INegotiationHandler
                                 MessageFormat
                                         .format(
                                                 Messages.NegotiationHandler_error_during_invitation_text,
-                                                peer, process.getErrorMessage())
-                        );
+                                                peer, process.getErrorMessage()));
                 }
-            }
-            catch (Exception e)
-            {
-                log.error("This exception is not expected here: ", e);
+            } catch (Exception e) {
+                LOG.error("This exception is not expected here: ", e);
                 return new Status(IStatus.ERROR, Saros.SAROS, e.getMessage(), e);
 
             }
@@ -151,20 +155,16 @@ public class NegotiationHandler implements INegotiationHandler
             sessionManager.startSharingProjects(process.getPeer());
 
             return Status.OK_STATUS;
-
-
         }
     }
 
-    private class OutgoingProjectJob extends Job
-    {
+    private class OutgoingProjectJob extends Job {
 
         private OutgoingProjectNegotiation process;
         private String peer;
 
         public OutgoingProjectJob(
-                OutgoingProjectNegotiation outgoingProjectNegotiation)
-        {
+                OutgoingProjectNegotiation outgoingProjectNegotiation) {
             super(Messages.NegotiationHandler_sharing_project);
             process = outgoingProjectNegotiation;
             peer = process.getPeer().getBase();
@@ -176,22 +176,19 @@ public class NegotiationHandler implements INegotiationHandler
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor)
-        {
-            try
-            {
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
                 ProjectNegotiation.Status status = process.start(monitor);
-                String peerName = User.getHumanReadableName(connectionService, new JID(
-                        peer));
+                String peerName = getNickname(new JID(peer));
 
                 final String message;
 
-                switch (status)
-                {
+                switch (status) {
                     case CANCEL:
                         return Status.CANCEL_STATUS;
                     case ERROR:
-                        return new Status(IStatus.ERROR, Saros.SAROS, process.getErrorMessage());
+                        return new Status(IStatus.ERROR, Saros.SAROS,
+                                process.getErrorMessage());
                     case OK:
                         break;
                     case REMOTE_CANCEL:
@@ -200,11 +197,9 @@ public class NegotiationHandler implements INegotiationHandler
                                         Messages.NegotiationHandler_project_sharing_cancelled_text,
                                         peerName);
 
-                        SWTUtils.runSafeSWTAsync(log, new Runnable()
-                        {
+                        SWTUtils.runSafeSWTAsync(LOG, new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 DialogUtils.openInformationMessageDialog(
                                         SWTUtils.getShell(), message, message);
                             }
@@ -217,16 +212,15 @@ public class NegotiationHandler implements INegotiationHandler
                                 .format(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely,
                                         peerName, process.getErrorMessage());
-                        SarosView.showNotification(
-                                Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
-                                message);
+                        SarosView
+                                .showNotification(
+                                        Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
+                                        message);
 
                         return new Status(IStatus.ERROR, Saros.SAROS, message);
                 }
-            }
-            catch (Exception e)
-            {
-                log.error("This exception is not expected here: ", e);
+            } catch (Exception e) {
+                LOG.error("This exception is not expected here: ", e);
                 return new Status(IStatus.ERROR, Saros.SAROS, e.getMessage(), e);
 
             }
@@ -235,46 +229,56 @@ public class NegotiationHandler implements INegotiationHandler
         }
     }
 
+    private final SarosUI sarosUI;
 
     private final ISarosSessionManager sessionManager;
 
-    private final XMPPConnectionService connectionService;
-
-
     public NegotiationHandler(ISarosSessionManager sessionManager,
-            XMPPConnectionService connectionService)
-    {
-
-        this.connectionService = connectionService;
+                              XMPPConnectionService connectionService, SarosUI sarosUI) {
+        this.sarosUI = sarosUI;
         this.sessionManager = sessionManager;
         this.sessionManager.setNegotiationHandler(this);
+    }
 
+    @Override
+    public void handleOutgoingSessionNegotiation(
+            OutgoingSessionNegotiation negotiation) {
+
+        OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
+                negotiation);
+
+        outgoingInvitationJob.setPriority(Job.SHORT);
+        outgoingInvitationJob.schedule();
     }
 
     @Override
     public void handleIncomingSessionNegotiation(
-            IncomingSessionNegotiation negotiation)
-    {
-
+            IncomingSessionNegotiation negotiation) {
         showIncomingInvitationUI(negotiation);
+    }
+
+    @Override
+    public void handleOutgoingProjectNegotiation(
+            OutgoingProjectNegotiation negotiation) {
+
+        OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
+        job.setPriority(Job.SHORT);
+        job.schedule();
+    }
+
+    @Override
+    public void handleIncomingProjectNegotiation(
+            IncomingProjectNegotiation negotiation) {
+        showIncomingProjectUI(negotiation);
     }
 
     private void showIncomingInvitationUI(
             final IncomingSessionNegotiation process)
     {
 
-
-//
-//        SWTUtils.runSafeSWTAsync(LOG, new Runnable() {
-//            @Override
-//            public void run() {
-//                sarosUI.openSarosView();
-//            }
-//        });
-
         // Fixes #2727848: InvitationDialog is opened in the
         // background
-        ThreadUtils.runSafeAsync(log, new Runnable()
+        ThreadUtils.runSafeAsync(LOG, new Runnable()
         {
             @Override
             public void run()
@@ -293,59 +297,12 @@ public class NegotiationHandler implements INegotiationHandler
 
 
                 JoinSessionWizard sessionWizard = new JoinSessionWizard(process);
-                //JoinSessionDialog sessionWizard = new JoinSessionDialog(process);
-
-                //todo
-//
-//                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(SWTUtils.getShell(), sessionWizard);
-//
-//                // TODO Provide help :-)
-//                wizardDialog.setHelpAvailable(false);
-//
-//                // as we are not interested in the result
-//                wizardDialog.setBlockOnOpen(false);
-//
-//                DialogUtils.openWindow(wizardDialog);
             }
         });
 
     }
 
-    @Override
-    public void handleOutgoingSessionNegotiation(
-            OutgoingSessionNegotiation negotiation)
-    {
-
-        OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
-                negotiation);
-
-        outgoingInvitationJob.setPriority(Job.SHORT);
-        outgoingInvitationJob.schedule();
-    }
-
-
-    @Override
-    public void handleOutgoingProjectNegotiation(
-            OutgoingProjectNegotiation negotiation)
-    {
-
-        OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
-        job.setPriority(Job.SHORT);
-        job.schedule();
-    }
-
-    @Override
-    public void handleIncomingProjectNegotiation(
-            IncomingProjectNegotiation negotiation)
-    {
-        showIncomingProjectUI(negotiation);
-    }
-
-    private void showIncomingProjectUI(final IncomingProjectNegotiation process)
-    {
-        //todo: UI implementation
-        System.out.println("NegotiationHandler.showIncomingProjectUI //todo");
-
+    private void showIncomingProjectUI(final IncomingProjectNegotiation process) {
 
         List<ProjectNegotiationData> pInfos = process.getProjectInfos();
         final List<FileList> fileLists = new ArrayList<FileList>(pInfos.size());
@@ -355,60 +312,22 @@ public class NegotiationHandler implements INegotiationHandler
             fileLists.add(pInfo.getFileList());
         }
 
-        ThreadUtils.runSafeSync(log, new Runnable()
-        {
+        ThreadUtils.runSafeSync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
                 AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
                         .getProjectNames());
             }
         });
-
-
-
-      /*  ThreadUtils.runSafeSync(log, new Runnable()
-        {
-
-            @Override
-            public void run()
-            {
-                AddProjectToSessionWizard projectWizard = new AddProjectToSessionWizard(
-                        process, process.getPeer(), fileLists, process
-                        .getProjectNames()
-                );
-
-                final WizardDialogAccessible wizardDialog = new WizardDialogAccessible(
-                        SWTUtils.getShell(), projectWizard, SWT.MIN | SWT.MAX,
-                        SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL
-                                | SWT.PRIMARY_MODAL
-                );
-
-                *//*
-                 * IMPORTANT: as the dialog is non modal it MUST NOT block on
-                 * open or there is a good chance to crash the whole GUI
-                 *
-                 * Scenario: A modal dialog is currently open with
-                 * setBlockOnOpen(true) (as most input dialogs are).
-                 *
-                 * When we now open this wizard with setBlockOnOpen(true) this
-                 * wizard will become the main dispatcher for the SWT Thread. As
-                 * this wizard is non modal you cannot close it because you
-                 * could not access it. Therefore the modal dialog cannot be
-                 * closed as well because it is stuck on the non modal dialog
-                 * which currently serves as main dispatcher !
-                 *//*
-
-                wizardDialog.setBlockOnOpen(false);
-
-                wizardDialog.setHelpAvailable(false);
-                projectWizard.setWizardDlg(wizardDialog);
-
-                DialogUtils.openWindow(wizardDialog); //todo
-            }
-        });
-*/
     }
 
+    private static String getNickname(JID jid) {
+        String nickname = XMPPUtils.getNickname(null, jid);
+
+        if (nickname == null)
+            nickname = jid.getBareJID().toString();
+
+        return nickname;
+    }
 }

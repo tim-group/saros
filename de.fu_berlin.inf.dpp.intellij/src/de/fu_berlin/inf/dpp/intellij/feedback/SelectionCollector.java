@@ -29,16 +29,16 @@ import java.util.Map;
 
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.TextSelectionActivity;
+import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
@@ -192,7 +192,7 @@ public class SelectionCollector extends AbstractStatisticCollector
                 userWithReadOnlyAccessSelectionEvents.add(currentSelection);
                 /*
                  * check if there is already a selection stored for this user
-                 * and replace it in case or just store the selection if not
+                 * and replaceAll it in case or just store the selection if not
                  */
                 if (activeSelections.containsKey(id)) {
                     activeSelections.remove(id);

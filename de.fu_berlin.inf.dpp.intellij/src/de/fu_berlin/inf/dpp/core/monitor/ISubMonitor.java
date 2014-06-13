@@ -29,8 +29,7 @@ package de.fu_berlin.inf.dpp.core.monitor;
  * Time: 10.40
  */
 
-public interface ISubMonitor extends IProgressMonitor
-{
+public interface ISubMonitor extends IProgressMonitor {
 
     public static final int SUPPRESS_NONE = 1;
     public static final int SUPPRESS_ALL_LABELS = 2;
@@ -45,7 +44,7 @@ public interface ISubMonitor extends IProgressMonitor
 
     IProgressMonitor newChildMain(int progress);
 
-    IProgressMonitor newChildMain(int progress, int mode);
+     IProgressMonitor newChildMain(int progress, int mode);
 
     ISubMonitor newChild(int progress, int mode);
 

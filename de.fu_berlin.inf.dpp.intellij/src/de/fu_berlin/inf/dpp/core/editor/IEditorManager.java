@@ -26,9 +26,8 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.mock.eclipse.RemoteEditorManager;
-import de.fu_berlin.inf.dpp.session.IActivityProducerAndConsumer;
+import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.intellij.editor.RemoteEditorManager;
 
 import java.io.FileNotFoundException;
 import java.util.Set;
@@ -40,7 +39,7 @@ import java.util.Set;
  * Time: 12.32
  */
 
-public interface IEditorManager extends IEditorManagerBase, IActivityProducerAndConsumer
+public interface IEditorManager extends IEditorManagerBase
 {
 
 

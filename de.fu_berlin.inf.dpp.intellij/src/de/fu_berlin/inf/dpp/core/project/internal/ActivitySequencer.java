@@ -22,12 +22,14 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.activities.serializable.IActivityDataObject;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ActivitiesExtension;
+
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.communication.extensions.ActivitiesExtension;
 import de.fu_berlin.inf.dpp.net.DispatchThreadContext;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.JID;
+
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.core.util.ActivityUtils;
@@ -43,7 +45,7 @@ import java.util.*;
 
 /**
  * The ActivitySequencer is responsible for making sure that transformed
- * {@linkplain IActivityDataObject activities} are sent and received in the
+ * {@linkplain IActivity activities} are sent and received in the
  * right order.
  *
  * @author rdjemili
@@ -70,9 +72,9 @@ public class ActivitySequencer implements Startable
     private static class SequencedActivity
     {
         private final int sequenceNumber;
-        private final IActivityDataObject activity;
+        private final IActivity activity;
 
-        private SequencedActivity(IActivityDataObject activity,
+        private SequencedActivity(IActivity activity,
                 int sequenceNumber)
         {
             this.activity = activity;
@@ -83,9 +85,9 @@ public class ActivitySequencer implements Startable
     private static class SequencedActivities
     {
         private final int sequenceNumber;
-        private final List<IActivityDataObject> activites;
+        private final List<IActivity> activites;
 
-        private SequencedActivities(List<IActivityDataObject> activites,
+        private SequencedActivities(List<IActivity> activites,
                 int sequenceNumber)
         {
             this.activites = activites;
@@ -140,11 +142,11 @@ public class ActivitySequencer implements Startable
                         return;
                     }
 
-                    for (Map.Entry<JID, ActivityBuffer<IActivityDataObject>> entry : bufferedOutgoingActivities
+                    for (Map.Entry<JID, ActivityBuffer<IActivity>> entry : bufferedOutgoingActivities
                             .entrySet())
                     {
 
-                        ActivityBuffer<IActivityDataObject> buffer = entry
+                        ActivityBuffer<IActivity> buffer = entry
                                 .getValue();
 
                         if (buffer == null || buffer.activities.isEmpty())
@@ -152,7 +154,7 @@ public class ActivitySequencer implements Startable
                             continue;
                         }
 
-                        List<IActivityDataObject> optimizedActivities = ActivityUtils
+                        List<IActivity> optimizedActivities = ActivityUtils
                                 .optimize(buffer.activities);
 
                         buffer.activities.clear();
@@ -189,11 +191,11 @@ public class ActivitySequencer implements Startable
 
                 synchronized (bufferedOutgoingActivities)
                 {
-                    for (Map.Entry<JID, ActivityBuffer<IActivityDataObject>> entry : bufferedOutgoingActivities
+                    for (Map.Entry<JID, ActivityBuffer<IActivity>> entry : bufferedOutgoingActivities
                             .entrySet())
                     {
 
-                        ActivityBuffer<IActivityDataObject> buffer = entry
+                        ActivityBuffer<IActivity> buffer = entry
                                 .getValue();
 
                         if (buffer == null)
@@ -231,7 +233,7 @@ public class ActivitySequencer implements Startable
 
     private final Map<JID, ActivityBuffer<SequencedActivity>> bufferedIncomingActivities;
 
-    private final Map<JID, ActivityBuffer<IActivityDataObject>> bufferedOutgoingActivities;
+    private final Map<JID, ActivityBuffer<IActivity>> bufferedOutgoingActivities;
 
     public ActivitySequencer(final ISarosSession sarosSession,
             final ITransmitter transmitter, final IReceiver receiver,
@@ -245,7 +247,7 @@ public class ActivitySequencer implements Startable
         this.currentSessionID = sarosSession.getID();
 
         this.bufferedIncomingActivities = new HashMap<JID, ActivityBuffer<SequencedActivity>>();
-        this.bufferedOutgoingActivities = new HashMap<JID, ActivityBuffer<IActivityDataObject>>();
+        this.bufferedOutgoingActivities = new HashMap<JID, ActivityBuffer<IActivity>>();
     }
 
     /**
@@ -389,7 +391,7 @@ public class ActivitySequencer implements Startable
 
         assert sequencedActivity != null;
 
-        List<IActivityDataObject> serializedActivities = new ArrayList<IActivityDataObject>();
+        List<IActivity> serializedActivities = new ArrayList<IActivity>();
 
         synchronized (bufferedIncomingActivities)
         {
@@ -457,7 +459,7 @@ public class ActivitySequencer implements Startable
      * Sends an activity to the given recipients.
      */
     public void sendActivity(List<User> recipients,
-            final IActivityDataObject activity)
+            final IActivity activity)
     {
 
         ArrayList<User> remoteRecipients = new ArrayList<User>();
@@ -492,7 +494,7 @@ public class ActivitySequencer implements Startable
         {
             for (User recipient : remoteRecipients)
             {
-                ActivityBuffer<IActivityDataObject> buffer = bufferedOutgoingActivities
+                ActivityBuffer<IActivity> buffer = bufferedOutgoingActivities
                         .get(recipient.getJID());
 
                 if (buffer == null)
@@ -526,7 +528,7 @@ public class ActivitySequencer implements Startable
             if (bufferedOutgoingActivities.get(user.getJID()) == null)
             {
                 bufferedOutgoingActivities.put(user.getJID(),
-                        new ActivityBuffer<IActivityDataObject>(
+                        new ActivityBuffer<IActivity>(
                                 FIRST_SEQUENCE_NUMBER));
             }
         }
@@ -567,7 +569,7 @@ public class ActivitySequencer implements Startable
         {
             while (true)
             {
-                ActivityBuffer<IActivityDataObject> buffer = bufferedOutgoingActivities
+                ActivityBuffer<IActivity> buffer = bufferedOutgoingActivities
                         .get(user.getJID());
 
                 if (buffer == null
@@ -610,7 +612,7 @@ public class ActivitySequencer implements Startable
     }
 
     private void sendActivities(JID recipient,
-            List<IActivityDataObject> activities, int sequenceNumber)
+            List<IActivity> activities, int sequenceNumber)
     {
 
         if (activities.size() == 0)
@@ -637,7 +639,7 @@ public class ActivitySequencer implements Startable
 
         try
         {
-            transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+            transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     recipient, activityPacketExtension);
         }
         catch (IOException e)
@@ -689,7 +691,7 @@ public class ActivitySequencer implements Startable
 
         JID from = new JID(activityPacket.getFrom());
 
-        List<IActivityDataObject> activities = payload.getActivityDataObjects();
+        List<IActivity> activities = payload.getActivities();
 
         String msg = "rcvd (" + String.format("%03d", activities.size()) + ") "
                 + from + ": " + activities;
@@ -705,7 +707,7 @@ public class ActivitySequencer implements Startable
 
         int sequenceNumber = payload.getSequenceNumber();
 
-        for (IActivityDataObject activity : activities)
+        for (IActivity activity : activities)
         {
 
             assert activity.getSource() != null : "received activity without source"

@@ -44,11 +44,13 @@
 
 package de.fu_berlin.inf.dpp.core.net;
 
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.NetTransferMode;
+
+
+import de.fu_berlin.inf.dpp.net.ConnectionMode;
 import de.fu_berlin.inf.dpp.net.internal.IByteStreamConnection;
 import de.fu_berlin.inf.dpp.net.internal.IByteStreamConnectionListener;
 import de.fu_berlin.inf.dpp.net.internal.ITransport;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.jivesoftware.smack.Connection;
 
 import java.io.IOException;
@@ -62,11 +64,11 @@ public class Transport implements ITransport {
 
     private IByteStreamConnectionListener listener;
 
-    private NetTransferMode mode;
+    private ConnectionMode mode;
 
     private String connectionID;
 
-    public Transport(NetTransferMode mode) {
+    public Transport(ConnectionMode mode) {
         this.mode = mode;
     }
 

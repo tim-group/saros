@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.ui.IWizard;
-import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
+import de.fu_berlin.inf.dpp.versioning.VersionManager;
 
 import java.awt.*;
 

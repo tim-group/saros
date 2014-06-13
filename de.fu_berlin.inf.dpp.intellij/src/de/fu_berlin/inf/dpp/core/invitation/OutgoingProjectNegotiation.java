@@ -1,30 +1,32 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
+import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.context.ISarosContext;
+import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
+import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.CoreException;
-import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.core.zip.FileZipper;
 import de.fu_berlin.inf.dpp.core.zip.ZipProgressMonitor;
+import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListFactory;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
+import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingRequest;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
@@ -45,6 +47,18 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     private static Logger log = Logger
             .getLogger(OutgoingProjectNegotiation.class);
 
+    /**
+     * //todo
+     * While sending all the projects with a big archive containing the project
+     * archives, we create a temp-File. This file is named "projectID" +
+     * projectIDDelimiter + "a random number chosen by 'Java'" + ".zip" This
+     * delimiter is the string that separates projectID and this random number.
+     * Now we can assign the zip archive to the matching project.
+     * <p/>
+     * WARNING: If changed compatibility is broken
+     */
+    protected final String projectIDDelimiter = "&&&&";
+
     private List<IProject> projects;
 
     private ISarosSession sarosSession;
@@ -57,9 +71,13 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     @Inject
     private IChecksumCache checksumCache;
 
-    private SarosPacketCollector remoteFileListResponseCollector;
+    private PacketCollector remoteFileListResponseCollector;
 
-    private SarosPacketCollector startActivityQueuingResponseCollector;
+    private PacketCollector startActivityQueuingResponseCollector;
+
+    // TODO pull up, when this class is in core
+    @Inject
+    private ISarosSessionManager sessionManager;
 
     public OutgoingProjectNegotiation(JID to, ISarosSession sarosSession,
             List<IProject> projects, ISarosContext sarosContext)
@@ -243,7 +261,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 sessionID, processID, projectExchangeInfos);
 
         transmitter
-                .sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID, peer,
+                .send(ISarosSession.SESSION_CONNECTION_ID, peer,
                         ProjectNegotiationOfferingExtension.PROVIDER.create(offering));
     }
 
@@ -322,17 +340,16 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         Collection<User> usersToStop;
 
         /*
-         * Make sure that all users are fully registered, otherwise failures
-         * might occur while a user is currently joining and has not fully
-         * initialized yet.
+         * TODO: Make sure that all users are fully registered when stopping
+         * them, otherwise failures might occur while a user is currently
+         * joining and has not fully initialized yet.
          *
          * See also OutgoingSessionNegotiation#completeInvitation
+         *
+         * srossbach: This may already be the case ... just review this
          */
 
-        synchronized (CancelableProcess.SHARED_LOCK)
-        {
-            usersToStop = new ArrayList<User>(sarosSession.getUsers());
-        }
+        usersToStop = new ArrayList<User>(sarosSession.getUsers());
 
         log.debug(this + " : stopping users " + usersToStop);
 
@@ -388,7 +405,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
         log.debug(this + " : creating archive(s)");
 
-        ISubMonitor subMonitor = monitor.convert(monitor);
+        ISubMonitor subMonitor = monitor.convert();
         /* SubMonitor subMonitor = SubMonitor.convert(monitor,
      "Creating project archives...", fileLists.size());*/
 
@@ -530,7 +547,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         /*
          * FIXME must be calculated while the session is blocked !
          */
-        ISubMonitor subMonitor = monitor.convert(monitor);
+        ISubMonitor subMonitor = monitor.convert();
 //        ISubMonitor subMonitor = ISubMonitor
 //                .convert(
 //                        monitor,
@@ -604,7 +621,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                 IProgressMonitor.UNKNOWN
         );
 
-        transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+        transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                 getPeer(), StartActivityQueuingRequest.PROVIDER
                         .create(new StartActivityQueuingRequest(sessionID, processID))
         );

@@ -22,8 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.business.*;
+import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
@@ -60,7 +59,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Component(module = "consistency")
 public class ConsistencyWatchdogClient extends
-        AbstractActivityProducerAndConsumer {
+        AbstractActivityProvider {
 
     private static Logger log = Logger
             .getLogger(ConsistencyWatchdogClient.class);
@@ -110,16 +109,13 @@ public class ConsistencyWatchdogClient extends
             pathsWithWrongChecksums.clear();
             inconsistencyToResolve.setValue(false);
 
-            newSarosSession
-                    .addActivityProducerAndConsumer(ConsistencyWatchdogClient.this);
+            installProvider(newSarosSession);
             newSarosSession.addListener(sharedProjectListener);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-
-            oldSarosSession
-                    .removeActivityProducerAndConsumer(ConsistencyWatchdogClient.this);
+            uninstallProvider(oldSarosSession);
             oldSarosSession.removeListener(sharedProjectListener);
 
             latestChecksums.clear();

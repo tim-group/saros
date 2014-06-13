@@ -4,35 +4,32 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
+import de.fu_berlin.inf.dpp.ISarosContext;
+import de.fu_berlin.inf.dpp.communication.extensions.*;
 import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
-import de.fu_berlin.inf.dpp.core.context.ISarosContext;
 import de.fu_berlin.inf.dpp.core.editor.colorstorage.UserColorID;
-import de.fu_berlin.inf.dpp.core.exceptions.LocalCancellationException;
-import de.fu_berlin.inf.dpp.core.exceptions.SarosCancellationException;
-import de.fu_berlin.inf.dpp.core.invitation.hooks.ISessionNegotiationHook;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.observables.InvitationProcessObservable;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
-import de.fu_berlin.inf.dpp.core.versioning.Compatibility;
-import de.fu_berlin.inf.dpp.core.versioning.VersionCompatibilityResult;
-import de.fu_berlin.inf.dpp.core.versioning.VersionManager;
-import de.fu_berlin.inf.dpp.core.invitation.ProcessTools.CancelOption;
+import de.fu_berlin.inf.dpp.core.project.internal.NicknameNegotiationHook;
+import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
+import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
+import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
+import de.fu_berlin.inf.dpp.invitation.hooks.ISessionNegotiationHook;
+import de.fu_berlin.inf.dpp.net.PacketCollector;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.discovery.DiscoveryManager;
+import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
+import de.fu_berlin.inf.dpp.versioning.Compatibility;
+import de.fu_berlin.inf.dpp.versioning.VersionCompatibilityResult;
+import de.fu_berlin.inf.dpp.versioning.VersionManager;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.packet.Packet;
 import org.picocontainer.annotations.Inject;
 
-
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
-import de.fu_berlin.inf.dpp.net.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcceptedExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationAcknowledgedExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationCompletedExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationOfferingExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.InvitationParameterExchangeExtension;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -55,10 +52,10 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
 
     private String localVersion;
 
-    private SarosPacketCollector invitationAcceptedCollector;
-    private SarosPacketCollector invitationAcknowledgedCollector;
-    private SarosPacketCollector invitationDataExchangeCollector;
-    private SarosPacketCollector invitationCompletedCollector;
+    private PacketCollector invitationAcceptedCollector;
+    private PacketCollector invitationAcknowledgedCollector;
+    private PacketCollector invitationDataExchangeCollector;
+    private PacketCollector invitationCompletedCollector;
 
     @Inject
     private VersionManager versionManager;
@@ -70,10 +67,14 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
     private DataTransferManager dataTransferManager;
 
     @Inject
-    private ISarosSessionManager sessionManager;
+    private ISarosSessionManager sarosSessionManager;
 
     @Inject
-    private InvitationProcessObservable currentSessionNegotiations;
+    private SessionNegotiationObservable currentSessionNegotiations;
+
+    // HACK last residue of the direct connection between SessionNegotation and
+    // the nickname property of users.
+    private String clientNickname = null;
 
     // HACK last residue of the direct conncetion between SessionNegotation and
     // the color property of users.
@@ -93,7 +94,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
     protected void executeCancellation() {
         // TODO removeAll the user from the session !
 
-        if (currentSessionNegotiations.getProcesses().size() == 0
+        if (currentSessionNegotiations.list().size() == 0
                 && sarosSession.getRemoteUsers().isEmpty())
             sarosSessionManager.stopSarosSession();
     }
@@ -211,7 +212,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             monitor.done();
 
             // Whiteboard is using this listener
-            sessionManager.postOutgoingInvitationCompleted(monitor, newUser);
+            sarosSessionManager.postOutgoingInvitationCompleted(monitor, newUser);
 
         } catch (Exception e) {
 
@@ -246,7 +247,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             throw new LocalCancellationException(
                     peerNickname
                             + " does not support Saros or the request timed out. Please try again.",
-                    ProcessTools.CancelOption.DO_NOT_NOTIFY_PEER);
+                    CancelOption.DO_NOT_NOTIFY_PEER);
 
         log.debug(this + " :  remote contact offers Saros support");
 
@@ -308,7 +309,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
      * Sends an invitation offer to the client.
      */
     private void sendInvitationOffer(IProgressMonitor monitor)
-            throws SarosCancellationException {
+            throws SarosCancellationException,IOException {
         monitor.setTaskName("Sending invitation...");
 
         log.debug(this + " : sending invitation");
@@ -317,7 +318,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
         InvitationOfferingExtension invitationOffering = new InvitationOfferingExtension(
                 invitationID, sarosSession.getID(), localVersion, description);
 
-        transmitter.sendMessageToUser(peer,
+        transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                 InvitationOfferingExtension.PROVIDER.create(invitationOffering));
     }
 
@@ -410,12 +411,12 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             Map<String, String> preferredSettings = clientParameters
                     .getHookSettings(hook);
             Map<String, String> actualSettings = hook
-                    .considerClientPreferences(preferredSettings);
+                    .considerClientPreferences(peer, preferredSettings);
 
             hostParameters.saveHookSettings(hook, actualSettings);
 
             // HACK A User object representing the client needs to access these
-            // to values in completeInvitation(). Color management should work
+            // two values in completeInvitation(). Color management should work
             // differently.
             if (hook instanceof ColorNegotiationHook) {
                 clientColorID = Integer.parseInt(actualSettings
@@ -423,10 +424,17 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
                 clientFavoriteColorID = Integer.parseInt(actualSettings
                         .get(ColorNegotiationHook.KEY_CLIENT_FAV_COLOR));
             }
+
+            // HACK Same hack as above.
+            if (hook instanceof NicknameNegotiationHook) {
+                clientNickname = actualSettings
+                        .get(NicknameNegotiationHook.KEY_CLIENT_NICKNAME);
+            }
         }
 
         return hostParameters;
     }
+
 
     /**
      * The changes will be send back and must then be used on the remote side to
@@ -434,14 +442,15 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
      */
     private void sendSessionParameters(
             InvitationParameterExchangeExtension modifiedParameters,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor) throws IOException {
 
         log.debug(this + " : sending updated session negotiation data");
 
         monitor.setTaskName("Sending local session configuration...");
-        transmitter.sendMessageToUser(peer,
+        transmitter.send(peer,
                 InvitationParameterExchangeExtension.PROVIDER
-                        .create(modifiedParameters));
+                        .create(modifiedParameters)
+        );
 
         log.debug(this + " : sent updated session negotiation data");
     }
@@ -467,6 +476,8 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
         log.debug(this + " : remote side started its Saros session");
     }
 
+    private static final Object REMOVE_ME_IF_SESSION_ADD_USER_IS_THREAD_SAFE = new Object();
+
     /**
      *
      * Adds the invited user to the current SarosSession. After the user is
@@ -483,10 +494,10 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
 
         monitor.setTaskName("Synchronizing user list...");
 
-        User user = new User(peer, false, false, clientColorID,
+        User user = new User(peer, clientNickname, false, false, clientColorID,
                 clientFavoriteColorID);
 
-        synchronized (CancelableProcess.SHARED_LOCK) {
+        synchronized (REMOVE_ME_IF_SESSION_ADD_USER_IS_THREAD_SAFE) {
 
             sarosSession.addUser(user);
             log.debug(this + " : added " + peer
@@ -503,9 +514,10 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
              * send using the various methods of the ITransmitted interface.
              */
 
-            transmitter.sendToSessionUser(ISarosSession.SESSION_CONNECTION_ID,
+            transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     peer, InvitationAcknowledgedExtension.PROVIDER
-                            .create(new InvitationAcknowledgedExtension(invitationID)));
+                            .create(new InvitationAcknowledgedExtension(invitationID))
+            );
         }
 
         log.debug(this + " : session negotiation finished");

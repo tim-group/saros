@@ -22,16 +22,16 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.ChangeColorActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.ChangeColorActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSet;
 import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.editor.colorstorage.UserColorID;
-import de.fu_berlin.inf.dpp.net.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.*;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
@@ -45,7 +45,7 @@ import java.util.*;
  * @author Stefan Rossbach
  */
 @Component(module = "core")
-public class ChangeColorManager extends AbstractActivityProducerAndConsumer implements
+public class ChangeColorManager extends AbstractActivityProvider implements
         Startable
 {
 
@@ -173,14 +173,14 @@ public class ChangeColorManager extends AbstractActivityProducerAndConsumer impl
 
         }
 
-        sarosSession.addActivityProducerAndConsumer(this);
+        installProvider(sarosSession);
         sarosSession.addListener(sessionListener);
     }
 
     @Override
     public synchronized void stop()
     {
-        sarosSession.removeActivityProducerAndConsumer(this);
+        uninstallProvider(sarosSession);
         sarosSession.removeListener(sessionListener);
     }
 

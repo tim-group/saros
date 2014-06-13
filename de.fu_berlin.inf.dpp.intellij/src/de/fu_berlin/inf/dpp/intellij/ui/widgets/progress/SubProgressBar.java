@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 
+
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 
