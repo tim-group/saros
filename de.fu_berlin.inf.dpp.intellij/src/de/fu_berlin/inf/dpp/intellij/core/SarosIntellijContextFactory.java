@@ -41,17 +41,14 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.UndoManager;
-import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
+import de.fu_berlin.inf.dpp.intellij.synchronize.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
-import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -131,7 +128,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
 
             // SWT EDT support
-            Component.create(UISynchronizer.class, SWTSynchronizer.class),
+            Component.create(UISynchronizer.class, IntelliJSynchronizer.class),
 
             Component.create(IFileContentChangedNotifier.class, FileContentChangedNotifier.class),
 

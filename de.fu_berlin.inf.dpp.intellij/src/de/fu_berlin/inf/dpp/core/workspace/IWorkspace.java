@@ -35,7 +35,7 @@ public interface IWorkspace
 
     void run(IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException;
 
-    void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor);
+    void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor) throws OperationCanceledException, IOException;
 
     IWorkspaceRoot getRoot();
 

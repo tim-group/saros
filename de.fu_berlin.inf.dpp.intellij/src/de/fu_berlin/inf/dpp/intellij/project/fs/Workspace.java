@@ -38,13 +38,6 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 11.03
- * //todo
- */
 
 public class Workspace implements IWorkspace
 {
@@ -87,40 +80,13 @@ public class Workspace implements IWorkspace
     @Override
     public void run(final IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException
     {
-        if (monitor == null)
-        {
-            monitor = new NullProgressMonitor();
-        }
-
-        try
-        {
-            procedure.run(monitor);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
+         procedure.run(monitor);
     }
 
     @Override
-    public void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor)
+    public void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor)  throws OperationCanceledException, IOException
     {
-
-        if (monitor == null)
-        {
-            monitor = new NullProgressMonitor();
-        }
-
-        try
-        {
-            procedure.run(monitor);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+        procedure.run(monitor);
     }
 
     @Override
