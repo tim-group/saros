@@ -8,6 +8,7 @@ import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationExtension
 import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
 
+
 //TODO Move to core (package communication.extensions)
 
 @XStreamAlias(/* ProjectNegotiationOffering */"PNOF")

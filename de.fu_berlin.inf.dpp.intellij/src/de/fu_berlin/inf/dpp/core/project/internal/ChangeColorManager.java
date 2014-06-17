@@ -269,7 +269,7 @@ public class ChangeColorManager extends AbstractActivityProvider implements
                     affected.getColorID());
         }
 
-        updateColorSet(currentUsers);
+      //  updateColorSet(currentUsers);
 
         editorManager.colorChanged();
         editorManager.refreshAnnotations();
@@ -296,6 +296,11 @@ public class ChangeColorManager extends AbstractActivityProvider implements
      */
     private void reassignSessionColorIDs(List<User> currentUsers, User user,
                                          boolean joined) {
+
+        if(true)
+            return;
+
+
         assert sarosSession.isHost() : "only the session host can assign a color id";
 
         log.debug("reassigning color IDs for the current session users");

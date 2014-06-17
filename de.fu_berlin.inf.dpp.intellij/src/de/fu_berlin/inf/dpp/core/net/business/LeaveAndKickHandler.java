@@ -1,40 +1,18 @@
-/*
- *
- *  DPP - Serious Distributed Pair Programming
- *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
- *  (c) NFQ (www.nfq.com) - 2014
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
- */
-
 package de.fu_berlin.inf.dpp.core.net.business;
 
-import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
-import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
-
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -43,7 +21,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**
  * Business logic for handling Leave Message
- *
+ * 
  */
 
 // FIXME move this class into the session context
@@ -51,7 +29,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 public class LeaveAndKickHandler {
 
     private static final Logger log = Logger
-            .getLogger(LeaveAndKickHandler.class.getName());
+        .getLogger(LeaveAndKickHandler.class.getName());
 
     private final ISarosSessionManager sessionManager;
 
@@ -62,12 +40,12 @@ public class LeaveAndKickHandler {
         @Override
         public void sessionStarted(ISarosSession session) {
             receiver
-                    .addPacketListener(leaveExtensionListener,
-                            LeaveSessionExtension.PROVIDER.getPacketFilter(session
-                                    .getID()));
+                .addPacketListener(leaveExtensionListener,
+                    LeaveSessionExtension.PROVIDER.getPacketFilter(session
+                        .getID()));
 
             receiver.addPacketListener(kickExtensionListener,
-                    KickUserExtension.PROVIDER.getPacketFilter(session.getID()));
+                KickUserExtension.PROVIDER.getPacketFilter(session.getID()));
         }
 
         @Override
@@ -94,7 +72,7 @@ public class LeaveAndKickHandler {
     };
 
     public LeaveAndKickHandler(IReceiver receiver,
-            ISarosSessionManager sessionManager) {
+        ISarosSessionManager sessionManager) {
 
         this.receiver = receiver;
 
@@ -117,8 +95,7 @@ public class LeaveAndKickHandler {
         }
 
         stopSession(sarosSession, "Removed from the session",
-                user.getNickname()
-                        + " removed you from the current session.");
+            user.getNickname() + " removed you from the current session.");
     }
 
     private void leaveReceived(JID from) {
@@ -127,36 +104,35 @@ public class LeaveAndKickHandler {
 
         if (sarosSession == null) {
             log.warn("Received leave message but shared"
-                    + " project has already ended: " + from);
+                + " project has already ended: " + from);
             return;
         }
 
         final User user = sarosSession.getUser(from);
         if (user == null) {
             log.warn("received leave message from user who"
-                    + " is not part of the current session: " + from);
+                + " is not part of the current session: " + from);
             return;
         }
 
         /*
          * FIXME LeaveEvents need to be Activities, otherwise RaceConditions can
          * occur when two users leave a the "same" time
-         *
+         * 
          * srossbach: it is not possible that multiple users can leave at the
          * same time because this code is executed by the dispatch thread
          * context which executes all incoming packets sequentially
          */
         if (user.isHost()) {
             stopSession(sarosSession, "Closing the session",
-                    "Session was closed by inviter " + user.getNickname()
-                            + ".");
+                "Session was closed by inviter " + user.getNickname() + ".");
 
         }
 
         // host will send us an update
         if (!sarosSession.isHost()) {
             log.warn("received leave message from user " + user
-                    + " which is not the host of the current session");
+                + " which is not the host of the current session");
             return;
         }
 
@@ -174,12 +150,12 @@ public class LeaveAndKickHandler {
     }
 
     private void stopSession(final ISarosSession session, final String topic,
-            final String reason) {
+        final String reason) {
         ThreadUtils.runSafeAsync("StopSessionOnHostLeave", log, new Runnable() {
             @Override
             public void run() {
                 sessionManager.stopSarosSession();
-               // SarosView.showNotification(topic, reason);  //todo
+                SarosView.showNotification(topic, reason);
             }
         });
     }

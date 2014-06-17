@@ -1,25 +1,6 @@
-/*
- *
- *  DPP - Serious Distributed Pair Programming
- *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
- *  (c) NFQ (www.nfq.com) - 2014
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
+/**
+ * 
  */
-
 package de.fu_berlin.inf.dpp.core.net.business;
 
 import org.apache.log4j.Logger;
@@ -37,7 +18,7 @@ import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
 public class CancelInviteHandler {
 
     private static final Logger log = Logger
-            .getLogger(CancelInviteHandler.class.getName());
+        .getLogger(CancelInviteHandler.class.getName());
 
     private SessionNegotiationObservable invitationProcesses;
 
@@ -46,27 +27,27 @@ public class CancelInviteHandler {
         @Override
         public void processPacket(Packet packet) {
             CancelInviteExtension extension = CancelInviteExtension.PROVIDER
-                    .getPayload(packet);
+                .getPayload(packet);
 
             invitationCanceled(new JID(packet.getFrom()),
-                    extension.getNegotiationID(), extension.getErrorMessage());
+                extension.getNegotiationID(), extension.getErrorMessage());
         }
     };
 
     public CancelInviteHandler(IReceiver receiver,
-                               SessionNegotiationObservable invitationProcessObservable) {
+        SessionNegotiationObservable invitationProcessObservable) {
 
         this.invitationProcesses = invitationProcessObservable;
 
         receiver.addPacketListener(cancelInvitationExtensionListener,
-                CancelInviteExtension.PROVIDER.getPacketFilter());
+            CancelInviteExtension.PROVIDER.getPacketFilter());
     }
 
     public void invitationCanceled(JID sender, String invitationID,
-                                   String errorMsg) {
+        String errorMsg) {
 
         SessionNegotiation invitationProcess = invitationProcesses
-                .get(sender, invitationID);
+            .get(sender, invitationID);
 
         if (invitationProcess == null) {
             log.warn("Inv[unkown user]: Received invitation cancel message for unknown invitation process. Ignoring...");

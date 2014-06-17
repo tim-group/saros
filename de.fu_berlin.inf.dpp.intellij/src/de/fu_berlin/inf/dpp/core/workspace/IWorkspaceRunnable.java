@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.core.workspace;
 
 
 
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
@@ -32,5 +33,5 @@ import java.io.IOException;
 
 public interface IWorkspaceRunnable
 {
-    void run(IProgressMonitor progress) throws CoreException,IOException;
+    void run(IProgressMonitor progress) throws OperationCanceledException,IOException;
 }

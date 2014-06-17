@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.util;
 
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -196,7 +197,7 @@ public class FileUtils {
 
         IWorkspaceRunnable createFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
+            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
                 // Make sure directory exists
                 mkdirs(file);
 
@@ -207,11 +208,9 @@ public class FileUtils {
                     wasReadOnly = setReadOnly(parent, false);
                 }
 
-                try {
+
                     file.create(input, true);
-                } catch (IOException e) {
-                    throw new CoreException(e.getMessage(), e.getCause());
-                }
+
 
                 // Reset permissions on parent
                 if (parent != null && wasReadOnly) {
@@ -237,12 +236,10 @@ public class FileUtils {
 
         IWorkspaceRunnable replaceFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                try {
+            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
+
                     file.setContents(input, true, true);
-                } catch (IOException e) {
-                    throw new CoreException(e.getMessage(), e.getCause());
-                }
+
             }
         };
 
@@ -287,12 +284,12 @@ public class FileUtils {
         }
         IWorkspaceRunnable createFolderProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
+            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
 
                 // recursively create folders until parent folder exists
                 // or project root is reached
                 IFolder parentFolder = getParentFolder(folder);
-                try {
+
 
                     if (parentFolder != null) {
                         create(parentFolder);
@@ -300,9 +297,6 @@ public class FileUtils {
 
 
                     folder.create(IResource.NONE, true);
-                } catch (IOException e) {
-                    throw new CoreException(e.getMessage(), e.getCause());
-                }
 
                 if (monitor.isCanceled()) {
                     log.warn("Creating folder failed: " + folder);
@@ -326,7 +320,7 @@ public class FileUtils {
 
         IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException,IOException {
                 if (!resource.exists()) {
                     return;
                 }
@@ -337,11 +331,9 @@ public class FileUtils {
 
                 setReadOnly(resource, false);
 
-                try {
+
                     resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
-                } catch (IOException e) {
-                    throw new CoreException(e.getMessage(), e.getCause());
-                }
+
 
                 if (monitor.isCanceled()) {
                     log.warn("Removing resource failed: " + resource);
@@ -378,14 +370,12 @@ public class FileUtils {
 
         IWorkspaceRunnable moveProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
+            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
                 IPath absDestination = destination.makeAbsolute();
 
-                try {
+
                     source.move(absDestination, false);
-                } catch (IOException e) {
-                    throw new CoreException(e.getMessage(), e.getCause());
-                }
+
 
                 if (monitor.isCanceled()) {
                     log.warn("Moving resource failed (Cancel Button pressed).");

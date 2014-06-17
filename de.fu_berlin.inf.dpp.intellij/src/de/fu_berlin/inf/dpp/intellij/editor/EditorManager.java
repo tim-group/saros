@@ -85,7 +85,7 @@ public class EditorManager
      * editor when it is received.
      */
 
-    protected static final Logger log = Logger.getLogger(EditorManager.class.getName());
+    protected static final Logger log = Logger.getLogger(EditorManager.class);
 
     protected SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
 

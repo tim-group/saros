@@ -1,39 +1,17 @@
-/*
- *
- *  DPP - Serious Distributed Pair Programming
- *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
- *  (c) NFQ (www.nfq.com) - 2014
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 1, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
- */
-
 package de.fu_berlin.inf.dpp.core.invitation;
 
+
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
+import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import org.picocontainer.annotations.Inject;
 
 import java.io.IOException;
 
-public class CreateProjectTask implements IWorkspaceRunnable
-{
+public class CreateProjectTask implements IWorkspaceRunnable {
 
     private final String name;
     private final IProject base;
@@ -56,45 +34,38 @@ public class CreateProjectTask implements IWorkspaceRunnable
      *                {@link #run(IProgressMonitor)} method
      */
     public CreateProjectTask(String name, IProject base,
-            IProgressMonitor monitor)
-    {
+                             IProgressMonitor monitor) {
 
         this.name = name;
         this.base = base;
         this.monitor = monitor;
     }
 
-    public void setWorkspace(IWorkspace workspace)
-    {
+    public void setWorkspace(IWorkspace workspace) {
         this.workspace = workspace;
     }
 
     /**
      * @return the newly created project or <code>null</code> if it has not been
-     *         created yet
+     * created yet
      */
-    public IProject getProject()
-    {
+    public IProject getProject() {
         return project;
     }
 
     @Override
-    public void run(IProgressMonitor monitor) throws IOException
-    {
-        if (this.monitor != null)
-        {
+    public void run(IProgressMonitor monitor) throws IOException {
+        if (this.monitor != null) {
             monitor = this.monitor;
         }
 
-        ISubMonitor subMonitor = monitor.convert(
-                "Creating new project... ", base == null ? 2 : 3);
 
         IWorkspaceRoot workspaceRoot = workspace.getRoot();
 
         project = workspaceRoot.getProject(name);
+        project.refreshLocal();
 
-
-       //todo: implement it
+        //todo: implement it
         /* try {
             if (project.exists())
                 throw new CoreException(new Status(IStatus.ERROR, Saros.SAROS,

@@ -270,18 +270,18 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
             // String prjName = remoteProjectNames.get(key);
             fileListPage.addLine("Project [" + key + "]:");
             FileListDiff diff = modifiedResources.get(key);
-            for (IPath path : diff.getAlteredPaths()) {
-                fileListPage.addLine("changed: " + path.toPortableString());
+            for (String path : diff.getAlteredPaths()) {
+                fileListPage.addLine("changed: " + path);
                 writeOverCount++;
             }
 
-            for (IPath path : diff.getRemovedPaths()) {
-                fileListPage.addLine("removed: " + path.toPortableString());
+            for (String path : diff.getRemovedPaths()) {
+                fileListPage.addLine("removed: " + path);
 
             }
 
-            for (IPath path : diff.getAddedPaths()) {
-                fileListPage.addLine("added: " + path.toPortableString());
+            for (String path : diff.getAddedPaths()) {
+                fileListPage.addLine("added: " + path);
 
             }
         }

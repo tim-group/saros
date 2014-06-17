@@ -9,11 +9,7 @@ import org.junit.runners.Suite;
 
 de.fu_berlin.inf.dpp.account.TestSuite.class,
 
-de.fu_berlin.inf.dpp.invitation.TestSuite.class,
 
-de.fu_berlin.inf.dpp.core.project.TestSuite.class,
-
-de.fu_berlin.inf.dpp.core.project.internal.TestSuite.class,
 
 
 de.fu_berlin.inf.dpp.util.TestSuite.class,

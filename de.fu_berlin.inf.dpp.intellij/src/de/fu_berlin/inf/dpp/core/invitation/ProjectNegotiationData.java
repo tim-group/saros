@@ -8,27 +8,35 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
  * project negotiation. The {@link FileList} of the whole project, the project
  * name and the session wide project id.
  */
+
 @XStreamAlias("PJNGDATA")
 public class ProjectNegotiationData {
 
-    @XStreamAlias("name") @XStreamAsAttribute
+    @XStreamAlias("name")
+    @XStreamAsAttribute
     private final String projectName;
 
-    @XStreamAlias("pid") @XStreamAsAttribute
+    @XStreamAlias("pid")
+    @XStreamAsAttribute
     private final String projectID;
 
-    @XStreamAlias("partial") @XStreamAsAttribute
+    @XStreamAlias("partial")
+    @XStreamAsAttribute
     private final boolean partial;
 
     @XStreamAlias("filelist")
     private final FileList fileList;
 
     /**
-     * @param projectID   Session wide ID of the project. This ID is the same for all
-     *                    users.
-     * @param projectName Name of the project on inviter side.
-     * @param fileList    complete list of all files that are part of the sharing for
-     *                    the given project
+     * 
+     * @param projectID
+     *            Session wide ID of the project. This ID is the same for all
+     *            users.
+     * @param projectName
+     *            Name of the project on inviter side.
+     * @param fileList
+     *            complete list of all files that are part of the sharing for
+     *            the given project
      */
     public ProjectNegotiationData(String projectID, String projectName,
         boolean partial, FileList fileList) {

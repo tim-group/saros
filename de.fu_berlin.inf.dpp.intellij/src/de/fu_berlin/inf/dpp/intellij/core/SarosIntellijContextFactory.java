@@ -44,6 +44,7 @@ import de.fu_berlin.inf.dpp.intellij.concurrent.undo.UndoManager;
 import de.fu_berlin.inf.dpp.intellij.core.misc.SWTSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
@@ -86,8 +87,9 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             Component.create(IEditorAPI.class, EditorAPI.class),
             //  Component.create(EditorManagerEcl.class),
            // Component.create(IEditorManager.class, EditorManagerEcl.class),
+
             Component.create(IEditorManager.class, EditorManager.class),
-            Component.create(EditorManager.class, EditorManager.class),
+          //  Component.create(EditorManager.class),
             // disabled because of privacy violations
             // see
             // http://opus.haw-hamburg.de/volltexte/2011/1391/pdf/ba_krassmann_online.pdf
@@ -156,8 +158,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
     {
         //IWorkspace workspace = Saros.instance().getWorkspace();
         IWorkspace workspace = saros.getWorkspace();
-        FileList.workspace = workspace;
-        FileListDiff.workspace = workspace;
+      //  FileList.workspace = workspace;
+      //  FileListDiff.workspace = workspace;
         FileUtils.workspace = workspace;
 
        // container.addComponent(Saros.class,saros);
@@ -169,6 +171,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
 
         container.addComponent(IWorkspace.class, workspace);
+       // container.addComponent(Workspace.class, workspace);
 
         if (additionalContext != null)
         {
