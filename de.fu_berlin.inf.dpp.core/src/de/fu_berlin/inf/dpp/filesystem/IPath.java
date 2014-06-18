@@ -41,6 +41,8 @@ public interface IPath {
 
     public int segmentCount();
 
+    public IPath removeFirstSegments(int count);
+
     public IPath removeLastSegments(int count);
 
     public boolean isEmpty();
@@ -64,8 +66,6 @@ public interface IPath {
     public String toOSString();
 
     public File toFile();
-
-    public IPath removeFirstSegments(int count);
 
     public String getFileExtension();
 
