@@ -20,32 +20,44 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
+package de.fu_berlin.inf.dpp.core.util;
 
-import de.fu_berlin.inf.dpp.core.ui.ISarosView;
+import org.apache.log4j.Logger;
+
+import java.lang.reflect.Field;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-11
- * Time: 14:08
+ * Date: 2014-05-15
+ * Time: 08:34
  */
 
-public class SarosView implements ISarosView {
-    public static final String ID = "saros_view";
+public class MessageUtils
+{
+    private static final Logger log = Logger.getLogger(MessageUtils.class);
 
-    @Override
-    public void showNotification(String message, String title)
+    public static void initializeMessages(String bundle, Class clazz)
     {
+        try
+        {
+            log.info("Loading bundle [" + bundle + "]");
+            //load bundle
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, Locale.getDefault());
 
-        //todo
-        System.out.println("SarosView.showNotification //todo");
-    }
+            for (Field f : clazz.getFields())
+            {
+                String fieldName = f.getName();
+                String fieldValue = resourceBundle.getString(fieldName);
+                f.set(clazz, fieldValue);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage(), e);
+        }
 
-    @Override
-    public void clearNotifications()
-    {
-        //todo
-        System.out.println("SarosView.clearNotifications //todo ");
     }
 }

@@ -1,7 +1,7 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtils;
+import de.fu_berlin.inf.dpp.core.util.MessageUtils;
 
 public class Messages {
 

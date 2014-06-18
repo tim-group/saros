@@ -108,7 +108,8 @@ public class ContributionAnnotationManager {
             IPreferenceStore preferenceStore) {
         this.sarosSession = sarosSession;
         this.preferenceStore = preferenceStore;
-        this.preferenceStore.addPropertyChangeListener(propertyChangeListener);
+        //todo
+       // this.preferenceStore.addPropertyChangeListener(propertyChangeListener);
         this.sarosSession.addListener(sharedProjectListener);
         contribtionAnnotationsEnabled = this.preferenceStore
                 .getBoolean(PreferenceConstants.SHOW_CONTRIBUTION_ANNOTATIONS);
@@ -277,7 +278,8 @@ public class ContributionAnnotationManager {
 
     public void dispose() {
         sarosSession.removeListener(sharedProjectListener);
-        preferenceStore.removePropertyChangeListener(propertyChangeListener);
+        //todo
+        //preferenceStore.removePropertyChangeListener(propertyChangeListener);
         sourceToHistory.clear();
     }
 

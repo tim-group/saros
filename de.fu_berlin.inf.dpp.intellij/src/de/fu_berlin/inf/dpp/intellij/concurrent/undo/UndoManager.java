@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent.undo;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,9 +37,9 @@ import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.OperationHistory.EditorHistoryEntry;
 import de.fu_berlin.inf.dpp.intellij.concurrent.undo.OperationHistory.Type;
 
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.mock.editor.EditorManagerEcl;
 import de.fu_berlin.inf.dpp.intellij.mock.editor.exceptions.BadLocationException;
 import de.fu_berlin.inf.dpp.intellij.mock.editor.exceptions.ExecutionException;

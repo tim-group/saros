@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
+import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
@@ -61,7 +62,7 @@ public class FollowingActivitiesManager extends AbstractActivityProvider
 
     private final AwarenessInformationCollector collector;
 
-    private final IEditorManager editor;
+    private final IEditorManagerBase editor;
 
     private final ISharedEditorListener followModeListener = new AbstractSharedEditorListener() {
         @Override
@@ -104,7 +105,7 @@ public class FollowingActivitiesManager extends AbstractActivityProvider
 
     public FollowingActivitiesManager(final ISarosSession session,
                                       final AwarenessInformationCollector collector,
-                                      final IEditorManager editor) {
+                                      final IEditorManagerBase editor) {
         this.session = session;
         this.collector = collector;
         this.editor = editor;

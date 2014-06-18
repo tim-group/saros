@@ -33,6 +33,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.*;
@@ -61,6 +62,8 @@ public class NegotiationHandler implements INegotiationHandler {
 
     private static final Logger LOG = Logger
             .getLogger(NegotiationHandler.class);
+
+    private ISarosView sarosView = new SarosView();
 
     /**
      *
@@ -106,7 +109,7 @@ public class NegotiationHandler implements INegotiationHandler {
                     case OK:
                         break;
                     case REMOTE_CANCEL:
-                        SarosView
+                        sarosView
                                 .showNotification(
                                         Messages.NegotiationHandler_canceled_invitation,
                                         MessageFormat
@@ -124,7 +127,7 @@ public class NegotiationHandler implements INegotiationHandler {
                                                 peer));
 
                     case REMOTE_ERROR:
-                        SarosView
+                        sarosView
                                 .showNotification(
                                         Messages.NegotiationHandler_error_during_invitation,
                                         MessageFormat
@@ -206,7 +209,7 @@ public class NegotiationHandler implements INegotiationHandler {
                                 .format(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely,
                                         peerName, process.getErrorMessage());
-                        SarosView
+                        sarosView
                                 .showNotification(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
                                         message);

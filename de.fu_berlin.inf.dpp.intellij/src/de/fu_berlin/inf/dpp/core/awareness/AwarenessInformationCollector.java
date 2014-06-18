@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
+
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
-import de.fu_berlin.inf.dpp.intellij.editor.RemoteEditorManager;
+import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
@@ -57,7 +58,7 @@ public class AwarenessInformationCollector {
     private static final Logger log = Logger
             .getLogger(AwarenessInformationCollector.class);
 
-    protected IEditorManager editorManager;
+    protected IEditorManagerBase editorManager;
     protected ProjectNegotiationObservable projectNegotiationObservable;
     protected SarosSessionObservable sarosSession;
 
@@ -68,7 +69,7 @@ public class AwarenessInformationCollector {
 
     public AwarenessInformationCollector(SarosSessionObservable sarosSession,
             ProjectNegotiationObservable projectNegotiationObservable,
-            IEditorManager editorManager) {
+            IEditorManagerBase editorManager) {
 
         this.sarosSession = sarosSession;
         this.projectNegotiationObservable = projectNegotiationObservable;

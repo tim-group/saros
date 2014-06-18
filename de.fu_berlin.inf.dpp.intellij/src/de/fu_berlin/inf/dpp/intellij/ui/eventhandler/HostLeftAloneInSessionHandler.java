@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.IDialogConstants;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialogWithToggle;
@@ -55,6 +56,8 @@ public class HostLeftAloneInSessionHandler {
 
     private final IPreferenceStore preferenceStore;
 
+    private ISarosView sarosView = new SarosView();
+
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionEnded(ISarosSession session) {
@@ -65,7 +68,7 @@ public class HostLeftAloneInSessionHandler {
              * notification in case a buddy joined the session but aborted the
              * incoming project negotiation...
              */
-            SarosView.clearNotifications();
+            sarosView.clearNotifications();
         }
 
         @Override

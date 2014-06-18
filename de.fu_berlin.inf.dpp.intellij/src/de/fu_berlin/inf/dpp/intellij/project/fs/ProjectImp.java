@@ -167,7 +167,7 @@ public class ProjectImp implements IProject {
 
     @Override
     public IFile getFile(String name) {
-        return fileMap.get(name);
+        return getFile(new PathImp(path));
     }
 
     @Override

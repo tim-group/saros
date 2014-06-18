@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -52,7 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * This class is responsible for two things: 1.) Process checksums sent to us
  * from the server by checking our locally existing files against them. See
  * {@link #performCheck(ChecksumActivity)} If an inconsistency is detected the
- * inconsistency state is set via the {@link IsInconsistentObservable}. This
+ * inconsistency state is set via the {@link de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable}. This
  * enables the {@link ConsistencyAction} (a.k.a. the yellow triangle) in the
  * {@link SarosView}. 2.) Send a ChecksumError to the host, if the user wants to
  * recover from an inconsistency. See {@link #runRecovery(SubMonitor)}

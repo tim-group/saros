@@ -28,15 +28,8 @@ import de.fu_berlin.inf.dpp.session.IActivityListener;
 import java.io.FileNotFoundException;
 import java.util.Set;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-16
- * Time: 19:03
- */
 
-public interface IEditorManagerBase
-{
+public interface IEditorManagerBase {
     void saveText(SPath path);
 
     Set<SPath> getOpenEditorsOfAllParticipants();
@@ -58,5 +51,18 @@ public interface IEditorManagerBase
     void addActivityListener(IActivityListener listener);
 
     void removeActivityListener(IActivityListener listener);
+
+    Set<SPath> getLocallyOpenEditors();
+
+    Set<SPath> getRemoteOpenEditors();
+
+    RemoteEditorManager getRemoteEditorManager();
+
+    boolean isActiveEditorShared();
+
+    void addSharedEditorListener(ISharedEditorListener listener);
+
+    void removeSharedEditorListener(ISharedEditorListener listener);
+
 
 }

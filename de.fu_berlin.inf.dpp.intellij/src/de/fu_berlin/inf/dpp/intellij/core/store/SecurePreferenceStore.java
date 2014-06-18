@@ -99,7 +99,7 @@ public class SecurePreferenceStore extends AbstractStore implements ISecurePrefe
     }
 
     @Override
-    public String get(String key, String def) throws StorageException
+    public String get(String key, String def)
     {
         return null;
     }
@@ -111,26 +111,25 @@ public class SecurePreferenceStore extends AbstractStore implements ISecurePrefe
     }
 
     @Override
-    public double getDouble(String key, double def) throws StorageException
+    public double getDouble(String key, double def)
     {
         return 0;
     }
 
     @Override
-    public float getFloat(String key, float def) throws StorageException
+    public float getFloat(String key, float def)
     {
         return 0;
     }
 
     @Override
-    public int getInt(String key, int def) throws StorageException
+    public int getInt(String key, int def)
     {
         return 0;
     }
 
     @Override
-    public long getLong(String key, long def) throws StorageException
-    {
+    public long getLong(String key, long def){
         return 0;
     }
 
@@ -141,7 +140,7 @@ public class SecurePreferenceStore extends AbstractStore implements ISecurePrefe
     }
 
     @Override
-    public boolean isEncrypted(String key) throws StorageException
+    public boolean isEncrypted(String key)
     {
         return false;
     }

@@ -20,15 +20,37 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.workspace;
+package de.fu_berlin.inf.dpp.core.editor.text;
 
+import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 
-import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+/**
+ * Created by:  r.kvietkauskas@uniplicity.com
+ * <p/>
+ * Date: 2014-04-15
+ * Time: 10:36
+ */
 
-import java.io.IOException;
+public class LineRange implements ILineRange
+{
+    int lineRange;
+    int numberLines;
 
+    public LineRange(int lineRange, int numberLines)
+    {
+        this.lineRange = lineRange;
+        this.numberLines = numberLines;
+    }
 
-public interface IWorkspaceRunnable {
-    void run(IProgressMonitor progress) throws OperationCanceledException, IOException;
+    @Override
+    public int getStartLine()
+    {
+        return lineRange;
+    }
+
+    @Override
+    public int getNumberOfLines()
+    {
+        return numberLines;
+    }
 }

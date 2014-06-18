@@ -1,7 +1,6 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
-import de.fu_berlin.inf.dpp.intellij.exception.StorageException;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.events.IPropertyChangeListener;
+
 
 import java.io.IOException;
 
@@ -10,19 +9,18 @@ public interface IPreferenceStore
 {
     void flush() throws IOException;
 
-    byte[] getByteArray(String key, byte[] value) throws StorageException;
+    byte[] getByteArray(String key, byte[] value) ;
 
-    boolean getBoolean(String key, boolean value) throws StorageException;
+    boolean getBoolean(String key, boolean value);
 
     boolean getBoolean(String key);
 
     String getString(String key);
 
-    void putBoolean(String key, boolean value, boolean arg2)
-            throws StorageException;
+    void putBoolean(String key, boolean value, boolean arg2);
 
-    void putByteArray(String key, byte[] value, boolean arg2)
-            throws StorageException;
+
+    void putByteArray(String key, byte[] value, boolean arg2);
 
     int getInt(String value);
 
@@ -32,10 +30,6 @@ public interface IPreferenceStore
 
     String getDefaultString(String key);
 
-    void addPropertyChangeListener(IPropertyChangeListener listener);
 
-    void removePropertyChangeListener(IPropertyChangeListener listener);
-
-    void firePropertyChangeEvent(String name, Object oldValue, Object newValue);
 
 }

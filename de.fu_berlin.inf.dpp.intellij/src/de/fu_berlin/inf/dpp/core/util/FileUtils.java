@@ -27,7 +27,6 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.util.Pair;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.commons.io.IOUtils;
@@ -39,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.CancellationException;
 import java.util.zip.Adler32;
 
 public class FileUtils {
@@ -155,7 +155,7 @@ public class FileUtils {
      * @throws FileNotFoundException
      */
     public static void backupFile(IFile file, IProgressMonitor monitor)
-            throws CoreException, FileNotFoundException {
+            throws CancellationException, IOException {
 
         if (!file.exists()) {
             throw new FileNotFoundException();
@@ -176,11 +176,9 @@ public class FileUtils {
                     .addFileExtension("BACKUP_" + i);
         }
 
-        try {
-            file.move(file.getFullPath().removeLastSegments(1).append(backupPath.lastSegment()), true);
-        } catch (IOException e) {
-            throw new CoreException(e.getMessage(), e.getCause());
-        }
+
+        file.move(file.getFullPath().removeLastSegments(1).append(backupPath.lastSegment()), true);
+
     }
 
     /**
@@ -197,7 +195,7 @@ public class FileUtils {
 
         IWorkspaceRunnable createFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
                 // Make sure directory exists
                 mkdirs(file);
 
@@ -209,7 +207,7 @@ public class FileUtils {
                 }
 
 
-                    file.create(input, true);
+                file.create(input, true);
 
 
                 // Reset permissions on parent
@@ -236,9 +234,9 @@ public class FileUtils {
 
         IWorkspaceRunnable replaceFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
 
-                    file.setContents(input, true, true);
+                file.setContents(input, true, true);
 
             }
         };
@@ -284,19 +282,19 @@ public class FileUtils {
         }
         IWorkspaceRunnable createFolderProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
 
                 // recursively create folders until parent folder exists
                 // or project root is reached
                 IFolder parentFolder = getParentFolder(folder);
 
 
-                    if (parentFolder != null) {
-                        create(parentFolder);
-                    }
+                if (parentFolder != null) {
+                    create(parentFolder);
+                }
 
 
-                    folder.create(IResource.NONE, true);
+                folder.create(IResource.NONE, true);
 
                 if (monitor.isCanceled()) {
                     log.warn("Creating folder failed: " + folder);
@@ -320,7 +318,7 @@ public class FileUtils {
 
         IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException,IOException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
                 if (!resource.exists()) {
                     return;
                 }
@@ -332,7 +330,7 @@ public class FileUtils {
                 setReadOnly(resource, false);
 
 
-                    resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
+                resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
 
 
                 if (monitor.isCanceled()) {
@@ -370,11 +368,11 @@ public class FileUtils {
 
         IWorkspaceRunnable moveProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws  OperationCanceledException,IOException {
+            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
                 IPath absDestination = destination.makeAbsolute();
 
 
-                    source.move(absDestination, false);
+                source.move(absDestination, false);
 
 
                 if (monitor.isCanceled()) {

@@ -27,12 +27,12 @@ import de.fu_berlin.inf.dpp.activities.ChangeColorActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
+
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 
 import de.fu_berlin.inf.dpp.editor.colorstorage.ColorIDSet;
 import de.fu_berlin.inf.dpp.editor.colorstorage.UserColorID;
-import de.fu_berlin.inf.dpp.intellij.editor.ColorIDSetStorage;
+import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.*;
 import org.apache.log4j.Logger;
@@ -124,7 +124,7 @@ public class ChangeColorManager extends AbstractActivityProvider implements
     };
 
     public ChangeColorManager(ISarosSession sarosSession,
-            IEditorManager editorManager, ColorIDSetStorage colorIDSetStorage)
+            IEditorManagerBase editorManager, ColorIDSetStorage colorIDSetStorage)
     {
         this.sarosSession = sarosSession;
         this.editorManager = editorManager;

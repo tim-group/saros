@@ -23,24 +23,19 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 
+import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.picocontainer.annotations.Inject;
 
 import java.io.File;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class DecompressArchiveTask implements IWorkspaceRunnable {
 
@@ -58,16 +53,12 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
      * </P> <b>Important:</b> Existing files will be <b>overwritten without
      * confirmation</b>!
      *
-     * @param file
-     *            Zip file containing the compressed data
-     * @param idToProjectMapping
-     *            map containing the id to project mapping (see also
-     *            {@link ISarosSession#getProjectID(de.fu_berlin.inf.dpp.filesystem.IProject)}
-     *
-     * @param monitor
-     *            monitor that is used for progress report and cancellation or
-     *            <code>null</code> to use the monitor provided by the
-     *            {@link #run(IProgressMonitor)} method
+     * @param file               Zip file containing the compressed data
+     * @param idToProjectMapping map containing the id to project mapping (see also
+     *                           {@link ISarosSession#getProjectID(de.fu_berlin.inf.dpp.filesystem.IProject)}
+     * @param monitor            monitor that is used for progress report and cancellation or
+     *                           <code>null</code> to use the monitor provided by the
+     *                           {@link #run(IProgressMonitor)} method
      */
     public DecompressArchiveTask(final File file,
                                  final Map<String, IProject> idToProjectMapping, final String delimiter,
@@ -84,7 +75,7 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
      * better response if there exists big files in the archive
      */
     @Override
-    public void run(IProgressMonitor monitor) throws OperationCanceledException,IOException{
+    public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
         if (this.monitor != null)
             monitor = this.monitor;
 
@@ -98,7 +89,7 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
                     "Unpacking archive file to workspace", zipFile.size());
 
             for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries
-                    .hasMoreElements();) {
+                    .hasMoreElements(); ) {
 
                 final ZipEntry entry = entries.nextElement();
 
@@ -119,7 +110,7 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
 
                 final String id = entryName.substring(0, delimiterIdx);
 
-                final IPath path = new PathImp(entryName.substring(delimiterIdx + 1, entryName.length()));
+                final String path = entryName.substring(delimiterIdx + 1, entryName.length());
 
                 final IProject project = idToProjectMapping.get(id);
 

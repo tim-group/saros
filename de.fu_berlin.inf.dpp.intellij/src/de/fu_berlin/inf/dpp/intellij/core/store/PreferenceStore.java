@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.events.IPropertyChangeListener;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -42,99 +41,68 @@ import java.util.Properties;
  * Time: 14.03
  */
 
-public class PreferenceStore extends AbstractStore implements IPreferenceStore
-{
+public class PreferenceStore extends AbstractStore implements IPreferenceStore {
 
     public static final String FILE_NAME = "saros_properties.xml";
 
     /**
      * @param preferenceMap
      */
-    public PreferenceStore(Properties preferenceMap)
-    {
+    public PreferenceStore(Properties preferenceMap) {
         this.preferenceMap = preferenceMap;
     }
 
     /**
      * @throws IOException
      */
-    public PreferenceStore()
-    {
+    public PreferenceStore() {
         this.preferenceMap = new Properties();
         load();
     }
 
     @Override
-    protected String getFileName()
-    {
+    protected String getFileName() {
         return FILE_NAME;
     }
 
 
     @Override
-    public void putBoolean(String key, boolean value1, boolean value2)
-    {
+    public void putBoolean(String key, boolean value1, boolean value2) {
         //todo: what to do with value2 ????
         putBoolean(key, value1);
     }
 
 
     @Override
-    public void putByteArray(String key, byte[] value, boolean arg2)
-    {
+    public void putByteArray(String key, byte[] value, boolean arg2) {
         //todo: what is arg2???
         putByteArray(key, value);
 
     }
 
     @Override
-    public void setValue(Object o, boolean arg)
-    {
+    public void setValue(Object o, boolean arg) {
         preferenceMap.put(o, arg);
     }
 
     @Override
-    public void setValue(Object key, String value)
-    {
+    public void setValue(Object key, String value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public String getDefaultString(String key)
-    {
+    public String getDefaultString(String key) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    public void addPropertyChangeListener(IPropertyChangeListener listener)
-    {
-        //todo
-        System.out.println("PreferenceStore.addPropertyChangeListener //todo");
-    }
 
     @Override
-    public void removePropertyChangeListener(IPropertyChangeListener listener)
-    {
-        //todo
-        System.out.println("PreferenceStore.removePropertyChangeListener //todo");
-    }
-
-    @Override
-    public void firePropertyChangeEvent(String name, Object oldValue, Object newValue)
-    {
-        //todo
-        System.out.println("PreferenceStore.firePropertyChangeEvent //todo");
-    }
-
-    @Override
-    protected String encode(String text)
-    {
+    protected String encode(String text) {
         return text;
     }
 
     @Override
-    protected String decode(String text)
-    {
+    protected String decode(String text) {
         return text;
     }
 }

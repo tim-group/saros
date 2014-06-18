@@ -23,7 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.core.ui.*;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.invitation.FileList;
@@ -33,13 +34,8 @@ import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.*;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.IAddProjectToSessionWizard;
-import de.fu_berlin.inf.dpp.core.ui.IEnterProjectNamePage;
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
-import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
@@ -90,6 +86,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
     protected IncomingProjectNegotiation process;
     protected JID peer;
     protected List<FileList> fileLists;
+    private ISarosView sarosView = new SarosView();
 
     /**
      * projectID => projectName
@@ -509,7 +506,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
                         return Status.CANCEL_STATUS;
                     }
 
-                    SarosView
+                    sarosView
                             .showNotification(
                                     Messages.AddProjectToSessionWizard_synchronize_finished_notification_title,
                                     MessageFormat

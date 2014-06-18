@@ -27,11 +27,8 @@ import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.intellij.editor.RemoteEditorManager;
 
 import java.io.FileNotFoundException;
-import java.util.Set;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -56,17 +53,9 @@ public interface IEditorManager extends IEditorManagerBase
 
     void partInputChanged(IEditorPart editor);
 
-    RemoteEditorManager getRemoteEditorManager();
-
-    boolean isActiveEditorShared();
-
-    void addSharedEditorListener(ISharedEditorListener listener);
-
-    void removeSharedEditorListener(ISharedEditorListener listener);
 
 
     void saveLazy(SPath path) throws FileNotFoundException;
 
-    Set<SPath> getLocallyOpenEditors();
-    Set<SPath> getRemoteOpenEditors();
+
 }

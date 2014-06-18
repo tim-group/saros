@@ -20,15 +20,21 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.workspace;
+package de.fu_berlin.inf.dpp.core.concurrent;
 
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.observables.ObservableValue;
 
-import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+/**
+ * This observable contains whether the ConsistencyWatchdogClient has detected
+ * that there are files which are inconsistent with regards to the checksums
+ * sent by the server.
+ */
+@Component(module = "observables")
+public class IsInconsistentObservable extends ObservableValue<Boolean> {
 
-import java.io.IOException;
+    public IsInconsistentObservable() {
+        super(false);
+    }
 
-
-public interface IWorkspaceRunnable {
-    void run(IProgressMonitor progress) throws OperationCanceledException, IOException;
 }

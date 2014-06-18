@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 
-import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
 import de.fu_berlin.inf.dpp.observables.ValueChangeListener;

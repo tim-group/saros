@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;

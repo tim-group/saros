@@ -24,7 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
 import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
@@ -32,6 +36,7 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
@@ -97,6 +102,8 @@ public class EditorManager
     protected RemoteEditorManager remoteEditorManager;
 
     protected RemoteWriteAccessManager remoteWriteAccessManager;
+
+    private ISarosView sarosView = new SarosView();
 
     //todo: make it protected later
     public ISarosSession sarosSession;
@@ -174,6 +181,8 @@ public class EditorManager
             contributionAnnotationManager = new ContributionAnnotationManager(newSarosSession, preferenceStore);
             remoteEditorManager = new RemoteEditorManager(sarosSession);
             remoteWriteAccessManager = new RemoteWriteAccessManager(sarosSession);
+
+            LocalFileSystem.getInstance().refresh(true);
 
 //            preferenceStore.addPropertyChangeListener(annotationPreferenceListener); //todo
 //
@@ -577,7 +586,7 @@ public class EditorManager
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
-                SarosView.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+                sarosView.showNotification("Follow Mode stopped!", "You closed the followed editor.");
             }
         }
 

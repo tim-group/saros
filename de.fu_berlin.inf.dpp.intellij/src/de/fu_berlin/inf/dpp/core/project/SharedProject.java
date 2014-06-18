@@ -5,25 +5,24 @@ import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeEvent;
 import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
-
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.mock.resources.IContainer;
-import de.fu_berlin.inf.dpp.intellij.mock.resources.IResourceVisitor;
+import de.fu_berlin.inf.dpp.core.resources.IResourceVisitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 
-
-import static java.text.MessageFormat.format;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
+
+import static java.text.MessageFormat.format;
 
 /**
  * A SharedProject stores the state of a project (and its resources) shared in a
@@ -59,7 +58,9 @@ public class SharedProject {
             this.value = value;
         }
 
-        /** Updates the value, and returns true if the value changed. */
+        /**
+         * Updates the value, and returns true if the value changed.
+         */
         public boolean update(E newValue) {
             if (newValue == null) {
                 if (value == null)
@@ -116,7 +117,9 @@ public class SharedProject {
         }
     }
 
-    /** Maps the project relative path of a resource. */
+    /**
+     * Maps the project relative path of a resource.
+     */
     @SuppressWarnings("serial")
     protected Map<IPath, ResourceInfo> resourceMap = new HashMap<IPath, ResourceInfo>() {
         /**
@@ -164,7 +167,9 @@ public class SharedProject {
         }
     };
 
-    /** Used only for logging. */
+    /**
+     * Used only for logging.
+     */
     private SubscriberChangeListener subscriberChangeListener = new SubscriberChangeListener() {
         @Override
         public void subscriberResourceChanged(SubscriberChangeEvent[] deltas) {
@@ -230,7 +235,9 @@ public class SharedProject {
         }
     }
 
-    /** Initialize the ResourceInfo for every resource in the SharedProject. */
+    /**
+     * Initialize the ResourceInfo for every resource in the SharedProject.
+     */
     protected void initializeResources() {
         try {
             addAll(project);
@@ -267,17 +274,23 @@ public class SharedProject {
         assert checkIntegrity();
     }
 
-    /** Updates the current VCSAdapter, and returns true if the value changed. */
+    /**
+     * Updates the current VCSAdapter, and returns true if the value changed.
+     */
     public boolean updateVcs(VCSAdapter newValue) {
         return vcs.update(newValue);
     }
 
-    /** Updates the current VCS URL, and returns true if the value changed. */
+    /**
+     * Updates the current VCS URL, and returns true if the value changed.
+     */
     public boolean updateVcsUrl(String newValue) {
         return updateVcsUrl(project, newValue);
     }
 
-    /** Updates the current VCS URL, and returns true if the value changed. */
+    /**
+     * Updates the current VCS URL, and returns true if the value changed.
+     */
     public boolean updateVcsUrl(IResource resource, String newValue) {
         checkResource(resource);
         IPath path = resource.getProjectRelativePath();
@@ -285,12 +298,16 @@ public class SharedProject {
         return resourceInfo.vcsUrl.update(newValue);
     }
 
-    /** Updates the current VCS revision, and returns true if the value changed. */
+    /**
+     * Updates the current VCS revision, and returns true if the value changed.
+     */
     public boolean updateRevision(String newValue) {
         return updateRevision(project, newValue);
     }
 
-    /** Updates the current VCS revision, and returns true if the value changed. */
+    /**
+     * Updates the current VCS revision, and returns true if the value changed.
+     */
     public boolean updateRevision(IResource resource, String newValue) {
         checkResource(resource);
         IPath path = resource.getProjectRelativePath();
@@ -299,9 +316,8 @@ public class SharedProject {
     }
 
     /**
-     * @throws IllegalArgumentException
-     *             if the resource is null or if this shared project doesn't
-     *             contain it.
+     * @throws IllegalArgumentException if the resource is null or if this shared project doesn't
+     *                                  contain it.
      */
     protected void checkResource(IResource resource) {
         if (resource == null)
@@ -310,7 +326,8 @@ public class SharedProject {
         else if (!contains(resource))
             throw new IllegalArgumentException(
                     Messages.SharedProject_resource_not_in_map
-                            + resource.toString());
+                            + resource.toString()
+            );
     }
 
     /**
@@ -321,7 +338,9 @@ public class SharedProject {
         return projectIsOpen.update(newValue);
     }
 
-    /** Removes the resource from the SharedProject. */
+    /**
+     * Removes the resource from the SharedProject.
+     */
     public void remove(IResource resource) {
         // checkResource(resource);
         if (contains(resource)) {
@@ -330,7 +349,9 @@ public class SharedProject {
         }
     }
 
-    /** Adds the resource to the SharedProject. */
+    /**
+     * Adds the resource to the SharedProject.
+     */
     public void add(IResource resource) {
         if (resource == null)
             throw new IllegalArgumentException(
@@ -354,7 +375,7 @@ public class SharedProject {
         add(resource);
         if (resource instanceof IContainer) {
             IContainer container = (IContainer) resource;
-            IResource[] members = container.members(IContainer.EXCLUDE_DERIVED);
+            IResource[] members = container.members(IResource.NONE);
             for (IResource child : members) {
                 addAll(child);
             }
@@ -373,7 +394,9 @@ public class SharedProject {
         add(resource);
     }
 
-    /** Returns the current VCSAdapter. */
+    /**
+     * Returns the current VCSAdapter.
+     */
     public VCSAdapter getVCSAdapter() {
         return vcs.getValue();
     }
@@ -474,7 +497,7 @@ public class SharedProject {
         };
         try {
             //todo
-//            project.accept(visitor, de.fu_berlin.inf.dpp.intellij.mock.resources.IResource.DEPTH_INFINITE,
+//            project.accept(visitor, de.fu_berlin.inf.dpp.resources.IResource.DEPTH_INFINITE,
 //                    IContainer.EXCLUDE_DERIVED);
             illegalState = illegalState || visitor.visit(null);
         } catch (Exception e) {

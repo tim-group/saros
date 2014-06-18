@@ -34,10 +34,9 @@ import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
-import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
-import de.fu_berlin.inf.dpp.intellij.editor.ColorIDSetStorage;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.core.editor.ColorIDSetStorage;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.*;
 
@@ -58,22 +57,6 @@ import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
 
 import java.util.Arrays;
-
-//import de.fu_berlin.inf.dpp.awareness.AwarenessInformationCollector;
-//import de.fu_berlin.inf.dpp.communication.SkypeManager;
-//import de.fu_berlin.inf.dpp.communication.chat.muc.negotiation.MUCNegotiationManager;
-//import de.fu_berlin.inf.dpp.concurrent.watchdog.IsInconsistentObservable;
-//import de.fu_berlin.inf.dpp.core.editor.colorstorage.ColorIDSetStorage;
-//import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
-//import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
-//import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
-//import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
-//import de.fu_berlin.inf.dpp.net.discovery.DiscoveryManager;
-//import de.fu_berlin.inf.dpp.core.observables.FileReplacementInProgressObservable;
-//import de.fu_berlin.inf.dpp.core.observables.SarosSessionObservable;
-//import de.fu_berlin.inf.dpp.core.observables.SessionIDObservable;
-//import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
-//import de.fu_berlin.inf.dpp.core.project.internal.FollowingActivitiesManager;
 
 /**
  * This is the basic core factory for Saros. All components that are created by

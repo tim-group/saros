@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 
 /**
  * A ResourceActivityFilter stores pending activities for the
- * {@link de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager}, then orders and filters them.
+ * {@link de.fu_berlin.inf.dpp.core.project.SharedResourcesManager}, then orders and filters them.
  */
 class ResourceActivityFilter {
     private static final Logger log = Logger

@@ -27,9 +27,10 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.intellij.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
@@ -56,6 +57,8 @@ import java.util.Set;
 public class ConsistencyAction extends AbstractSarosAction
 {
     public static final String ACTION_NAME = "consistency";
+
+    private ISarosView sarosView = new SarosView();
 
     @Override
     public String getActionName()
@@ -190,7 +193,7 @@ public class ConsistencyAction extends AbstractSarosAction
                 // when refactoring)
 
                 // show balloon notification
-                SarosView
+                sarosView
                         .showNotification(
                                 Messages.ConsistencyAction_title_inconsistency_deteced,
                                 MessageFormat
@@ -204,7 +207,7 @@ public class ConsistencyAction extends AbstractSarosAction
 
     private void setToolTipText(String text)
     {
-        SarosView.showNotification(text, "Consistency warning");
+        sarosView.showNotification(text, "Consistency warning");
     }
 
     @Override

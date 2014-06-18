@@ -27,13 +27,13 @@ import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.FileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
@@ -47,7 +47,9 @@ import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
+import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
@@ -77,6 +79,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
 
             Component.create(SarosSessionManager.class),
             Component.create(ISarosSessionManager.class, SarosSessionManager.class),
+            Component.create(ISarosView.class, SarosView.class),
             // Core Managers
             Component.create(ConsistencyWatchdogClient.class),
 

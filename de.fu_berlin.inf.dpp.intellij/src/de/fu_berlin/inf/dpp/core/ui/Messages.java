@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.ui;
 
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.MessageUtils;
+import de.fu_berlin.inf.dpp.core.util.MessageUtils;
 
 import java.lang.reflect.Field;
 
