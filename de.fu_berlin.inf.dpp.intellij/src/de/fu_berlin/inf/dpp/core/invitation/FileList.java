@@ -19,20 +19,13 @@
  */
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
-import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
-import org.apache.commons.lang.ObjectUtils;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
+import org.apache.commons.lang.ObjectUtils;
 
+import java.util.*;
 
 /**
  * A FileList is a list of resources -- files and folders -- which belong to the
@@ -40,337 +33,34 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
  * denoted by a trailing separator. Instances of this class are immutable. No
  * further modification is allowed after creation. Instances should be created
  * using the methods provided by the {@link FileListFactory}.
- * 
+ *
  * @author rdjemili
  */
 @XStreamAlias("FILELIST")
 public class FileList {
 
     static final String DIR_SEPARATOR = "/";
-
-    @XStreamAlias("f")
-    private static class File {
-
-        @XStreamAlias("p")
-        @XStreamAsAttribute
-        String path;
-
-        @XStreamAlias("m")
-        MetaData metaData;
-
-        @XStreamAlias("l")
-        List<File> files;
-
-        @XStreamAlias("d")
-        @XStreamAsAttribute
-        boolean isDirectory;
-
-        private File(String path, MetaData metaData, boolean isDirectory) {
-            this.path = path;
-            this.metaData = metaData;
-            this.files = new ArrayList<File>();
-            this.isDirectory = isDirectory;
-        }
-
-        public static File createRoot() {
-            return new File("", null, true);
-        }
-
-        /**
-         * Helper: Adds this File's path to the given <code>base</code> with a
-         * "/" in between. There will be no leading "/" and no doubled "/"s.
-         */
-        private String appendTo(String base) {
-            if (base.isEmpty())
-                return path;
-
-            if (base.endsWith(DIR_SEPARATOR))
-                return base + path;
-
-            return base + DIR_SEPARATOR + path;
-        }
-
-        /**
-         * Helper: Cuts a path into its segments
-         */
-        private String[] segments(String path) {
-            return path.split(DIR_SEPARATOR);
-        }
-
-        /**
-         * Converts the content of this file node and its sub nodes to full
-         * paths.<br/>
-         * 
-         * e.g:<br/>
-         * 
-         * <pre>
-         * DIR   FILES
-         * a/b/[a,b,c,d]
-         *  -> [a/b/a, a/b/b, a/b/c, a/b/d]
-         * </pre>
-         * 
-         * @return the list containing the full paths
-         */
-        public List<String> toList() {
-            List<String> paths = new ArrayList<String>();
-            toList(path, paths);
-            return paths;
-        }
-
-        /**
-         * Will be called recursively to reach all leaves of this file node, and
-         * will put all entries into the given list.
-         * 
-         * @param base
-         *            the path of the parent node
-         * @param paths
-         *            a list to store the paths
-         */
-        private void toList(String base, List<String> paths) {
-            for (File sub : files) {
-                if (sub.isDirectory && sub.files.isEmpty())
-                    paths.add(sub.appendTo(base).concat(DIR_SEPARATOR));
-                else if (!sub.isDirectory)
-                    paths.add(sub.appendTo(base));
-
-                sub.toList(sub.appendTo(base), paths);
-            }
-        }
-
-        /**
-         * True, if the given path is one of this File's sub-nodes.
-         */
-        public boolean contains(String path) {
-            return getFile(path) != null;
-        }
-
-        /**
-         * Retrieves the meta data for the given path. Returns <code>null</code>
-         * if there is corresponding file in this node.
-         */
-        public MetaData getMetaData(String path) {
-            File file = getFile(path);
-            return file == null ? null : file.metaData;
-        }
-
-        /**
-         * Retrieves the file for the given path, <code>null</code> if it does
-         * not exist.
-         */
-        private File getFile(String path) {
-            for (File file : files) {
-                File foundFile = file.getFile(segments(path), 0);
-                if (foundFile != null)
-                    return foundFile;
-            }
-
-            return null;
-        }
-
-        /**
-         * Will be called recursively to find the file represented by the given
-         * path segments.
-         */
-        private File getFile(String[] segments, int segmentIndex) {
-            if (segmentIndex >= segments.length)
-                return null;
-
-            // _________ 0 1 2 3 : segment.length = 4
-            // _search : a/b/c/d : segmentIndex = 3
-            // current : a/b/c/d : return this
-
-            if (path.equals(segments[segmentIndex])
-                && segmentIndex + 1 == segments.length) {
-                return this;
-            }
-
-            /*
-             * only continue if we are still on a valid path segment e.g we
-             * search for a/b/c/d but are now in a/b/a
-             */
-            if (!path.equals(segments[segmentIndex])) {
-                return null;
-            }
-
-            for (File file : files) {
-                File foundFile = file.getFile(segments, segmentIndex + 1);
-                if (foundFile != null)
-                    return foundFile;
-            }
-            return null;
-        }
-
-        /**
-         * Inserts a new path into this File structure. Missing intermediate
-         * folder nodes will be created.
-         * 
-         * @param path
-         *            not <code>null</code>
-         * @param metaData
-         *            can be <code>null</code>
-         */
-        public void addPath(String path, MetaData metaData, boolean isDirectory) {
-            addPath(segments(path), 0, metaData, isDirectory);
-        }
-
-        /**
-         * Will be called recursively to create the entry for the path given by
-         * its segments including all folder hierarchy levels.
-         */
-        private void addPath(String[] segments, int segmentIndex,
-            MetaData metaData, boolean isDirectory) {
-
-            if (segmentIndex >= segments.length)
-                return;
-
-            for (File file : files) {
-                if (file.path.equals(segments[segmentIndex])) {
-                    if (segmentIndex + 1 == segments.length) {
-                        file.metaData = metaData;
-                        file.isDirectory = isDirectory;
-                        return;
-                    } else {
-                        file.addPath(segments, segmentIndex + 1, metaData,
-                            isDirectory);
-                        return;
-                    }
-                }
-            }
-
-            if (segmentIndex + 1 == segments.length) {
-                files.add(new File(segments[segmentIndex], metaData,
-                    isDirectory));
-                return;
-            }
-
-            File file = new File(segments[segmentIndex], null, true);
-            files.add(file);
-            file.addPath(segments, segmentIndex + 1, metaData, isDirectory);
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ObjectUtils.hashCode(files);
-            result = prime * result + (isDirectory ? 1231 : 1237);
-            result = prime * result + ObjectUtils.hashCode(metaData);
-            result = prime * result + ObjectUtils.hashCode(path);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-
-            File other = (File) obj;
-
-            if (isDirectory != other.isDirectory)
-                return false;
-
-            if (!ObjectUtils.equals(path, other.path))
-                return false;
-            if (!ObjectUtils.equals(metaData, other.metaData))
-                return false;
-            if (!ObjectUtils.equals(files, other.files))
-                return false;
-
-            return true;
-        }
-    }
-
-    @XStreamAlias("md")
-    static class MetaData {
-        /** Checksum of this file. */
-
-        @XStreamAlias("crc")
-        long checksum;
-
-        /** Identifies the version of this file in the repository. */
-
-        @XStreamAlias("vcs")
-        VCSResourceInfo vcsInfo;
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this)
-                return true;
-            if (o == null)
-                return false;
-            if (!(o instanceof MetaData))
-                return false;
-
-            MetaData other = (MetaData) o;
-
-            if (!ObjectUtils.equals(checksum, other.checksum))
-                return false;
-            if (!ObjectUtils.equals(vcsInfo, other.vcsInfo))
-                return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return (int) checksum;
-        }
-
-        @Override
-        public String toString() {
-            return "[Checksum: 0x" + Long.toHexString(checksum).toUpperCase()
-                + ", VCS: " + vcsInfo + "]";
-        }
-    }
-
     private final boolean useVersionControl;
-
-    /** Identifies the VCS used. */
+    /**
+     * Identifies the VCS used.
+     */
     private String vcsProviderID;
-
-    /** @see VCSAdapter#getRepositoryString(IResource) */
+    /**
+     * @see VCSAdapter#getRepositoryString(IResource)
+     */
     private String vcsRepositoryRoot;
-    /** VCS internal information. */
+    /**
+     * VCS internal information.
+     */
     private VCSResourceInfo vcsProjectInfo;
-
-    /** ID of Project this list of files belong to */
+    /**
+     * ID of Project this list of files belong to
+     */
     private String projectID;
-
     private Set<String> encodings = new HashSet<String>();
-
     private File root;
-
-    MetaData getMetaData(String path) {
-        return root.getMetaData(path);
-    }
-
-    public String getVCSRevision(String path) {
-        if (path.isEmpty())
-            return vcsProjectInfo.revision;
-
-        MetaData metaData = root.getMetaData(path);
-
-        if (metaData == null)
-            return null;
-
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.revision;
-    }
-
-    public String getVCSUrl(String path) {
-        if (path.isEmpty())
-            return vcsProjectInfo.url;
-
-        MetaData metaData = root.getMetaData(path);
-
-        if (metaData == null)
-            return null;
-
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.url;
-    }
+    @XStreamOmitField
+    private List<String> cachedList = null;
 
     /**
      * Creates an empty file list.
@@ -381,20 +71,51 @@ public class FileList {
 
     /**
      * Creates an empty file list.
-     * 
-     * @param useVersionControl
-     *            If false, the FileList won't include version control
-     *            information.
+     *
+     * @param useVersionControl If false, the FileList won't include version control
+     *                          information.
      */
     FileList(boolean useVersionControl) {
         this.useVersionControl = useVersionControl;
         this.root = File.createRoot();
     }
 
+    MetaData getMetaData(String path) {
+        return root.getMetaData(path);
+    }
+
+    public String getVCSRevision(String path) {
+        if (path.isEmpty()) {
+            return vcsProjectInfo.revision;
+        }
+
+        MetaData metaData = root.getMetaData(path);
+
+        if (metaData == null) {
+            return null;
+        }
+
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.revision;
+    }
+
+    public String getVCSUrl(String path) {
+        if (path.isEmpty()) {
+            return vcsProjectInfo.url;
+        }
+
+        MetaData metaData = root.getMetaData(path);
+
+        if (metaData == null) {
+            return null;
+        }
+
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.url;
+    }
+
     /**
      * Returns all encodings (e.g UTF-8, US-ASCII) that are used by the files
      * contained in this file list.
-     * 
+     *
      * @return used encodings which may be empty if the encodings are not known
      */
     public Set<String> getEncodings() {
@@ -402,8 +123,9 @@ public class FileList {
     }
 
     void addEncoding(String charset) {
-        if (charset == null)
+        if (charset == null) {
             return;
+        }
 
         encodings.add(charset);
     }
@@ -420,14 +142,11 @@ public class FileList {
         return root.contains(path);
     }
 
-    @XStreamOmitField
-    private List<String> cachedList = null;
-
     /**
      * Returns a sorted list of all paths in this FileList.
-     * <p>
+     * <p/>
      * Example: In case the FileList looks like this:
-     * 
+     * <p/>
      * <pre>
      * / A
      *   / A1.java
@@ -436,17 +155,18 @@ public class FileList {
      *   / B3.java
      * / C
      * </pre>
-     * 
+     * <p/>
      * then this method returns:
      * <code>[A/A1.java, B/B2.java, B/B3.java, C/]</code>
-     * 
+     *
      * @return Returns only the leaves of the tree, i.e. folders are only
-     *         included if they don't contain anything. The paths are sorted by
-     *         their character length.
+     * included if they don't contain anything. The paths are sorted by
+     * their character length.
      */
     public List<String> getPaths() {
-        if (cachedList != null)
+        if (cachedList != null) {
             return cachedList;
+        }
 
         cachedList = root.toList();
         return cachedList;
@@ -499,11 +219,13 @@ public class FileList {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
+        }
 
-        if (!(o instanceof FileList))
+        if (!(o instanceof FileList)) {
             return false;
+        }
 
         return root.equals(((FileList) o).root);
     }
@@ -514,6 +236,297 @@ public class FileList {
         Collections.sort(paths);
 
         return paths.toString();
+    }
+
+    @XStreamAlias("f")
+    private static class File {
+
+        @XStreamAlias("p") @XStreamAsAttribute String path;
+
+        @XStreamAlias("m") MetaData metaData;
+
+        @XStreamAlias("l") List<File> files;
+
+        @XStreamAlias("d") @XStreamAsAttribute boolean isDirectory;
+
+        private File(String path, MetaData metaData, boolean isDirectory) {
+            this.path = path;
+            this.metaData = metaData;
+            this.files = new ArrayList<File>();
+            this.isDirectory = isDirectory;
+        }
+
+        public static File createRoot() {
+            return new File("", null, true);
+        }
+
+        /**
+         * Helper: Adds this File's path to the given <code>base</code> with a
+         * "/" in between. There will be no leading "/" and no doubled "/"s.
+         */
+        private String appendTo(String base) {
+            if (base.isEmpty()) {
+                return path;
+            }
+
+            if (base.endsWith(DIR_SEPARATOR)) {
+                return base + path;
+            }
+
+            return base + DIR_SEPARATOR + path;
+        }
+
+        /**
+         * Helper: Cuts a path into its segments
+         */
+        private String[] segments(String path) {
+            return path.split(DIR_SEPARATOR);
+        }
+
+        /**
+         * Converts the content of this file node and its sub nodes to full
+         * paths.<br/>
+         * <p/>
+         * e.g:<br/>
+         * <p/>
+         * <pre>
+         * DIR   FILES
+         * a/b/[a,b,c,d]
+         *  -> [a/b/a, a/b/b, a/b/c, a/b/d]
+         * </pre>
+         *
+         * @return the list containing the full paths
+         */
+        public List<String> toList() {
+            List<String> paths = new ArrayList<String>();
+            toList(path, paths);
+            return paths;
+        }
+
+        /**
+         * Will be called recursively to reach all leaves of this file node, and
+         * will put all entries into the given list.
+         *
+         * @param base  the path of the parent node
+         * @param paths a list to store the paths
+         */
+        private void toList(String base, List<String> paths) {
+            for (File sub : files) {
+                if (sub.isDirectory && sub.files.isEmpty()) {
+                    paths.add(sub.appendTo(base).concat(DIR_SEPARATOR));
+                } else if (!sub.isDirectory) {
+                    paths.add(sub.appendTo(base));
+                }
+
+                sub.toList(sub.appendTo(base), paths);
+            }
+        }
+
+        /**
+         * True, if the given path is one of this File's sub-nodes.
+         */
+        public boolean contains(String path) {
+            return getFile(path) != null;
+        }
+
+        /**
+         * Retrieves the meta data for the given path. Returns <code>null</code>
+         * if there is corresponding file in this node.
+         */
+        public MetaData getMetaData(String path) {
+            File file = getFile(path);
+            return file == null ? null : file.metaData;
+        }
+
+        /**
+         * Retrieves the file for the given path, <code>null</code> if it does
+         * not exist.
+         */
+        private File getFile(String path) {
+            for (File file : files) {
+                File foundFile = file.getFile(segments(path), 0);
+                if (foundFile != null) {
+                    return foundFile;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Will be called recursively to find the file represented by the given
+         * path segments.
+         */
+        private File getFile(String[] segments, int segmentIndex) {
+            if (segmentIndex >= segments.length) {
+                return null;
+            }
+
+            // _________ 0 1 2 3 : segment.length = 4
+            // _search : a/b/c/d : segmentIndex = 3
+            // current : a/b/c/d : return this
+
+            if (path.equals(segments[segmentIndex])
+                && segmentIndex + 1 == segments.length) {
+                return this;
+            }
+
+            /*
+             * only continue if we are still on a valid path segment e.g we
+             * search for a/b/c/d but are now in a/b/a
+             */
+            if (!path.equals(segments[segmentIndex])) {
+                return null;
+            }
+
+            for (File file : files) {
+                File foundFile = file.getFile(segments, segmentIndex + 1);
+                if (foundFile != null) {
+                    return foundFile;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Inserts a new path into this File structure. Missing intermediate
+         * folder nodes will be created.
+         *
+         * @param path     not <code>null</code>
+         * @param metaData can be <code>null</code>
+         */
+        public void addPath(String path, MetaData metaData,
+            boolean isDirectory) {
+            addPath(segments(path), 0, metaData, isDirectory);
+        }
+
+        /**
+         * Will be called recursively to create the entry for the path given by
+         * its segments including all folder hierarchy levels.
+         */
+        private void addPath(String[] segments, int segmentIndex,
+            MetaData metaData, boolean isDirectory) {
+
+            if (segmentIndex >= segments.length) {
+                return;
+            }
+
+            for (File file : files) {
+                if (file.path.equals(segments[segmentIndex])) {
+                    if (segmentIndex + 1 == segments.length) {
+                        file.metaData = metaData;
+                        file.isDirectory = isDirectory;
+                        return;
+                    } else {
+                        file.addPath(segments, segmentIndex + 1, metaData,
+                            isDirectory);
+                        return;
+                    }
+                }
+            }
+
+            if (segmentIndex + 1 == segments.length) {
+                files.add(
+                    new File(segments[segmentIndex], metaData, isDirectory));
+                return;
+            }
+
+            File file = new File(segments[segmentIndex], null, true);
+            files.add(file);
+            file.addPath(segments, segmentIndex + 1, metaData, isDirectory);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ObjectUtils.hashCode(files);
+            result = prime * result + (isDirectory ? 1231 : 1237);
+            result = prime * result + ObjectUtils.hashCode(metaData);
+            result = prime * result + ObjectUtils.hashCode(path);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+
+            File other = (File) obj;
+
+            if (isDirectory != other.isDirectory) {
+                return false;
+            }
+
+            if (!ObjectUtils.equals(path, other.path)) {
+                return false;
+            }
+            if (!ObjectUtils.equals(metaData, other.metaData)) {
+                return false;
+            }
+            if (!ObjectUtils.equals(files, other.files)) {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    @XStreamAlias("md")
+    static class MetaData {
+        /**
+         * Checksum of this file.
+         */
+
+        @XStreamAlias("crc") long checksum;
+
+        /**
+         * Identifies the version of this file in the repository.
+         */
+
+        @XStreamAlias("vcs") VCSResourceInfo vcsInfo;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+            if (!(o instanceof MetaData)) {
+                return false;
+            }
+
+            MetaData other = (MetaData) o;
+
+            if (!ObjectUtils.equals(checksum, other.checksum)) {
+                return false;
+            }
+            if (!ObjectUtils.equals(vcsInfo, other.vcsInfo)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) checksum;
+        }
+
+        @Override
+        public String toString() {
+            return "[Checksum: 0x" + Long.toHexString(checksum).toUpperCase()
+                + ", VCS: " + vcsInfo + "]";
+        }
     }
 
 }

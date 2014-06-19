@@ -1,27 +1,20 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
+import de.fu_berlin.inf.dpp.core.util.FileUtils;
+import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
+import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
+import de.fu_berlin.inf.dpp.filesystem.*;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-
-import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
-import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
-import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
-import org.apache.log4j.Logger;
-
-import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.filesystem.IFolder;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
-import static  de.fu_berlin.inf.dpp.core.invitation.FileList.MetaData;
-
-
+import static de.fu_berlin.inf.dpp.core.invitation.FileList.MetaData;
 
 /**
  * Offers two ways to create {@link FileList}s, i.e. an inexpensive one, which
@@ -43,13 +36,15 @@ public class FileListFactory {
         this.checksumCache = checksumCache;
         this.monitor = monitor;
 
-        if (this.monitor == null)
+        if (this.monitor == null) {
             this.monitor = new NullProgressMonitor();
+        }
     }
 
     public static FileList createFileList(IProject project,
         List<IResource> resources, IChecksumCache checksumCache,
-        boolean useVersionControl, IProgressMonitor monitor) throws IOException {
+        boolean useVersionControl, IProgressMonitor monitor)
+        throws IOException {
 
         FileListFactory fact = new FileListFactory(checksumCache, monitor);
         return fact.build(project, resources, useVersionControl);
@@ -58,19 +53,18 @@ public class FileListFactory {
     /**
      * Creates a new file list from given paths. It does not compute checksums
      * or location information.
-     * 
+     *
+     * @param paths a list of paths that <b>refers</b> to <b>files</b> that should
+     *              be added to this file list.
      * @NOTE This method does not check the input. The caller is
-     *       <b>responsible</b> for the <b>correct</b> input !
-     * 
-     * @param paths
-     *            a list of paths that <b>refers</b> to <b>files</b> that should
-     *            be added to this file list.
+     * <b>responsible</b> for the <b>correct</b> input !
      */
     public static FileList createFileList(List<String> paths) {
         FileList list = new FileList(false);
 
-        for (String path : paths)
+        for (String path : paths) {
             list.addPath(path);
+        }
 
         return list;
     }
@@ -97,8 +91,9 @@ public class FileListFactory {
     private void addMembersToList(FileList list, List<IResource> resources)
         throws IOException {
 
-        if (resources.size() == 0)
+        if (resources.size() == 0) {
             return;
+        }
 
         IProject project = null;
         VCSAdapter vcs = null;
@@ -106,21 +101,19 @@ public class FileListFactory {
         if (list.useVersionControl()) {
             project = resources.get(0).getProject();
 
-            IProject eclipseProject = project; //todo
-
-            vcs = VCSAdapter.getAdapter(eclipseProject);
+            vcs = VCSAdapter.getAdapter(project);
 
             if (vcs != null) {
-                String providerID = vcs.getProviderID(eclipseProject);
+                String providerID = vcs.getProviderID(project);
 
                 list.setVcsProviderID(providerID);
-                list.setVcsRepositoryRoot(vcs
-                    .getRepositoryString(eclipseProject));
-                list.setVcsRepositoryRoot(vcs
-                    .getCurrentResourceInfo(eclipseProject));
+                list.setVcsRepositoryRoot(
+                    vcs.getRepositoryString(project));
+                list.setVcsRepositoryRoot(
+                    vcs.getCurrentResourceInfo(project));
                 /*
                  * FIXME we need to stop querying for VCS revisions the moment
-                 * we reach the first exceptions
+                 * we reach the first exception
                  * 
                  * Caused by:
                  * org.tigris.subversion.svnclientadapter.SVNClientException:
@@ -145,21 +138,24 @@ public class FileListFactory {
         while (!stack.isEmpty()) {
             IResource resource = stack.pop();
 
-            if (resource.isDerived() || !resource.exists())
+            if (resource.isDerived() || !resource.exists()) {
                 continue;
+            }
 
             String path = resource.getProjectRelativePath().toPortableString();
 
-            if (list.contains(path))
+            if (list.contains(path)) {
                 continue;
+            }
 
             VCSResourceInfo info = null;
 
-            if (vcs != null)
+            if (vcs != null) {
                 info = vcs.getCurrentResourceInfo(resource);
+            }
 
-            assert !list.useVersionControl()
-                || (project != null && project.equals(resource.getProject()));
+            assert !list.useVersionControl() || (project != null && project
+                .equals(resource.getProject()));
 
             MetaData data = null;
 
@@ -187,30 +183,32 @@ public class FileListFactory {
 
         for (IFile file : files) {
             try {
-                monitor.subTask(file.getProject().getName() + ": "
-                    + file.getName());
+                monitor.subTask(
+                    file.getProject().getName() + ": " + file.getName());
 
-                MetaData data = list.getMetaData(file.getProjectRelativePath()
-                    .toPortableString());
+                MetaData data = list.getMetaData(
+                    file.getProjectRelativePath().toPortableString());
 
                 Long checksum = null;
 
                 /** {@link IChecksumCache} **/
                 String path = file.getFullPath().toPortableString();
 
-                if (checksumCache != null)
+                if (checksumCache != null) {
                     checksum = checksumCache.getChecksum(path);
+                }
 
-                data.checksum = checksum == null ? FileUtils.checksum(file)
-                    : checksum;
+                data.checksum =
+                    checksum == null ? FileUtils.checksum(file) : checksum;
 
                 if (checksumCache != null) {
-                    boolean isInvalid = checksumCache.addChecksum(path,
-                        data.checksum);
+                    boolean isInvalid = checksumCache
+                        .addChecksum(path, data.checksum);
 
-                    if (isInvalid && checksum != null)
-                        LOG.warn("calculated checksum on dirty data: "
-                            + file.getFullPath());
+                    if (isInvalid && checksum != null) {
+                        LOG.warn("calculated checksum on dirty data: " + file
+                            .getFullPath());
+                    }
                 }
 
             } catch (IOException e) {
