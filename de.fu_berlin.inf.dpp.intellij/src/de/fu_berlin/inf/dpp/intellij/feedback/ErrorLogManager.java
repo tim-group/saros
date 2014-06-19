@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
 import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractFeedbackManager;
 import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
@@ -35,7 +36,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.Job;
+import de.fu_berlin.inf.dpp.intellij.runtime.Job;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
@@ -263,7 +264,7 @@ public class ErrorLogManager extends AbstractFeedbackManager implements
                             e.getMessage(), e.getCause() != null ? e.getCause()
                                     .getMessage() : "");
                     log.error(msg);
-                    return new Status(IStatus.ERROR, Saros.SAROS, msg, e);
+                    return new Status(IStatus.ERROR, SarosSessionPacketExtension.EXTENSION_NAMESPACE, msg, e);
                 } catch (OperationCanceledException e) {
                     return Status.CANCEL_STATUS;
                 } finally {

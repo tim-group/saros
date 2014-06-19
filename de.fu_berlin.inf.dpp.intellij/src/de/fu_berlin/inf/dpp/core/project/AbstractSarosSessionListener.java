@@ -31,13 +31,8 @@ import de.fu_berlin.inf.dpp.session.User;
  *
  * @author bkahlert
  */
-public class AbstractSarosSessionListener implements ISarosSessionListener
-{
+public class AbstractSarosSessionListener implements ISarosSessionListener {
 
-    @Override
-    public void preIncomingInvitationCompleted(IProgressMonitor monitor) {
-
-    }
 
     @Override
     public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User user) {
@@ -45,32 +40,27 @@ public class AbstractSarosSessionListener implements ISarosSessionListener
     }
 
     @Override
-    public void sessionStarting(ISarosSession newSarosSession)
-    {
+    public void sessionStarting(ISarosSession newSarosSession) {
         // do nothing
     }
 
     @Override
-    public void sessionStarted(ISarosSession newSarosSession)
-    {
+    public void sessionStarted(ISarosSession newSarosSession) {
         // do nothing
     }
 
     @Override
-    public void sessionEnding(ISarosSession oldSarosSession)
-    {
+    public void sessionEnding(ISarosSession oldSarosSession) {
         // do nothing
     }
 
     @Override
-    public void sessionEnded(ISarosSession oldSarosSession)
-    {
+    public void sessionEnded(ISarosSession oldSarosSession) {
         // do nothing
     }
 
     @Override
-    public void projectAdded(String projectID)
-    {
+    public void projectAdded(String projectID) {
         // do nothing
     }
 }

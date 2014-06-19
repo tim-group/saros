@@ -1,11 +1,11 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 
-import de.fu_berlin.inf.dpp.core.util.MessageUtils;
+import de.fu_berlin.inf.dpp.intellij.util.MessageUtils;
 
 public class Messages {
 
-    private static final String BUNDLE_NAME = Messages.class.getName();
+    private static final String BUNDLE_NAME = Messages.class.getName().toLowerCase();
 
     public static String ResourceChangeValidator_error_leave_session_before_delete_project;
     public static String ResourceChangeValidator_error_no_write_access;

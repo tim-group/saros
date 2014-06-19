@@ -2,13 +2,13 @@ package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.communication.extensions.*;
-import de.fu_berlin.inf.dpp.core.context.AbstractSaros;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
 import de.fu_berlin.inf.dpp.core.project.internal.NicknameNegotiationHook;
 import de.fu_berlin.inf.dpp.editor.colorstorage.UserColorID;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.invitation.hooks.ISessionNegotiationHook;
@@ -224,7 +224,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
         monitor.setTaskName("Checking Saros support...");
 
         JID resourceQualifiedJID = discoveryManager.getSupportingPresence(peer,
-                AbstractSaros.NAMESPACE);
+                SarosSessionPacketExtension.EXTENSION_NAMESPACE);
 
         if (resourceQualifiedJID == null)
             throw new LocalCancellationException(
@@ -409,6 +409,7 @@ public final class OutgoingSessionNegotiation extends SessionNegotiation {
             // HACK A User object representing the client needs to access these
             // two values in completeInvitation(). Color management should work
             // differently.
+
             if (hook instanceof ColorNegotiationHook) {
                 clientColorID = Integer.parseInt(actualSettings
                         .get(ColorNegotiationHook.KEY_CLIENT_COLOR));

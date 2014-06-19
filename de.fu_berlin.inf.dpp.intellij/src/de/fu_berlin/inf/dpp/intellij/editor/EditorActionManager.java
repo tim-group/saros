@@ -30,8 +30,8 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.DeleteOperation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.ITextOperation;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
+import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
+import de.fu_berlin.inf.dpp.core.editor.text.TextSelection;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.DocumentProvider;
@@ -40,8 +40,6 @@ import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableDocumentListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableSelectionListener;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableViewPortListener;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.text.Annotation;
-import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -68,7 +66,7 @@ public class EditorActionManager {
     private StoppableSelectionListener selectionListener;
     private StoppableViewPortListener viewportListener;
     private DocumentProvider adapter;
-    public Map<VirtualFile,byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
+    public Map<VirtualFile, byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
 
 
     public EditorActionManager(EditorManager manager) {
@@ -158,9 +156,9 @@ public class EditorActionManager {
     public boolean replaceText(SPath path, String text) {
         Document doc = editorPool.getDocument(path);
         if (doc != null) {
-                boolean bWritable = doc.isWritable();
-                doc.setReadOnly(false);
-                editorAPI.setText(doc, text);
+            boolean bWritable = doc.isWritable();
+            doc.setReadOnly(false);
+            editorAPI.setText(doc, text);
             doc.setReadOnly(!bWritable);
             return true;
         }
@@ -255,7 +253,7 @@ public class EditorActionManager {
      * @param range     viewport of the followed user. Can be <code>null</code>.
      * @param selection text selection of the followed user. Can be <code>null</code>.
      */
-    public void adjustViewport(Editor editor, ILineRange range, ITextSelection selection) {
+    public void adjustViewport(Editor editor, LineRange range, TextSelection selection) {
         if (editor == null || selection == null || range == null) {
             return;
         }
@@ -383,24 +381,12 @@ public class EditorActionManager {
     }
 
 
-    /**
-     * Removes all Annotation that fulfill given {@link de.fu_berlin.inf.dpp.intellij.util.Predicate} from all
-     * editors.
-     *
-     * @param predicate The filter to use for cleaning.
-     */
-    protected void removeAnnotationsFromAllEditors(Predicate<Annotation> predicate) {
-        //todo
-        System.out.println("EditorActionManager.removeAnnotationsFromAllEditors //todo");
-    }
-
     public SPath toPath(VirtualFile virtualFile) {
         if (virtualFile == null || !virtualFile.exists() || manager.sarosSession == null) {
             return null;
         }
 
         IResource resource = null;
-
 
 
         String path = virtualFile.getPath();
@@ -454,9 +440,8 @@ public class EditorActionManager {
             viewportListener.setEnabled(enable);
     }
 
-    public void registerNewFile(VirtualFile virtualFile, byte[] content)
-    {
-        this.newFiles.put(virtualFile,content);
+    public void registerNewFile(VirtualFile virtualFile, byte[] content) {
+        this.newFiles.put(virtualFile, content);
     }
 
     public DocumentProvider getAdapter() {

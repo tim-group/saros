@@ -22,8 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.editor.text;
 
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
-
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -31,7 +29,7 @@ import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
  * Time: 10:36
  */
 
-public class LineRange implements ILineRange
+public class LineRange
 {
     int lineRange;
     int numberLines;
@@ -42,13 +40,13 @@ public class LineRange implements ILineRange
         this.numberLines = numberLines;
     }
 
-    @Override
+
     public int getStartLine()
     {
         return lineRange;
     }
 
-    @Override
+
     public int getNumberOfLines()
     {
         return numberLines;

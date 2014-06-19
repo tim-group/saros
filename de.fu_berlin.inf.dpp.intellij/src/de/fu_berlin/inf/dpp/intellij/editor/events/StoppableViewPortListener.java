@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.editor.events;
 import com.intellij.openapi.editor.event.VisibleAreaEvent;
 import com.intellij.openapi.editor.event.VisibleAreaListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 import java.awt.*;
@@ -62,11 +63,11 @@ public class StoppableViewPortListener extends AbstractStoppableListener impleme
 
     }
 
-    protected LineRangeEvent getLineRange(VisibleAreaEvent event)
+    protected LineRange getLineRange(VisibleAreaEvent event)
     {
         Rectangle rec = event.getEditor().getScrollingModel().getVisibleAreaOnScrollingFinished();
         int lineHeight = event.getEditor().getLineHeight();
 
-        return new LineRangeEvent((int) (rec.getMinY() / lineHeight), (int) (rec.getMaxY() / lineHeight));
+        return new LineRange((int) (rec.getMinY() / lineHeight), (int) (rec.getMaxY() / lineHeight));
     }
 }

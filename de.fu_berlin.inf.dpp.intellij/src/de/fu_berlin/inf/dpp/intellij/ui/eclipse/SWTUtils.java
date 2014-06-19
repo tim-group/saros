@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.Display;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 
@@ -68,11 +67,6 @@ public class SWTUtils
         return true;
     }
 
-    public static Display getDisplay()
-    {
-
-        return Display.getDefault();
-    }
 
     public static Object runSWTSync1(Callable<Object> callable) throws Exception
     {

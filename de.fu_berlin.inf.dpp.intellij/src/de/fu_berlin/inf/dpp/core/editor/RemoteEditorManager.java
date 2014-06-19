@@ -23,24 +23,14 @@
 package de.fu_berlin.inf.dpp.core.editor;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.core.editor.text.TextSelection;
-import org.apache.log4j.Logger;
-
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 
 /**
  * This class contains the state of the editors, viewports and selections of all
@@ -63,9 +53,9 @@ public class RemoteEditorManager {
 
         protected SPath path;
 
-        protected ITextSelection selection;
+        protected TextSelection selection;
 
-        protected ILineRange viewport;
+        protected LineRange viewport;
 
         public RemoteEditor(SPath path) {
             this.path = path;
@@ -75,19 +65,19 @@ public class RemoteEditorManager {
             return path;
         }
 
-        public ILineRange getViewport() {
+        public LineRange getViewport() {
             return viewport;
         }
 
-        public void setViewport(ILineRange viewport) {
+        public void setViewport(LineRange viewport) {
             this.viewport = viewport;
         }
 
-        public void setSelection(ITextSelection selection) {
+        public void setSelection(TextSelection selection) {
             this.selection = selection;
         }
 
-        public ITextSelection getSelection() {
+        public TextSelection getSelection() {
             return this.selection;
         }
     }
@@ -108,7 +98,7 @@ public class RemoteEditorManager {
             this.user = user;
         }
 
-        public void setSelection(SPath path, ITextSelection selection) {
+        public void setSelection(SPath path, TextSelection selection) {
 
             if (!openEditors.containsKey(path)) {
                 log.warn("received selection from user [" + this.user
@@ -120,7 +110,7 @@ public class RemoteEditorManager {
 
         }
 
-        public void setViewport(SPath path, ILineRange viewport) {
+        public void setViewport(SPath path, LineRange viewport) {
 
             if (!openEditors.containsKey(path)) {
                 log.warn("Viewport for editor which was never activated: "
@@ -152,9 +142,9 @@ public class RemoteEditorManager {
         /**
          * Returns a RemoteEditor representing the given path for the given
          * user.
-         *
+         * <p/>
          * This method never returns null but creates a new RemoteEditor lazily.
-         *
+         * <p/>
          * To query whether the user of this RemoteEditorState has the editor of
          * the given path open use isRemoteOpenEditor().
          */
@@ -215,7 +205,7 @@ public class RemoteEditorManager {
             @Override
             public void receive(ViewportActivity viewportActivity) {
 
-                ILineRange lineRange = new LineRange(
+                LineRange lineRange = new LineRange(
                         viewportActivity.getStartLine(),
                         viewportActivity.getNumberOfLines());
 
@@ -225,7 +215,7 @@ public class RemoteEditorManager {
             @Override
             public void receive(TextSelectionActivity textSelectionActivity) {
 
-                ITextSelection selection = new TextSelection(
+                TextSelection selection = new TextSelection(
                         textSelectionActivity.getOffset(),
                         textSelectionActivity.getLength());
 
@@ -291,7 +281,7 @@ public class RemoteEditorManager {
      * null if the user has no active editor or no selection in the active
      * editor.
      */
-    public ITextSelection getSelection(User user) {
+    public TextSelection getSelection(User user) {
 
         RemoteEditor activeEditor = getEditorState(user).getActiveEditor();
 
@@ -303,9 +293,9 @@ public class RemoteEditorManager {
 
     /**
      * @return the viewport of the given user in the currently active editor or
-     *         <code>null</code> if the user has no active editor.
+     * <code>null</code> if the user has no active editor.
      */
-    public ILineRange getViewport(User user) {
+    public LineRange getViewport(User user) {
         if (sarosSession.getLocalUser().equals(user)) {
             throw new IllegalArgumentException(
                     "Viewport of the local user was queried.");
@@ -350,7 +340,7 @@ public class RemoteEditorManager {
     /**
      * Returns a set of all paths representing the editors which are currently
      * opened by the remote users of this shared session (i.e. not our own).
-     *
+     * <p/>
      * If no editors are opened an empty set is being returned.
      */
     public Set<SPath> getRemoteOpenEditors() {
@@ -381,7 +371,7 @@ public class RemoteEditorManager {
      * Returns a snapshot copy of all paths representing the editors which are
      * currently opened by the given user of this shared session (i.e. not our
      * own).
-     *
+     * <p/>
      * If no editors are opened by the given user an empty set is being
      * returned.
      */
@@ -394,7 +384,7 @@ public class RemoteEditorManager {
      * this shared session (i.e. not our own).
      *
      * @return the active RemoteEditor or <code>null</code> if the given user
-     *         has no editor open.
+     * has no editor open.
      */
     public RemoteEditor getRemoteActiveEditor(User user) {
         return getEditorState(user).getActiveEditor();
@@ -406,8 +396,8 @@ public class RemoteEditorManager {
      * getEditorState(user).getActiveEditor() != null.
      *
      * @return <code>true</code>, if the currently active remote editor of the
-     *         given user is shared via the Saros session, <code>false</code>
-     *         otherwise.
+     * given user is shared via the Saros session, <code>false</code>
+     * otherwise.
      */
     public boolean isRemoteActiveEditorShared(User user) {
         return getRemoteActiveEditor(user) != null;

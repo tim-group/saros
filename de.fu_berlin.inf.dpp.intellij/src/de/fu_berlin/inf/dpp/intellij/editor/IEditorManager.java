@@ -24,9 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 
 import java.io.FileNotFoundException;
 
@@ -40,18 +37,6 @@ import java.io.FileNotFoundException;
 public interface IEditorManager extends IEditorManagerBase
 {
 
-
-    void generateSelection(IEditorPart part, ITextSelection newSelection);
-
-    void generateViewport(IEditorPart part, ILineRange viewport);
-
-    void partActivated(IEditorPart editorPart);
-
-    void partOpened(IEditorPart editorPart);
-
-    void partClosed(IEditorPart editor);
-
-    void partInputChanged(IEditorPart editor);
 
 
 

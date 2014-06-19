@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -191,7 +192,7 @@ public interface ISarosSessionManager {
     void postOutgoingInvitationCompleted(IProgressMonitor monitor, User newUser);
 
     /**
-     * Sets the {@link INegotiationHandler negotiation handler} that will handle
+     * Sets the {@link de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler negotiation handler} that will handle
      * incoming and outgoing session and project negotiations requests.
      *
      * @param handler

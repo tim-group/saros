@@ -23,10 +23,10 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
+import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -46,8 +46,7 @@ import java.util.Map;
  * Time: 08.53
  */
 
-public class SessionTree extends AbstractTree
-{
+public class SessionTree extends AbstractTree {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
@@ -57,16 +56,12 @@ public class SessionTree extends AbstractTree
     private DefaultTreeModel treeModel;
 
 
-    private ISharedProjectListener userListener = new AbstractSharedProjectListener()
-    {
+    private ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
-        public void userLeft(final User user)
-        {
-            UIUtil.invokeAndWaitIfNeeded(new Runnable()
-            {
+        public void userLeft(final User user) {
+            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     removeUserNode(user);
                 }
             });
@@ -74,13 +69,10 @@ public class SessionTree extends AbstractTree
         }
 
         @Override
-        public void userJoined(final User user)
-        {
-            UIUtil.invokeAndWaitIfNeeded(new Runnable()
-            {
+        public void userJoined(final User user) {
+            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     addUserNode(user);
                 }
             });
@@ -88,34 +80,12 @@ public class SessionTree extends AbstractTree
     };
 
 
-    private ISarosSessionListener sessionListener = new ISarosSessionListener()
-    {
+    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
-        public void preIncomingInvitationCompleted(final IProgressMonitor monitor)
-        {
-
-        }
-
-        @Override
-        public void postOutgoingInvitationCompleted(final IProgressMonitor monitor, final User user)
-        {
-
-        }
-
-        @Override
-        public void sessionStarting(final ISarosSession newSarosSession)
-        {
-
-        }
-
-        @Override
-        public void sessionStarted(final ISarosSession newSarosSession)
-        {
-            UIUtil.invokeAndWaitIfNeeded(new Runnable()
-            {
+        public void sessionStarted(final ISarosSession newSarosSession) {
+            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     newSarosSession.addListener(userListener);
                     createSessionNode(newSarosSession);
                 }
@@ -124,20 +94,11 @@ public class SessionTree extends AbstractTree
         }
 
         @Override
-        public void sessionEnding(final ISarosSession oldSarosSession)
-        {
+        public void sessionEnded(final ISarosSession oldSarosSession) {
 
-        }
-
-        @Override
-        public void sessionEnded(final ISarosSession oldSarosSession)
-        {
-
-            UIUtil.invokeAndWaitIfNeeded(new Runnable()
-            {
+            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     oldSarosSession.removeListener(userListener);
                     removeSessionNode(oldSarosSession);
                 }
@@ -147,13 +108,10 @@ public class SessionTree extends AbstractTree
         }
 
         @Override
-        public void projectAdded(final String projectID)
-        {
-            UIUtil.invokeAndWaitIfNeeded(new Runnable()
-            {
+        public void projectAdded(final String projectID) {
+            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     addProjectNode(projectID);
                 }
             });
@@ -165,8 +123,7 @@ public class SessionTree extends AbstractTree
     /**
      * @param parent
      */
-    public SessionTree(RootTree parent)
-    {
+    public SessionTree(RootTree parent) {
         super(parent);
         this.rootTree = parent;
 
@@ -179,24 +136,20 @@ public class SessionTree extends AbstractTree
         saros.getSessionManager().addSarosSessionListener(sessionListener);
     }
 
-    protected void create()
-    {
+    protected void create() {
 
     }
 
-    public CategoryInfo getUserObject()
-    {
+    public CategoryInfo getUserObject() {
         return (CategoryInfo) super.getUserObject();
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         getUserObject().title = title;
     }
 
 
-    private void createSessionNode(ISarosSession newSarosSession)
-    {
+    private void createSessionNode(ISarosSession newSarosSession) {
 
         DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
 
@@ -209,8 +162,7 @@ public class SessionTree extends AbstractTree
 
         setTitle(TREE_TITLE);
 
-        if (!newSarosSession.isHost())
-        {
+        if (!newSarosSession.isHost()) {
             addUserNode(newSarosSession.getLocalUser());
         }
 
@@ -219,19 +171,16 @@ public class SessionTree extends AbstractTree
     }
 
 
-    private void removeSessionNode(ISarosSession oldSarosSession)
-    {
+    private void removeSessionNode(ISarosSession oldSarosSession) {
 
         DefaultMutableTreeNode nSession = sessionNodeList.get(oldSarosSession);
-        if (nSession != null)
-        {
+        if (nSession != null) {
             treeModel.removeNodeFromParent(nSession);
             sessionNodeList.remove(oldSarosSession);
             removeAllUserNodes();
         }
 
-        if (sessionNodeList.size() == 0)
-        {
+        if (sessionNodeList.size() == 0) {
             setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
         }
 
@@ -240,23 +189,17 @@ public class SessionTree extends AbstractTree
     }
 
 
-    private void addProjectNode(String projectID)
-    {
+    private void addProjectNode(String projectID) {
 
         //iterate projects in sessions
-        for (DefaultMutableTreeNode nSession : sessionNodeList.values())
-        {
+        for (DefaultMutableTreeNode nSession : sessionNodeList.values()) {
             ISarosSession session = ((SessionInfo) nSession.getUserObject()).getSession();
             IProject p = session.getProject(projectID);
-            if (p != null)
-            {
+            if (p != null) {
                 ProjectInfo projInfo;
-                if (session.isCompletelyShared(p))
-                {
+                if (session.isCompletelyShared(p)) {
                     projInfo = new ProjectInfo(p);
-                }
-                else
-                {
+                } else {
                     projInfo = new ProjectInfo(p, session.getSharedResources(p));
 
                 }
@@ -268,8 +211,7 @@ public class SessionTree extends AbstractTree
         }
     }
 
-    private void addUserNode(User user)
-    {
+    private void addUserNode(User user) {
         DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
         userNodeList.put(user, nUser);
         treeModel.insertNodeInto(nUser, this, this.getChildCount());
@@ -279,11 +221,9 @@ public class SessionTree extends AbstractTree
         treeModel.reload(this);
     }
 
-    private void removeUserNode(User user)
-    {
+    private void removeUserNode(User user) {
         DefaultMutableTreeNode nUser = userNodeList.get(user);
-        if (nUser != null)
-        {
+        if (nUser != null) {
             remove(nUser);
             userNodeList.remove(user);
 
@@ -294,10 +234,8 @@ public class SessionTree extends AbstractTree
 
     }
 
-    private void removeAllUserNodes()
-    {
-        for (DefaultMutableTreeNode nUser : userNodeList.values())
-        {
+    private void removeAllUserNodes() {
+        for (DefaultMutableTreeNode nUser : userNodeList.values()) {
             removeUserNode(((UserInfo) nUser.getUserObject()).getUser());
         }
 
@@ -307,57 +245,47 @@ public class SessionTree extends AbstractTree
     /**
      * Class to keep session information
      */
-    protected class SessionInfo extends LeafInfo
-    {
+    protected class SessionInfo extends LeafInfo {
         private ISarosSession session;
 
-        private SessionInfo(ISarosSession session)
-        {
+        private SessionInfo(ISarosSession session) {
             super(session.getID(), session.getHost().getNickname());
             this.session = session;
         }
 
-        public ImageIcon getIcon()
-        {
+        public ImageIcon getIcon() {
             return IconManager.contactOnlineIcon;
         }
 
-        public ISarosSession getSession()
-        {
+        public ISarosSession getSession() {
             return session;
         }
 
-        public String toString()
-        {
+        public String toString() {
             return "Host " + title;
         }
 
     }
 
-    protected class UserInfo extends LeafInfo
-    {
+    protected class UserInfo extends LeafInfo {
         private User user;
         private boolean isOnline = false;
 
-        public UserInfo(User user)
-        {
+        public UserInfo(User user) {
             super(user.getNickname(), user.getNickname());
             this.user = user;
             this.setIcon(IconManager.contactOnlineIcon);
         }
 
-        public User getUser()
-        {
+        public User getUser() {
             return user;
         }
 
-        public boolean isOnline()
-        {
+        public boolean isOnline() {
             return isOnline;
         }
 
-        public void setOnline(boolean isOnline)
-        {
+        public void setOnline(boolean isOnline) {
             this.isOnline = isOnline;
         }
     }
@@ -365,49 +293,39 @@ public class SessionTree extends AbstractTree
     /**
      *
      */
-    protected class ProjectInfo extends LeafInfo
-    {
+    protected class ProjectInfo extends LeafInfo {
         private IProject project;
         private List<IResource> resList;
 
-        public ProjectInfo(IProject project)
-        {
+        public ProjectInfo(IProject project) {
             super(project.getFullPath().toString(), project.getName());
             this.project = project;
         }
 
-        public ProjectInfo(IProject project, List<IResource> resources)
-        {
+        public ProjectInfo(IProject project, List<IResource> resources) {
             this(project);
             this.resList = resources;
 
         }
 
-        public IProject getProject()
-        {
+        public IProject getProject() {
             return project;
         }
 
-        public String toString()
-        {
-            if (resList != null)
-            {
+        public String toString() {
+            if (resList != null) {
                 StringBuilder sbOut = new StringBuilder();
                 sbOut.append(project.getName());
                 sbOut.append(" : ");
-                for (IResource res : resList)
-                {
-                    if (res.getType() == IResource.FILE)
-                    {
+                for (IResource res : resList) {
+                    if (res.getType() == IResource.FILE) {
                         sbOut.append(res.getName());
                         sbOut.append("; ");
                     }
                 }
 
                 return sbOut.toString();
-            }
-            else
-            {
+            } else {
                 return project.getName();
             }
         }

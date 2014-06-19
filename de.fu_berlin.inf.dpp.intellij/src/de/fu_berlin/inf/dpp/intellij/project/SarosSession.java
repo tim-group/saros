@@ -23,12 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.project;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -147,7 +142,7 @@ public final class SarosSession implements ISarosSession {
 
     private final StopManager stopManager;
 
-    private final ChangeColorManager changeColorManager;
+    //private final ChangeColorManager changeColorManager;
 
     private final PermissionManager permissionManager;
 
@@ -1010,12 +1005,12 @@ public final class SarosSession implements ISarosSession {
 
     @Override
     public void changeColor(int colorID) {
-        changeColorManager.changeColorID(colorID);
+        //todo: implement it
     }
 
     @Override
     public Set<Integer> getUnavailableColors() {
-        return changeColorManager.getUsedColorIDs();
+        return new HashSet<Integer>();
     }
 
     @Override
@@ -1081,7 +1076,6 @@ public final class SarosSession implements ISarosSession {
         // Classes belonging to a session
 
         // Core Managers
-        sessionContainer.addComponent(ChangeColorManager.class);
         sessionContainer.addComponent(SharedResourcesManager.class);
         sessionContainer.addComponent(PermissionManager.class);
         sessionContainer.addComponent(FollowingActivitiesManager.class);
@@ -1134,9 +1128,6 @@ public final class SarosSession implements ISarosSession {
         activityHandler = sessionContainer.getComponent(ActivityHandler.class);
 
         stopManager = sessionContainer.getComponent(StopManager.class);
-
-        changeColorManager = sessionContainer
-                .getComponent(ChangeColorManager.class);
 
         permissionManager = sessionContainer
                 .getComponent(PermissionManager.class);

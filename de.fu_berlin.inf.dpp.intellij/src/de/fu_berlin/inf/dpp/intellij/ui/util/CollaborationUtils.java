@@ -22,7 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
+import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
@@ -35,11 +36,10 @@ import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.Job;
+import de.fu_berlin.inf.dpp.intellij.runtime.Job;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -124,7 +124,7 @@ public class CollaborationUtils {
                 } catch (Exception e) {
 
                     LOG.error("could not first a Saros session", e);
-                    return new Status(IStatus.ERROR, Saros.SAROS,
+                    return new Status(IStatus.ERROR, SarosSessionPacketExtension.EXTENSION_NAMESPACE,
                             e.getMessage(), e);
                 }
 

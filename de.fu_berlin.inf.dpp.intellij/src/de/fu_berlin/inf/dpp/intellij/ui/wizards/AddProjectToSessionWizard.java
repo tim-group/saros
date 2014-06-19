@@ -22,26 +22,33 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.ui.*;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.core.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.monitor.*;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.IStatus;
+import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.*;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
 import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IFileEditorInput;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.*;
+import de.fu_berlin.inf.dpp.intellij.runtime.Job;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
@@ -93,8 +100,6 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
      */
     protected Map<String, String> remoteProjectNames;
 
-    @Inject
-    protected IEditorAPI editorAPI;
 
     @Inject
     private IChecksumCache checksumCache;
@@ -110,6 +115,9 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
 
     @Inject
     private IWorkspace workspace;
+
+    @Inject
+    private EditorManager editorManager;
 
     private Wizard wizard;
     private SelectProjectPage infoPage;
@@ -306,25 +314,11 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
         this.wizardDialog = wizardDialog;
     }
 
-    private Collection<IEditorPart> getOpenEditorsForSharedProjects(
+    private Collection<SPath> getOpenEditorsForSharedProjects(
             Collection<IProject> projects) {
 
-        List<IEditorPart> openEditors = new ArrayList<IEditorPart>();
-
-        //todo
-//        Set<IEditorPart> editors = EditorAPI.getOpenEditors();
-//
-//        for (IProject project : projects) {
-//            for (IEditorPart editor : editors) {
-//                if (editor.getEditorInput() instanceof IFileEditorInput) {
-//                    IFile file = ((IFileEditorInput) editor.getEditorInput())
-//                            .getFile();
-//                    if (project.equals(file.getProject()))
-//                        openEditors.add(editor);
-//                }
-//            }
-//        }
-        return openEditors;
+        //todo: filter by project
+        return editorManager.getLocallyOpenEditors();
     }
 
 
@@ -356,69 +350,8 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
             }
         }
 
-        final Collection<IEditorPart> openEditors = getOpenEditorsForSharedProjects(existingProjects);
+        final Collection<SPath> openEditors = getOpenEditorsForSharedProjects(existingProjects);
 
-        final List<IEditorPart> dirtyEditors = new ArrayList<IEditorPart>();
-
-        boolean containsDirtyEditors = false;
-
-        for (IEditorPart editor : openEditors) {
-            if (editor.isDirty()) {
-                containsDirtyEditors = true;
-                dirtyEditors.add(editor);
-            }
-        }
-
-        if (containsDirtyEditors) {
-            SWTUtils.runSafeSWTAsync(log, new Runnable() {
-                @Override
-                public void run() {
-//                    if (AddProjectToSessionWizard.this.getShell().isDisposed())
-//                    {
-//                        return;
-//                    }
-
-                    int max = Math.min(20, dirtyEditors.size());
-                    int more = dirtyEditors.size() - max;
-
-                    List<String> dirtyEditorNames = new ArrayList<String>();
-
-                    for (IEditorPart editor : dirtyEditors.subList(0, max)) {
-                        dirtyEditorNames.add(editor.getTitle());
-                    }
-
-                    Collections.sort(dirtyEditorNames);
-
-                    if (more > 0) {
-                        dirtyEditorNames.add(MessageFormat
-                                .format(
-                                        Messages.AddProjectToSessionWizard_unsaved_changes_dialog_more,
-                                        more));
-                    }
-
-                    String allDirtyEditorNames = StringUtils.join(
-                            dirtyEditorNames, ", ");
-
-                    String dialogText = MessageFormat
-                            .format(
-                                    Messages.AddProjectToSessionWizard_unsaved_changes_dialog_text,
-                                    allDirtyEditorNames);
-
-                    boolean proceed = DialogUtils.openQuestionMessageDialog(
-                            AddProjectToSessionWizard.this.getShell(),
-                            Messages.AddProjectToSessionWizard_unsaved_changes_dialog_title,
-                            dialogText);
-
-                    if (proceed) {
-                        for (IEditorPart editor : openEditors) {
-                            editor.doSave(new NullProgressMonitor());
-                        }
-                    }
-                }
-            });
-
-            return false;
-        }
 
         /*
          * Ask the user whether to overwrite local resources only if resources
@@ -447,23 +380,6 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
             };
             job.schedule();
 
-//            getContainer().run(true, false, new IRunnableWithProgress()
-//            {
-//                @Override
-//                public void run(IProgressMonitor monitor)
-//                        throws InvocationTargetException, InterruptedException
-//                {
-//                    try
-//                    {
-//                        modifiedResources.putAll(calculateModifiedResources(
-//                                modifiedProjects, monitor));
-//                    }
-//                    catch (Exception e)
-//                    {
-//                        throw new InvocationTargetException(e);
-//                    }
-//                }
-//            });
         } catch (Exception e) {
             Throwable cause = e.getCause();
 
@@ -491,8 +407,8 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
          * close all editors to avoid any conflicts. this will be needed for
          * rsync as it needs to move files around the file system
          */
-        for (IEditorPart editor : openEditors) {
-            editorAPI.closeEditor(editor);
+        for (SPath editorPath : openEditors) {
+            editorManager.closeEditor(editorPath);
         }
 
         Job job = new Job("Synchronizing") {
@@ -527,11 +443,8 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
                     SWTUtils.runSafeSWTAsync(log, new Runnable() {
                         @Override
                         public void run() {
-                            for (IEditorPart editor : openEditors) {
-                                if (((IFileEditorInput) editor.getEditorInput())
-                                        .getFile().exists()) {
-                                    editorAPI.openEditor(editor);
-                                }
+                            for (SPath editorPath : openEditors) {
+                                editorManager.openEditor(editorPath);
                             }
                         }
                     });

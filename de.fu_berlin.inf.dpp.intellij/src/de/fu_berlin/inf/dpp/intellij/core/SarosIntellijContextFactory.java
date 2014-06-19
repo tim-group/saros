@@ -25,26 +25,24 @@ package de.fu_berlin.inf.dpp.intellij.core;
 import de.fu_berlin.inf.dpp.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
+import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.FileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.internal.ChecksumCacheImpl;
-import de.fu_berlin.inf.dpp.core.project.internal.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.intellij.concurrent.undo.UndoManager;
-import de.fu_berlin.inf.dpp.intellij.synchronize.IntelliJSynchronizer;
+import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.ui.LocalPresenceTracker;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.core.ui.ISarosView;
@@ -89,17 +87,12 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
            // Component.create(IEditorManager.class, EditorManagerEcl.class),
 
             Component.create(IEditorManager.class, EditorManager.class),
-          //  Component.create(EditorManager.class),
-            // disabled because of privacy violations
-            // see
-            // http://opus.haw-hamburg.de/volltexte/2011/1391/pdf/ba_krassmann_online.pdf
-            // page 47
-            Component.create(LocalPresenceTracker.class),
+
 
 
             Component.create(SarosUI.class),
             Component.create(SessionViewOpener.class),
-            Component.create(UndoManager.class),
+
 
 
             Component.create(Container.class),
@@ -133,7 +126,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory
             // SWT EDT support
             Component.create(UISynchronizer.class, IntelliJSynchronizer.class),
 
-            Component.create(IFileContentChangedNotifier.class, FileContentChangedNotifier.class),
+            Component.create(IFileContentChangedNotifier.class, FileContentChangedNotifierBridge.class),
 
 
             Component.create(PreferenceUtils.class),

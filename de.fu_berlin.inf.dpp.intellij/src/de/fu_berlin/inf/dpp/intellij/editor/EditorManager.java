@@ -29,28 +29,23 @@ import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
+
+import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
+import de.fu_berlin.inf.dpp.core.editor.text.TextSelection;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.ISarosView;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.annotations.SarosAnnotation;
+
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.internal.ContributionAnnotationManager;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.internal.LocationAnnotationManager;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.text.Annotation;
+
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
 import de.fu_berlin.inf.dpp.intellij.util.Predicate;
-import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
-import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
@@ -71,7 +66,7 @@ import java.util.Set;
 
 public class EditorManager
 
-        extends EditorManagerBridge
+        extends AbstractActivityProvider
         implements IEditorManager {
 
 
@@ -119,13 +114,10 @@ public class EditorManager
     protected boolean isLocked;
 
 
-    protected final DirtyStateListener dirtyStateListener = new DirtyStateListener(this);
-
-
     protected Set<SPath> locallyOpenEditors = new HashSet<SPath>();
 
     protected SelectionEvent localSelection;
-    protected ILineRange localViewport;
+    protected LineRange localViewport;
 
     protected SPath locallyActiveEditor;
 
@@ -135,9 +127,7 @@ public class EditorManager
      */
     protected final Set<IFile> connectedFiles = new HashSet<IFile>();
 
-    //AnnotationModelHelper annotationModelHelper;
-    LocationAnnotationManager locationAnnotationManager;
-    ContributionAnnotationManager contributionAnnotationManager;
+
 
     private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
         @Override
@@ -177,8 +167,7 @@ public class EditorManager
             installProvider(sarosSession);
 
             //annotationModelHelper = new AnnotationModelHelper();
-            locationAnnotationManager = new LocationAnnotationManager(preferenceStore);
-            contributionAnnotationManager = new ContributionAnnotationManager(newSarosSession, preferenceStore);
+
             remoteEditorManager = new RemoteEditorManager(sarosSession);
             remoteWriteAccessManager = new RemoteWriteAccessManager(sarosSession);
 
@@ -213,33 +202,18 @@ public class EditorManager
 
                     //  preferenceStore.removePropertyChangeListener(annotationPreferenceListener);  //todo
 
-                    //todo: implement annotations
-                    /*
-                     * First need to removeAll the annotations and then clear the
-                     * editorPool
-                     */
-                    actionManager.removeAnnotationsFromAllEditors(new Predicate<Annotation>() {
-                        @Override
-                        public boolean evaluate(Annotation annotation) {
-                            return annotation instanceof SarosAnnotation;
-                        }
-                    });
+
 
                     actionManager.getEditorPool().clear(); //todo
                     //removeAllEditors(sarosSession); //make multi-session support
 
-                    //  customAnnotationManager.uninstallAllPainters(true);  //todo
-
-                    dirtyStateListener.unregisterAll();
 
                     sarosSession.removeListener(sharedProjectListener);
                     uninstallProvider(sarosSession);
 
                     sarosSession = null;
                     //annotationModelHelper = null;
-                    locationAnnotationManager = null;
-                    contributionAnnotationManager.dispose();
-                    contributionAnnotationManager = null;
+
                     remoteEditorManager = null;
                     remoteWriteAccessManager.dispose();
                     remoteWriteAccessManager = null;
@@ -395,14 +369,7 @@ public class EditorManager
                 setFollowing(null);
             }
 
-            actionManager.removeAnnotationsFromAllEditors(new Predicate<Annotation>() {
-                @Override
-                public boolean evaluate(Annotation annotation) {
-                    return annotation instanceof SarosAnnotation
-                            && ((SarosAnnotation) annotation).getSource().equals(
-                            user);
-                }
-            });
+
             remoteEditorManager.removeUser(user);
         }
     };
@@ -618,7 +585,7 @@ public class EditorManager
     }
 
 
-    public void generateViewport(SPath path, ILineRange viewport) {
+    public void generateViewport(SPath path, LineRange viewport) {
 
         System.out.println("EditorManager.generateViewport " + viewport);
 
@@ -716,7 +683,7 @@ public class EditorManager
             return;
         }
 
-        ILineRange viewport = activeEditor.getViewport();
+        LineRange viewport = activeEditor.getViewport();
 
         if (viewport == null) {
             log.warn(jumpTo.getJID() + " has no viewport in editor: "
@@ -725,7 +692,7 @@ public class EditorManager
         }
 
         // selection can be null
-        ITextSelection selection = remoteEditorManager.getSelection(followedUser);
+        TextSelection selection = remoteEditorManager.getSelection(followedUser);
 
         this.actionManager.adjustViewport(newEditor, viewport, selection);
 
@@ -862,6 +829,20 @@ public class EditorManager
 //        }
     }
 
+    @Override
+    public boolean isOpenEditor(SPath path) {
+        return false;
+    }
+
+    @Override
+    public void closeEditor(SPath path) {
+
+    }
+
+    @Override
+    public void openEditor(SPath path) {
+
+    }
 
     public EditorActionManager getActionManager() {
         return actionManager;

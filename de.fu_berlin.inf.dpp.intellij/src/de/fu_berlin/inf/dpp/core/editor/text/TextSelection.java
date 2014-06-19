@@ -22,10 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.editor.text;
 
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
-
-
-public class TextSelection implements ITextSelection {
+public class TextSelection {
     int offset;
     int length;
 
@@ -34,22 +31,22 @@ public class TextSelection implements ITextSelection {
         this.length = length;
     }
 
-    @Override
+
     public int getOffset() {
         return offset;
     }
 
-    @Override
+
     public int getLength() {
         return length;
     }
 
-    @Override
+
     public int getEndLine() {
         return offset + length;
     }
 
-    @Override
+
     public boolean isEmpty() {
         return length == 0;
     }

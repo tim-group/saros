@@ -30,11 +30,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.PlatformUI;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.exceptions.PartInitException;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbench;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbenchPage;
-import de.fu_berlin.inf.dpp.intellij.mock.editor.ui.IWorkbenchWindow;
+
 import org.apache.log4j.Logger;
 
 
@@ -71,23 +67,20 @@ public class SarosUI {
         activateView(SarosView.ID);
     }
 
-    protected void bringToFrontView(String view) {
-        showView(view, IWorkbenchPage.VIEW_VISIBLE);
-    }
 
     protected void activateView(String view) {
-        showView(view, IWorkbenchPage.VIEW_ACTIVATE);
+       // showView(view, IWorkbenchPage.VIEW_ACTIVATE);
     }
 
     protected void createView(String view) {
-        showView(view, IWorkbenchPage.VIEW_CREATE);
+      //  showView(view, IWorkbenchPage.VIEW_CREATE);
     }
 
     /**
      * TODO What to do if no WorkbenchWindows are are active?
      */
     protected void showView(String view, int mode) {
-        try {
+        /*try {
             IWorkbench workbench = PlatformUI.getWorkbench();
             if (workbench == null) {
                 log.error("Workbench not created when trying to show view!"); //$NON-NLS-1$
@@ -105,7 +98,7 @@ public class SarosUI {
             window.getActivePage().showView(view, null, mode);
         } catch (PartInitException e) {
             log.error("Could not create View " + view, e); //$NON-NLS-1$
-        }
+        }*/
     }
 
     public static Composite createLabelComposite(Composite parent, String text) {

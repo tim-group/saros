@@ -26,7 +26,6 @@ package de.fu_berlin.inf.dpp.intellij.editor.events;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.editor.event.SelectionListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.internal.ITextSelection;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 /**

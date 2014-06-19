@@ -32,8 +32,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
 import de.fu_berlin.inf.dpp.core.feedback.AbstractStatisticCollector;
 import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
@@ -147,13 +145,7 @@ public class SelectionCollector extends AbstractStatisticCollector
             }
         }
 
-        @Override
-        public void viewportGenerated(IEditorPart part, ILineRange viewport,
-                SPath path) {
-            // refresh the SPath of the local active editor
-            localPath = path;
 
-        }
 
         @Override
         public void textSelectionMade(TextSelectionActivity selection) {

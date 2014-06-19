@@ -22,16 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
-
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
 import de.fu_berlin.inf.dpp.activities.ViewportActivity;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.internal.IEditorPart;
-import de.fu_berlin.inf.dpp.core.editor.internal.ILineRange;
+import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.session.User;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener} which can dispatch to a changing set of
@@ -75,7 +73,7 @@ public class SharedEditorListenerDispatch implements ISharedEditorListener {
 
     @Override
     public void textEditRecieved(User user, SPath editor, String text,
-            String replacedText, int offset) {
+                                 String replacedText, int offset) {
 
         for (ISharedEditorListener listener : editorListeners)
             listener.textEditRecieved(user, editor, text, replacedText, offset);
@@ -99,17 +97,16 @@ public class SharedEditorListenerDispatch implements ISharedEditorListener {
             listener.jumpedToUser(jumpedTo);
     }
 
-    @Override
-    public void viewportGenerated(IEditorPart part, ILineRange viewport,
-            SPath path) {
-
-        for (ISharedEditorListener listener : editorListeners)
-            listener.viewportGenerated(part, viewport, path);
-    }
 
     @Override
     public void colorChanged() {
         for (ISharedEditorListener listener : editorListeners)
             listener.colorChanged();
+    }
+
+    @Override
+    public void viewportGenerated(LineRange viewport, SPath path) {
+        for (ISharedEditorListener listener : editorListeners)
+            listener.viewportGenerated(viewport,path);
     }
 }

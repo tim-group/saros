@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
+import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -32,13 +33,6 @@ import javax.swing.*;
 
 /**
  * Connects XMPP/Jabber server with given account
- * <p/>
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public class ConnectServerAction extends AbstractSarosAction implements IConnectionAction {
     public static final String NAME = "connect";
@@ -123,7 +117,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
                 actionFinished();
                 return;
             }
-            account = saros.getAccountStore().createAccount(jabberID, password, saros.NAMESPACE, saros.SAROS_SERVER, 80, false, false);
+            account = saros.getAccountStore().createAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
             //account = new XMPPAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
             isNew = true;
         } else {

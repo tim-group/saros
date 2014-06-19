@@ -43,6 +43,8 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.IEditorManagerBase;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
@@ -56,7 +58,7 @@ import java.io.File;
  * Time: 12:20
  */
 
-public class EditorAPI extends EditorAPIBridge {
+public class EditorAPI implements IEditorAPI {
 
     private ProjectManager projectManager;
     private LocalFileSystem localFileSystem;
@@ -424,6 +426,30 @@ public class EditorAPI extends EditorAPIBridge {
             this.editorFactory = EditorFactory.getInstance();
         }
     }
+
+
+    @Override
+    public SPath getActiveEditorPath() {
+        return null;
+    }
+
+
+    @Override
+    public void removeEditorPartListener(IEditorManagerBase editorManager) {
+
+    }
+
+    @Override
+    public void addEditorPartListener(IEditorManagerBase editorManager) {
+
+    }
+
+
+    @Override
+    public boolean existUnsavedFiles(IProject project) {
+        return false;
+    }
+
 
 
 }

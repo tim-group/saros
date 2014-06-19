@@ -155,9 +155,8 @@ public class FileListFactory {
 
             VCSResourceInfo info = null;
 
-//            if (vcs != null)
-//                info = vcs.getCurrentResourceInfo(ResourceAdapterFactory
-//                    .convertBack(resource));
+            if (vcs != null)
+                info = vcs.getCurrentResourceInfo(resource);
 
             assert !list.useVersionControl()
                 || (project != null && project.equals(resource.getProject()));

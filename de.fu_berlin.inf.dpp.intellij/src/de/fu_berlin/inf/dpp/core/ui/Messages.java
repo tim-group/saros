@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.core.ui;
 
 
-import de.fu_berlin.inf.dpp.core.util.MessageUtils;
+import de.fu_berlin.inf.dpp.intellij.util.MessageUtils;
 
 import java.lang.reflect.Field;
 
@@ -37,7 +37,7 @@ import java.lang.reflect.Field;
 public class Messages
 {
 
-    private static final String BUNDLE_NAME = Messages.class.getName();
+    private static final String BUNDLE_NAME = Messages.class.getName().toLowerCase();
 
     public static String AddContactWizard_title;
     public static String AddContactWizardPage_nickname;
@@ -449,14 +449,5 @@ public class Messages
     {
     }
 
-
-    public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException
-    {
-
-        for (Field f : Messages.class.getFields())
-        {
-            System.out.println(f.getGenericType() + " " + f.getName() + " = " + f.get(Messages.class));
-        }
-    }
 
 }

@@ -1,15 +1,12 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 
-import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeEvent;
-import de.fu_berlin.inf.dpp.core.project.events.SubscriberChangeListener;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.core.resources.IResourceVisitor;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -18,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -167,50 +163,6 @@ public class SharedProject {
         }
     };
 
-    /**
-     * Used only for logging.
-     */
-    private SubscriberChangeListener subscriberChangeListener = new SubscriberChangeListener() {
-        @Override
-        public void subscriberResourceChanged(SubscriberChangeEvent[] deltas) {
-            if (!log.isTraceEnabled())
-                return;
-
-            StringBuilder result = new StringBuilder(512);
-            result.append("subscriberResourceChanged:\n"); //$NON-NLS-1$
-
-            for (SubscriberChangeEvent delta : deltas) {
-                int flags = delta.getFlags();
-                boolean syncChanged = (flags & SubscriberChangeEvent.SYNC_CHANGED) != 0;
-
-                if (flags == SubscriberChangeEvent.NO_CHANGE)
-                    result.append('0');
-                if (syncChanged)
-                    result.append('S');
-                if ((flags & SubscriberChangeEvent.ROOT_ADDED) != 0)
-                    result.append('+');
-                if ((flags & SubscriberChangeEvent.ROOT_REMOVED) != 0)
-                    result.append('-');
-
-                IResource resource = delta.getResource();
-                result.append(' ').append(
-                        resource.getFullPath().toPortableString());
-
-                if (syncChanged) {
-                    VCSAdapter vcs = VCSAdapter.getAdapter(resource
-                            .getProject());
-                    if (vcs.isManaged(resource)) {
-                        VCSResourceInfo info = vcs.getResourceInfo(resource);
-                        result.append(format(" ({0}:{1})", info.url, //$NON-NLS-1$
-                                info.revision));
-                    }
-                }
-
-                result.append('\n');
-            }
-            log.trace(result.toString());
-        }
-    };
 
     public SharedProject(IProject project, ISarosSession sarosSession) {
 
@@ -253,14 +205,7 @@ public class SharedProject {
         this.vcs.update(vcs);
         if (vcs == null)
             return;
-        if (log.isTraceEnabled()) {
-            IRepositoryProvider provider = null;//todo: Implement it //RepositoryProvider.getProvider(project);
-            ISubscriber subscriber = provider.getSubscriber();
-            if (subscriber != null)
-                subscriber.addListener(subscriberChangeListener);
-            else
-                log.error("Could not add this SharedProject as an SubscriberChangeListener.");
-        }
+
         Set<IPath> paths = resourceMap.keySet();
         for (IPath path : paths) {
             IResource resource = project.findMember(path);
@@ -271,7 +216,6 @@ public class SharedProject {
             updateRevision(resource, info.revision);
         }
 
-        assert checkIntegrity();
     }
 
     /**
@@ -420,98 +364,6 @@ public class SharedProject {
         return resourceMap.containsKey(path);
     }
 
-    /**
-     * Returns true if the SharedProject is in sync with the local project, i.e.
-     * if every resource in the IProject is in the SharedProject and vice versa,
-     * and if the resource information associated with the resources are up to
-     * date.<br>
-     * It's intended for debugging only.<br>
-     * TODO Do unit tests instead
-     */
-    public boolean checkIntegrity() {
-        boolean illegalState = false;
-        Set<Entry<IPath, ResourceInfo>> entrySet = resourceMap.entrySet();
-        final VCSAdapter vcs = this.vcs.getValue();
-        final String projectName = project.getName();
-        for (Entry<IPath, ResourceInfo> entry : entrySet) {
-            IPath path = entry.getKey();
-            IResource resource = project.findMember(path);
-            if (resource == null) {
-                String msg = format(
-                        Messages.SharedProject_resource_in_map_not_exist, path,
-                        project.getName());
-                logIllegalStateException(msg);
-                illegalState = true;
-                resourceMap.remove(path);
-                continue;
-            }
-            assert resource.exists();
-            if (vcs == null)
-                continue;
-
-            VCSResourceInfo expected = vcs.getResourceInfo(resource);
-            ResourceInfo found = entry.getValue();
-            String foundUrl = found.vcsUrl.getValue();
-            String foundRevision = found.vcsRevision.getValue();
-            if (found.vcsRevision.update(expected.revision)) {
-                String msg = format(
-                        Messages.SharedProject_revision_out_of_sync, path,
-                        projectName, foundRevision, expected.revision);
-                logIllegalStateException(msg);
-                illegalState = true;
-            }
-            if (found.vcsUrl.update(expected.url)) {
-                String msg = format(Messages.SharedProject_vcs_url_out_of_sync,
-                        path, projectName, foundUrl, expected.url);
-                logIllegalStateException(msg);
-                illegalState = true;
-            }
-        }
-        IResourceVisitor visitor = new IResourceVisitor() {
-            boolean result = false;
-
-            @Override
-            public boolean visit(IResource resource) {
-                if (resource == null)
-                    return result;
-                IPath path = resource.getProjectRelativePath();
-                String assMsg = format(
-                        Messages.SharedProject_path_is_null, resource);
-                assert path != null : assMsg;
-                if (!contains(resource)) {
-                    final String msg = format(
-                            Messages.SharedProject_resource_map_does_not_contain,
-                            projectName, path.toString());
-                    logIllegalStateException(msg);
-                    result = true;
-                    add(resource);
-                    if (vcs != null) {
-                        final VCSResourceInfo info = vcs
-                                .getResourceInfo(resource);
-                        updateRevision(resource, info.revision);
-                        updateVcsUrl(resource, info.url);
-                    }
-                }
-                return true;
-            }
-        };
-        try {
-            //todo
-//            project.accept(visitor, de.fu_berlin.inf.dpp.resources.IResource.DEPTH_INFINITE,
-//                    IContainer.EXCLUDE_DERIVED);
-            illegalState = illegalState || visitor.visit(null);
-        } catch (Exception e) {
-            return false;
-        }
-        return !illegalState;
-    }
-
-    private void logIllegalStateException(final String msg) {
-        // Should never happen.
-        final IllegalStateException e = new IllegalStateException();
-        log.error(msg, e);
-        // throw e;
-    }
 
     public String getName() {
         return this.project.getName();
