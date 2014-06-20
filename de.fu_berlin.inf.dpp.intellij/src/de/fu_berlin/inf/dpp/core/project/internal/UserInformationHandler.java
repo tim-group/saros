@@ -46,7 +46,7 @@ import java.util.*;
  * users. Also handles sending and responding to userLists after when a user
  * joined the session
  */
-
+//todo: copy from eclipse
 @Component(module = "core")
 public class UserInformationHandler implements Startable
 {

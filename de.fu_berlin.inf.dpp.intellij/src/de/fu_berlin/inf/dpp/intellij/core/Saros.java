@@ -29,7 +29,7 @@ import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
 import de.fu_berlin.inf.dpp.intellij.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.feedback.FeedbackPreferences;
+
 import de.fu_berlin.inf.dpp.core.net.Transport;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
@@ -39,6 +39,7 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.core.misc.BlockableTransport;
 import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
+import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.ConnectionMode;
@@ -214,7 +215,6 @@ public class Saros {
         // instantiated
         this.sarosContext.getComponents(Object.class);
 
-        FeedbackPreferences.setPreferences(new SarosPreferences());
 
     }
 

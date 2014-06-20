@@ -28,7 +28,7 @@ import java.util.concurrent.CancellationException;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
-import de.fu_berlin.inf.dpp.core.ui.Messages;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
 
 import org.apache.log4j.Logger;

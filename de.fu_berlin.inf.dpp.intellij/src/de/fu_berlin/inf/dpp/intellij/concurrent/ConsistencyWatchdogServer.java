@@ -27,10 +27,9 @@ import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
@@ -83,7 +82,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
 
     private final HashMap<SPath, DocumentChecksum> docsChecksums = new HashMap<SPath, DocumentChecksum>();
 
-    private final IEditorManager editorManager;
+    private final EditorManager editorManager;
 
     private final ISarosSession session;
 
@@ -119,7 +118,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
     };
 
     public ConsistencyWatchdogServer(ISarosSession session,
-            IEditorManager editorManager, StopManager stopManager,
+            EditorManager editorManager, StopManager stopManager,
             UISynchronizer synchronizer)
     {
         this.session = session;

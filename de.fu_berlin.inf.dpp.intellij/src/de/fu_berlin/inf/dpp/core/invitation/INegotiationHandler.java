@@ -1,10 +1,8 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 
-import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
+import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
 
 
 /**

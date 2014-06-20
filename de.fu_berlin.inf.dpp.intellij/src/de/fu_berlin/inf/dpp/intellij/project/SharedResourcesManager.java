@@ -32,7 +32,6 @@ import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
@@ -63,6 +62,7 @@ import java.util.Map;
  * see
  * http://www.eclipse.org/articles/Article-Resource-deltas/resource-deltas.html
  */
+//todo: copy from eclipse
 @Component(module = "core")
 public class SharedResourcesManager extends AbstractActivityProvider implements
         Startable {
@@ -146,11 +146,11 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     }
 
     public SharedResourcesManager(ISarosSession sarosSession,
-                                  StopManager stopManager, IEditorManager editorManager) {
+                                  StopManager stopManager, EditorManager editorManager) {
         this.sarosSession = sarosSession;
         this.stopManager = stopManager;
         this.fileSystemListener = new FileSystemChangeListener(this);
-        this.fileSystemListener.setEditorManager((EditorManager) editorManager);
+        this.fileSystemListener.setEditorManager(editorManager);
     }
 
 

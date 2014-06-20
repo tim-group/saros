@@ -47,6 +47,7 @@ import de.fu_berlin.inf.dpp.session.User;
  * singleton instance which never changes and the {@link ISarosSession} which
  * can change many times during the course of the plug-in life-cycle.
  */
+//todo: copy from eclipse
 @Component(module = "net")
 public interface ISarosSessionManager {
 

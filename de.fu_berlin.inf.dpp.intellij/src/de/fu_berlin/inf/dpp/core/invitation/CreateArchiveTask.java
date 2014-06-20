@@ -1,10 +1,12 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
+
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
+
 import de.fu_berlin.inf.dpp.util.CoreUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -36,7 +38,6 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         this.monitor = monitor;
     }
 
-    @Override
     public void run(IProgressMonitor monitor) throws IOException {
         if (this.monitor != null)
             monitor = this.monitor;

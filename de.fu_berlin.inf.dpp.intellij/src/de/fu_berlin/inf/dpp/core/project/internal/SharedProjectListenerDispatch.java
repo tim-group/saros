@@ -27,7 +27,7 @@ import de.fu_berlin.inf.dpp.session.User;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
+//todo: copy from eclipse
 public class SharedProjectListenerDispatch implements ISharedProjectListener
 {
     protected List<ISharedProjectListener> listeners = new CopyOnWriteArrayList<ISharedProjectListener>();

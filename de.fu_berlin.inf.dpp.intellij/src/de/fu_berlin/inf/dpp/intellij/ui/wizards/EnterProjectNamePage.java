@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import de.fu_berlin.inf.dpp.core.ui.IEnterProjectNamePage;
+import de.fu_berlin.inf.dpp.intellij.ui.IEnterProjectNamePage;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 /**

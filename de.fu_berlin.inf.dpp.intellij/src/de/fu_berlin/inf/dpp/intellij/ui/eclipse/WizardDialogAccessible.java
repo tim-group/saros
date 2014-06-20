@@ -22,8 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
-import de.fu_berlin.inf.dpp.core.ui.IWizard;
-import de.fu_berlin.inf.dpp.core.ui.IWizardDialogAccessible;
+import de.fu_berlin.inf.dpp.intellij.ui.IWizard;
+import de.fu_berlin.inf.dpp.intellij.ui.IWizardDialogAccessible;
 
 import javax.swing.*;
 import java.awt.*;

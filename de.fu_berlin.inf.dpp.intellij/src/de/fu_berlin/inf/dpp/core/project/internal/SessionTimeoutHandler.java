@@ -40,6 +40,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
  *
  * @author srossbach
  */
+//todo: copy from eclipse
 abstract class SessionTimeoutHandler implements Startable {
 
     private final static Logger LOG = Logger

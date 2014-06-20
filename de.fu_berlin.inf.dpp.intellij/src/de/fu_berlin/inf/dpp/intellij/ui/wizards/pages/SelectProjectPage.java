@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
-import de.fu_berlin.inf.dpp.core.ui.Messages;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.AbstractWizardPage;
 
 import javax.swing.*;

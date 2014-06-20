@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
-import de.fu_berlin.inf.dpp.core.ui.ISarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

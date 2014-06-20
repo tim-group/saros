@@ -27,18 +27,17 @@ import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.communication.chat.muc.MultiUserChatService;
 import de.fu_berlin.inf.dpp.communication.chat.single.SingleUserChatService;
-import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
-import de.fu_berlin.inf.dpp.core.communication.chart.muc.negotiation.MUCNegotiationManager;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
-import de.fu_berlin.inf.dpp.core.project.internal.ColorNegotiationHook;
-import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.intellij.awareness.AwarenessInformationCollector;
+import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
-import de.fu_berlin.inf.dpp.net.*;
-
+import de.fu_berlin.inf.dpp.net.DispatchThreadContext;
+import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.internal.*;
 import de.fu_berlin.inf.dpp.net.stun.IStunService;
 import de.fu_berlin.inf.dpp.net.stun.internal.StunServiceImpl;
@@ -64,8 +63,7 @@ import java.util.Arrays;
  *
  * @author srossbach
  */
-public class SarosCoreContextFactory extends AbstractSarosContextFactory
-{
+public class SarosCoreContextFactory extends AbstractSarosContextFactory {
 
     // TODO we must abstract the IPrefenceStore stuff otherwise anything here is
     // broken
@@ -83,8 +81,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
 
             // Invitation hooks
             Component.create(SessionNegotiationHookManager.class),
-            Component.create(ColorNegotiationHook.class),
-             Component.create(MUCNegotiationManager.class),  //todo
+
 
             // Network
             Component.create(DispatchThreadContext.class),
@@ -122,7 +119,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(SessionIDObservable.class),
             Component.create(SarosSessionObservable.class),
             Component.create(AwarenessInformationCollector.class),
-           // Component.create(FollowingActivitiesManager.class),  //todo
+            // Component.create(FollowingActivitiesManager.class),  //todo
 
             // Handlers
             Component.create(CancelInviteHandler.class),
@@ -133,14 +130,11 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory
             Component.create(RemoteProgressManager.class),
 
 
-
     };
 
     @Override
-    public void createComponents(MutablePicoContainer container)
-    {
-        for (Component component : Arrays.asList(components))
-        {
+    public void createComponents(MutablePicoContainer container) {
+        for (Component component : Arrays.asList(components)) {
 
             container.addComponent(component.getBindKey(),
                     component.getImplementation());

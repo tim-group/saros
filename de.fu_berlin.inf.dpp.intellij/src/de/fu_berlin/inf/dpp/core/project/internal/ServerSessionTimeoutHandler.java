@@ -51,6 +51,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
  *
  * @author srossbach
  */
+//todo: copy from eclipse
 public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
 
     private static final Logger LOG = Logger

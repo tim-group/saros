@@ -28,13 +28,13 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import de.fu_berlin.inf.dpp.core.feedback.FeedbackManager;
-import de.fu_berlin.inf.dpp.core.feedback.StatisticManager;
+
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.internal.*;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
-import de.fu_berlin.inf.dpp.intellij.feedback.*;
+
+import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.MutablePicoContainer;
@@ -1079,23 +1079,6 @@ public final class SarosSession implements ISarosSession {
         sessionContainer.addComponent(SharedResourcesManager.class);
         sessionContainer.addComponent(PermissionManager.class);
         sessionContainer.addComponent(FollowingActivitiesManager.class);
-
-        // Statistic collectors. Make sure to add new collectors to the
-        // StatisticCollectorTest as well
-        sessionContainer.addComponent(StatisticManager.class);
-        sessionContainer.addComponent(DataTransferCollector.class);
-        sessionContainer.addComponent(PermissionChangeCollector.class);
-        sessionContainer.addComponent(ParticipantCollector.class);
-        sessionContainer.addComponent(SessionDataCollector.class);
-        sessionContainer.addComponent(TextEditCollector.class);
-        sessionContainer.addComponent(JumpFeatureUsageCollector.class);
-        sessionContainer.addComponent(FollowModeCollector.class);
-        sessionContainer.addComponent(SelectionCollector.class);
-        sessionContainer.addComponent(ProjectCollector.class);
-
-        // Feedback
-        sessionContainer.addComponent(ErrorLogManager.class);
-        sessionContainer.addComponent(FeedbackManager.class);
 
         // Handlers
         sessionContainer.addComponent(ConsistencyWatchdogHandler.class);

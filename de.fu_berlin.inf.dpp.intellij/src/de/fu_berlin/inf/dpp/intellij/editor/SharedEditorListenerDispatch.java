@@ -25,15 +25,14 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
 import de.fu_berlin.inf.dpp.activities.ViewportActivity;
-import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
+import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.session.User;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener} which can dispatch to a changing set of
- * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener}s.
+ * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener} which can dispatch to a changing set of
+ * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener}s.
  */
 public class SharedEditorListenerDispatch implements ISharedEditorListener {
 

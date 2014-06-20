@@ -44,7 +44,7 @@ import java.util.*;
  * FIXME: the partial sharing stuff should not be handled here but in the
  * SharedProject class
  */
-
+ //todo: copy from eclipse
 public class SarosProjectMapper
 {
 

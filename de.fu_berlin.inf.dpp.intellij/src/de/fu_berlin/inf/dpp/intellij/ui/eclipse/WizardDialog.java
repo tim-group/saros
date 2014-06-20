@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
-import de.fu_berlin.inf.dpp.core.ui.IWizard;
+import de.fu_berlin.inf.dpp.intellij.ui.IWizard;
 
 import javax.swing.*;
 import java.awt.*;

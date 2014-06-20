@@ -42,6 +42,7 @@ import static java.text.MessageFormat.format;
  * responsible for updating the local project upon receiving resource
  * activities, possibly even reverting changes.
  */
+    //todo: copy from eclipse
 public class SharedProject {
     /**
      * A value of type E with a convenient update method to check if the value

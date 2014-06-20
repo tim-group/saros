@@ -23,23 +23,23 @@
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
-import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
+
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.Messages;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.runtime.Job;
+import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -105,7 +105,7 @@ public class CollaborationUtils {
                 monitor.beginTask("Starting session...",
                         IProgressMonitor.UNKNOWN);
                 try {
-                    sessionManager.startSession(convert(newResources));
+                    sessionManager.startSession(newResources);
                     Set<JID> participantsToAdd = new HashSet<JID>(contacts);
 
                     monitor.internalWorked(50);
@@ -210,7 +210,7 @@ public class CollaborationUtils {
             public void run() {
 
                 if (sarosSession.hasWriteAccess()) {
-                    sessionManager.addResourcesToSession(convert(projectResources));
+                    sessionManager.addResourcesToSession(projectResources);
                     return;
                 }
 
@@ -284,8 +284,7 @@ public class CollaborationUtils {
                             "\nProjectIntl: %s, Files: %d, Size: %s", project.getName(),
                             fileCountAndSize.v, format(fileCountAndSize.p)));
                 } else {
-                    List<IResource> resources = ResourceAdapterFactory
-                            .convertBack(sarosSession.getSharedResources(project));
+                    List<IResource> resources = sarosSession.getSharedResources(project);
 
                     fileCountAndSize = FileUtils.getFileCountAndSize(resources,
                             false, IResource.NONE);
@@ -320,7 +319,7 @@ public class CollaborationUtils {
      * @return
      */
     private static Map<IProject, List<IResource>> acquireResources(
-            List<IResource> selectedResources, ISarosSession sarosSession) throws IOException{
+            List<IResource> selectedResources, ISarosSession sarosSession) throws IOException {
 
         Map<IProject, Set<IResource>> projectsResources = new HashMap<IProject, Set<IResource>>();
 
@@ -455,16 +454,5 @@ public class CollaborationUtils {
                 / (1000F * 1000F * 1000F));
     }
 
-    private static Map<IProject, List<IResource>> convert(
-            Map<IProject, List<IResource>> data) {
 
-        Map<IProject, List<IResource>> result = new HashMap<de.fu_berlin.inf.dpp.filesystem.IProject, List<de.fu_berlin.inf.dpp.filesystem.IResource>>();
-
-        for (Entry<IProject, List<IResource>> entry : data.entrySet()) {
-            result.put(ResourceAdapterFactory.create(entry.getKey()),
-                    ResourceAdapterFactory.convertTo(entry.getValue()));
-        }
-
-        return result;
-    }
 }

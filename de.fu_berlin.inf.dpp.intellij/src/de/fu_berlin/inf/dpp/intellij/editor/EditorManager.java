@@ -26,25 +26,18 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
-
-import de.fu_berlin.inf.dpp.core.editor.text.LineRange;
-import de.fu_berlin.inf.dpp.core.editor.text.TextSelection;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.ISarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
-
+import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
+import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
-import de.fu_berlin.inf.dpp.intellij.util.Predicate;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import org.apache.log4j.Logger;
@@ -65,9 +58,7 @@ import java.util.Set;
  */
 
 public class EditorManager
-
-        extends AbstractActivityProvider
-        implements IEditorManager {
+        extends AbstractActivityProvider {
 
 
     /**
@@ -128,24 +119,23 @@ public class EditorManager
     protected final Set<IFile> connectedFiles = new HashSet<IFile>();
 
 
-
     private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
-        @Override
+        
         public void receive(EditorActivity editorActivity) {
             execEditorActivity(editorActivity);
         }
 
-        @Override
+        
         public void receive(TextEditActivity textEditActivity) {
             execTextEdit(textEditActivity);
         }
 
-        @Override
+        
         public void receive(TextSelectionActivity textSelectionActivity) {
             execTextSelection(textSelectionActivity);
         }
 
-        @Override
+        
         public void receive(ViewportActivity viewportActivity) {
             execViewport(viewportActivity);
         }
@@ -153,7 +143,7 @@ public class EditorManager
 
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
-        @Override
+        
         public void sessionStarted(ISarosSession newSarosSession) {
             System.out.println("EditorManager.sessionStarted");
             sarosSession = newSarosSession;
@@ -177,7 +167,7 @@ public class EditorManager
 //
 //            SWTUtils.runSafeSWTSync(log, new Runnable()
 //            {
-//                @Override
+//                
 //                public void run()
 //                {
 //
@@ -186,14 +176,14 @@ public class EditorManager
 //            });
         }
 
-        @Override
+        
         public void sessionEnded(ISarosSession oldSarosSession) {
             System.out.println("EditorManager.sessionEnded");
             assert sarosSession == oldSarosSession;
             sarosSession.getStopManager().removeBlockable(stopManagerListener); //todo
 
             SWTUtils.runSafeSWTSync(log, new Runnable() {
-                @Override
+                
                 public void run() {
 
                     setFollowing(null);
@@ -201,7 +191,6 @@ public class EditorManager
                     // editorAPI.removeEditorPartListener(EditorManager.this); //should be not needed
 
                     //  preferenceStore.removePropertyChangeListener(annotationPreferenceListener);  //todo
-
 
 
                     actionManager.getEditorPool().clear(); //todo
@@ -223,7 +212,7 @@ public class EditorManager
             });
         }
 
-        @Override
+        
         public void projectAdded(String projectID) {
             //todo
             System.out.println("EditorManager.projectAdded //todo");
@@ -238,7 +227,7 @@ public class EditorManager
 //                 * again everything is going back to normal. To prevent that
 //                 * from happening this method is needed.
 //                 */
-//                @Override
+//                
 //                public void run()
 //                {
 //                    // Calling this method might cause openPart events
@@ -276,29 +265,29 @@ public class EditorManager
 
     private ISharedEditorListener sharedEditorListener = new AbstractSharedEditorListener() {
 
-        @Override
+        
         public void activeEditorChanged(User user, SPath path) {
             System.out.println("EditorManager.activeEditorChanged>>>>>" + path);
         }
     };
 
     private Blockable stopManagerListener = new Blockable() {
-        @Override
+        
         public void unblock() {
             SWTUtils.runSafeSWTSync(log, new Runnable() {
 
-                @Override
+                
                 public void run() {
                     actionManager.lockAllEditors(false);
                 }
             });
         }
 
-        @Override
+        
         public void block() {
             SWTUtils.runSafeSWTSync(log, new Runnable() {
 
-                @Override
+                
                 public void run() {
                     actionManager.lockAllEditors(true);
                 }
@@ -308,7 +297,7 @@ public class EditorManager
 
     private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
-        @Override
+        
         public void permissionChanged(final User user) {
 
             // Make sure we have the up-to-date facts about ourself
@@ -323,7 +312,7 @@ public class EditorManager
             refreshAnnotations();
         }
 
-        @Override
+        
         public void userFinishedProjectNegotiation(User user) {
 
             // TODO The user should be able to ask us for this state
@@ -361,7 +350,7 @@ public class EditorManager
             }
         }
 
-        @Override
+        
         public void userLeft(final User user) {
 
             // If the user left which I am following, then stop following...
@@ -499,7 +488,7 @@ public class EditorManager
     }
 
 
-    @Override
+    
     public void exec(IActivity activity) {
 
         User sender = activity.getSource();
@@ -707,66 +696,64 @@ public class EditorManager
     }
 
 
-    @Override
     public void saveText(SPath path) {
         System.out.println("EditorManager.saveText");
     }
 
-    @Override
     public Set<SPath> getOpenEditorsOfAllParticipants() {
         System.out.println("EditorManager.getOpenEditorsOfAllParticipants //todo");
         return new HashSet<SPath>(); //todo
     }
 
-    @Override
+    
     public void setAllLocalOpenedEditorsLocked(boolean locked) {
         System.out.println("EditorManager.setAllLocalOpenedEditorsLocked");
     }
 
-    @Override
+    
     public void colorChanged() {
         System.out.println("EditorManager.colorChanged");
     }
 
-    @Override
+    
     public void refreshAnnotations() {
         System.out.println("EditorManager.refreshAnnotations");
     }
 
 
-    @Override
+    
     public RemoteEditorManager getRemoteEditorManager() {
         return remoteEditorManager;
     }
 
-    @Override
+    
     public boolean isActiveEditorShared() {
         return false;
     }
 
 
-    @Override
+    
     public void addSharedEditorListener(ISharedEditorListener listener) {
         this.editorListenerDispatch.add(listener);
     }
 
-    @Override
+    
     public void saveLazy(SPath path) throws FileNotFoundException {
         getActionManager().saveFile(path);
     }
 
-    @Override
+    
     public void removeSharedEditorListener(ISharedEditorListener listener) {
         System.out.println("EditorManager.removeSharedEditorListener");
     }
 
-    @Override
+    
     public Set<SPath> getLocallyOpenEditors() {
         System.out.println("EditorManager.getLocallyOpenEditors");
         return actionManager.getEditorPool().getFiles();
     }
 
-    @Override
+    
     public Set<SPath> getRemoteOpenEditors() {
         //todo
         System.out.println("EditorManager.getRemoteOpenEditors //todo");
@@ -791,7 +778,7 @@ public class EditorManager
      */
     public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
 
-        if(sarosSession==null)
+        if (sarosSession == null)
             return;
 
         TextEditActivity textEdit = new TextEditActivity(sarosSession.getLocalUser(), offset, oldText, newText, path);
@@ -829,17 +816,17 @@ public class EditorManager
 //        }
     }
 
-    @Override
+    
     public boolean isOpenEditor(SPath path) {
         return false;
     }
 
-    @Override
+    
     public void closeEditor(SPath path) {
 
     }
 
-    @Override
+    
     public void openEditor(SPath path) {
 
     }

@@ -23,18 +23,17 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.core.invitation.FileListFactory;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.*;
+import de.fu_berlin.inf.dpp.intellij.ui.*;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -42,8 +41,8 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.IEditorAPI;
 import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
+import de.fu_berlin.inf.dpp.intellij.project.fs.FileUtil;
 import de.fu_berlin.inf.dpp.intellij.runtime.Job;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
@@ -506,13 +505,14 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
         for (Map.Entry<String, IProject> entry : projectMapping.entrySet()) {
 
             String projectID = entry.getKey();
-            IProject eclipseProject = entry.getValue();
+            IProject project = entry.getValue();
+            FileUtil.create(project);
 
             FileListDiff diff;
 
             try {
-                if (!eclipseProject.isOpen()) {
-                    eclipseProject.open();
+                if (!project.isOpen()) {
+                    project.open();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -520,7 +520,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
 
             FileList remoteFileList = process.getRemoteFileList(projectID);
 
-            IProject project = ResourceAdapterFactory.create(eclipseProject);
+
 
             /*
              * do not refresh already partially shared projects as this may
@@ -534,11 +534,10 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
 
                 if (session.isShared(project)) {
 
-                    List<IResource> eclipseResources = ResourceAdapterFactory
-                            .convertBack(session.getSharedResources(project));
+                    List<IResource> eclipseResources = session.getSharedResources(project);
 
                     FileList sharedFileList = FileListFactory.createFileList(
-                            eclipseProject, eclipseResources, checksumCache, true,
+                            project, eclipseResources, checksumCache, true,
                             subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS));
 
                     // FIXME FileList objects should be immutable after creation
@@ -548,7 +547,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
                 }
 
                 diff = FileListDiff.diff(FileListFactory.createFileList(
-                                eclipseProject, null, checksumCache, true,
+                                project, null, checksumCache, true,
                                 subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS)),
                         remoteFileList
                 );
@@ -560,7 +559,7 @@ public class AddProjectToSessionWizard implements IAddProjectToSessionWizard {
 
                 if (!diff.getRemovedPaths().isEmpty()
                         || !diff.getAlteredPaths().isEmpty()) {
-                    modifiedResources.put(eclipseProject.getName(), diff);
+                    modifiedResources.put(project.getName(), diff);
                 }
 
             } catch (IOException e) {

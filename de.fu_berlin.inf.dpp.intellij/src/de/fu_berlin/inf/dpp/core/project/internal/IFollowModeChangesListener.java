@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
+//todo: copied from eclipse
 public interface IFollowModeChangesListener {
     public void followModeChanged();
 }

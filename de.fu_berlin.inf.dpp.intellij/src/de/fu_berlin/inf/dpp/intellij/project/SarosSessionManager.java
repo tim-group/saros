@@ -31,6 +31,8 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProcessListener;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
@@ -66,7 +68,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author rdjemili
  */
-
+//todo: copy from eclipse
 @Component(module = "core")
 public class SarosSessionManager implements ISarosSessionManager {
 

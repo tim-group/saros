@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.observables.ObservableValue;
  * that there are files which are inconsistent with regards to the checksums
  * sent by the server.
  */
+//todo: move it to the core
 @Component(module = "observables")
 public class IsInconsistentObservable extends ObservableValue<Boolean> {
 

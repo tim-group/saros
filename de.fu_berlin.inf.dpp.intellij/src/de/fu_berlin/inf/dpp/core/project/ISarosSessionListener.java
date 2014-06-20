@@ -11,6 +11,7 @@ import de.fu_berlin.inf.dpp.session.User;
  * @author rdjemili
  * @author bkahlert
  */
+//todo: copy from eclipse
 public interface ISarosSessionListener
 {
 

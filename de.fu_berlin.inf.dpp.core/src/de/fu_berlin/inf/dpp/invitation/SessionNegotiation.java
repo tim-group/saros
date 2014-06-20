@@ -49,8 +49,8 @@ public abstract class SessionNegotiation extends CancelableProcess {
     /**
      * Timeout for all packet exchanges during the session negotiation
      */
-    protected static final long PACKET_TIMEOUT = Long.getLong(
-        "de.fu_berlin.inf.dpp.negotiation.session.PACKET_TIMEOUT", 30000L);
+    protected static final long PACKET_TIMEOUT =3000000L;// Long.getLong(
+//        "de.fu_berlin.inf.dpp.negotiation.session.PACKET_TIMEOUT", 30000L);
 
     /**
      * Timeout on how long the session negotiation should wait for the remote
