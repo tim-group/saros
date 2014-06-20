@@ -42,7 +42,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.net.util;
+package de.fu_berlin.inf.dpp.intellij.util;
 
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -154,7 +154,7 @@ public class RosterUtils {
      *         returned which may containing additional information on how to
      *         register an account on the given XMPP server or an error code
      * @throws org.jivesoftware.smack.XMPPException
-     *             exception that occurs while registering
+     *             exceptions that occurs while registering
      * @blocking
      * @see org.jivesoftware.smack.packet.Registration#getError()
      */

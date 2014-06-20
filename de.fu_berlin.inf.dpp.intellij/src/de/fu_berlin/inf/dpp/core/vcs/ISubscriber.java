@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.vcs;
 
-import de.fu_berlin.inf.dpp.core.exception.TeamException;
+import de.fu_berlin.inf.dpp.core.exceptions.TeamException;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 /**

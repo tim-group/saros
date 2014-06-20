@@ -430,7 +430,7 @@ public final class SarosSession implements ISarosSession {
             if (!timedOutUsers.isEmpty()) {
                 activitySequencer.unregisterUser(user);
                 participants.remove(jid);
-                // FIXME do not throw a runtime exception here
+                // FIXME do not throw a runtime exceptions here
                 throw new RuntimeException(
                         "could not synchronize user list, following users did not respond: "
                                 + StringUtils.join(timedOutUsers, ", "));

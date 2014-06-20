@@ -25,8 +25,8 @@ package de.fu_berlin.inf.dpp.core.vcs;
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.exception.TeamException;
+import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.exceptions.TeamException;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -209,11 +209,11 @@ public abstract class VCSAdapter
     public abstract boolean hasLocalCache(IProject project);
 
     /**
-     * It is unclear under which circumstances this exception is thrown.
+     * It is unclear under which circumstances this exceptions is thrown.
      */
     protected void undocumentedException(Exception e)
     {
-        log.error("Undocumented exception", e);
+        log.error("Undocumented exceptions", e);
     }
 
     /**

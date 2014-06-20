@@ -120,7 +120,7 @@ public class FileListFactory {
                     .getCurrentResourceInfo(eclipseProject));
                 /*
                  * FIXME we need to stop querying for VCS revisions the moment
-                 * we reach the first exception
+                 * we reach the first exceptions
                  * 
                  * Caused by:
                  * org.tigris.subversion.svnclientadapter.SVNClientException:

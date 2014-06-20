@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Random;
 
 /*
- * IMPORTANT: All messages in the cancellation exception are SHOWN to the end user !
+ * IMPORTANT: All messages in the cancellation exceptions are SHOWN to the end user !
  */
 public final class OutgoingSessionNegotiation extends SessionNegotiation {
 

@@ -20,18 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.preferences.events;
+package de.fu_berlin.inf.dpp.core.exceptions;
 
-import java.util.prefs.PreferenceChangeEvent;
-
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 13.04
- */
-
-public interface PreferenceChangeListener
+//todo: created from Eclipse
+public class OperationCanceledException extends RuntimeException
 {
-    void preferenceChange(PreferenceChangeEvent event);
+
+    public OperationCanceledException()
+    {
+    }
+
+    public OperationCanceledException(String message)
+    {
+        super(message);
+    }
 }

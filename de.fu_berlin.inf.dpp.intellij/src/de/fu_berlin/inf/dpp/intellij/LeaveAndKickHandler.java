@@ -1,4 +1,4 @@
-package de.fu_berlin.inf.dpp.core.net.business;
+package de.fu_berlin.inf.dpp.intellij;
 
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;

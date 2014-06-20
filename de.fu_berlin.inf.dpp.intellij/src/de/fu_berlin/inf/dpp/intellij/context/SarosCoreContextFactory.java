@@ -31,7 +31,7 @@ import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
-import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
+import de.fu_berlin.inf.dpp.intellij.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.intellij.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;

@@ -20,18 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.exception;
+package de.fu_berlin.inf.dpp.core.exceptions;
 
 //todo: created from Eclipse
-public class OperationCanceledException extends RuntimeException
+public class TeamException extends Exception
 {
-
-    public OperationCanceledException()
-    {
-    }
-
-    public OperationCanceledException(String message)
-    {
-        super(message);
-    }
 }

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /*
- * IMPORTANT: All messages in the cancellation exception are SHOWN to the end user !
+ * IMPORTANT: All messages in the cancellation exceptions are SHOWN to the end user !
  */
 public class IncomingSessionNegotiation extends SessionNegotiation {
 

@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
-import de.fu_berlin.inf.dpp.core.exception.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;

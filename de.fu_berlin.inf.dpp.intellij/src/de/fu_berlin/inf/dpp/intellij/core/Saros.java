@@ -26,25 +26,20 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
-import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
-import de.fu_berlin.inf.dpp.intellij.context.SarosCoreContextFactory;
-import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
-
-import de.fu_berlin.inf.dpp.core.net.Transport;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.intellij.core.misc.BlockableTransport;
+import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
+import de.fu_berlin.inf.dpp.intellij.context.SarosCoreContextFactory;
+import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
-import de.fu_berlin.inf.dpp.net.ConnectionMode;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
-import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
@@ -53,10 +48,8 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Saros plugin class
@@ -240,21 +233,6 @@ public class Saros {
         return sessionManager;
     }
 
-    public DataTransferManager getTransferManager() {
-        if (transferManager == null) {
-            //todo
-            final CountDownLatch connectAcknowledge = new CountDownLatch(1);
-            final CountDownLatch connectProceed = new CountDownLatch(1);
-            Transport fallbackTransport = new Transport(ConnectionMode.IBB);
-            BlockableTransport mainTransport = new BlockableTransport(
-                    new HashSet<JID>(), ConnectionMode.SOCKS5_DIRECT,
-                    connectAcknowledge, connectProceed);
-
-            this.transferManager = new DataTransferManager(connectionService, null, mainTransport, fallbackTransport); //todo
-        }
-
-        return transferManager;
-    }
 
     public XMPPAccountStore getAccountStore() {
         if (accountStore == null) {

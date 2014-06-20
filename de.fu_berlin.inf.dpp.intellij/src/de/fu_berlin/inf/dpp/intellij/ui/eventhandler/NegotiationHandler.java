@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.core.invitation.*;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
-import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
+import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
@@ -148,7 +148,7 @@ public class NegotiationHandler implements INegotiationHandler {
                                                 peer, process.getErrorMessage()));
                 }
             } catch (Exception e) {
-                LOG.error("This exception is not expected here: ", e);
+                LOG.error("This exceptions is not expected here: ", e);
                 return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
 
             }
@@ -221,7 +221,7 @@ public class NegotiationHandler implements INegotiationHandler {
                         return new Status(IStatus.ERROR, NAMESPACE, message);
                 }
             } catch (Exception e) {
-                LOG.error("This exception is not expected here: ", e);
+                LOG.error("This exceptions is not expected here: ", e);
                 return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
 
             }
