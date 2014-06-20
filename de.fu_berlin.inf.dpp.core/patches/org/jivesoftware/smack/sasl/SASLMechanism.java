@@ -232,7 +232,7 @@ public abstract class SASLMechanism implements CallbackHandler {
      * @param challenge
      *            a base64 encoded string representing the challenge.
      * @throws IOException
-     *             if an exception sending the response occurs.
+     *             if an exceptions sending the response occurs.
      */
     public void challengeReceived(String challenge) throws IOException {
         byte response[];

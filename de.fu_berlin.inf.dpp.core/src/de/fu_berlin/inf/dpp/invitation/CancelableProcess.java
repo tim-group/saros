@@ -258,10 +258,10 @@ abstract class CancelableProcess {
      * 
      * 
      * @param exception
-     *            The exception to analyze or <code>null</code>. If the process
+     *            The exceptions to analyze or <code>null</code>. If the process
      *            had already been canceled by a {@link #localCancel} or a
-     *            {@link #remoteCancel} call the exception will be ignored. If
-     *            the exception is <code>null</code> then the exit status will
+     *            {@link #remoteCancel} call the exceptions will be ignored. If
+     *            the exceptions is <code>null</code> then the exit status will
      *            be determined on former {@link #localCancel} or
      *            {@link #remoteCancel} calls.
      * @return the {@link Status} of the termination
@@ -418,7 +418,7 @@ abstract class CancelableProcess {
 
             }
         } else {
-            log.error("unexpected exception: "
+            log.error("unexpected exceptions: "
                 + cancellationCause.getClass().getName(), cancellationCause);
         }
 

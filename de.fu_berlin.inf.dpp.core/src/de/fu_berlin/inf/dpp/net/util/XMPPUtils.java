@@ -118,7 +118,7 @@ public class XMPPUtils {
      * 
      * @see Registration#getError()
      * @throws XMPPException
-     *             exception that occurs while registering
+     *             exceptions that occurs while registering
      */
     public static Registration createAccount(String server, String username,
         String password) throws XMPPException {

@@ -184,7 +184,7 @@ public class Socks5Transport extends ByteStreamTransport {
     /**
      * Tests one of the bytestreams != null in the opposite direction. It
      * returns it if bidirectional or tries to wrap two unidirectional streams
-     * if possible. Else an exception is thrown. The testing order is defined by
+     * if possible. Else an exceptions is thrown. The testing order is defined by
      * the boolean preferInSession.
      * 
      * @pre inSession!=null || outSession!=null
@@ -278,7 +278,7 @@ public class Socks5Transport extends ByteStreamTransport {
                     "SOCKS5 bytestream connections got mixed up. Try another transport.");
                 /*
                  * Note: a reason here might be a too low TEST_TIMEOUT but the
-                 * exception enables fallback to IBB instead of having the
+                 * exceptions enables fallback to IBB instead of having the
                  * stream crash on first use.
                  */
             }
@@ -300,7 +300,7 @@ public class Socks5Transport extends ByteStreamTransport {
 
         /*
          * Note: the streams cannot be closed here - even not the unused ones -
-         * as setting the timeout later on would throw an exception
+         * as setting the timeout later on would throw an exceptions
          */
 
         LOG.debug(prefix()

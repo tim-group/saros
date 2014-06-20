@@ -286,7 +286,7 @@ public class Roster {
      *            the list of group names the entry will belong to, or
      *            <tt>null</tt> if the the roster entry won't belong to a group.
      * @throws XMPPException
-     *             if an XMPP exception occurs.
+     *             if an XMPP exceptions occurs.
      * @throws IllegalStateException
      *             if connection is not logged in or logged in anonymously
      */
@@ -323,7 +323,7 @@ public class Roster {
         if (response == null) {
             throw new XMPPException("No response from the server.");
         }
-        // If the server replied with an error, throw an exception.
+        // If the server replied with an error, throw an exceptions.
         else if (response.getType() == IQ.Type.ERROR) {
             throw new XMPPException(response.getError());
         }
@@ -378,7 +378,7 @@ public class Roster {
         if (response == null) {
             throw new XMPPException("No response from the server.");
         }
-        // If the server replied with an error, throw an exception.
+        // If the server replied with an error, throw an exceptions.
         else if (response.getType() == IQ.Type.ERROR) {
             throw new XMPPException(response.getError());
         }

@@ -29,7 +29,7 @@ public class TransformationException extends Exception {
      * Creates a new TransformationException.
      * 
      * @param cause
-     *            the cause of this exception
+     *            the cause of this exceptions
      */
     public TransformationException(Throwable cause) {
         super(cause);
@@ -41,7 +41,7 @@ public class TransformationException extends Exception {
      * @param message
      *            the detail message
      * @param cause
-     *            the cause of this exception
+     *            the cause of this exceptions
      */
     public TransformationException(String message, Throwable cause) {
         super(message, cause);

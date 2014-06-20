@@ -334,14 +334,14 @@ public class XMPPConnectionService {
     }
 
     /**
-     * Returns the exception that occurred due to a connection failure. The
-     * exception can only be retrieved during a
+     * Returns the exceptions that occurred due to a connection failure. The
+     * exceptions can only be retrieved during a
      * {@linkplain ConnectionState#ERROR} callback and is <code>null</code>
      * otherwise.
      * 
      * @see IConnectionListener#connectionStateChanged(Connection,
      *      ConnectionState)
-     * @return exception that occurred during recent connection failure or
+     * @return exceptions that occurred during recent connection failure or
      *         <code>null</code> if not applicable.
      */
     public Exception getConnectionError() {

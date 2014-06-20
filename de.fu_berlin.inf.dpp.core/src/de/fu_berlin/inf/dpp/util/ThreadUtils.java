@@ -19,7 +19,7 @@ public class ThreadUtils {
      * This method does NOT actually run the given runnable, but only wraps it.
      * 
      * @param log
-     *            The log to print any exception messages thrown which occur
+     *            The log to print any exceptions messages thrown which occur
      *            when running the given runnable or <code>null</code>
      * 
      */
