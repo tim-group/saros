@@ -10,19 +10,24 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.fu_berlin.inf.dpp.project.IChecksumCache;
 
+import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.invitation.FileList.MetaData;
+import de.fu_berlin.inf.dpp.util.FileUtils;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
+
 public class FileListFactory {
 
     public static FileList createFileList(IProject project,
         List<IResource> resources, IChecksumCache checksumCache,
-        boolean useVersionControl, IProgressMonitor monitor)
-        throws CoreException {
+        VCSProvider provider, IProgressMonitor monitor) throws IOException {
 
-        if (resources == null)
-            return new FileList(project, checksumCache, useVersionControl,
-                monitor);
-
-        return new FileList(resources, checksumCache, useVersionControl,
-            monitor);
+        FileListFactory fact = new FileListFactory(checksumCache, monitor);
+        return fact.build(project, resources, provider);
     }
 
     /**
@@ -44,4 +49,141 @@ public class FileListFactory {
         return new FileList();
     }
 
+    private FileList build(IProject project, List<IResource> resources,
+        VCSProvider provider) throws IOException {
+
+        FileList list = new FileList(provider != null);
+
+        if (resources == null) {
+            list.addEncoding(project.getDefaultCharset());
+            resources = Arrays.asList(project.members());
+        }
+
+        addMembersToList(list, resources, provider);
+
+        return list;
+    }
+
+    private void addMembersToList(final FileList list,
+        final List<IResource> resources, final VCSProvider provider)
+        throws IOException {
+
+        if (resources.size() == 0)
+            return;
+
+        IProject project = null;
+
+        if (list.useVersionControl()) {
+            project = resources.get(0).getProject();
+
+            if (provider != null) {
+                String providerID = provider.getID();
+
+                list.setVcsProviderID(providerID);
+                list.setVcsRepositoryRoot(provider.getRepositoryString(project));
+
+                list.setVcsRepositoryRoot(provider
+                    .getCurrentResourceInfo(project));
+                /*
+                 * FIXME we need to stop querying for VCS revisions the moment
+                 * we reach the first exception
+                 * 
+                 * Caused by:
+                 * org.tigris.subversion.svnclientadapter.SVNClientException:
+                 * org.apache.subversion.javahl.ClientException: The working
+                 * copy needs to be upgraded
+                 * 
+                 * which will significantly slow down the overall invitation
+                 * process. It doesn't make sense to check for other files. If
+                 * there is one resource that is not upgraded, this fails
+                 * overall...
+                 */
+            }
+        }
+
+        Deque<IResource> stack = new LinkedList<IResource>();
+
+        stack.addAll(resources);
+
+        List<IFile> files = new LinkedList<IFile>();
+
+        monitor.subTask("Reading SVN revisions for shared files...");
+        while (!stack.isEmpty()) {
+            IResource resource = stack.pop();
+
+            if (resource.isDerived() || !resource.exists())
+                continue;
+
+            String path = resource.getProjectRelativePath().toPortableString();
+
+            if (list.contains(path))
+                continue;
+
+            VCSResourceInfo info = null;
+
+            if (provider != null)
+                info = provider.getCurrentResourceInfo(resource);
+
+            assert !list.useVersionControl()
+                || (project != null && project.equals(resource.getProject()));
+
+            MetaData data = null;
+
+            switch (resource.getType()) {
+            case IResource.FILE:
+                files.add((IFile) resource);
+                data = new MetaData();
+                data.vcsInfo = info;
+                list.addPath(path, data, false);
+                list.addEncoding(((IFile) resource).getCharset());
+                break;
+            case IResource.FOLDER:
+                stack.addAll(Arrays.asList(((IFolder) resource).members()));
+
+                if (info != null) {
+                    data = new MetaData();
+                    data.vcsInfo = info;
+                }
+                list.addPath(path, data, true);
+                break;
+            }
+        }
+
+        monitor.beginTask("Calculating checksums...", files.size());
+
+        for (IFile file : files) {
+            try {
+                monitor.subTask(file.getProject().getName() + ": "
+                    + file.getName());
+
+                MetaData data = list.getMetaData(file.getProjectRelativePath()
+                    .toPortableString());
+
+                Long checksum = null;
+
+                /** {@link IChecksumCache} **/
+                String path = file.getFullPath().toPortableString();
+
+                if (checksumCache != null)
+                    checksum = checksumCache.getChecksum(path);
+
+                data.checksum = checksum == null ? FileUtils.checksum(file)
+                    : checksum;
+
+                if (checksumCache != null) {
+                    boolean isInvalid = checksumCache.addChecksum(path,
+                        data.checksum);
+
+                    if (isInvalid && checksum != null)
+                        LOG.warn("calculated checksum on dirty data: "
+                            + file.getFullPath());
+                }
+
+            } catch (IOException e) {
+                LOG.error(e);
+            }
+
+            monitor.worked(1);
+        }
+    }
 }

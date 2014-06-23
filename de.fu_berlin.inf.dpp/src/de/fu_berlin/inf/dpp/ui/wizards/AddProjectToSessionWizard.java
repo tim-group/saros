@@ -60,6 +60,7 @@ import de.fu_berlin.inf.dpp.ui.views.SarosView;
 import de.fu_berlin.inf.dpp.ui.wizards.dialogs.WizardDialogAccessable;
 import de.fu_berlin.inf.dpp.ui.wizards.pages.EnterProjectNamePage;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import de.fu_berlin.inf.dpp.vcs.VCSAdapter;
 
 public class AddProjectToSessionWizard extends Wizard {
 
@@ -511,13 +512,28 @@ public class AddProjectToSessionWizard extends Wizard {
                 log.warn("could not refresh project: " + project, e);
             }
 
+            FileList remoteFileList = process.getRemoteFileList(projectID);
+
+            final boolean useVersionControl = namePage.useVersionControl();
+
+            VCSAdapter vcs = null;
+
+            if (useVersionControl) {
+                vcs = VCSAdapter
+                    .getAdapter((org.eclipse.core.resources.IProject) ResourceAdapterFactory
+                        .convertBack(project));
+
+                // FIXME how to handle failure ?
+            }
+
             if (session.isShared(project)) {
 
                 List<org.eclipse.core.resources.IResource> eclipseResources = ResourceAdapterFactory
                     .convertBack(session.getSharedResources(project));
 
                 FileList sharedFileList = FileListFactory.createFileList(
-                    eclipseProject, eclipseResources, checksumCache, true,
+                    project, session.getSharedResources(project),
+                    checksumCache, vcs,
                     subMonitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
 
                 // FIXME FileList objects should be immutable after creation
@@ -525,9 +541,9 @@ public class AddProjectToSessionWizard extends Wizard {
             } else
                 subMonitor.worked(1);
 
-            diff = FileListDiff.diff(FileListFactory.createFileList(
-                eclipseProject, null, checksumCache, true,
-                subMonitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS)),
+            FileListDiff diff = FileListDiff.diff(FileListFactory
+                .createFileList(project, null, checksumCache, vcs,
+                    subMonitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS)),
                 remoteFileList);
 
             if (process.isPartialRemoteProject(projectID))

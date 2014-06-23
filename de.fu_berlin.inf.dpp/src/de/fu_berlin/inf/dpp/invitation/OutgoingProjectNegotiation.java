@@ -30,7 +30,6 @@ import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.EclipseProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.net.JID;
@@ -43,8 +42,7 @@ import de.fu_berlin.inf.dpp.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
-import de.fu_berlin.inf.dpp.util.FileZipper;
-import de.fu_berlin.inf.dpp.util.ZipProgressMonitor;
+import de.fu_berlin.inf.dpp.vcs.VCSAdapter;
 
 public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
@@ -481,17 +479,20 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
                 throw new LocalCancellationException(null,
                     CancelOption.DO_NOT_NOTIFY_PEER);
             try {
-                String projectID = sarosSession.getProjectID(project);
-                String projectName = project.getName();
+                VCSAdapter vcs = null;
 
-                List<IResource> projectResources = sarosSession
-                    .getSharedResources(project);
+                if (sarosSession.useVersionControl()) {
+                    vcs = VCSAdapter
+                        .getAdapter((org.eclipse.core.resources.IProject) ResourceAdapterFactory
+                            .convertBack(project));
+
+                    // TODO how to handle this if no adapter is available ?
+                    // if(vcs == null)
+                }
 
                 FileList projectFileList = FileListFactory.createFileList(
-                    ((EclipseProjectImpl) project).getDelegate(),
-                    ResourceAdapterFactory.convertBack(projectResources),
-                    checksumCache, sarosSession.useVersionControl(),
-                    subMonitor.newChild(1));
+                    project, sarosSession.getSharedResources(project),
+                    checksumCache, vcs, subMonitor.newChild(1));
 
                 projectFileList.setProjectID(projectID);
                 boolean partial = !sarosSession.isCompletelyShared(project);

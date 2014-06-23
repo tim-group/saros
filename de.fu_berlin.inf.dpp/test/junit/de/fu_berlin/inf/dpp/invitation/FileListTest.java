@@ -298,7 +298,7 @@ public class FileListTest {
     @Test
     public void testEquals() throws CoreException {
         FileList sameFileList = FileListFactory.createFileList(null,
-            threeFileList, null, false, null);
+            threeFileList, null, null, null);
         assertEquals(threeEntryList, sameFileList);
         assertEquals(emptyFileList, emptyFileList);
 
