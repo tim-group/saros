@@ -1,10 +1,9 @@
 package de.fu_berlin.inf.dpp.awareness;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+<<<<<<< HEAD
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
@@ -17,6 +16,11 @@ import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.JID;
 import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
 import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
+=======
+import de.fu_berlin.inf.dpp.editor.EditorManager;
+import de.fu_berlin.inf.dpp.editor.RemoteEditorManager;
+import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
+>>>>>>> 43e8958... [INTERNAL] moved getAwarenessDetails method from AwarenessCollector
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
@@ -31,12 +35,18 @@ import de.fu_berlin.inf.dpp.session.User;
  */
 @Component(module = "observables")
 public class AwarenessInformationCollector {
+<<<<<<< HEAD
     private static final Logger log = Logger
         .getLogger(AwarenessInformationCollector.class);
 
     protected EditorManager editorManager;
     protected ProjectNegotiationObservable projectNegotiationObservable;
     protected SarosSessionObservable sarosSession;
+=======
+
+    private final EditorManager editorManager;
+    private final ISarosSessionManager sessionManager;
+>>>>>>> 43e8958... [INTERNAL] moved getAwarenessDetails method from AwarenessCollector
 
     /**
      * Who is following who in the session?
@@ -53,6 +63,7 @@ public class AwarenessInformationCollector {
     }
 
     /**
+<<<<<<< HEAD
      * Returns a dash-separated string describing the current user state
      * 
      * @param user
@@ -127,6 +138,8 @@ public class AwarenessInformationCollector {
     }
 
     /**
+=======
+>>>>>>> 43e8958... [INTERNAL] moved getAwarenessDetails method from AwarenessCollector
      * Make sure to call this, when a session ends, or when a session starts to
      * avoid having outdated information
      */
@@ -145,6 +158,7 @@ public class AwarenessInformationCollector {
         assert user != null;
         assert !(user.equals(target));
 
+<<<<<<< HEAD
         log.debug("Remembering that User " + user + " is now following "
             + target);
 
@@ -155,6 +169,12 @@ public class AwarenessInformationCollector {
         if (target != null) { // don't save null, this is not necessary
             followModes.put(user.getJID(), target.getJID());
         }
+=======
+        followModes.remove(user);
+
+        if (target != null) // null is not allowed in CHM
+            followModes.put(user, target);
+>>>>>>> 43e8958... [INTERNAL] moved getAwarenessDetails method from AwarenessCollector
     }
 
     /**
@@ -191,9 +211,13 @@ public class AwarenessInformationCollector {
         if (session == null)
             return null;
 
+<<<<<<< HEAD
         JID userJID = session.getResourceQualifiedJID(user.getJID());
         if (userJID == null)
             return null;
+=======
+        final User followee = followModes.get(user);
+>>>>>>> 43e8958... [INTERNAL] moved getAwarenessDetails method from AwarenessCollector
 
         JID followeeJID = followModes.get(userJID);
         if (followeeJID == null)
