@@ -319,8 +319,6 @@ public class FileList {
         }
     }
 
-    private final boolean useVersionControl;
-
     /** Identifies the VCS used. */
     private String vcsProviderID;
 
@@ -369,18 +367,7 @@ public class FileList {
      * Creates an empty file list.
      */
     FileList() {
-        this(true);
-    }
-
-    /**
-     * Creates an empty file list.
-     * 
-     * @param useVersionControl
-     *            If false, the FileList won't include version control
-     *            information.
-     */
-    FileList(boolean useVersionControl) {
-        this.useVersionControl = useVersionControl;
+        this.root = File.createRoot();
     }
 
     /**
@@ -488,6 +475,11 @@ public class FileList {
         return root.equals(((FileList) o).root);
     }
 
+    public boolean useVersionControl() {
+        return vcsProviderID != null;
+
+    }
+
     private void addMembers(List<IResource> resources,
         IChecksumCache checksumCache, IProgressMonitor monitor)
         throws CoreException {
@@ -531,7 +523,7 @@ public class FileList {
             }
         }
 
-        Deque<IResource> stack = new LinkedList<IResource>();
+        Deque7<IResource> stack = new LinkedList<IResource>();
 
         stack.addAll(resources);
 
