@@ -6,29 +6,29 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.StartFollowingActivity;
-import de.fu_berlin.inf.dpp.activities.business.StopFollowingActivity;
+import de.fu_berlin.inf.dpp.activities.StartFollowingActivity;
+import de.fu_berlin.inf.dpp.activities.StopFollowingActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.editor.EditorManager;
-import de.fu_berlin.inf.dpp.project.AbstractSarosSessionListener;
-import de.fu_berlin.inf.dpp.project.ISarosSessionListener;
-import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
 /**
  * This manager is responsible for distributing knowledge about changes in
- * follow modes between session participants
+ * follow modes between session participants. It both produces and consumes
+ * activities.
  * 
  * @author Alexander Waldmann (contact@net-corps.de)
  */
 @Component(module = "core")
-public class FollowingActivitiesManager extends AbstractActivityProvider {
+public class FollowingActivitiesManager extends AbstractActivityProducer
+    implements Startable {
 
     private static final Logger log = Logger
         .getLogger(FollowingActivitiesManager.class);
@@ -69,7 +69,7 @@ public class FollowingActivitiesManager extends AbstractActivityProvider {
         activity.dispatch(receiver);
     }
 
-    protected AbstractActivityReceiver receiver = new AbstractActivityReceiver() {
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(StartFollowingActivity activity) {
             User user = activity.getSource();
@@ -103,24 +103,33 @@ public class FollowingActivitiesManager extends AbstractActivityProvider {
         }
     };
 
-    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
-        @Override
-        public void sessionStarted(ISarosSession session) {
-            sarosSession = session;
-            awarenessInformationCollector.flushFollowModes();
-            session.addActivityProvider(FollowingActivitiesManager.this);
-        }
 
-        @Override
-        public void sessionEnded(ISarosSession session) {
-            awarenessInformationCollector.flushFollowModes();
-            session.removeActivityProvider(FollowingActivitiesManager.this);
-            sarosSession = null;
-        }
-    };
+    public FollowingActivitiesManager(final ISarosSession session,
+        final AwarenessInformationCollector collector,
+        final EditorManager editor) {
+        this.session = session;
+        this.collector = collector;
+        this.editor = editor;
+    }
 
-    public void notifyListeners() {
-        for (IFollowModeChangesListener listener : this.internalListeners) {
+    @Override
+    public void start() {
+        collector.flushFollowModes();
+        session.addActivityProducer(this);
+        session.addActivityConsumer(consumer);
+        editor.addSharedEditorListener(followModeListener);
+    }
+
+    @Override
+    public void stop() {
+        session.removeActivityProducer(this);
+        session.removeActivityConsumer(consumer);
+        editor.removeSharedEditorListener(followModeListener);
+        collector.flushFollowModes();
+    }
+
+    private void notifyListeners() {
+        for (IFollowModeChangesListener listener : listeners)
             listener.followModeChanged();
         }
     }

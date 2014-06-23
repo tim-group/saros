@@ -12,6 +12,11 @@ import org.eclipse.jface.operation.ModalContext;
 import org.eclipse.jface.window.Window;
 import org.picocontainer.Startable;
 
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
+import de.fu_berlin.inf.dpp.activities.ITargetedActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
 import de.fu_berlin.inf.dpp.activities.QueueItem;
 import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.business.FileActivity;
@@ -142,8 +147,8 @@ public final class ActivityHandler implements Startable {
          *               This is the part where clients will receive activities.
          *               These activities are put into the queue of the activity
          *               dispatcher. This queue is consumed by the
-         *               dispatchThread which transforms activities again if
-         *               necessary and then forwards it to the SarosSession.
+         *               dispatchThread, which transforms activities again if
+         *               necessary, and then forwards it to the SarosSession.
          * 
          */
 
@@ -391,10 +396,7 @@ public final class ActivityHandler implements Startable {
         final List<User> allUsers = session.getUsers();
 
         for (IActivity activity : activities) {
-
-            if (activity instanceof FileActivity) {
-                documentServer.checkFileDeleted(activity);
-            }
+            documentServer.checkFileDeleted(activity);
 
             if (activity instanceof JupiterActivity
                 || activity instanceof ChecksumActivity) {

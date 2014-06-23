@@ -172,11 +172,11 @@ public final class SarosSession implements ISarosSession {
          * @JTourBusStop 5, Activity sending, Forwarding the IActivity:
          * 
          *               This is where the SarosSession will receive the
-         *               activity, it is not part of the ISarosSession interface
-         *               to avoid misuse.
+         *               activity. This listener it is not part of the
+         *               ISarosSession interface to avoid misuse.
          */
         @Override
-        public void activityCreated(final IActivity activity) {
+        public void created(final IActivity activity) {
             if (activity == null)
                 throw new NullPointerException("activity is null");
 
@@ -195,9 +195,10 @@ public final class SarosSession implements ISarosSession {
         @Override
         public void execute(IActivity activity) {
             /**
-             * @JTourBusStop 10, Activity sending, Local Execution:
+             * @JTourBusStop 10, Activity sending, Local Execution, first
+             *               dispatch:
              * 
-             *               Afterwards every registered Activity Provider is
+             *               Afterwards, every registered ActivityConsumer is
              *               informed about the remote activity that should be
              *               executed locally.
              */
@@ -1100,12 +1101,22 @@ public final class SarosSession implements ISarosSession {
     }
 
     /**
-     * This method is only meant to be used by a unit tests to verify the
-     * cleanup of activity providers.
+     * This method is only meant to be used by unit tests to verify the cleanup
+     * of activity producers and consumers.
      * 
-     * @return the size of the internal activity providers collection
+     * @return the size of the internal activity producer collection
      */
-    public int getActivityProviderCount() {
-        return activityProviders.size();
+    boolean hasActivityProducers() {
+        return !activityProducers.isEmpty();
+    }
+
+    /**
+     * This method is only meant to be used by unit tests to verify the cleanup
+     * of activity producers and consumers.
+     * 
+     * @return the size of the internal activity consumer collection
+     */
+    boolean hasActivityConsumers() {
+        return !activityConsumers.isEmpty();
     }
 }

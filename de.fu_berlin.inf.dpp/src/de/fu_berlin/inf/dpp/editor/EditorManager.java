@@ -53,6 +53,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.picocontainer.annotations.Inject;
 import org.picocontainer.annotations.Nullable;
 
+import de.fu_berlin.inf.dpp.activities.EditorActivity;
+import de.fu_berlin.inf.dpp.activities.EditorActivity.Type;
+import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.business.EditorActivity;
@@ -83,7 +86,8 @@ import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.IActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -100,8 +104,9 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
 /**
  * The EditorManager is responsible for handling all editors in a DPP-session.
  * This includes the functionality of listening for user inputs in an editor,
- * locking the editors of the users with {@link Permission#READONLY_ACCESS} .
- * 
+ * locking the editors of the users with {@link Permission#READONLY_ACCESS}. It
+ * both produces and consumes activities.
+ * <p>
  * The EditorManager contains the testable logic. All untestable logic should
  * only appear in a class of the {@link IEditorAPI} type. (CO: This is the
  * theory at least)
@@ -118,7 +123,7 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
  *         of activityDataObjects, dirty state management,...
  */
 @Component(module = "core")
-public class EditorManager extends AbstractActivityProvider {
+public class EditorManager extends AbstractActivityProducer {
 
     /**
      * @JTourBusStop 5, Some Basics:
@@ -192,7 +197,39 @@ public class EditorManager extends AbstractActivityProvider {
         }
     };
 
-    private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
+        /**
+         * @JTourBusStop 12, Activity sending, More complex example of a second
+         *               dispatch:
+         * 
+         *               The exec() method below is a more complex example of
+         *               the second dispatch: Before letting the activity
+         *               perform the third dispatch (done in super.exec()), this
+         *               specific implementation dispatches the activity to two
+         *               other consumers.
+         */
+
+        /***/
+        @Override
+        public void exec(IActivity activity) {
+            assert SWTUtils.isSWT();
+
+            User sender = activity.getSource();
+            if (!sender.isInSession()) {
+                log.warn("skipping execution of activity " + activity
+                    + " for user " + sender
+                    + " who is not in the current session");
+                return;
+            }
+
+            // First let the remote managers update itself based on the
+            // Activity
+            remoteEditorManager.exec(activity);
+            remoteWriteAccessManager.exec(activity);
+
+            super.exec(activity);
+        }
+
         @Override
         public void receive(EditorActivity editorActivity) {
             execEditorActivity(editorActivity);
@@ -322,8 +359,9 @@ public class EditorManager extends AbstractActivityProvider {
 
             hasWriteAccess = sarosSession.hasWriteAccess();
             sarosSession.addListener(sharedProjectListener);
+            sarosSession.addActivityProducer(EditorManager.this);
+            sarosSession.addActivityConsumer(consumer);
 
-            sarosSession.addActivityProvider(EditorManager.this);
             annotationModelHelper = new AnnotationModelHelper();
             locationAnnotationManager = new LocationAnnotationManager(
                 preferenceStore);
@@ -339,7 +377,6 @@ public class EditorManager extends AbstractActivityProvider {
             SWTUtils.runSafeSWTSync(log, new Runnable() {
                 @Override
                 public void run() {
-
                     editorAPI.addEditorPartListener(EditorManager.this);
                 }
             });
@@ -380,7 +417,8 @@ public class EditorManager extends AbstractActivityProvider {
                     dirtyStateListener.unregisterAll();
 
                     sarosSession.removeListener(sharedProjectListener);
-                    sarosSession.removeActivityProvider(EditorManager.this);
+                    sarosSession.removeActivityProducer(EditorManager.this);
+                    sarosSession.removeActivityConsumer(consumer);
 
                     sarosSession = null;
                     annotationModelHelper = null;
@@ -748,32 +786,6 @@ public class EditorManager extends AbstractActivityProvider {
             contributionAnnotationManager.splitAnnotation(model, offset);
         }
     }
-
-    /**
-     * @see IActivityProvider
-     * 
-     * @swt This must be called from the SWT thread.
-     */
-    @Override
-    public void exec(final IActivity activity) {
-
-        assert SWTUtils.isSWT();
-
-        User sender = activity.getSource();
-        if (!sender.isInSarosSession()) {
-            log.warn("skipping execution of activity " + activity
-                + " for user " + sender + " who is not in the current session");
-            return;
-        }
-
-        // First let the remote managers update itself based on the
-        // Activity
-        remoteEditorManager.exec(activity);
-        remoteWriteAccessManager.exec(activity);
-
-        activity.dispatch(activityReceiver);
-    }
-
     protected void execEditorActivity(EditorActivity editorActivity) {
         User sender = editorActivity.getSource();
         SPath sPath = editorActivity.getPath();

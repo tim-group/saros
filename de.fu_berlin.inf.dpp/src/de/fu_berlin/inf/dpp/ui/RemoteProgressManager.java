@@ -16,17 +16,16 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import de.fu_berlin.inf.dpp.Saros;
-import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.IActivity;
-import de.fu_berlin.inf.dpp.activities.business.IActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.business.ProgressActivity;
-import de.fu_berlin.inf.dpp.activities.business.ProgressActivity.ProgressAction;
+import de.fu_berlin.inf.dpp.activities.ProgressActivity;
+import de.fu_berlin.inf.dpp.activities.ProgressActivity.ProgressAction;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
@@ -34,10 +33,14 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
 
 /**
  * The RemoteProgressManager is responsible for showing progress bars on the
- * machines of other users.
+ * machines of other users. It both produces and consumes activities.
  */
 @Component(module = "core")
+<<<<<<< HEAD
 public class RemoteProgressManager {
+=======
+public class RemoteProgressManager extends AbstractActivityProducer {
+>>>>>>> 8b16355... [INTERNAL] Split all IActivityProvider into Producer/Consumer
 
     private static final Logger log = Logger
         .getLogger(RemoteProgressManager.class);
@@ -191,10 +194,9 @@ public class RemoteProgressManager {
         }
     }
 
-    protected IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+    protected IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(ProgressActivity progressActivity) {
-
             String progressID = progressActivity.getProgressID();
             RemoteProgress progress = progressDialogs.get(progressID);
             if (progress == null) {
@@ -228,15 +230,25 @@ public class RemoteProgressManager {
         @Override
         public void sessionStarted(ISarosSession newSharedProject) {
             sarosSession = newSharedProject;
+<<<<<<< HEAD
 
             newSharedProject.addActivityProvider(activityProvider);
+=======
+            sarosSession.addActivityConsumer(consumer);
+            sarosSession.addActivityProducer(RemoteProgressManager.this);
+>>>>>>> 8b16355... [INTERNAL] Split all IActivityProvider into Producer/Consumer
             newSharedProject.addListener(sharedProjectListener);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
+<<<<<<< HEAD
 
             oldSarosSession.removeActivityProvider(activityProvider);
+=======
+            oldSarosSession.removeActivityConsumer(consumer);
+            oldSarosSession.removeActivityProducer(RemoteProgressManager.this);
+>>>>>>> 8b16355... [INTERNAL] Split all IActivityProvider into Producer/Consumer
             oldSarosSession.removeListener(sharedProjectListener);
             for (RemoteProgress progress : progressDialogs.values()) {
                 progress.close();

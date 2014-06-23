@@ -17,13 +17,14 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.picocontainer.Startable;
 
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.editor.EditorManager;
 import de.fu_berlin.inf.dpp.filesystem.EclipseFileImpl;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
@@ -49,7 +50,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
  * 
  */
 @Component(module = "consistency")
-public class ConsistencyWatchdogServer extends AbstractActivityProvider
+public class ConsistencyWatchdogServer extends AbstractActivityProducer
     implements Startable, Blockable {
 
     private static final Logger LOG = Logger
@@ -104,7 +105,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
             throw new IllegalStateException(
                 "component can only be run on host side");
 
-        session.addActivityProvider(this);
+        session.addActivityProducer(this);
         stopManager.addBlockable(this);
 
         executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(
@@ -119,7 +120,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
 
     @Override
     public void stop() {
-        session.removeActivityProvider(this);
+        session.removeActivityProducer(this);
         stopManager.removeBlockable(this);
 
         triggerChecksumFuture.cancel(false);
@@ -151,11 +152,6 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
 
         if (isInterrupted)
             Thread.currentThread().interrupt();
-    }
-
-    @Override
-    public void exec(IActivity activity) {
-        // NOP
     }
 
     @Override

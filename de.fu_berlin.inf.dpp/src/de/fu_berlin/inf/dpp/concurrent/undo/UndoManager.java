@@ -28,6 +28,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.picocontainer.Disposable;
 import org.picocontainer.annotations.Inject;
 
+import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.business.AbstractActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.business.IActivity;
@@ -52,9 +53,8 @@ import de.fu_berlin.inf.dpp.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.IActivityListener;
-import de.fu_berlin.inf.dpp.session.IActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.ui.util.SWTUtils;
@@ -72,7 +72,7 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
  * Saros.class.
  */
 @Component(module = "undo")
-public class UndoManager extends AbstractActivityProvider implements Disposable {
+public class UndoManager extends AbstractActivityConsumer implements Disposable {
 
     private static final Logger log = Logger.getLogger(UndoManager.class);
 
@@ -104,8 +104,6 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
     protected IUndoContext context = IOperationHistory.GLOBAL_UNDO_CONTEXT;
 
     protected EditorManager editorManager;
-
-    protected List<IActivityProvider> providers = new LinkedList<IActivityProvider>();
 
     protected SPath currentActiveEditor = null;
 
@@ -262,6 +260,7 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
 
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
+            newSarosSession.addActivityConsumer(UndoManager.this);
             undoHistory.clear();
             newSarosSession.addActivityProvider(UndoManager.this);
             enabled = preferences.isConcurrentUndoActivated();
@@ -271,7 +270,7 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-            oldSarosSession.removeActivityProvider(UndoManager.this);
+            oldSarosSession.removeActivityConsumer(UndoManager.this);
             undoHistory.clear();
             enabled = false;
             eclipseHistory.removeOperationApprover(operationBlocker);
@@ -314,69 +313,56 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
     protected IActivityListener activityListener = new IActivityListener() {
 
         @Override
-        public void activityCreated(final IActivity activity) {
+        public void created(final IActivity activity) {
             SWTUtils.runSafeSWTSync(log, new Runnable() {
 
                 @Override
                 public void run() {
-                    activity.dispatch(activityReceiver);
+                    activity.dispatch(UndoManager.this);
                 }
             });
         }
     };
 
-    protected IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
-
-        /**
-         * @return true if the given Activity was created locally
-         */
-        protected boolean local(IActivity activity) {
-            return activity.getSource().isLocal();
-        }
-
-        /**
-         * Updates the current local operation and adds remote operations to the
-         * undo history.
-         */
-        @Override
-        public void receive(TextEditActivity textEditActivity) {
-
-            if (!enabled)
-                return;
-
-            /*
-             * When performing an undo/redo there are fired Activities which are
-             * expected and have to be ignored when coming back.
-             */
-            if (expectedActivities.remove(textEditActivity))
-                return;
-
-            Operation operation = textEditActivity.toOperation();
-
-            if (!local(textEditActivity)) {
-                if (currentLocalCompositeOperation != null)
-                    currentLocalCompositeOperation = transformation.transform(
-                        currentLocalCompositeOperation, operation,
-                        Boolean.FALSE);
-                if (currentLocalAtomicOperation != null) {
-                    currentLocalAtomicOperation = transformation.transform(
-                        currentLocalAtomicOperation, operation, Boolean.FALSE);
-                }
-                log.debug("adding remote " + operation + " to history");
-                undoHistory.add(textEditActivity.getPath(), Type.REMOTE,
-                    operation);
-            } else {
-                if (!textEditActivity.getPath().equals(currentActiveEditor)) {
-                    log.error("Editor of the local TextEditActivity is not the current "
-                        + "active editor. Possibly the current active editor is not"
-                        + " up to date.");
-                    return;
-                }
-                updateCurrentLocalAtomicOperation(operation);
-            }
+    /**
+     * Updates the current local operation and adds remote operations to the
+     * undo history.
+     */
+    @Override
+    public void receive(TextEditActivity textEditActivity) {
+        if (!enabled)
             return;
+
+        /*
+         * When performing an undo/redo there are fired Activities which are
+         * expected and have to be ignored when coming back.
+         */
+        if (expectedActivities.remove(textEditActivity))
+            return;
+
+        Operation operation = textEditActivity.toOperation();
+
+        if (!textEditActivity.getSource().isLocal()) {
+            if (currentLocalCompositeOperation != null)
+                currentLocalCompositeOperation = transformation.transform(
+                    currentLocalCompositeOperation, operation, Boolean.FALSE);
+            if (currentLocalAtomicOperation != null) {
+                currentLocalAtomicOperation = transformation.transform(
+                    currentLocalAtomicOperation, operation, Boolean.FALSE);
+            }
+            log.debug("adding remote " + operation + " to history");
+            undoHistory.add(textEditActivity.getPath(), Type.REMOTE, operation);
+        } else {
+            if (!textEditActivity.getPath().equals(currentActiveEditor)) {
+                log.error("Editor of the local TextEditActivity is not the current "
+                    + "active editor. Possibly the current active editor is not"
+                    + " up to date.");
+                return;
+            }
+            updateCurrentLocalAtomicOperation(operation);
         }
-    };
+        return;
+    }
 
     public IOperationHistoryListener historyListener = new IOperationHistoryListener() {
 
@@ -421,7 +407,6 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
         this.sessionManager = sessionManager;
 
         editorManager.addActivityListener(this.activityListener);
-        addProvider(editorManager);
         this.editorManager = editorManager;
 
         editorManager.addSharedEditorListener(sharedEditorListener);
@@ -543,15 +528,6 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
         return this.undoHistory;
     }
 
-    public void addProvider(IActivityProvider provider) {
-        if (!providers.contains(provider))
-            providers.add(provider);
-    }
-
-    public void removeProvider(IActivityProvider provider) {
-        providers.remove(provider);
-    }
-
     protected void fireActivity(TextEditActivity activity) {
 
         expectedActivities.add(activity);
@@ -595,11 +571,6 @@ public class UndoManager extends AbstractActivityProvider implements Disposable 
         } finally {
             provider.disconnect(input);
         }
-    }
-
-    @Override
-    public void exec(IActivity activity) {
-        activity.dispatch(activityReceiver);
     }
 
     /**
