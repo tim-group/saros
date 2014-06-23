@@ -343,26 +343,26 @@ public class FileList {
     public String getVCSRevision(IPath path) {
 
         if (path.isEmpty())
-            return vcsProjectInfo.revision;
+            return vcsProjectInfo.getRevision();
 
         MetaData metaData = root.getMetaData(path);
 
         if (metaData == null)
             return null;
 
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.revision;
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.getRevision();
     }
 
     public String getVCSUrl(IPath path) {
         if (path.isEmpty())
-            return vcsProjectInfo.url;
+            return vcsProjectInfo.getURL();
 
         MetaData metaData = root.getMetaData(path);
 
         if (metaData == null)
             return null;
 
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.url;
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.getURL();
     }
 
     /**

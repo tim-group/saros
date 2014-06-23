@@ -549,6 +549,86 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         return createProjectTask.getProject();
     }
 
+    /**
+     * Checks out a project using the provided VCS adapter. If the project does
+     * not exists it will be created, otherwise it will be updated.
+     * 
+     * @param vcs
+     *            the VCS adapter to use for checkout
+     * @param project
+     *            the project to use for checkout
+     * @param fileList
+     * @return the checked out project or <code>null</code> if it could not
+     *         checked out
+     * @throws LocalCancellationException
+     *             if the process is canceled locally
+     */
+    private IProject checkoutVCSProject(final VCSAdapter vcs, IProject project,
+        final FileList fileList) throws LocalCancellationException {
+
+        if (isPartialRemoteProject(fileList.getProjectID()))
+            throw new IllegalStateException(
+                "VCS operations on partial shared projects are not supported");
+
+        if (project.exists()) {
+            if (!vcs.isManaged(project))
+                return null;
+
+            final String repositoryRoot = fileList.getRepositoryRoot();
+            final String directory = fileList.getProjectInfo().getURL()
+                .substring(repositoryRoot.length());
+
+            // FIXME this should at least throw a OperationCanceledException
+            vcs.connect(project, repositoryRoot, directory, monitor);
+
+            return project;
+        }
+
+        /*
+         * Inform the host of the session that the current (local) user has
+         * started the possibly time consuming SVN checkout via a
+         * remoteProgressMonitor
+         */
+        final ISarosSession session = sarosSessionObservable.getValue();
+
+        if (session == null)
+            throw new LocalCancellationException(
+                "The current session is terminated.",
+                CancelOption.DO_NOT_NOTIFY_PEER);
+
+        /*
+         * The monitor that is created here is shown both locally and remote and
+         * is handled like a regular progress monitor.
+         */
+        IProgressMonitor remoteMonitor = rpm
+            .mirrorLocalProgressMonitorToRemote(sarosSession,
+                sarosSession.getHost(), monitor);
+        remoteMonitor.setTaskName("Project checkout via subversion");
+
+        try {
+            project = vcs.checkoutProject(project.getName(), fileList,
+                remoteMonitor);
+        } catch (OperationCanceledException e) {
+            throw new LocalCancellationException();
+        }
+
+        /*
+         * HACK: After checking out a project, give Eclipse/the Team provider
+         * time to realize that the project is now managed. The problem was that
+         * when checking later to see if we have to switch/update individual
+         * resources in initVcState, the project appeared as unmanaged. It might
+         * work to wrap initVcState in a job, such that it is scheduled after
+         * the project is marked as managed.
+         */
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+
+        return project;
+    }
+
     @Override
     protected void executeCancellation() {
 
@@ -778,21 +858,27 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             vcs.revert(resource, monitor);
         }
 
-        String url = remoteFileList.getVCSUrl(path);
-        String revision = remoteFileList.getVCSRevision(path);
-        List<IPath> paths = remoteFileList.getPaths();
-        if (url == null || revision == null) {
+        // FIXME both calls may return null
+        final String localURL = info.getURL();
+        final String localRevision = info.getRevision();
+
+        final String remoteURL = remoteFileList.getVCSUrl(path);
+        final String remoteRevision = remoteFileList.getVCSRevision(path);
+
+        if (remoteURL == null || remoteRevision == null) {
             // The resource might have been deleted.
             return;
         }
-        if (!info.url.equals(url)) {
-            log.trace("Switching " + resource.getName() + " from " + info.url
-                + " to " + url);
-            vcs.switch_(resource, url, revision, monitor);
-        } else if (!info.revision.equals(revision) && paths.contains(path)) {
-            log.trace("Updating " + resource.getName() + " from "
-                + info.revision + " to " + revision);
-            vcs.update(resource, revision, monitor);
+
+        if (!remoteURL.equals(localURL)) {
+            LOG.trace("Switching " + resource.getName() + " from " + localURL
+                + " to " + remoteURL);
+            vcs.switch_(resource, remoteURL, remoteRevision, monitor);
+        } else if (!remoteRevision.equals(localRevision)
+            && remoteFileList.getPaths().contains(path)) {
+            LOG.trace("Updating " + resource.getName() + " from "
+                + localRevision + " to " + remoteRevision);
+            vcs.update(resource, remoteRevision, monitor);
         }
         if (monitor.isCanceled())
             return;
