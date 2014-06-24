@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.zip.Adler32;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -33,43 +32,8 @@ public class FileUtils {
 
     private static Logger log = Logger.getLogger(FileUtils.class);
 
-    private static final int BUFFER_SIZE = 32 * 1024;
-
     private FileUtils() {
         // no instantiation allowed
-    }
-
-    /**
-     * Calculate Adler32 checksum for given file.
-     * 
-     * @return checksum of file
-     * 
-     * @throws IOException
-     *             if checksum calculation has been failed.
-     */
-    public static long checksum(IFile file) throws IOException {
-
-        InputStream in;
-        try {
-            in = file.getContents();
-        } catch (CoreException e) {
-            throw new IOException("failed to calculate checksum.", e);
-        }
-
-        byte[] buffer = new byte[BUFFER_SIZE];
-
-        Adler32 adler = new Adler32();
-
-        int read;
-
-        try {
-            while ((read = in.read(buffer)) != -1)
-                adler.update(buffer, 0, read);
-        } finally {
-            IOUtils.closeQuietly(in);
-        }
-
-        return adler.getValue();
     }
 
     /**

@@ -32,13 +32,10 @@ import de.fu_berlin.inf.dpp.filesystem.EclipseProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.SarosPacketCollector;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingRequest;
-import de.fu_berlin.inf.dpp.net.internal.extensions.StartActivityQueuingResponse;
-import de.fu_berlin.inf.dpp.project.IChecksumCache;
+import de.fu_berlin.inf.dpp.monitoring.ProgressMonitorAdapterFactory;
+import de.fu_berlin.inf.dpp.net.PacketCollector;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
@@ -492,7 +489,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
                 FileList projectFileList = FileListFactory.createFileList(
                     project, sarosSession.getSharedResources(project),
-                    checksumCache, vcs, subMonitor.newChild(1));
+                    checksumCache, vcs, ProgressMonitorAdapterFactory
+                        .convertTo(subMonitor.newChild(1)));
 
                 projectFileList.setProjectID(projectID);
                 boolean partial = !sarosSession.isCompletelyShared(project);

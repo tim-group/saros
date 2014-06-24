@@ -1,14 +1,15 @@
 package de.fu_berlin.inf.dpp.invitation;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.Adler32;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-
-import de.fu_berlin.inf.dpp.project.IChecksumCache;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
@@ -16,7 +17,8 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.invitation.FileList.MetaData;
-import de.fu_berlin.inf.dpp.util.FileUtils;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
 import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 
@@ -33,9 +35,25 @@ import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
  */
 public class FileListFactory {
 
+    private static final Logger LOG = Logger.getLogger(FileListFactory.class);
+
+    private static final int BUFFER_SIZE = 32 * 1024;
+
+    private IChecksumCache checksumCache;
+    private IProgressMonitor monitor;
+
+    private FileListFactory(IChecksumCache checksumCache,
+                            IProgressMonitor monitor) {
+        this.checksumCache = checksumCache;
+        this.monitor = monitor;
+
+        if (this.monitor == null)
+            this.monitor = new NullProgressMonitor();
+    }
+
     public static FileList createFileList(IProject project,
-        List<IResource> resources, IChecksumCache checksumCache,
-        VCSProvider provider, IProgressMonitor monitor) throws IOException {
+                                          List<IResource> resources, IChecksumCache checksumCache,
+                                          VCSProvider provider, IProgressMonitor monitor) throws IOException {
 
         FileListFactory fact = new FileListFactory(checksumCache, monitor);
         return fact.build(project, resources, provider);
@@ -47,12 +65,11 @@ public class FileListFactory {
      * <p>
      * <b>Note:</b> This method does not check the input. The caller is
      * <b>responsible</b> for the <b>correct</b> input !
-     * 
+     *
      * @param paths
      *            a list of paths that <b>refers</b> to <b>files</b> that should
      *            be added to this file list.
      */
-
     public static FileList createFileList(List<String> paths) {
         FileList list = new FileList();
 
@@ -67,7 +84,7 @@ public class FileListFactory {
     }
 
     private FileList build(IProject project, List<IResource> resources,
-        VCSProvider provider) throws IOException {
+                           VCSProvider provider) throws IOException {
 
         FileList list = new FileList();
 
@@ -82,8 +99,8 @@ public class FileListFactory {
     }
 
     private void addMembersToList(final FileList list,
-        final List<IResource> resources, final VCSProvider provider)
-        throws IOException {
+                                  final List<IResource> resources, final VCSProvider provider)
+            throws IOException {
 
         if (resources.size() == 0)
             return;
@@ -141,22 +158,22 @@ public class FileListFactory {
             MetaData data = null;
 
             switch (resource.getType()) {
-            case IResource.FILE:
-                files.add((IFile) resource);
-                data = new MetaData();
-                data.vcsInfo = info;
-                list.addPath(path, data, false);
-                list.addEncoding(((IFile) resource).getCharset());
-                break;
-            case IResource.FOLDER:
-                stack.addAll(Arrays.asList(((IFolder) resource).members()));
-
-                if (info != null) {
+                case IResource.FILE:
+                    files.add((IFile) resource);
                     data = new MetaData();
                     data.vcsInfo = info;
-                }
-                list.addPath(path, data, true);
-                break;
+                    list.addPath(path, data, false);
+                    list.addEncoding(((IFile) resource).getCharset());
+                    break;
+                case IResource.FOLDER:
+                    stack.addAll(Arrays.asList(((IFolder) resource).members()));
+
+                    if (info != null) {
+                        data = new MetaData();
+                        data.vcsInfo = info;
+                    }
+                    list.addPath(path, data, true);
+                    break;
             }
         }
 
@@ -165,10 +182,10 @@ public class FileListFactory {
         for (IFile file : files) {
             try {
                 monitor.subTask(file.getProject().getName() + ": "
-                    + file.getName());
+                        + file.getName());
 
                 MetaData data = list.getMetaData(file.getProjectRelativePath()
-                    .toPortableString());
+                        .toPortableString());
 
                 Long checksum = null;
 
@@ -178,16 +195,15 @@ public class FileListFactory {
                 if (checksumCache != null)
                     checksum = checksumCache.getChecksum(path);
 
-                data.checksum = checksum == null ? FileUtils.checksum(file)
-                    : checksum;
+                data.checksum = checksum == null ? checksum(file) : checksum;
 
                 if (checksumCache != null) {
                     boolean isInvalid = checksumCache.addChecksum(path,
-                        data.checksum);
+                            data.checksum);
 
                     if (isInvalid && checksum != null)
                         LOG.warn("calculated checksum on dirty data: "
-                            + file.getFullPath());
+                                + file.getFullPath());
                 }
 
             } catch (IOException e) {
@@ -196,5 +212,41 @@ public class FileListFactory {
 
             monitor.worked(1);
         }
+    }
+
+    /**
+     * Calculate Adler32 checksum for given file.
+     * <p>
+     * TODO This method's signature is a temporary "anomaly" in this class, and
+     * will be removed in future patches.
+     *
+     * @return checksum of file
+     *
+     * @throws IOException
+     *             if checksum calculation has been failed.
+     */
+    private static long checksum(IFile file) throws IOException {
+
+        InputStream in;
+        try {
+            in = file.getContents();
+        } catch (IOException e) {
+            throw new IOException("failed to calculate checksum", e);
+        }
+
+        byte[] buffer = new byte[BUFFER_SIZE];
+
+        Adler32 adler = new Adler32();
+
+        int read;
+
+        try {
+            while ((read = in.read(buffer)) != -1)
+                adler.update(buffer, 0, read);
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+
+        return adler.getValue();
     }
 }

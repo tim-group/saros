@@ -47,8 +47,10 @@ import de.fu_berlin.inf.dpp.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
-import de.fu_berlin.inf.dpp.net.JID;
-import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
+
+import de.fu_berlin.inf.dpp.monitoring.ProgressMonitorAdapterFactory;
+import de.fu_berlin.inf.dpp.net.IConnectionManager;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.project.IChecksumCache;
 import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
@@ -533,8 +535,9 @@ public class AddProjectToSessionWizard extends Wizard {
 
                 FileList sharedFileList = FileListFactory.createFileList(
                     project, session.getSharedResources(project),
-                    checksumCache, vcs,
-                    subMonitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+                    checksumCache, vcs, ProgressMonitorAdapterFactory
+                        .convertTo(subMonitor.newChild(1,
+                            SubMonitor.SUPPRESS_ALL_LABELS)));
 
                 // FIXME FileList objects should be immutable after creation
                 remoteFileList.getPaths().addAll(sharedFileList.getPaths());
@@ -543,7 +546,8 @@ public class AddProjectToSessionWizard extends Wizard {
 
             FileListDiff diff = FileListDiff.diff(FileListFactory
                 .createFileList(project, null, checksumCache, vcs,
-                    subMonitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS)),
+                    ProgressMonitorAdapterFactory.convertTo(subMonitor
+                        .newChild(1, SubMonitor.SUPPRESS_ALL_LABELS))),
                 remoteFileList);
 
             if (process.isPartialRemoteProject(projectID))
