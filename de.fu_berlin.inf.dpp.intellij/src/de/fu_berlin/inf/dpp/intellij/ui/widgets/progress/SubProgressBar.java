@@ -26,71 +26,59 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-16
- * Time: 17:20
+ *
  */
-
-public class SubProgressBar extends SarosProgressBar implements ISubMonitor
-{
-    private SarosProgressBar main;
+//todo: remove it and use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
+public class SubProgressBar extends MonitorProgressBar implements ISubMonitor {
+    private MonitorProgressBar main;
     private int subProgress = 0;
 
-    public SubProgressBar(SarosProgressBar main)
-    {
+    public SubProgressBar(MonitorProgressBar main) {
+        super(main.display);
         this.main = main;
-        this.display = main.display;
     }
 
-    public SubProgressBar(DisplayContainer display)
-    {
+    public SubProgressBar(DisplayContainer display) {
         super(display);
     }
 
     @Override
-    public ISubMonitor newChild(int id)
-    {
+    public ISubMonitor newChild(int id) {
         return this;
     }
 
     @Override
-    public IProgressMonitor getMain()
-    {
+    public IProgressMonitor getMain() {
         return main;
     }
 
     @Override
-    public IProgressMonitor newChildMain(int progress)
-    {
+    public IProgressMonitor newChildMain(int progress) {
         this.subProgress = progress;
         return this;
     }
 
     @Override
-    public IProgressMonitor newChildMain(int progress, int mode)
-    {
+    public IProgressMonitor newChildMain(int progress, int mode) {
         this.subProgress = progress;
         return this;
     }
 
     @Override
-    public ISubMonitor newChild(int progress, int mode)
-    {
+    public ISubMonitor newChild(int progress, int mode) {
         this.subProgress = progress;
         return this;
     }
 
-    public boolean isCanceled()
-    {
-        return getMain()!=null? getMain().isCanceled() || isCanceled : isCanceled;
+    public boolean isCanceled() {
+        return getMain() != null ?
+            getMain().isCanceled() || isCanceled :
+            isCanceled;
     }
 
     @Override
-    public void done()
-    {
-        if (subProgress < MAX_VALUE)
-        {
+    public void done() {
+        if (subProgress < MAX_VALUE) {
             main.setProgress(subProgress);
         }
 

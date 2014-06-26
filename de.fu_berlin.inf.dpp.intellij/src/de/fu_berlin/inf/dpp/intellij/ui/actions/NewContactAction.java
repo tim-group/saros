@@ -52,7 +52,7 @@ public class NewContactAction extends AbstractSarosAction
         actionStarted();
 
         //todo
-        log.info("ADD_CONTACT - not implemented action");
+        LOG.info("ADD_CONTACT - not implemented action");
 
 
         SafeDialogUtils.showError("We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented");

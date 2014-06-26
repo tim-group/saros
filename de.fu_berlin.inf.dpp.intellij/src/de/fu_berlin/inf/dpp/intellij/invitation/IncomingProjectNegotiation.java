@@ -10,7 +10,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.IAddProjectToSessionWizard;
+import de.fu_berlin.inf.dpp.intellij.project.CreateProjectTask;
 import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
@@ -21,6 +21,7 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
@@ -52,7 +53,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             .getLogger(IncomingProjectNegotiation.class);
 
     private ISubMonitor monitor;
-    private IAddProjectToSessionWizard addIncomingProjectUI;
+    private AddProjectToSessionWizard addIncomingProjectUI;
 
     private List<ProjectNegotiationData> projectInfos;
 
@@ -126,7 +127,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     }
 
     public synchronized void setProjectInvitationUI(
-            IAddProjectToSessionWizard addIncomingProjectUI) {
+            AddProjectToSessionWizard addIncomingProjectUI) {
         this.addIncomingProjectUI = addIncomingProjectUI;
     }
 

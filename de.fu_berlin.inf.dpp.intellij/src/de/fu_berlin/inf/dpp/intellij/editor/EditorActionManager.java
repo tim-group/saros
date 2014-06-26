@@ -279,7 +279,7 @@ public class EditorActionManager {
             catch (Exception e)
             {
                 // should never be reached
-                log.error("Invalid line selection: offset: "
+                LOG.error("Invalid line selection: offset: "
                         + selection.getOffset() + ", length: "
                         + selection.getLength());
 

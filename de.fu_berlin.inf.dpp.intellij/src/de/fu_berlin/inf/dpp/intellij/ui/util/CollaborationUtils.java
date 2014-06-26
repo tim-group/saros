@@ -29,6 +29,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
@@ -38,10 +39,6 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
-import de.fu_berlin.inf.dpp.intellij.runtime.Job;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -98,7 +95,7 @@ public class CollaborationUtils {
             throw new OperationCanceledException("Seesion starting is canceled due to file system error");
         }
 
-        Job sessionStartupJob = new Job("Session Startup") {
+        UIMonitoredJob sessionStartupJob = new UIMonitoredJob("Session Startup") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
@@ -132,8 +129,6 @@ public class CollaborationUtils {
             }
         };
 
-        sessionStartupJob.setPriority(Job.SHORT);
-        sessionStartupJob.setUser(true);
         sessionStartupJob.schedule();
 
     }
@@ -146,7 +141,7 @@ public class CollaborationUtils {
 
         ISarosSession sarosSession = sessionManager.getSarosSession();
 
-        Container shell = SWTUtils.getShell();
+        Container shell = DialogUtils.getDefaultContainer();
 
         if (sarosSession == null) {
             LOG.warn("cannot leave a non-running session");
@@ -160,12 +155,12 @@ public class CollaborationUtils {
                 // Do not ask when host is alone...
                 reallyLeave = true;
             } else {
-                reallyLeave = MessageDialog.openQuestion(shell,
+                reallyLeave = DialogUtils.openQuestion(shell,
                         Messages.CollaborationUtils_confirm_closing,
                         Messages.CollaborationUtils_confirm_closing_text);
             }
         } else {
-            reallyLeave = MessageDialog.openQuestion(shell,
+            reallyLeave = DialogUtils.openQuestion(shell,
                     Messages.CollaborationUtils_confirm_leaving,
                     Messages.CollaborationUtils_confirm_leaving_text);
         }

@@ -53,7 +53,7 @@ public class DisconnectServerAction extends AbstractSarosAction  implements ICon
 
         saros.getConnectionService().disconnect();
 
-        log.info("DISCONNECTED");
+        LOG.info("DISCONNECTED");
 
         actionFinished();
     }

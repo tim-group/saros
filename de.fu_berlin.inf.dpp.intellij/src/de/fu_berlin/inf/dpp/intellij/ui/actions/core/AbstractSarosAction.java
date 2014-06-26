@@ -42,7 +42,7 @@ import java.util.List;
 
 public abstract class AbstractSarosAction implements ISarosAction
 {
-    protected static final Logger log = Logger.getLogger(AbstractSarosAction.class);
+    protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
     protected Saros saros = Saros.instance();
     protected Container guiFrame;
@@ -57,7 +57,7 @@ public abstract class AbstractSarosAction implements ISarosAction
 
     protected void actionStarted()
     {
-        log.info("Action started [" + this.getActionName() + "]");
+        LOG.info("Action started [" + this.getActionName() + "]");
 
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list)
@@ -73,7 +73,7 @@ public abstract class AbstractSarosAction implements ISarosAction
 
     protected void actionFinished()
     {
-        log.info("Action finished [" + this.getActionName() + "]");
+        LOG.info("Action finished [" + this.getActionName() + "]");
 
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list)

@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 
 import com.intellij.util.ui.UIUtil;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.IRosterListener;
 import org.jivesoftware.smack.Roster;
@@ -268,11 +269,11 @@ public class ContactTree extends AbstractTree implements IRosterListener
             this.isOnline = isOnline;
             if (isOnline)
             {
-                setIcon(IconManager.contactOnlineIcon);
+                setIcon(IconManager.CONTACT_ONLINE_ICON);
             }
             else
             {
-                setIcon(IconManager.contactOfflineIcon);
+                setIcon(IconManager.CONTACT_OFFLINE_ICON);
             }
         }
 

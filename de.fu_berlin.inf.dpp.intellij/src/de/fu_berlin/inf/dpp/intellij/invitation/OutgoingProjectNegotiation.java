@@ -487,7 +487,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
                  * no existing project negotiation yet
                  */
                 localCancel(e.getMessage(), CancelOption.DO_NOT_NOTIFY_PEER);
-                // throw to log this error in the CancelableProcess class
+                // throw to LOG this error in the CancelableProcess class
                 throw new IOException(e.getMessage(), e);
             }
         }

@@ -61,7 +61,7 @@ public class LeaveSessionAction extends AbstractSarosAction
         //sessionManager.stopSarosSession();
         CollaborationUtils.leaveSession();
 
-        log.info("DISCONNECTED");
+        LOG.info("DISCONNECTED");
 
         actionFinished();
     }

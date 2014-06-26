@@ -30,16 +30,15 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
@@ -89,7 +88,6 @@ public class EditorManager
 
     protected RemoteWriteAccessManager remoteWriteAccessManager;
 
-    private ISarosView sarosView = new SarosView();
 
     //todo: make it protected later
     public ISarosSession sarosSession;
@@ -165,7 +163,7 @@ public class EditorManager
 
 //            preferenceStore.addPropertyChangeListener(annotationPreferenceListener); //todo
 //
-//            SWTUtils.runSafeSWTSync(log, new Runnable()
+//            SWTUtils.runSafeSWTSync(LOG, new Runnable()
 //            {
 //                
 //                public void run()
@@ -182,9 +180,11 @@ public class EditorManager
             assert sarosSession == oldSarosSession;
             sarosSession.getStopManager().removeBlockable(stopManagerListener); //todo
 
-            SWTUtils.runSafeSWTSync(log, new Runnable() {
-                
-                public void run() {
+            ThreadUtils.runSafeSync(log, new Runnable()
+            {
+
+                public void run()
+                {
 
                     setFollowing(null);
 
@@ -216,7 +216,7 @@ public class EditorManager
         public void projectAdded(String projectID) {
             //todo
             System.out.println("EditorManager.projectAdded //todo");
-//            SWTUtils.runSafeSWTSync(log, new Runnable()
+//            SWTUtils.runSafeSWTSync(LOG, new Runnable()
 //            {
 //
 //                /*
@@ -243,7 +243,7 @@ public class EditorManager
 //                    {
 //                        // Make sure that we open those editors twice
 //                        // (print a warning)
-//                        log.debug(editorPart.getTitle());
+//                        LOG.debug(editorPart.getTitle());
 //                        if (!editorsOpenedByRestoring.contains(editorPart))
 //                        {
 //                            partOpened(editorPart);
@@ -274,10 +274,12 @@ public class EditorManager
     private Blockable stopManagerListener = new Blockable() {
         
         public void unblock() {
-            SWTUtils.runSafeSWTSync(log, new Runnable() {
+            ThreadUtils.runSafeSync(log, new Runnable()
+            {
 
-                
-                public void run() {
+
+                public void run()
+                {
                     actionManager.lockAllEditors(false);
                 }
             });
@@ -285,10 +287,12 @@ public class EditorManager
 
         
         public void block() {
-            SWTUtils.runSafeSWTSync(log, new Runnable() {
+            ThreadUtils.runSafeSync(log, new Runnable()
+            {
 
-                
-                public void run() {
+
+                public void run()
+                {
                     actionManager.lockAllEditors(true);
                 }
             });
@@ -542,7 +546,7 @@ public class EditorManager
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
-                sarosView.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+                IntelliJUIHelper.showNotification("Follow Mode stopped!", "You closed the followed editor.");
             }
         }
 
@@ -659,7 +663,7 @@ public class EditorManager
             // collapsed the tree element)
 
             // no active editor on target subject
-            // SarosView.showNotification("Following " +
+            // IntelliJUIHelper.showNotification("Following " +
             // jumpTo.getJID().getBase()
             // + "!", jumpTo.getJID().getName()
             // + " has no shared file opened yet.");
@@ -793,7 +797,7 @@ public class EditorManager
 //             *
 //             * But watch out for changes because of a consistency check!
 //             */
-//            log.warn("local user caused text changes: " + textEdit
+//            LOG.warn("local user caused text changes: " + textEdit
 //                    + " | write access : " + hasWriteAccess + ", session locked : "
 //                    + isLocked);
 //            return;

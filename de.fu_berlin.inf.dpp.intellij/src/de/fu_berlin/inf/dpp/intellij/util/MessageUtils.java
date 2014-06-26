@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.util;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -46,12 +47,14 @@ public class MessageUtils {
 
             for (Field f : clazz.getFields()) {
                 String fieldName = f.getName();
-                String fieldValue = resourceBundle.getString(fieldName);
-               if(f.isAccessible() && f.getType().equals(String.class)) {
-                   f.set(clazz, fieldValue);
-               }
+
+                if (f.getType().equals(String.class)
+                        && f.getModifiers() != Modifier.FINAL) {
+                    String fieldValue = resourceBundle.getString(fieldName);
+                    f.set(clazz, fieldValue);
+                }
             }
-       } catch (Exception e) {
+        } catch (Exception e) {
             //it can not happen anyway!
         }
 

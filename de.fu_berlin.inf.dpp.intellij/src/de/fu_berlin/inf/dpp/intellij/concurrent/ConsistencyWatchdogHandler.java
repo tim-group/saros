@@ -23,15 +23,13 @@
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
+import de.fu_berlin.inf.dpp.core.monitor.IStatus;
+import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.core.misc.IRunnableWithProgress;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.ProgressMonitorDialog;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -42,7 +40,6 @@ import org.picocontainer.Startable;
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
@@ -50,12 +47,10 @@ import java.util.concurrent.CancellationException;
 /**
  * This component is responsible for handling Consistency Errors on the host
  */
-@Component(module = "consistency")
 public class ConsistencyWatchdogHandler extends AbstractActivityProvider
         implements Startable {
 
-    private static Logger log = Logger
-            .getLogger(ConsistencyWatchdogHandler.class);
+    private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
 
     protected final EditorManager editorManager;
 
@@ -104,58 +99,26 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      */
     protected void startRecovery(final ChecksumErrorActivity checksumError) {
 
-        log.debug("Received Checksum Error: " + checksumError);
+        LOG.debug("Received Checksum Error: " + checksumError);
 
-        // execute async so outstanding activities could be dispatched
-        SWTUtils.runSafeSWTAsync(log, new Runnable() {
+
+        UIMonitoredJob recoveryJob = new UIMonitoredJob("File recovery")
+        {
             @Override
-            public void run() {
+            protected IStatus run(IProgressMonitor monitor)
+            {
+               runRecovery(checksumError, monitor.convert());
 
-                final ProgressMonitorDialog dialog = new ProgressMonitorDialog(
-                        SWTUtils.getShell()) {
-                    @Override
-                    protected Image getImage() {
-                        return getWarningImage();
-                    }
-
-                    // TODO add some text
-                    // "Inconsitent file state has detected. File "
-                    // + pathes
-                    // + " from user "
-                    // + from.getBase()
-                    // +
-                    // " has to be synchronized with project host. Please wait until the inconsistencies are resolved."
-                };
-
-                try {
-                    /*
-                     * run in a modal context otherwise we would block again the
-                     * dispatching of activities
-                     */
-                    dialog.run(true, true, new IRunnableWithProgress() {
-                        @Override
-                        public void run(IProgressMonitor monitor) {
-                            runRecovery(checksumError,
-                                    monitor.convert());
-                        }
-                    });
-                } catch (InvocationTargetException e) {
-                    try {
-                        throw e.getCause();
-                    } catch (CancellationException c) {
-                        log.info("Recovery was cancelled by local user");
-                    } catch (Throwable t) {
-                        log.error("Internal Error: ", t);
-                    }
-                } catch (InterruptedException e) {
-                    log.error("Code not designed to be interruptable", e);
-                }
+               return new Status(IStatus.OK);
             }
-        });
+        };
+
+       recoveryJob.schedule();
+
     }
 
     protected void runRecovery(ChecksumErrorActivity checksumError,
-                               ISubMonitor progress) throws CancellationException {
+                               IProgressMonitor progress) throws CancellationException {
 
         List<StartHandle> startHandles = null;
 
@@ -166,7 +129,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
                     sarosSession.getUsers(), "Consistency recovery");
 
             progress.subTask("Sending files to client...");
-            recoverFiles(checksumError, progress.newChild(900));
+            recoverFiles(checksumError, progress);
 
             /*
              * We have to start the StartHandle of the inconsistent user first
@@ -185,7 +148,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
                 }
             }
             if (inconsistentStartHandle == null) {
-                log.error("could not find start handle"
+                LOG.error("could not find start handle"
                         + " of the inconsistent user");
             } else {
                 // FIXME evaluate the return value
@@ -205,17 +168,16 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      * @nonSWT This method should not be called from the SWT Thread!
      */
     protected void recoverFiles(ChecksumErrorActivity checksumError,
-                                ISubMonitor progress) {
+                                IProgressMonitor progress) {
 
-        progress
-                .beginTask("Sending files", checksumError.getPaths().size() + 1);
+        progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
 
         try {
             for (SPath path : checksumError.getPaths()) {
                 progress.subTask("Recovering file: "
                         + path.getProjectRelativePath());
                 recoverFile(checksumError.getSource(), sarosSession, path,
-                        progress.newChild(1));
+                        progress);
             }
 
             // Tell the user that we sent all files
@@ -231,7 +193,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      * tell the user to removeAll it).
      */
     protected void recoverFile(User from, final ISarosSession sarosSession,
-                               final SPath path, ISubMonitor progress) {
+                               final SPath path, IProgressMonitor progress) {
 
         progress.beginTask("Handling file: " + path.toString(), 10);
 
@@ -242,7 +204,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
             try {
                 editorManager.saveLazy(path);
             } catch (FileNotFoundException e) {
-                log.error("File could not be found, despite existing: " + path,
+                LOG.error("File could not be found, despite existing: " + path,
                         e);
             }
         }
@@ -273,7 +235,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
                 fireActivity(new ChecksumActivity(user,
                         path, checksum.hashCode(), checksum.length(), null));
             } catch (IOException e) {
-                log.error("File could not be read, despite existing: " + path,
+                LOG.error("File could not be read, despite existing: " + path,
                         e);
             }
         } else {

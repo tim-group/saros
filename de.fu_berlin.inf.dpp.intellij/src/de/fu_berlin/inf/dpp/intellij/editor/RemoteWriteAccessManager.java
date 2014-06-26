@@ -29,7 +29,7 @@ import java.util.Set;
 
 import de.fu_berlin.inf.dpp.activities.*;
 
-import de.fu_berlin.inf.dpp.intellij.util.AutoHashMap;
+import de.fu_berlin.inf.dpp.core.util.AutoHashMap;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -176,13 +176,13 @@ public class RemoteWriteAccessManager {
         }
 
        /* if (!hadUserWithWriteAccess && hasUserWithWriteAccess) {
-            log.trace(".updateConnectionState File " + path.toString()
+            LOG.trace(".updateConnectionState File " + path.toString()
                     + " will be connected ");
             connectDocumentProvider(path);
         }
 
         if (hadUserWithWriteAccess && !hasUserWithWriteAccess) {
-            log.trace(".updateConnectionState File " + path.toString()
+            LOG.trace(".updateConnectionState File " + path.toString()
                     + " will be disconnected ");
             disconnectDocumentProvider(path);
         }*/

@@ -3,7 +3,7 @@ package de.fu_berlin.inf.dpp.intellij;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -18,7 +18,6 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
-import org.picocontainer.annotations.Inject;
 
 /**
  * Business logic for handling Leave Message
@@ -36,8 +35,6 @@ public class LeaveAndKickHandler {
 
     private final IReceiver receiver;
 
-    @Inject
-    private ISarosView sarosView;
 
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
@@ -159,7 +156,7 @@ public class LeaveAndKickHandler {
             @Override
             public void run() {
                 sessionManager.stopSarosSession();
-                sarosView.showNotification(topic, reason);
+                IntelliJUIHelper.showNotification(topic, reason);
             }
         });
     }

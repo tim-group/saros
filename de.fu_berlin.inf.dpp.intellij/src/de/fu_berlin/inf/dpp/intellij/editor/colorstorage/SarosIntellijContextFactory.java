@@ -26,12 +26,10 @@ import de.fu_berlin.inf.dpp.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
-import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
@@ -46,8 +44,7 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosUI;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
@@ -75,7 +72,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
             Component.create(SarosSessionManager.class),
             Component.create(ISarosSessionManager.class, SarosSessionManager.class),
-            Component.create(ISarosView.class, SarosView.class),
+            Component.create(IntelliJUIHelper.class),
             // Core Managers
             Component.create(ConsistencyWatchdogClient.class),
 
@@ -83,15 +80,9 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
             Component.create(EditorManager.class),
 
-
-            Component.create(SarosUI.class),
-            Component.create(SessionViewOpener.class),
-
-
             Component.create(Container.class),
 
             // UI handlers
-            Component.create(HostLeftAloneInSessionHandler.class),
             Component.create(NegotiationHandler.class),
             Component.create(UserStatusChangeHandler.class),
             Component.create(JoinSessionRequestHandler.class),
@@ -147,7 +138,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
         // container.addComponent(Saros.class,saros);
         container.addComponent(IPreferenceStore.class, saros.getConfigPrefs());
-        container.addComponent(ISecurePreferences.class, saros.getSecurePrefs());
 
         // Saros Core PathIntl Support
         container.addComponent(IPathFactory.class, workspace.getPathFactory());

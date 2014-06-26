@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import org.apache.commons.io.FileUtils;
 
@@ -43,6 +44,8 @@ import java.util.Map;
 
 public class ProjectImp implements IProject {
     public static final String DEFAULT_CHARSET = "utf8";
+
+    private LocalFileSystem fileSystem = LocalFileSystem.getInstance();
 
     private String name;
     private File path;
@@ -167,37 +170,32 @@ public class ProjectImp implements IProject {
 
     @Override
     public IFile getFile(String name) {
-        return getFile(new PathImp(path));
+        File f = new File(name);
+        if (!f.isAbsolute()) {
+            f = new File(this.path + "/" + name);
+        }
+
+        return new FileImp(this, f);
     }
 
     @Override
     public IFile getFile(IPath path) {
-        IFile f = getFile(path.toPortableString());
-
-        if (f == null) {
-            if (path.isAbsolute())
-                f = new FileImp(this, new File(path.toPortableString()));
-            else
-                f = new FileImp(this, new File(this.path + "/" + path.toPortableString()));
-        }
-
-        return f;
+       return getFile(path.toOSString());
     }
 
     @Override
     public IFolder getFolder(String name) {
-        return folderMap.get(name);
+        File f = new File(name);
+        if (!f.isAbsolute()) {
+            f = new File(this.path + "/" + name);
+        }
+
+        return new FolderImp(this, f);
     }
 
     @Override
     public IFolder getFolder(IPath path) {
-        IFolder folder = getFolder(path.toPortableString());
-
-        if (folder == null) {
-            folder = new FolderImp(this, path.toFile());
-        }
-
-        return folder;
+        return getFolder(path.toOSString());
     }
 
     @Override

@@ -206,7 +206,7 @@ public class SarosContext implements ISarosContext
             Class<?> clazz = toInjectInto.getClass();
             ComponentAdapter<?> removed = container.removeComponent(clazz);
 //            if (removed != null && clazz != Saros.class) {
-//                log.warn(clazz.getName() + " added more than once!",
+//                LOG.warn(clazz.getName() + " added more than once!",
 //                        new StackTrace());
 //            }
 

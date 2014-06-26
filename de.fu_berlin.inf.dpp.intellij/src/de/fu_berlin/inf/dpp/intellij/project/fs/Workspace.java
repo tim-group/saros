@@ -41,7 +41,7 @@ import java.io.IOException;
 public class Workspace implements IWorkspace
 {
     public static final Logger log = Logger.getLogger(Workspace.class);
-    private SchedulingRoot root;
+    private WorkspaceRoot root;
 
     private LocalFileSystem fileSystem;
 
@@ -115,7 +115,7 @@ public class Workspace implements IWorkspace
      */
     public void createWorkSpace(File path)
     {
-        this.root = new SchedulingRoot(path);
+        this.root = new WorkspaceRoot(path);
         this.path = path;
 
         log.info("Add workspace " + path.getAbsolutePath());
@@ -142,7 +142,7 @@ public class Workspace implements IWorkspace
 
     protected void initPath(File path)
     {
-        this.root = new SchedulingRoot(path);
+        this.root = new WorkspaceRoot(path);
         this.path = path;
     }
 

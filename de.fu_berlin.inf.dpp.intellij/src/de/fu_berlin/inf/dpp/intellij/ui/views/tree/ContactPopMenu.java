@@ -29,6 +29,7 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
@@ -63,7 +64,7 @@ class ContactPopMenu extends JPopupMenu {
         editorApi = new EditorAPI(saros.getProject());
 
         JMenu menuShareProject = new JMenu("Work together on...");
-        menuShareProject.setIcon(IconManager.sessionsIcon);
+        menuShareProject.setIcon(IconManager.SESSIONS_ICON);
 
         if (saros.getProject() != null) {
             JMenuItem projectItem = new JMenuItem(saros.getProject().getName());

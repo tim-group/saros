@@ -23,9 +23,9 @@
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -46,7 +46,7 @@ public final class JoinSessionRejectedHandler {
 
         @Override
         public void processPacket(final Packet packet) {
-            SWTUtils.runSafeSWTAsync(LOG, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override
@@ -77,7 +77,7 @@ public final class JoinSessionRejectedHandler {
             name = from.getBase();
         }
 
-        DialogUtils.openInformationMessageDialog(SWTUtils.getShell(),
+        DialogUtils.openInformationMessageDialog(DialogUtils.getDefaultContainer(),
                 "Join Session Request Rejected",
                 "Your request to join the session of " + name + " was rejected.");
     }

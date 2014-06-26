@@ -1,4 +1,4 @@
-package de.fu_berlin.inf.dpp.core.invitation;
+package de.fu_berlin.inf.dpp.intellij.project;
 
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
@@ -55,10 +55,6 @@ public class CreateProjectTask implements IWorkspaceRunnable {
 
     @Override
     public void run(IProgressMonitor monitor) throws IOException {
-        if (this.monitor != null) {
-            monitor = this.monitor;
-        }
-
 
         IWorkspaceRoot workspaceRoot = workspace.getRoot();
 

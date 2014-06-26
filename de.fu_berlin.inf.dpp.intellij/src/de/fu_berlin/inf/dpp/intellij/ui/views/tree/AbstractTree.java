@@ -23,11 +23,11 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

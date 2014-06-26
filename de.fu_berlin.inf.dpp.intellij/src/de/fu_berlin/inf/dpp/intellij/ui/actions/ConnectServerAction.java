@@ -124,7 +124,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
             account = saros.getAccountStore().getActiveAccount();
         }
 
-        log.info("Connecting server: [" + account.getUsername() + "@" + account.getServer() + "]");
+        LOG.info("Connecting server: [" + account.getUsername() + "@" + account.getServer() + "]");
 
         try {
 
@@ -142,7 +142,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
             // Messages.showErrorDialog("Bad login or password. Try again!","Error");
             JOptionPane.showMessageDialog(guiFrame, "Bad login or password. Try again!", "Error", JOptionPane.ERROR_MESSAGE);
 
-            log.error(e);
+            LOG.error(e);
         }
 
 

@@ -627,7 +627,7 @@ public class ActivitySequencer implements Startable
         String msg = "send (" + String.format("%03d", activities.size()) + ") "
                 + recipient + " -> " + activities;
 
-        // only log on debug level if there is more than a checksum
+        // only LOG on debug level if there is more than a checksum
         if (ActivityUtils.containsChecksumsOnly(activities))
         {
             LOG.trace(msg);

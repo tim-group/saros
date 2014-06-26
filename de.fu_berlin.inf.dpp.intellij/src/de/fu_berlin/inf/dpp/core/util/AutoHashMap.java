@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.util;
+package de.fu_berlin.inf.dpp.core.util;
 
 import de.fu_berlin.inf.dpp.util.Function;
 

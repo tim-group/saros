@@ -267,7 +267,7 @@ public class FileUtils {
     public static void create(final IFolder folder) throws IOException {
 
         // if ((folder == null) || (folder.exists())) {
-        // log.debug(".create() Creating folder not possible");
+        // LOG.debug(".create() Creating folder not possible");
         // return;
         // }
 

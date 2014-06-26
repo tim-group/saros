@@ -30,8 +30,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
  */
 
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.MessageDialog;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
 import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionListener;
@@ -80,12 +79,12 @@ public class XMPPAuthorizationHandler
     private void handleAuthorizationRequest(final JID jid)
     {
 
-        boolean accept = MessageDialog
+        boolean accept = DialogUtils
                 .openConfirm(
-                        SWTUtils.getShell(),
+                        DialogUtils.getDefaultContainer(),
                         Messages.SubscriptionManager_incoming_subscription_request_title,
                         MessageFormat.format(Messages.SubscriptionManager_incoming_subscription_request_message,
-                        jid.getBareJID())
+                                jid.getBareJID())
                 );
         if (accept)
         {

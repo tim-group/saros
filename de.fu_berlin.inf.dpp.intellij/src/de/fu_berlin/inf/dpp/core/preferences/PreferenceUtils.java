@@ -23,21 +23,24 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
 
+import de.fu_berlin.inf.dpp.annotations.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fu_berlin.inf.dpp.annotations.Component;
-
 @Component(module = "prefs")
-public class PreferenceUtils {
+public class PreferenceUtils
+{
 
     private IPreferenceStore preferenceStore;
 
-    public PreferenceUtils(IPreferenceStore preferenceStore) {
+    public PreferenceUtils(IPreferenceStore preferenceStore)
+    {
         this.preferenceStore = preferenceStore;
     }
 
-    public boolean isDebugEnabled() {
+    public boolean isDebugEnabled()
+    {
         return preferenceStore.getBoolean(PreferenceConstants.DEBUG);
     }
 
@@ -46,18 +49,9 @@ public class PreferenceUtils {
      *
      * @return
      */
-    public String getSarosXMPPServer() {
+    public String getSarosXMPPServer()
+    {
         return "saros-con.imp.fu-berlin.de";
-    }
-
-    /**
-     * Returns the default server.<br/>
-     * Is never empty or null.
-     *
-     * @return
-     */
-    public String getDefaultServer() {
-        return getSarosXMPPServer();
     }
 
     /**
@@ -65,7 +59,8 @@ public class PreferenceUtils {
      *
      * @return true if auto-connect is enabled.
      */
-    public boolean isAutoConnecting() {
+    public boolean isAutoConnecting()
+    {
         return preferenceStore.getBoolean(PreferenceConstants.AUTO_CONNECT);
     }
 
@@ -75,9 +70,10 @@ public class PreferenceUtils {
      *
      * @return true of port mapping is enabled, false otherwise
      */
-    public boolean isAutoPortmappingEnabled() {
-        return preferenceStore.getString(
-                PreferenceConstants.AUTO_PORTMAPPING_DEVICEID).isEmpty() == false;
+    public boolean isAutoPortmappingEnabled()
+    {
+        return !preferenceStore.getString(
+                PreferenceConstants.AUTO_PORTMAPPING_DEVICEID).isEmpty();
     }
 
     /**
@@ -85,17 +81,21 @@ public class PreferenceUtils {
      *
      * @return
      */
-    public List<String> getSocks5Candidates() {
+    public List<String> getSocks5Candidates()
+    {
         String addresses = preferenceStore
                 .getString(PreferenceConstants.LOCAL_SOCKS5_PROXY_CANDIDATES);
 
         List<String> result = new ArrayList<String>();
 
-        for (String address : addresses.split(",")) {
+        for (String address : addresses.split(","))
+        {
             address = address.trim();
 
             if (address.isEmpty())
+            {
                 continue;
+            }
 
             result.add(address);
         }
@@ -109,7 +109,8 @@ public class PreferenceUtils {
      *
      * @return
      */
-    public boolean useExternalGatewayAddress() {
+    public boolean useExternalGatewayAddress()
+    {
         return preferenceStore
                 .getBoolean(PreferenceConstants.LOCAL_SOCKS5_PROXY_USE_UPNP_EXTERNAL_ADDRESS);
     }
@@ -119,23 +120,10 @@ public class PreferenceUtils {
      *
      * @return Device ID of the gateway or empty String if disabled.
      */
-    public String getAutoPortmappingGatewayID() {
+    public String getAutoPortmappingGatewayID()
+    {
         return preferenceStore
                 .getString(PreferenceConstants.AUTO_PORTMAPPING_DEVICEID);
-    }
-
-    public int getAutoPortmappingLastPort() {
-        return preferenceStore
-                .getInt(PreferenceConstants.AUTO_PORTMAPPING_LASTMAPPEDPORT);
-    }
-
-    /**
-     * Returns the Skype user name or an empty string if none was specified.
-     *
-     * @return the user name.for Skype or an empty string
-     */
-    public String getSkypeUserName() {
-        return preferenceStore.getString(PreferenceConstants.SKYPE_USERNAME);
     }
 
     /**
@@ -145,48 +133,59 @@ public class PreferenceUtils {
      * number)
      *
      * @return port for smacks configuration (negative if to try out ports
-     *         above)
+     * above)
      */
-    public int getFileTransferPort() {
+    public int getFileTransferPort()
+    {
         int port = preferenceStore
                 .getInt(PreferenceConstants.FILE_TRANSFER_PORT);
 
         if (preferenceStore
                 .getBoolean(PreferenceConstants.USE_NEXT_PORTS_FOR_FILE_TRANSFER))
+        {
             return -port;
+        }
         else
+        {
             return port;
+        }
     }
 
-    public boolean forceFileTranserByChat() {
+    public boolean forceFileTranserByChat()
+    {
         return preferenceStore
                 .getBoolean(PreferenceConstants.FORCE_FILETRANSFER_BY_CHAT);
     }
 
-    public boolean isConcurrentUndoActivated() {
+    public boolean isConcurrentUndoActivated()
+    {
         return preferenceStore.getBoolean(PreferenceConstants.CONCURRENT_UNDO);
     }
 
-    public boolean useVersionControl() {
+    public boolean useVersionControl()
+    {
         return !preferenceStore
                 .getBoolean(PreferenceConstants.DISABLE_VERSION_CONTROL);
     }
 
-    public void setUseVersionControl(boolean value) {
-        preferenceStore.setValue(PreferenceConstants.DISABLE_VERSION_CONTROL,
-                !value);
+    public void setUseVersionControl(boolean value)
+    {
+        preferenceStore.putBoolean(PreferenceConstants.DISABLE_VERSION_CONTROL, !value);
     }
 
-    public boolean isLocalSOCKS5ProxyEnabled() {
+    public boolean isLocalSOCKS5ProxyEnabled()
+    {
         return !preferenceStore
                 .getBoolean(PreferenceConstants.LOCAL_SOCKS5_PROXY_DISABLED);
     }
 
-    public String getStunIP() {
+    public String getStunIP()
+    {
         return preferenceStore.getString(PreferenceConstants.STUN);
     }
 
-    public int getStunPort() {
+    public int getStunPort()
+    {
         return preferenceStore.getInt(PreferenceConstants.STUN_PORT);
     }
 
@@ -194,9 +193,10 @@ public class PreferenceUtils {
      * Returns the favorite color ID that should be used during a session.
      *
      * @return the favorite color ID or {@value UserColorID#UNKNOWN} if no
-     *         favorite color ID is available
+     * favorite color ID is available
      */
-    public int getFavoriteColorID() {
+    public int getFavoriteColorID()
+    {
         return preferenceStore
                 .getInt(PreferenceConstants.FAVORITE_SESSION_COLOR_ID);
     }
@@ -206,7 +206,8 @@ public class PreferenceUtils {
      *
      * @return the nickname which may be empty if no nickname is available
      */
-    public String getSessionNickname() {
+    public String getSessionNickname()
+    {
         return preferenceStore.getString(PreferenceConstants.SESSION_NICKNAME);
     }
 }

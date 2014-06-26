@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
@@ -34,7 +36,7 @@ public class ProgressTest
     public static void main(String[] args)
     {
         SarosProgressMonitor spm = new SarosProgressMonitor();
-        spm.startAutoincrement();
+        spm.beginTask("Test task", IProgressMonitor.UNKNOWN);
 
 
 //        for (int i = 0; i <= 100; i++)

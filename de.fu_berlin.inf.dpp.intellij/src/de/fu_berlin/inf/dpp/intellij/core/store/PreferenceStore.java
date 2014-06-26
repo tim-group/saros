@@ -27,18 +27,8 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import java.io.IOException;
 import java.util.Properties;
 
-//todo: use IntelliJ native mechanism
-
 /**
  * Saros preferences store
- * <p/>
- * <p/>
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 
 public class PreferenceStore extends AbstractStore implements IPreferenceStore {
@@ -63,36 +53,6 @@ public class PreferenceStore extends AbstractStore implements IPreferenceStore {
     @Override
     protected String getFileName() {
         return FILE_NAME;
-    }
-
-
-    @Override
-    public void putBoolean(String key, boolean value1, boolean value2) {
-        //todo: what to do with value2 ????
-        putBoolean(key, value1);
-    }
-
-
-    @Override
-    public void putByteArray(String key, byte[] value, boolean arg2) {
-        //todo: what is arg2???
-        putByteArray(key, value);
-
-    }
-
-    @Override
-    public void setValue(Object o, boolean arg) {
-        preferenceMap.put(o, arg);
-    }
-
-    @Override
-    public void setValue(Object key, String value) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String getDefaultString(String key) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

@@ -29,11 +29,11 @@ import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
 import java.util.Iterator;
@@ -62,27 +62,27 @@ public class FollowModeAction extends AbstractSarosAction
         @Override
         public void userLeft(final User user)
         {
-            SWTUtils.runSafeSWTAsync(log, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
+           {
 
-                @Override
-                public void run()
-                {
-                    currentRemoteSessionUsers.remove(user);
+               @Override
+               public void run()
+               {
+                   currentRemoteSessionUsers.remove(user);
 
-                    if (user.equals(currentlyFollowedUser))
-                    {
-                        currentlyFollowedUser = null;
-                        updateMenu();
-                    }
-                }
-            });
+                   if (user.equals(currentlyFollowedUser))
+                   {
+                       currentlyFollowedUser = null;
+                       updateMenu();
+                   }
+               }
+           });
         }
 
         @Override
         public void userJoined(final User user)
         {
-            SWTUtils.runSafeSWTAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override
@@ -104,7 +104,7 @@ public class FollowModeAction extends AbstractSarosAction
 
             session.addListener(userListener);
 
-            SWTUtils.runSafeSWTAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override
@@ -122,7 +122,7 @@ public class FollowModeAction extends AbstractSarosAction
         public void sessionEnded(ISarosSession oldSarosSession)
         {
             oldSarosSession.removeListener(userListener);
-            SWTUtils.runSafeSWTAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override
@@ -141,7 +141,7 @@ public class FollowModeAction extends AbstractSarosAction
         @Override
         public void followModeChanged(final User user, final boolean isFollowed)
         {
-            SWTUtils.runSafeSWTAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override

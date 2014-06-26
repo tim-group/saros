@@ -10,9 +10,9 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketListener;
@@ -41,7 +41,7 @@ public final class JoinSessionRequestHandler {
 
         @Override
         public void processPacket(final Packet packet) {
-            SWTUtils.runSafeSWTAsync(LOG, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override

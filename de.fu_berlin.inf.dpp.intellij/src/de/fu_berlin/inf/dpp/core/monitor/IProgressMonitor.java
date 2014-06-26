@@ -1,17 +1,11 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
-
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 11.08
+ * Temporary interface for compatibility with Eclipse SubMonitor implementation
  */
-
-public interface IProgressMonitor extends de.fu_berlin.inf.dpp.monitoring.IProgressMonitor
-{
-    public static final int UNKNOWN = 0;
-
+//todo: remove it and use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
+public interface IProgressMonitor
+    extends de.fu_berlin.inf.dpp.monitoring.IProgressMonitor {
 
     void beginTask(String taskName, String type);
 

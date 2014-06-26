@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
 
-import de.fu_berlin.inf.dpp.intellij.ui.views.tree.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 
 import javax.swing.*;
 import java.awt.*;

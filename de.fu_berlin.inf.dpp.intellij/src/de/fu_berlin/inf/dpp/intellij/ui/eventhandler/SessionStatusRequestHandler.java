@@ -29,8 +29,8 @@ import de.fu_berlin.inf.dpp.communication.extensions.SessionStatusResponseExtens
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SWTUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -60,7 +60,7 @@ public final class SessionStatusRequestHandler {
 
         @Override
         public void processPacket(final Packet packet) {
-            SWTUtils.runSafeSWTAsync(LOG, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
 
                 @Override

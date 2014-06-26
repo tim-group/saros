@@ -23,8 +23,14 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
@@ -47,7 +53,7 @@ public class RootTree extends AbstractTree
         jtree = new JTree(this);
         jtree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        iconManager.setTreeIcons(jtree);
+        setTreeIcons(jtree);
     }
 
     public JTree getJtree()
@@ -65,5 +71,65 @@ public class RootTree extends AbstractTree
         setTitle(TITLE_JABBER_SERVER);
     }
 
+    /**
+     * Starts listeners
+     *
+     * @param tree
+     */
+    protected void setTreeIcons(JTree tree)
+    {
 
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()
+        {
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                    Object value, boolean selected, boolean expanded,
+                    boolean isLeaf, int row, boolean focused)
+            {
+                Component c = super.getTreeCellRendererComponent(tree, value,
+                        selected, expanded, isLeaf, row, focused);
+
+                TreePath path = tree.getPathForRow(row);
+                if (path != null)
+                {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+                    if (node != null)
+                    {
+                        if (node instanceof RootTree)
+                        {
+                            setIcon(null);
+                        }
+                        else if (node instanceof SessionTree)
+                        {
+                            setIcon(IconManager.SESSIONS_ICON);
+                        }
+                        else if (node instanceof ContactTree)
+                        {
+                            setIcon(IconManager.CONTACTS_ICON);
+                        }
+                        else
+                        {
+                            if (node.getUserObject() instanceof AbstractTree.LeafInfo)
+                            {
+                                AbstractTree.LeafInfo info = (AbstractTree.LeafInfo) node.getUserObject();
+                                if (info.getIcon() != null)
+                                {
+                                    setIcon(info.getIcon());
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+
+                return c;
+            }
+
+        };
+
+        tree.setCellRenderer(renderer);
+
+    }
 }

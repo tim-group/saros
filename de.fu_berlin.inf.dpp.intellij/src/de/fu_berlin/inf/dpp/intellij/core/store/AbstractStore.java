@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
+import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.util.ByteHexUtil;
 import org.apache.log4j.Logger;
 
@@ -38,9 +39,9 @@ import java.util.Properties;
  * Time: 11.23
  */
 
-public abstract class AbstractStore
+public abstract class AbstractStore implements IPreferenceStore
 {
-    protected final Logger log = Logger.getLogger(AbstractStore.class);
+    protected final Logger LOG = Logger.getLogger(AbstractStore.class);
     protected Properties preferenceMap;
 
     protected abstract String getFileName();
@@ -55,7 +56,7 @@ public abstract class AbstractStore
     public void save() throws IOException
     {
         File propFile = new File(getFileName());
-        log.info("Saving properties [" + propFile.getAbsolutePath() + "]");
+        LOG.info("Saving properties [" + propFile.getAbsolutePath() + "]");
 
         FileOutputStream fos = new FileOutputStream(propFile);
         preferenceMap.storeToXML(fos, "Saros properties", "UTF-8");
@@ -71,7 +72,7 @@ public abstract class AbstractStore
     public void load()
     {
         File propFile = new File(getFileName());
-        log.info("Loading properties [" + propFile.getAbsolutePath() + "]");
+        LOG.info("Loading properties [" + propFile.getAbsolutePath() + "]");
 
         if (propFile.exists())
         {

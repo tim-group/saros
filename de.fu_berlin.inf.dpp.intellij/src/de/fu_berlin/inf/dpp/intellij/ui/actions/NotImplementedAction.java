@@ -66,7 +66,7 @@ public class NotImplementedAction extends AbstractSarosAction
     {
         actionStarted();
 
-        log.info("Not implemented action [" + name + "]");
+        LOG.info("Not implemented action [" + name + "]");
 
         SafeDialogUtils.showError("We are sorry, but action [" + name + "] not implemented yet!", "Not Implemented");
 

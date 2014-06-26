@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressBar;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.AbstractWizardPage;
 
 import javax.swing.*;
@@ -43,7 +43,7 @@ public class ProgressPage extends AbstractWizardPage
 {
     private JProgressBar progressBar;
     private JLabel progressInfo;
-    protected SarosProgressBar progressMonitor;
+    protected MonitorProgressBar progressMonitor;
 
     /**
      * Constructor with custom ID
@@ -116,24 +116,22 @@ public class ProgressPage extends AbstractWizardPage
     /**
      * Creates Progress monitor.
      *
-     * @param autoincrement use autoincrement
+     * @param indeterminate use indeterminate
      * @param closeOnFinish close wizard when finished
      * @return IProgressMonitor
      */
-    public IProgressMonitor getProgressMonitor(boolean autoincrement, boolean closeOnFinish)
+    public IProgressMonitor getProgressMonitor(boolean indeterminate, boolean closeOnFinish)
     {
         if (progressMonitor == null)
         {
-            SarosProgressBar progress = new SarosProgressBar(getProgressBar(), getProgressInfo());
+            MonitorProgressBar progress = new MonitorProgressBar(getProgressBar(), getProgressInfo());
 
-            if (autoincrement)
-            {
-                progress.startAutoincrement();
-            }
+            if(indeterminate)
+            progress.beginTask("starting", de.fu_berlin.inf.dpp.monitoring.IProgressMonitor.UNKNOWN);
 
             if (closeOnFinish)
             {
-                progress.setFinishListener(new SarosProgressBar.FinishListener()
+                progress.setFinishListener(new MonitorProgressBar.FinishListener()
                 {
                     @Override
                     public void finished()

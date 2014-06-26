@@ -38,17 +38,17 @@ import java.util.Map;
  * Time: 15.36
  */
 
-public class SchedulingRoot implements IWorkspaceRoot {
-    public static final Logger log = Logger.getLogger(SchedulingRoot.class);
+public class WorkspaceRoot implements IWorkspaceRoot {
+    public static final Logger log = Logger.getLogger(WorkspaceRoot.class);
 
     private File workspacePath;
     private Map<String, IProject> projects = new HashMap<String, IProject>();
 
-    public SchedulingRoot(File workspacePath) {
+    public WorkspaceRoot(File workspacePath) {
         this.workspacePath = workspacePath;
     }
 
-    protected SchedulingRoot() {
+    protected WorkspaceRoot() {
     }
 
 

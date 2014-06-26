@@ -279,7 +279,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             try {
                 bytes = virtualFileMoveEvent.getFile().contentsToByteArray();
             } catch (IOException e) {
-                workspace.log.error(e.getMessage(), e);
+                workspace.LOG.error(e.getMessage(), e);
             }
 
             IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);

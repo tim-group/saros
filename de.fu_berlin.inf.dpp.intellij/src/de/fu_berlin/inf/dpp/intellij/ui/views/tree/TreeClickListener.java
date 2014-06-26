@@ -22,8 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.TreeUtils;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -46,8 +44,8 @@ public class TreeClickListener extends MouseAdapter
     public TreeClickListener(ContactTree contactsNode, SessionTree sessionsNde)
     {
         this.tree = contactsNode.rootTree.getJtree();
-        this.contactPath = TreeUtils.getPath(contactsNode);
-        this.sessionPath = TreeUtils.getPath(sessionsNde);
+        this.contactPath = TreeHelper.getPath(contactsNode);
+        this.sessionPath = TreeHelper.getPath(sessionsNde);
     }
 
     public void mousePressed(MouseEvent e)

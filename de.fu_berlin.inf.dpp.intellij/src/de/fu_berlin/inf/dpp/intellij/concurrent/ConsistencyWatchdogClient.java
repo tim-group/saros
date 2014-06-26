@@ -23,17 +23,16 @@
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.text.IDocument;
+import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
@@ -58,11 +57,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * {@link SarosView}. 2.) Send a ChecksumError to the host, if the user wants to
  * recover from an inconsistency. See {@link #runRecovery(SubMonitor)}
  */
-@Component(module = "consistency")
 public class ConsistencyWatchdogClient extends
         AbstractActivityProvider {
 
-    private static Logger log = Logger
+    private static Logger LOG = Logger
             .getLogger(ConsistencyWatchdogClient.class);
 
     private static final Random RANDOM = new Random();
@@ -192,7 +190,7 @@ public class ConsistencyWatchdogClient extends
                     latestChecksums.remove(fileActivity.getOldPath());
                     break;
                 default:
-                    log.error("Unhandled FileActivity.Type: " + fileActivity);
+                    LOG.error("Unhandled FileActivity.Type: " + fileActivity);
             }
         }
     };
@@ -252,7 +250,7 @@ public class ConsistencyWatchdogClient extends
             throw new IllegalStateException("Can only be called on the client");
 
         if (!lock.tryLock()) {
-            log.error("Restarting Checksum Error Handling"
+            LOG.error("Restarting Checksum Error Handling"
                     + " while another operation is running");
             try {
                 // Try to cancel currently running recovery
@@ -260,7 +258,7 @@ public class ConsistencyWatchdogClient extends
                     cancelRecovery.set(true);
                 } while (!lock.tryLock(100, TimeUnit.MILLISECONDS));
             } catch (InterruptedException e) {
-                log.error("Not designed to be interruptable");
+                LOG.error("Not designed to be interruptable");
                 return;
             }
         }
@@ -381,7 +379,7 @@ public class ConsistencyWatchdogClient extends
 
         // if doc is still null give up
         if (doc == null) {
-            log.warn("Could not check checksum of file " + path.toString());
+            LOG.warn("Could not check checksum of file " + path.toString());
             return false;
         }
 
@@ -389,7 +387,7 @@ public class ConsistencyWatchdogClient extends
         if ((doc.getLength() != checksum.getLength())
                 || (doc.get().hashCode() != checksum.getHash())) {
 
-            log.debug(String.format(
+            LOG.debug(String.format(
                     "Inconsistency detected: %s L(%d %s %d) H(%x %s %x)", path
                             .toString(), doc.getLength(),
                     doc.getLength() == checksum.getLength() ? "==" : "!=",
@@ -415,7 +413,7 @@ public class ConsistencyWatchdogClient extends
     public boolean performCheck(SPath path) {
 
         if (sarosSession == null) {
-            log.warn("Session already ended. Cannot perform consistency check",
+            LOG.warn("Session already ended. Cannot perform consistency check",
                     new StackTrace());
             return false;
         }
@@ -449,12 +447,12 @@ public class ConsistencyWatchdogClient extends
         // Update InconsistencyToResolve observable
         if (pathsWithWrongChecksums.isEmpty()) {
             if (inconsistencyToResolve.getValue()) {
-                log.info("All Inconsistencies are resolved");
+                LOG.info("All Inconsistencies are resolved");
             }
             inconsistencyToResolve.setValue(false);
         } else {
             if (!inconsistencyToResolve.getValue()) {
-                log.info("Inconsistencies have been detected");
+                LOG.info("Inconsistencies have been detected");
             }
             inconsistencyToResolve.setValue(true);
         }

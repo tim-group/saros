@@ -37,7 +37,7 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.views.tree.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +106,7 @@ public class SarosFileShareGroup extends ActionGroup
 
         public ShareWithUser(JID user)
         {
-            super(user.getName(), null, IconManager.contactOnlineIcon);
+            super(user.getName(), null, IconManager.CONTACT_ONLINE_ICON);
             this.userJID = user;
             this.title = user.getName();
         }

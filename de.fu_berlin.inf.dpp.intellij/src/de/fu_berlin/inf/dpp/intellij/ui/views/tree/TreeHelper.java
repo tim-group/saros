@@ -20,28 +20,38 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
-
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
-
-import javax.swing.*;
-import java.awt.*;
+package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-15
- * Time: 15:42
+ * Date: 2014-04-25
+ * Time: 10:09
  */
 
-public class WarningMessageDialog
-{
-    private static Component parent = Saros.instance().getMainPanel();
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import java.util.ArrayList;
+import java.util.List;
 
-    public static void showWarningMessage(String msg, String title)
+public class TreeHelper
+{
+    public static TreePath getPath(TreeNode treeNode)
     {
-         JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.YES_OPTION);
+        List<Object> nodes = new ArrayList<Object>();
+        if (treeNode != null)
+        {
+            nodes.add(treeNode);
+            treeNode = treeNode.getParent();
+            while (treeNode != null)
+            {
+                nodes.add(0, treeNode);
+                treeNode = treeNode.getParent();
+            }
+        }
+
+        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
     }
 }
+
+

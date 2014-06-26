@@ -344,9 +344,9 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         final VCSAdapter vcs = activityType == VCSActivity.Type.CONNECT ? VCSAdapter
                 .getAdapter(revision) : VCSAdapter.getAdapter(project);
         if (vcs == null) {
-            log.warn("Could not execute VCS activity. Do you have the Subclipse plug-in installed?");
+            LOG.warn("Could not execute VCS activity. Do you have the Subclipse plug-in installed?");
             if (activity.containedActivity.size() > 0) {
-                log.trace("contained activities: "
+                LOG.trace("contained activities: "
                         + activity.containedActivity.toString());
             }
             for (IResourceActivity a : activity.containedActivity) {
@@ -363,15 +363,15 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             progressMonitorDialog.open();
             Shell pmdShell = progressMonitorDialog.getShell();
             pmdShell.setText("Saros running VCS operation");
-            log.trace("about to call progressMonitorDialog.run");
+            LOG.trace("about to call progressMonitorDialog.run");
             progressMonitorDialog.run(true, false, new IRunnableWithProgress() {
                 @Override
                 public void run(IProgressMonitor progress)
 
                         throws InvocationTargetException, InterruptedException {
-                    log.trace("progressMonitorDialog.run started");
+                    LOG.trace("progressMonitorDialog.run started");
                     if (!SWTUtils.isSWT())
-                        log.trace("not in SWT thread");
+                        LOG.trace("not in SWT thread");
                     if (activityType == VCSActivity.Type.CONNECT) {
                         vcs.connect(project, url, directory, progress);
                     } else if (activityType == VCSActivity.Type.DISCONNECT) {
@@ -381,9 +381,9 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
                     } else if (activityType == VCSActivity.Type.UPDATE) {
                         vcs.update(resource, revision, progress);
                     } else {
-                        log.error("VCS activity type not implemented yet.");
+                        LOG.error("VCS activity type not implemented yet.");
                     }
-                    log.trace("progressMonitorDialog.run done");
+                    LOG.trace("progressMonitorDialog.run done");
                 }
 
             });
@@ -392,7 +392,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             // TODO We can't get here, right?
             throw new IllegalStateException(e);
         } catch (InterruptedException e) {
-            log.error("Code not designed to be interrupted!");
+            LOG.error("Code not designed to be interrupted!");
         }*/
     }
 

@@ -67,10 +67,10 @@ public class PreferenceConstants {
     public static final String STATISTIC_ALLOW_SUBMISSION = "statistic.allow.submission";
 
     /** Can be set and read by the ErrorLogManager */
-    public static final String ERROR_LOG_ALLOW_SUBMISSION = "error.log.allow.submission";
+    public static final String ERROR_LOG_ALLOW_SUBMISSION = "error.LOG.allow.submission";
 
     /** Can be set and read by the ErrorLogManager */
-    public static final String ERROR_LOG_ALLOW_SUBMISSION_FULL = "error.log.allow.submission.full";
+    public static final String ERROR_LOG_ALLOW_SUBMISSION_FULL = "error.LOG.allow.submission.full";
 
     /*
      * Global preferences, not initialized i.e. no default values
@@ -94,7 +94,7 @@ public class PreferenceConstants {
 
     /**
      * Preference used to let the user declare whether he wants a self defined
-     * pseudonym be transmitted during statistics or error log transmission
+     * pseudonym be transmitted during statistics or error LOG transmission
      */
     public static final String STATISTIC_ALLOW_PSEUDONYM = "STATISTIC_ALLOW_PSEUDONYM";
 

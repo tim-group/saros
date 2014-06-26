@@ -20,18 +20,28 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core.misc;
-
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com
  * <p/>
- * Date: 2014-04-15
- * Time: 18:47
+ * Date: 2014-04-11
+ * Time: 14:08
  */
 
-public interface IRunnableWithProgress
+public class IntelliJUIHelper
 {
-    void run(IProgressMonitor monitor);
+
+    public static void showNotification(String message, String title)
+    {
+
+        //todo
+        System.out.println("IntelliJUIHelper.showNotification //todo");
+    }
+
+    public static void clearNotifications()
+    {
+        //todo
+        System.out.println("IntelliJUIHelper.clearNotifications //todo ");
+    }
 }

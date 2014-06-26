@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,25 +30,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Creates progress monitor panel
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-12
- * Time: 14:45
+ * Creates independent progress monitor window
  */
-
-public class SarosProgressMonitor extends SarosProgressBar implements IProgressMonitor
+//todo: use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
+public class SarosProgressMonitor extends MonitorProgressBar
+        implements IProgressMonitor
 {
 
     public static final String TITLE = "Progress monitor";
     public static final String BUTTON_CANCEL = "Cancel";
 
+    //todo: uncomment when Saros class will be in repository
     private Container parent; // = Saros.instance().getMainPanel();
     private JFrame frmMain;
     private JButton btnCancel;
-
 
     /**
      * Constructor with default title
@@ -76,7 +70,6 @@ public class SarosProgressMonitor extends SarosProgressBar implements IProgressM
         frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
-        JLabel infoLabel = new JLabel();
         btnCancel = new JButton(BUTTON_CANCEL);
         btnCancel.addActionListener(new ActionListener()
         {
@@ -87,10 +80,13 @@ public class SarosProgressMonitor extends SarosProgressBar implements IProgressM
             }
         });
 
-        JProgressBar progressBar = new JProgressBar(MIN_VALUE, MAX_VALUE);
+
+        JLabel infoLabel = super.display.getInfoLabel();
 
         pane.add(infoLabel);
         pane.add(btnCancel);
+
+        JProgressBar progressBar = super.display.getProgressBar();
         pane.add(progressBar);
 
         infoLabel.setBounds(10, 15, 200, 15);
@@ -102,7 +98,6 @@ public class SarosProgressMonitor extends SarosProgressBar implements IProgressM
 
         this.frmMain.repaint();
 
-        super.display = new DisplayContainer(progressBar, infoLabel);
     }
 
     @Override

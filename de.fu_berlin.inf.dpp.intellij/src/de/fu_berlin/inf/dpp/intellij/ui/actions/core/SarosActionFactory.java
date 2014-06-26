@@ -106,7 +106,7 @@ public class SarosActionFactory
      */
     public static void startAction(ISarosAction action)
     {
-        // ThreadUtils.runSafeAsync(log,action);
+        // ThreadUtils.runSafeAsync(LOG,action);
         action.run();
     }
 

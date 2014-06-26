@@ -27,28 +27,33 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
 
-
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 11.11
+ * Class designed to start long lasting job with progress indicator
  */
-
-public abstract class Job extends Thread
+public abstract class UIMonitoredJob extends Thread
 {
-    public static final int SHORT = 1;
 
-    private boolean isUser;
     private IProgressMonitor monitor;
 
-    protected Job(String name, IProgressMonitor monitor)
+    public UIMonitoredJob(String name, IProgressMonitor monitor)
     {
         super(name);
-        this.monitor = monitor;
+        if (monitor == null)
+        {
+            this.monitor = new SarosProgressMonitor();
+        }
+        else
+        {
+            this.monitor = monitor;
+        }
     }
 
-    public Job(final String name)
+    /**
+     * Creates job with named progress window
+     *
+     * @param name progress window name
+     */
+    public UIMonitoredJob(final String name)
     {
         super(name);
         monitor = new SarosProgressMonitor();
@@ -57,15 +62,6 @@ public abstract class Job extends Thread
 
     }
 
-    public void setUser(boolean isUser)
-    {
-        this.isUser = isUser;
-    }
-
-    public boolean isUser()
-    {
-        return isUser;
-    }
 
     public void schedule()
     {
@@ -74,26 +70,20 @@ public abstract class Job extends Thread
 
 
     @Override
-    public void run()
+    public final void run()
     {
-        if (monitor == null)
-        {
-            monitor = new NullProgressMonitor();
-        }
-
-        if (monitor instanceof SarosProgressMonitor)
-        {
-            ((SarosProgressMonitor) monitor).startAutoincrement();
-        }
 
         run(monitor);
     }
 
+    /**
+     * Implement job business logic here.
+     * IProgressMonitor is passed internally.
+     * Implementation is responsible to pass information about progress for progress monitor
+     *
+     * @param monitor
+     * @return
+     */
     protected abstract IStatus run(IProgressMonitor monitor);
-
-    public void setProperty(String key, Object value)
-    {
-
-    }
 
 }

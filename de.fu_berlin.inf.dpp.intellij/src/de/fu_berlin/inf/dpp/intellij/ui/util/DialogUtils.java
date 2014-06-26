@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eclipse;
+package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 
@@ -38,18 +38,9 @@ public class DialogUtils
 {
     private static final Container container = Saros.instance().getMainPanel();
 
-    public static void openWindow(Container c)
-    {
-        System.out.println("DialogUtils.openWindow");
-        if (c.isVisible())
-        {
-            c.setVisible(true);
-        }
-    }
 
     public static void openInformationMessageDialog(Container shell, String msg, String title)
     {
-
         JOptionPane.showConfirmDialog(shell, msg, title, JOptionPane.OK_OPTION);
     }
 
@@ -65,6 +56,24 @@ public class DialogUtils
         openErrorMessageDialog(getDefaultContainer(), msg, title);
 
     }
+
+    public static void openError(Component shell, String title, String message)
+    {
+        JOptionPane.showInternalMessageDialog(shell, title, message, JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    public static boolean openConfirm(Component shell, String title, String message)
+    {
+        int resp = JOptionPane.showConfirmDialog(shell, title, message, JOptionPane.YES_OPTION);
+        return resp == 0;
+    }
+
+    public static boolean openQuestion(Container shell, String title, String message)
+    {
+        return openConfirm(shell, title, message);
+    }
+
 
     public static void openErrorMessageDialog(Component parent, String msg, String title)
     {

@@ -22,31 +22,21 @@
 
 package de.fu_berlin.inf.dpp.core.monitor;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 11.05
- */
 
-public class Status implements IStatus
-{
-    public static final Status  CANCEL_STATUS = new Status(0);
-    public static final Status OK_STATUS=new Status(1);
+public class Status implements IStatus {
+    public static final Status CANCEL_STATUS = new Status(0);
+    public static final Status OK_STATUS = new Status(1);
 
-    public Status()
-    {
-    }
-    public Status(int status)
-    {
+    public Status() {
     }
 
-    public Status(int status,String msg, String title)
-    {
+    public Status(int status) {
     }
 
-    public Status(int status,String msg, String title, Exception ex)
-    {
+    public Status(int status, String msg, String title) {
+    }
+
+    public Status(int status, String msg, String title, Exception ex) {
     }
 
 }

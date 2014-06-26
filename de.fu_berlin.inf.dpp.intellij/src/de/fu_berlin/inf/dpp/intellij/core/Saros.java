@@ -27,7 +27,6 @@ import com.intellij.openapi.wm.ToolWindow;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.core.preferences.ISecurePreferences;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
@@ -35,7 +34,6 @@ import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
 import de.fu_berlin.inf.dpp.intellij.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.core.store.SecurePreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
@@ -54,7 +52,8 @@ import java.util.Random;
 /**
  * Saros plugin class
  */
-public class Saros {
+public class Saros
+{
 
     protected static Logger log = Logger.getLogger(Saros.class);
 
@@ -121,39 +120,47 @@ public class Saros {
      * The secure preferences store, used to store sensitive data that may (at
      * the user's option) be stored encrypted.
      */
-    protected ISecurePreferences securePrefs;
+
     protected IPreferenceStore configPrefs;
 
     /**
      * Returns true if the Saros instance has been initialized so that calling
      * {@link de.fu_berlin.inf.dpp.intellij.context.SarosContext#reinject(Object)} will be well defined.
      */
-    public static boolean isInitialized() {
+    public static boolean isInitialized()
+    {
         return isInitialized;
     }
 
-    public static boolean isIsRunning() {
+    public static boolean isIsRunning()
+    {
         return isRunning;
     }
 
-    public static void checkInitialized() {
-        if (!isInitialized()) {
+    public static void checkInitialized()
+    {
+        if (!isInitialized())
+        {
             LogLog.error("Saros not initialized", new StackTrace());
             throw new IllegalStateException();
         }
     }
 
 
-    public SarosMainPanelView getMainPanel() {
+    public SarosMainPanelView getMainPanel()
+    {
         return mainPanel;
     }
 
-    public void setMainPanel(SarosMainPanelView mainPanel) {
+    public void setMainPanel(SarosMainPanelView mainPanel)
+    {
         this.mainPanel = mainPanel;
     }
 
-    public static Saros create(Project project, ToolWindow toolWindow) {
-        if (_instance == null) {
+    public static Saros create(Project project, ToolWindow toolWindow)
+    {
+        if (_instance == null)
+        {
             _instance = new Saros(project, toolWindow);
         }
         return _instance;
@@ -164,28 +171,32 @@ public class Saros {
      *
      * @return
      */
-    public static Saros instance() {
-        if (_instance == null) {
+    public static Saros instance()
+    {
+        if (_instance == null)
+        {
             throw new Error("Saros not initialized");
         }
         return _instance;
     }
 
 
-    private Saros(Project project, ToolWindow toolWindow) {
+    private Saros(Project project, ToolWindow toolWindow)
+    {
         this.project = project;
         this.toolWindow = toolWindow;
         this.isRunning = false;
     }
 
 
-    public void start() {
+    public void start()
+    {
 
-        if (isInitialized) {
+        if (isInitialized)
+        {
             return;
         }
 
-        this.securePrefs = new SecurePreferenceStore();
         this.configPrefs = new PreferenceStore();
 
         //CONTEXT
@@ -212,30 +223,36 @@ public class Saros {
     }
 
 
-    public void stop() {
+    public void stop()
+    {
 
         this.isInitialized = false;
     }
 
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return connectionService.isConnected();
     }
 
     /**
      * @return
      */
-    public XMPPConnectionService getConnectionService() {
+    public XMPPConnectionService getConnectionService()
+    {
         return connectionService;
     }
 
-    public ISarosSessionManager getSessionManager() {
+    public ISarosSessionManager getSessionManager()
+    {
         return sessionManager;
     }
 
 
-    public XMPPAccountStore getAccountStore() {
-        if (accountStore == null) {
+    public XMPPAccountStore getAccountStore()
+    {
+        if (accountStore == null)
+        {
             this.accountStore = new XMPPAccountStore();
             this.accountStore.setAccountFile(new File("SarosXMPPAccount.info"), "saros123");
             //  MockInitializer.initAccountStore(accountStore); //todo
@@ -244,25 +261,24 @@ public class Saros {
     }
 
 
-    public IPreferenceStore getConfigPrefs() {
+    public IPreferenceStore getConfigPrefs()
+    {
         return configPrefs;
     }
 
-    public ISecurePreferences getSecurePrefs() {
-        return securePrefs;
-    }
-
-    public Project getProject() {
+    public Project getProject()
+    {
         return project;
     }
 
-
-    public void setProject(Project project) {
+    public void setProject(Project project)
+    {
         this.project = project;
     }
 
 
-    public ToolWindow getToolWindow() {
+    public ToolWindow getToolWindow()
+    {
         return toolWindow;
     }
 
@@ -279,7 +295,8 @@ public class Saros {
      * @blocking
      * @see de.fu_berlin.inf.dpp.core.account.XMPPAccountStore#setAccountActive(XMPPAccount)
      */
-    public void connect(boolean failSilently) {
+    public void connect(boolean failSilently)
+    {
 
         /*
          * the Saros Configuration Wizard may call this again when invoking the
@@ -289,7 +306,8 @@ public class Saros {
 
         // FIXME this "logic" should not be done here !
 
-        if (accountStore.isEmpty()) {
+        if (accountStore.isEmpty())
+        {
             boolean configured = /*
                                   * side effect to:
                                   * preferenceUtils.isAutoConnecting()
@@ -297,7 +315,8 @@ public class Saros {
                     configureXMPPAccount();
 
             if (!configured
-                    || (configured && preferenceUtils.isAutoConnecting())) {
+                    || (configured && preferenceUtils.isAutoConnecting()))
+            {
                 return;
             }
         }
@@ -327,11 +346,15 @@ public class Saros {
 
         Exception connectionError = null;
 
-        try {
+        try
+        {
 
-            if (preferenceUtils.forceFileTranserByChat()) {
+            if (preferenceUtils.forceFileTranserByChat())
+            {
                 transferManager.setTransport(DataTransferManager.IBB_TRANSPORT);
-            } else {
+            }
+            else
+            {
                 transferManager.setTransport(/* use all */-1);
             }
 
@@ -339,20 +362,27 @@ public class Saros {
                     createConnectionConfiguration(domain, server, port, useTLS,
                             useSASL), username, password
             );
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             connectionError = e;
         }
 
-        if (connectionError == null) {
+        if (connectionError == null)
+        {
             return;
         }
 
-        try {
-            if (!(connectionError instanceof XMPPException)) {
+        try
+        {
+            if (!(connectionError instanceof XMPPException))
+            {
                 throw connectionError;
             }
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("internal error while connecting to the XMPP server: "
                     + e.getMessage(), e);
 
@@ -360,22 +390,27 @@ public class Saros {
     }
 
     protected ConnectionConfiguration createConnectionConfiguration(
-            String domain, String server, int port, boolean useTLS, boolean useSASL) {
+            String domain, String server, int port, boolean useTLS, boolean useSASL)
+    {
 
 
         ConnectionConfiguration connectionConfiguration = null;
 
-        if (server.length() == 0) {
+        if (server.length() == 0)
+        {
             connectionConfiguration = new ConnectionConfiguration(domain);
 
-        } else {
+        }
+        else
+        {
             connectionConfiguration = new ConnectionConfiguration(server, port,
                     domain);
         }
 
         connectionConfiguration.setSASLAuthenticationEnabled(useSASL);
 
-        if (!useTLS) {
+        if (!useTLS)
+        {
             connectionConfiguration
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         }
@@ -386,23 +421,27 @@ public class Saros {
     }
 
 
-    public boolean configureXMPPAccount() {
+    public boolean configureXMPPAccount()
+    {
 
         //todo: make implementation
 
         return true;
     }
 
-    public SarosContext getSarosContext() {
+    public SarosContext getSarosContext()
+    {
         return sarosContext;
     }
 
 
-    public IWorkspace getWorkspace() {
+    public IWorkspace getWorkspace()
+    {
         return workspace;
     }
 
-    public void setWorkspace(IWorkspace workspace) {
+    public void setWorkspace(IWorkspace workspace)
+    {
         this.workspace = workspace;
     }
 }

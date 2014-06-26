@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -254,7 +255,7 @@ public class SessionTree extends AbstractTree {
         }
 
         public ImageIcon getIcon() {
-            return IconManager.contactOnlineIcon;
+            return IconManager.CONTACT_ONLINE_ICON;
         }
 
         public ISarosSession getSession() {
@@ -274,7 +275,7 @@ public class SessionTree extends AbstractTree {
         public UserInfo(User user) {
             super(user.getNickname(), user.getNickname());
             this.user = user;
-            this.setIcon(IconManager.contactOnlineIcon);
+            this.setIcon(IconManager.CONTACT_ONLINE_ICON);
         }
 
         public User getUser() {

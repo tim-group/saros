@@ -27,16 +27,16 @@ import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.ISarosView;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.SarosView;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
-import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressBar;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.observables.ValueChangeListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
@@ -58,7 +58,6 @@ public class ConsistencyAction extends AbstractSarosAction
 {
     public static final String ACTION_NAME = "consistency";
 
-    private ISarosView sarosView = new SarosView();
 
     @Override
     public String getActionName()
@@ -136,11 +135,11 @@ public class ConsistencyAction extends AbstractSarosAction
 
         if (sarosSession.isHost() && isInconsistent)
         {
-            log.warn("No inconsistency should ever be reported" //$NON-NLS-1$
+            LOG.warn("No inconsistency should ever be reported" //$NON-NLS-1$
                     + " to the host"); //$NON-NLS-1$
             return;
         }
-        log.debug("Inconsistency indicator goes: " //$NON-NLS-1$
+        LOG.debug("Inconsistency indicator goes: " //$NON-NLS-1$
                 + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
 
         SwingUtilities.invokeLater(new Runnable()
@@ -193,7 +192,7 @@ public class ConsistencyAction extends AbstractSarosAction
                 // when refactoring)
 
                 // show balloon notification
-                sarosView
+                IntelliJUIHelper
                         .showNotification(
                                 Messages.ConsistencyAction_title_inconsistency_deteced,
                                 MessageFormat
@@ -207,13 +206,13 @@ public class ConsistencyAction extends AbstractSarosAction
 
     private void setToolTipText(String text)
     {
-        sarosView.showNotification(text, "Consistency warning");
+        IntelliJUIHelper.showNotification(text, "Consistency warning");
     }
 
     @Override
     public void run()
     {
-        log.debug("user activated CW recovery.");
+        LOG.debug("user activated CW recovery.");
 
         final Set<SPath> paths = new HashSet<SPath>(
                 watchdogClient.getPathsWithWrongChecksums());
@@ -241,7 +240,7 @@ public class ConsistencyAction extends AbstractSarosAction
 
 
         final SarosProgressMonitor progress = new SarosProgressMonitor("Consistency action");
-        progress.setFinishListener(new SarosProgressBar.FinishListener()
+        progress.setFinishListener(new MonitorProgressBar.FinishListener()
         {
             @Override
             public void finished()
@@ -258,14 +257,14 @@ public class ConsistencyAction extends AbstractSarosAction
             }
         });
 
-        ThreadUtils.runSafeAsync(log, new Runnable()
+        ThreadUtils.runSafeAsync(LOG, new Runnable()
         {
             @Override
             public void run()
             {
-                progress.startAutoincrement();
+
                 progress.beginTask(
-                        Messages.ConsistencyAction_progress_perform_recovery, 10);
+                        Messages.ConsistencyAction_progress_perform_recovery, IProgressMonitor.UNKNOWN);
                 watchdogClient.runRecovery(progress.convert());
 
               //  progress.done();

@@ -31,10 +31,9 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.ui.IJoinSession;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.eclipse.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
@@ -59,7 +58,7 @@ import java.text.MessageFormat;
  * more nicely: Long-Running Operation after each step, cancellation by a remote
  * party, auto-advance.
  */
-public class JoinSessionWizard implements IJoinSession
+public class JoinSessionWizard
 {
     public static final String PAGE_INFO_ID = "JoinSessionInfo";
     public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
@@ -129,7 +128,6 @@ public class JoinSessionWizard implements IJoinSession
     }
 
 
-    @Override
     public boolean performFinish()
     {
 
@@ -185,7 +183,6 @@ public class JoinSessionWizard implements IJoinSession
     }
 
 
-    @Override
     public boolean performCancel()
     {
         ThreadUtils.runSafeAsync("CancelJoinSessionWizard", log,
@@ -204,7 +201,6 @@ public class JoinSessionWizard implements IJoinSession
     /**
      * Get rid of this method, use a listener !
      */
-    @Override
     public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation)
     {
 
