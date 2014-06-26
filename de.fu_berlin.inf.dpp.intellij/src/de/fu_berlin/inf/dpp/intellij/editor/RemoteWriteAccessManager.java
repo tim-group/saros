@@ -50,6 +50,7 @@ import de.fu_berlin.inf.dpp.session.User.Permission;
  * Disconnect happens, when last user with {@link Permission#WRITE_ACCESS}
  * closes the editor.
  */
+//todo: copy from eclipse
 public class RemoteWriteAccessManager {
 
     private static final Logger log = Logger

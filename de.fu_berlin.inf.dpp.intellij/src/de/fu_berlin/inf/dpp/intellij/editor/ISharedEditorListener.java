@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 
+//todo: copy from eclipse
 public interface ISharedEditorListener {
 
     /**

@@ -33,7 +33,6 @@ import java.awt.*;
  * Standard progress bar panel
  *
  */
-
 public class ProgressPage extends AbstractWizardPage
 {
     private JProgressBar progressBar;

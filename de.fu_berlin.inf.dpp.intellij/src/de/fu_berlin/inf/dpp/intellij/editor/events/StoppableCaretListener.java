@@ -26,12 +26,8 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-05
- * Time: 15:49
+ * Saros Intellij caret listener
  */
-
 public class StoppableCaretListener implements CaretListener
 {
     @Override

@@ -28,9 +28,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Saros preferences store
+ * Saros IntelliJ preferences store implementation
  */
-
 public class PreferenceStore extends AbstractStore implements IPreferenceStore {
 
     public static final String FILE_NAME = "saros_properties.xml";

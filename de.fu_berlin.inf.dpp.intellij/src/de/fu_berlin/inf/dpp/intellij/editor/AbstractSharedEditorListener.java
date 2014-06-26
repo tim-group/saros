@@ -31,6 +31,7 @@ import de.fu_berlin.inf.dpp.session.User;
 /**
  * Empty abstract implementation of the ISharedEditorListener interface
  */
+//todo: copy from eclipse
 public abstract class AbstractSharedEditorListener implements
         ISharedEditorListener {
 

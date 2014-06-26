@@ -23,21 +23,15 @@
 package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 
 import com.intellij.openapi.util.TextRange;
-import de.fu_berlin.inf.dpp.intellij.editor.adapter.text.IDocument;
-
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-16
- * Time: 11:13
+ * Wrapper class for IntelliJ native document
  */
-
-public class Document implements IDocument
+public class DocumentAdapter implements IDocument
 {
     private com.intellij.openapi.editor.Document doc;
 
-    public Document(com.intellij.openapi.editor.Document doc)
+    public DocumentAdapter(com.intellij.openapi.editor.Document doc)
     {
         this.doc = doc;
     }

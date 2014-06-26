@@ -17,31 +17,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
+ *
  */
 
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-11
- * Time: 14:08
+ *  Class should use IntelliJ API to show notifications
  */
-
+//todo: make implementation
 public class IntelliJUIHelper
 {
 
     public static void showNotification(String message, String title)
     {
-
-        //todo
-        System.out.println("IntelliJUIHelper.showNotification //todo");
+         //todo: implement it
     }
 
     public static void clearNotifications()
     {
-        //todo
-        System.out.println("IntelliJUIHelper.clearNotifications //todo ");
+        //todo: implement it
     }
 }

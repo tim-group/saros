@@ -37,9 +37,10 @@ import java.util.*;
  * remote users as we believe it to be by listening to the Activities we
  * receive.
  */
+//todo: adopted from eclipse
 public class RemoteEditorManager {
 
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(RemoteEditorManager.class);
 
     protected Map<User, RemoteEditorState> editorStates = new HashMap<User, RemoteEditorState>();
@@ -101,7 +102,7 @@ public class RemoteEditorManager {
         public void setSelection(SPath path, TextSelection selection) {
 
             if (!openEditors.containsKey(path)) {
-                log.warn("received selection from user [" + this.user
+                LOG.warn("received selection from user [" + this.user
                         + "] for editor which was never activated: " + path);
                 return;
             }
@@ -113,7 +114,7 @@ public class RemoteEditorManager {
         public void setViewport(SPath path, LineRange viewport) {
 
             if (!openEditors.containsKey(path)) {
-                log.warn("Viewport for editor which was never activated: "
+                LOG.warn("Viewport for editor which was never activated: "
                         + path);
                 return;
             }
@@ -171,7 +172,7 @@ public class RemoteEditorManager {
             RemoteEditor remoteEditor = openEditors.remove(path);
 
             if (remoteEditor == null) {
-                log.warn("Removing an editor which has never been added: "
+                LOG.warn("Removing an editor which has never been added: "
                         + path);
                 return;
             }
@@ -197,7 +198,7 @@ public class RemoteEditorManager {
                         closed(sPath);
                         break;
                     default:
-                        log.warn("Unexpected type: " + editorActivity.getType());
+                        LOG.warn("Unexpected type: " + editorActivity.getType());
                         assert false;
                 }
             }

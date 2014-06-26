@@ -33,12 +33,8 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 10.04
+ * Root tree
  */
-
 public class RootTree extends AbstractTree
 {
     public static final String SPACER = " ";

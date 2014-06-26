@@ -24,12 +24,8 @@ package de.fu_berlin.inf.dpp.intellij;
 
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-07
- * Time: 16:16
+ * Class prevents of running few Saros instances on single VM
  */
-
 public class SarosCondition implements com.intellij.openapi.util.Condition
 {
     private static boolean isRunning = false;

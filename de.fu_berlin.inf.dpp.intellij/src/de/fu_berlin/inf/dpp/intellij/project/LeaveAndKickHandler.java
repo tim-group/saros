@@ -1,4 +1,4 @@
-package de.fu_berlin.inf.dpp.intellij;
+package de.fu_berlin.inf.dpp.intellij.project;
 
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.net.IReceiver;
@@ -23,9 +22,6 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
  * Business logic for handling Leave Message
  * 
  */
-
-// FIXME move this class into the session context
-@Component(module = "net")
 public class LeaveAndKickHandler {
 
     private static final Logger log = Logger

@@ -52,6 +52,7 @@ import java.util.Random;
 /**
  * Saros plugin class
  */
+//todo: adopted from eclipse
 public class Saros
 {
 

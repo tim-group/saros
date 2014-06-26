@@ -31,12 +31,8 @@ import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import java.awt.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-05
- * Time: 15:35
+ * Intellij editor ViewPort listener
  */
-
 public class StoppableViewPortListener extends AbstractStoppableListener implements VisibleAreaListener
 {
     private EditorManager manager;

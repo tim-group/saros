@@ -15,6 +15,7 @@ import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
  *
  * @author srossbach
  */
+//todo: copy from eclipse
 public interface INegotiationHandler {
 
     /**

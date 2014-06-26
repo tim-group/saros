@@ -22,13 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.50
- */
-
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -47,6 +40,7 @@ import java.text.MessageFormat;
  *
  * @author srossbach
  */
+//todo: adaptation from eclipse
 public class UserStatusChangeHandler
 {
 

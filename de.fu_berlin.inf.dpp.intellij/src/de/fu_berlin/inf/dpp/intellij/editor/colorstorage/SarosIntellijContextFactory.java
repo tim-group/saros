@@ -54,12 +54,9 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 07.36
+ *
  */
-
+//todo: adopted from eclipse
 public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
 
@@ -90,10 +87,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
             Component.create(ServerPreferenceHandler.class),
             Component.create(SessionStatusRequestHandler.class),
             Component.create(XMPPAuthorizationHandler.class),
-
-
-            //   Component.create(UISynchronizer.class, UISynchronizerImpl.class),
-
 
             // Cache support
             /*
@@ -130,10 +123,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
     @Override
     public void createComponents(MutablePicoContainer container) {
-        //IWorkspace workspace = Saros.instance().getWorkspace();
+
         IWorkspace workspace = saros.getWorkspace();
-        //  FileList.workspace = workspace;
-        //  FileListDiff.workspace = workspace;
         FileUtils.workspace = workspace;
 
         // container.addComponent(Saros.class,saros);
@@ -160,14 +151,9 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
         container.addComponent(BindKey.bindKey(String.class,
                 ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL");  //todo
 
-//        container.addComponent(BindKey.bindKey(String.class,
-//                ISarosContextBindings.SarosVersion.class), "13.12.6");
-
 
         container.addComponent(BindKey.bindKey(String.class,
                 ISarosContextBindings.PlatformVersion.class), "4.3.2"); //todo
 
-
-        //  container.addComponent(Preferences.class, saros.getGlobalPreferences());
     }
 }

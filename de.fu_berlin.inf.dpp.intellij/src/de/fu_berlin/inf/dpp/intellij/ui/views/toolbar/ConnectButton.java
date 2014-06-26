@@ -27,8 +27,8 @@ import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class ConnectButton extends ToolbarButton implements SarosActionListener
 {
-
+    public static final String CONNECT_ICON_PATH = "icons/elcl16/connect.png";
     private JPopupMenu popupMenu = new JPopupMenu();
 
     private final ISarosAction disconnectAction;
@@ -56,7 +56,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("icons/elcl16/connect.png", "Connect");
+        setIcon(CONNECT_ICON_PATH, "Connect");
         setActionCommand(ConnectServerAction.NAME);
 
         setToolTipText("Connect to XMPP/jabber server");

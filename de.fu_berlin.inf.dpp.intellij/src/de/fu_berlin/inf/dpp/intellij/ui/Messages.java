@@ -26,12 +26,8 @@ package de.fu_berlin.inf.dpp.intellij.ui;
 import de.fu_berlin.inf.dpp.intellij.util.MessageUtils;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 14.32
+ * UI message bundle
  */
-
 public class Messages
 {
 

@@ -34,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener} which can dispatch to a changing set of
  * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener}s.
  */
+//todo: copy from eclipse
 public class SharedEditorListenerDispatch implements ISharedEditorListener {
 
     private CopyOnWriteArrayList<ISharedEditorListener> editorListeners = new CopyOnWriteArrayList<ISharedEditorListener>();

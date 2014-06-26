@@ -25,12 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
 /**
  * Interface defines wizard page action listener structure
  *
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 18:22
  */
-
 public interface PageActionListener
 {
     /**

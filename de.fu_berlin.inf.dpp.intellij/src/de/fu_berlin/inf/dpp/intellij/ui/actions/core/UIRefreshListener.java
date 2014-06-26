@@ -23,12 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-30
- * Time: 16:57
+ * UI refresh listener interface
  */
-
 public interface UIRefreshListener
 {
     void refresh(AbstractSarosAction action);

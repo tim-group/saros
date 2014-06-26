@@ -31,7 +31,6 @@ import java.util.Map;
  * Default wizard model. Class keeps information about
  * wizard position, acts as container for
  */
-
 public class WizardModel
 {
     private Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();

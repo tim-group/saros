@@ -23,28 +23,27 @@
 package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 
 
+import com.intellij.openapi.editor.Document;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorActionManager;
-import de.fu_berlin.inf.dpp.intellij.editor.adapter.text.IDocument;
-
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-06-04
- * Time: 12:58
+ * Saros style document factory
  */
-
-public class DocumentProvider {
+public class DocumentProvider
+{
 
     private EditorActionManager actionManager;
 
-    public DocumentProvider(EditorActionManager actionManager) {
+    public DocumentProvider(EditorActionManager actionManager)
+    {
         this.actionManager = actionManager;
     }
 
-    public IDocument getDocument(IFile file) {
-        return new Document(actionManager.getEditorAPI().getDocument(file.toFile()));
+    public IDocument getDocument(IFile file)
+    {
+        Document nativeDocument = actionManager.getEditorAPI().getDocument(file.toFile());
+        return nativeDocument == null ? null : new DocumentAdapter(nativeDocument);
     }
 
 }

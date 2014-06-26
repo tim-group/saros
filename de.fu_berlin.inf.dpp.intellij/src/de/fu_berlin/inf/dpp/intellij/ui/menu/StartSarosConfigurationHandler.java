@@ -26,14 +26,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import de.fu_berlin.inf.dpp.intellij.ui.menu.core.AbstractMenuHandler;
 
 /**
- * General button used to create any common button
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 09.52
+ * Start saros configuration menu action
  */
-
 public class StartSarosConfigurationHandler extends AbstractMenuHandler
 {
 

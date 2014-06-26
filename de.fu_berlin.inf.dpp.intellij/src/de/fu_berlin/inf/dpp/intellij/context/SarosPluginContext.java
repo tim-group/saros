@@ -36,6 +36,7 @@ import de.fu_berlin.inf.dpp.intellij.core.Saros;
  *
  * @author philipp.cordes
  */
+//todo: adopted from eclipse
 public class SarosPluginContext
 {
 

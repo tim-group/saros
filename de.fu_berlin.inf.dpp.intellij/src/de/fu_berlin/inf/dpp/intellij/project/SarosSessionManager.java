@@ -69,7 +69,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author rdjemili
  */
 //todo: copy from eclipse
-@Component(module = "core")
 public class SarosSessionManager implements ISarosSessionManager {
 
     /**

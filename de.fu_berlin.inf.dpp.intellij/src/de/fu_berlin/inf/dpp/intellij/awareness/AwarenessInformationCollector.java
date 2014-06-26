@@ -49,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author waldmann
  */
-@Component(module = "observables")
+//todo: copy from eclipse
 public class AwarenessInformationCollector {
     private static final Logger log = Logger
             .getLogger(AwarenessInformationCollector.class);

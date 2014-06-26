@@ -48,12 +48,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-21
- * Time: 10:17
+ * Checks shared project consistency
  */
-
 public class ConsistencyAction extends AbstractSarosAction
 {
     public static final String ACTION_NAME = "consistency";

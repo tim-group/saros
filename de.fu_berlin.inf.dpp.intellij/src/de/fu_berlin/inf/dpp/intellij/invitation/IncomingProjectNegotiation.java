@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-// MAJOR TODO refactor this class !!!
+//todo: adopted from eclipse
 public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private static final Logger LOG = Logger

@@ -27,15 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-05
- * Time: 12:56
+ * IntelliJ color manager
  */
-
+//todo: temporary implementation to provide random colors
 public class ColorManager
 {
-    public static final int max = 200;
+
     private Map<Integer, ColorModel> colorMapDefault = new HashMap<Integer, ColorModel>();
     private Map<Integer, ColorModel> colorMap = new HashMap<Integer, ColorModel>();
 

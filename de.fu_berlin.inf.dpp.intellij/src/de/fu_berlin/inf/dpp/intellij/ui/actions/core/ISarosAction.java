@@ -28,12 +28,6 @@ import java.awt.*;
 
 /**
  * Saros action interface
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public interface ISarosAction extends Runnable
 {

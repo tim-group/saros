@@ -37,12 +37,8 @@ import javax.swing.tree.DefaultTreeModel;
 import java.util.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 08.53
+ * Contact tree
  */
-
 public class ContactTree extends AbstractTree implements IRosterListener
 {
     public static final String TREE_TITLE = "Contacts";
@@ -62,10 +58,6 @@ public class ContactTree extends AbstractTree implements IRosterListener
         setUserObject(new AbstractTree.CategoryInfo(TREE_TITLE));
 
         create();
-
-        //register listener
-        //saros.getConnectionService().
-
     }
 
     protected void create()

@@ -38,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -47,8 +46,10 @@ import java.util.concurrent.CancellationException;
 /**
  * This component is responsible for handling Consistency Errors on the host
  */
+//todo: copy from eclipse
 public class ConsistencyWatchdogHandler extends AbstractActivityProvider
-        implements Startable {
+        implements Startable
+{
 
     private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
 
@@ -58,34 +59,42 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
 
     protected final ISarosSession sarosSession;
 
-    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver()
+    {
         @Override
-        public void receive(ChecksumErrorActivity checksumError) {
+        public void receive(ChecksumErrorActivity checksumError)
+        {
             startRecovery(checksumError);
         }
     };
 
     @Override
-    public void start() {
+    public void start()
+    {
         installProvider(sarosSession);
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         uninstallProvider(sarosSession);
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-                                      EditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
+            EditorManager editorManager, ConsistencyWatchdogClient watchdogClient)
+    {
         this.sarosSession = sarosSession;
         this.editorManager = editorManager;
         this.watchdogClient = watchdogClient;
     }
 
     @Override
-    public void exec(IActivity activity) {
+    public void exec(IActivity activity)
+    {
         if (!sarosSession.isHost())
+        {
             return;
+        }
         activity.dispatch(activityReceiver);
     }
 
@@ -97,7 +106,8 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      * handled files as key. You can use <code>closeChecksumErrorMessage</code>
      * with the same arguments to close this message again.
      */
-    protected void startRecovery(final ChecksumErrorActivity checksumError) {
+    protected void startRecovery(final ChecksumErrorActivity checksumError)
+    {
 
         LOG.debug("Received Checksum Error: " + checksumError);
 
@@ -107,23 +117,25 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
             @Override
             protected IStatus run(IProgressMonitor monitor)
             {
-               runRecovery(checksumError, monitor.convert());
+                runRecovery(checksumError, monitor.convert());
 
-               return new Status(IStatus.OK);
+                return new Status(IStatus.OK);
             }
         };
 
-       recoveryJob.schedule();
+        recoveryJob.schedule();
 
     }
 
     protected void runRecovery(ChecksumErrorActivity checksumError,
-                               IProgressMonitor progress) throws CancellationException {
+            IProgressMonitor progress) throws CancellationException
+    {
 
         List<StartHandle> startHandles = null;
 
         progress.beginTask("Performing recovery", 1200);
-        try {
+        try
+        {
 
             startHandles = sarosSession.getStopManager().stop(
                     sarosSession.getUsers(), "Consistency recovery");
@@ -141,24 +153,35 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
 
             // find the StartHandle of the inconsistent user
             StartHandle inconsistentStartHandle = null;
-            for (StartHandle startHandle : startHandles) {
-                if (checksumError.getSource().equals(startHandle.getUser())) {
+            for (StartHandle startHandle : startHandles)
+            {
+                if (checksumError.getSource().equals(startHandle.getUser()))
+                {
                     inconsistentStartHandle = startHandle;
                     break;
                 }
             }
-            if (inconsistentStartHandle == null) {
+            if (inconsistentStartHandle == null)
+            {
                 LOG.error("could not find start handle"
                         + " of the inconsistent user");
-            } else {
+            }
+            else
+            {
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
                 startHandles.remove(inconsistentStartHandle);
             }
-        } finally {
+        }
+        finally
+        {
             if (startHandles != null)
+            {
                 for (StartHandle startHandle : startHandles)
+                {
                     startHandle.start();
+                }
+            }
             progress.done();
         }
     }
@@ -168,12 +191,15 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      * @nonSWT This method should not be called from the SWT Thread!
      */
     protected void recoverFiles(ChecksumErrorActivity checksumError,
-                                IProgressMonitor progress) {
+            IProgressMonitor progress)
+    {
 
         progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
 
-        try {
-            for (SPath path : checksumError.getPaths()) {
+        try
+        {
+            for (SPath path : checksumError.getPaths())
+            {
                 progress.subTask("Recovering file: "
                         + path.getProjectRelativePath());
                 recoverFile(checksumError.getSource(), sarosSession, path,
@@ -183,7 +209,9 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
             // Tell the user that we sent all files
             fireActivity(new ChecksumErrorActivity(sarosSession.getLocalUser(),
                     checksumError.getSource(), null, checksumError.getRecoveryID()));
-        } finally {
+        }
+        finally
+        {
             progress.done();
         }
     }
@@ -193,20 +221,17 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
      * tell the user to removeAll it).
      */
     protected void recoverFile(User from, final ISarosSession sarosSession,
-                               final SPath path, IProgressMonitor progress) {
+            final SPath path, IProgressMonitor progress)
+    {
 
         progress.beginTask("Handling file: " + path.toString(), 10);
 
         IFile file = path.getFile();
 
         // Save document before sending to client
-        if (file.exists()) {
-            try {
-                editorManager.saveLazy(path);
-            } catch (FileNotFoundException e) {
-                LOG.error("File could not be found, despite existing: " + path,
-                        e);
-            }
+        if (file.exists())
+        {
+            editorManager.getActionManager().saveEditor(path);
         }
         progress.worked(1);
 
@@ -216,13 +241,16 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
         progress.worked(15);
         final User user = sarosSession.getLocalUser();
 
-        if (file.exists()) {
+        if (file.exists())
+        {
 
-            try {
+            try
+            {
 
                 byte[] content = FileUtils.getLocalFileContent(file);
 
-                if (content == null) {
+                if (content == null)
+                {
                     throw new IOException();
                 }
 
@@ -234,11 +262,15 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
 
                 fireActivity(new ChecksumActivity(user,
                         path, checksum.hashCode(), checksum.length(), null));
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 LOG.error("File could not be read, despite existing: " + path,
                         e);
             }
-        } else {
+        }
+        else
+        {
             // TODO Warn the user...
             // Tell the client to delete the file
             fireActivity(RecoveryFileActivity.removed(user,
@@ -251,7 +283,8 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
     }
 
 
-    protected Image getWarningImage() {
+    protected Image getWarningImage()
+    {
         return null;
 
     }

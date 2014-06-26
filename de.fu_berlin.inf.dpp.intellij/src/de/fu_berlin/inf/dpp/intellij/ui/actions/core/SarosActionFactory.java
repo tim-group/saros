@@ -32,15 +32,10 @@ import java.util.Map;
 
 /**
  * Action factory
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 07.39
  */
 public class SarosActionFactory
 {
-    private static Logger log = Logger.getLogger(SarosActionFactory.class);
+    private static Logger LOG = Logger.getLogger(SarosActionFactory.class);
 
     private static Map<String, ISarosAction> registeredActions = new HashMap<String, ISarosAction>();
 
@@ -121,7 +116,6 @@ public class SarosActionFactory
     //
     // Specific actions
     //
-
     public static ConnectServerAction getConnectServerAction()
     {
         return connectServerAction;

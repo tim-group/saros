@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
  */
 public class FollowButton extends ToolbarButton implements SarosActionListener
 {
+    public static final String FOLLOW_ICON_PATH = "icons/ovr16/followmode.png";
     private JPopupMenu popupMenu;
     private final FollowModeAction followModeAction;
 
@@ -61,7 +62,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("icons/ovr16/followmode.png", "follow");
+        setIcon(FOLLOW_ICON_PATH, "follow");
         setActionCommand(FollowModeAction.NAME);
 
         setToolTipText("Enter follow mode");

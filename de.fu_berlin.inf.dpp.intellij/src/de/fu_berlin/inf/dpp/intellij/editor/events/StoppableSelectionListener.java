@@ -29,12 +29,8 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-28
- * Time: 17:01
+ * IntelliJ editor selection listener
  */
-
 public class StoppableSelectionListener extends AbstractStoppableListener implements SelectionListener
 {
     private EditorManager manager;
@@ -52,8 +48,6 @@ public class StoppableSelectionListener extends AbstractStoppableListener implem
         {
             return;
         }
-
-        //  manager.actionManager.toPath()
 
         SPath path = manager.getActionManager().getEditorPool().getFile(event.getEditor().getDocument());
         if (path != null)

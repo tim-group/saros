@@ -51,15 +51,11 @@ import java.util.List;
 
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-09
- * Time: 10:58
+ *
  */
-
 public class SarosFileShareGroup extends ActionGroup
 {
-    private static Logger log = Logger.getLogger(SarosFileShareGroup.class);
+    private static Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
 
     public void actionPerformed(AnActionEvent e)
     {
@@ -155,7 +151,7 @@ public class SarosFileShareGroup extends ActionGroup
             }
             catch (IOException e1)
             {
-                log.trace(e1.getMessage(), e1);
+                LOG.trace(e1.getMessage(), e1);
             }
         }
 

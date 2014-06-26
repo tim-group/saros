@@ -23,12 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-23
- * Time: 10:23
+ * Interface for connection related UI actions
  */
-
 public interface IConnectionAction
 {
 }

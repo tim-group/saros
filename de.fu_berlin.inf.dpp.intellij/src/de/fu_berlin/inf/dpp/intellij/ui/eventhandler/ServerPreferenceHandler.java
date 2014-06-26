@@ -31,7 +31,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 
-
+//todo: adaptation from eclipse
 public class ServerPreferenceHandler {
 
     private IPreferenceStore preferenceStore;

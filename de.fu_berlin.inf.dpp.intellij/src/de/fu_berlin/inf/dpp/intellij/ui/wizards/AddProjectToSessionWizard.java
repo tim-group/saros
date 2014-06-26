@@ -27,9 +27,7 @@ import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.core.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
@@ -39,13 +37,10 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.exception.CoreException;
 import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileUtil;
-import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
@@ -54,36 +49,30 @@ import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoWithProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.SelectProjectPage;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
 import java.awt.*;
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 14.08
+ * Wizard for adding project to session
  */
-
 public class AddProjectToSessionWizard
 {
+    private static Logger LOG = Logger.getLogger(AddProjectToSessionWizard.class);
+
     public static final String INFO_PAGE_ID = "infoPage";
     public static final String FILE_LIST_PAGE_ID = "fileListPage";
     public static final String PROGRESS_PAGE_ID = "progressPage";
-
-    private static Logger LOG = Logger.getLogger(AddProjectToSessionWizard.class);
-
 
     protected IncomingProjectNegotiation process;
     protected JID peer;
@@ -351,158 +340,16 @@ public class AddProjectToSessionWizard
         return editorManager.getLocallyOpenEditors();
     }
 
+    //todo: implementation needed
     public void cancelWizard(JID peer, String errorMsg, ProcessTools.CancelLocation type)
     {
-        System.out.println("AddProjectToSessionWizard.cancelWizard");
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
-
+    //todo: implementation needed
     public boolean performFinish()
     {
-
-        final Map<String, IProject> sources = new HashMap<String, IProject>();
-        final Map<String, String> projectNames = new HashMap<String, String>();
-        final boolean useVersionControl = false;//namePage.useVersionControl();
-
-
-        List<IProject> existingProjects = new ArrayList<IProject>();
-
-        for (IProject project : sources.values())
-        {
-            if (project != null)
-            {
-                existingProjects.add(project);
-            }
-        }
-
-        final Collection<SPath> openEditors = getOpenEditorsForSharedProjects(existingProjects);
-
-
-        /*
-         * Ask the user whether to overwrite local resources only if resources
-         * are supposed to be overwritten based on the synchronization options
-         * and if there are differences between the remote and local project.
-         */
-        final Map<String, FileListDiff> modifiedResources = new HashMap<String, FileListDiff>();
-        final Map<String, IProject> modifiedProjects = new HashMap<String, IProject>();
-
-        modifiedProjects.putAll(getModifiedProjects(sources));
-
-        try
-        {
-            UIMonitoredJob job = new UIMonitoredJob("Calculate resources")
-            {
-
-                @Override
-                protected IStatus run(IProgressMonitor monitor)
-                {
-                    try
-                    {
-                        modifiedResources.putAll(calculateModifiedResources(modifiedProjects, monitor));
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                        return new Status(IStatus.ERROR);
-                    }
-
-                    return new Status(IStatus.OK);
-
-                }
-            };
-            job.schedule();
-
-        }
-        catch (Exception e)
-        {
-            Throwable cause = e.getCause();
-
-            if (cause instanceof CoreException)
-            {
-                DialogUtils.showError(getShell(), "Error computing file list",
-                        "Could not compute local file list: " + cause.getMessage());
-            }
-            else
-            {
-                DialogUtils
-                        .showError(
-                                getShell(),
-                                "Error computing file list",
-                                "Internal error while computing local file list: "
-                                        + (cause == null ? e.getMessage() : cause.getMessage())
-                        );
-            }
-
-            return false;
-        }
-//        if (!confirmOverwritingResources(modifiedResources))
-//            return false;
-
-        /*
-         * close all editors to avoid any conflicts. this will be needed for
-         * rsync as it needs to move files around the file system
-         */
-        for (SPath editorPath : openEditors)
-        {
-            editorManager.closeEditor(editorPath);
-        }
-
-        UIMonitoredJob job = new UIMonitoredJob("Synchronizing")
-        {
-            @Override
-            protected IStatus run(IProgressMonitor monitor)
-            {
-                try
-                {
-                    ProjectNegotiation.Status status = process.accept(
-                            projectNames, monitor, useVersionControl);
-
-                    if (status != ProjectNegotiation.Status.OK)
-                    {
-                        return Status.CANCEL_STATUS;
-                    }
-
-                    IntelliJUIHelper
-                            .showNotification(
-                                    Messages.AddProjectToSessionWizard_synchronize_finished_notification_title,
-                                    MessageFormat
-                                            .format(
-                                                    Messages.AddProjectToSessionWizard_synchronize_finished_notification_text,
-                                                    StringUtils.join(projectNames.values(),
-                                                            ", ")
-                                            )
-                            );
-
-                }
-                catch (Exception e)
-                {
-                    LOG.error(
-                            "unkown error during project negotiation: "
-                                    + e.getMessage(), e
-                    );
-                    return Status.CANCEL_STATUS;
-                }
-                finally
-                {
-                    ThreadUtils.runSafeAsync(LOG, new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            for (SPath editorPath : openEditors)
-                            {
-                                editorManager.openEditor(editorPath);
-                            }
-                        }
-                    });
-                }
-                return Status.OK_STATUS;
-            }
-        };
-        job.schedule();
-
-        return true;
+       return true;
     }
 
     /**

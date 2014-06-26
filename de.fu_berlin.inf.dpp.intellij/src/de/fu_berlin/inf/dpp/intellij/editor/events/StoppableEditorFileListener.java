@@ -36,15 +36,11 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-24
- * Time: 15:28
+ * IntelliJ editor file listener
  */
-
 public class StoppableEditorFileListener extends AbstractStoppableListener implements FileEditorManagerListener {
     private EditorManager manager;
-    protected static final Logger log = Logger.getLogger(StoppableEditorFileListener.class);
+    protected static final Logger LOG = Logger.getLogger(StoppableEditorFileListener.class);
 
     public StoppableEditorFileListener(EditorManager manager) {
         this.manager = manager;
@@ -66,7 +62,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
                 try {
                     bytes = virtualFile.contentsToByteArray();
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                 }
 
                 byte[] bytesRemote = manager.getActionManager().newFiles.get(virtualFile);

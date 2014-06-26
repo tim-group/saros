@@ -20,41 +20,20 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij;
-
-import com.intellij.openapi.components.ApplicationComponent;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
-import org.jetbrains.annotations.NotNull;
+package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-07
- * Time: 11:07
+ * Saros style document interface
  */
+public interface IDocument {
 
-public class SarosComponent implements ApplicationComponent
-{
-    private Saros saros;
+    String get(int offset, int length);
 
-    public SarosComponent()
-    {
-       // saros = Saros.instance();
-    }
+    String get();
 
-    public void initComponent()
-    {
-        saros.start();
-    }
+    void replace(int offset, int length, String text);
 
-    public void disposeComponent()
-    {
-        saros.stop();
-    }
+    int getLength();
 
-    @NotNull
-    public String getComponentName()
-    {
-        return "Saros";
-    }
+    int getNumberOfLines();
 }

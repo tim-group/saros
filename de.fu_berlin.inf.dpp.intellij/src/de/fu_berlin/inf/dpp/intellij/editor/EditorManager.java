@@ -30,7 +30,6 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
@@ -42,43 +41,19 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
-import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
-//todo: removeAll these links
-
-
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-16
- * Time: 18:57
+ * IntelliJ implementation of editor manager
  */
-
 public class EditorManager
-        extends AbstractActivityProvider {
+        extends AbstractActivityProvider
+{
 
-
-    /**
-     * @JTourBusStop 5, Some Basics:
-     * <p/>
-     * When you work on a project using Saros, you still use the
-     * standard Eclipse Editor, however Saros adds a little extra
-     * needed functionality to them.
-     * <p/>
-     * EditorManagerEcl is one of the most important classes in this
-     * respect. Remember that every change done in an Editor needs
-     * to be intercepted, translated into an Activity and sent to
-     * all other participants. Furthermore every Activity from
-     * other participants needs to be replayed in your local
-     * editor when it is received.
-     */
-
-    protected static final Logger log = Logger.getLogger(EditorManager.class);
+    protected static final Logger LOG = Logger.getLogger(EditorManager.class);
 
     protected SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
-
 
     protected final EditorActionManager actionManager = new EditorActionManager(this);
 
@@ -88,17 +63,14 @@ public class EditorManager
 
     protected RemoteWriteAccessManager remoteWriteAccessManager;
 
-
-    //todo: make it protected later
-    public ISarosSession sarosSession;
+    protected ISarosSession sarosSession;
 
     /**
      * The user that is followed or <code>null</code> if no user is followed.
      */
     protected User followedUser = null;
 
-    //todo: make it protected later
-    public boolean hasWriteAccess;
+    protected boolean hasWriteAccess;
 
     protected boolean isLocked;
 
@@ -108,79 +80,71 @@ public class EditorManager
     protected SelectionEvent localSelection;
     protected LineRange localViewport;
 
-    protected SPath locallyActiveEditor;
+    protected SPath activeEditor;
+    protected ColorManager colorManager = new ColorManager();
 
 
-    /**
-     * all files that have connected document providers
-     */
-    protected final Set<IFile> connectedFiles = new HashSet<IFile>();
+    private IActivityReceiver activityReceiver = new AbstractActivityReceiver()
+    {
 
-
-    private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
-        
-        public void receive(EditorActivity editorActivity) {
+        public void receive(EditorActivity editorActivity)
+        {
             execEditorActivity(editorActivity);
         }
 
-        
-        public void receive(TextEditActivity textEditActivity) {
+
+        public void receive(TextEditActivity textEditActivity)
+        {
             execTextEdit(textEditActivity);
         }
 
-        
-        public void receive(TextSelectionActivity textSelectionActivity) {
+
+        public void receive(TextSelectionActivity textSelectionActivity)
+        {
             execTextSelection(textSelectionActivity);
         }
 
-        
-        public void receive(ViewportActivity viewportActivity) {
+
+        public void receive(ViewportActivity viewportActivity)
+        {
             execViewport(viewportActivity);
         }
     };
 
-    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
+    {
 
-        
-        public void sessionStarted(ISarosSession newSarosSession) {
-            System.out.println("EditorManager.sessionStarted");
+
+        public void sessionStarted(ISarosSession newSarosSession)
+        {
+            LOG.info("Session started");
+
+            assert getActionManager().getEditorPool().getEditors().size() == 0 : "EditorPool was not correctly reset!";
+
             sarosSession = newSarosSession;
             sarosSession.getStopManager().addBlockable(stopManagerListener);
 
-//            assert editorPool.getAllEditors().size() == 0 : "EditorPool was not correctly reset!";
-//
             hasWriteAccess = sarosSession.hasWriteAccess();
             sarosSession.addListener(sharedProjectListener);
 
             installProvider(sarosSession);
 
-            //annotationModelHelper = new AnnotationModelHelper();
-
             remoteEditorManager = new RemoteEditorManager(sarosSession);
             remoteWriteAccessManager = new RemoteWriteAccessManager(sarosSession);
 
             LocalFileSystem.getInstance().refresh(true);
-
-//            preferenceStore.addPropertyChangeListener(annotationPreferenceListener); //todo
-//
-//            SWTUtils.runSafeSWTSync(LOG, new Runnable()
-//            {
-//                
-//                public void run()
-//                {
-//
-//                    editorAPI.addEditorPartListener(EditorManager.this);
-//                }
-//            });
         }
 
-        
-        public void sessionEnded(ISarosSession oldSarosSession) {
-            System.out.println("EditorManager.sessionEnded");
+
+        public void sessionEnded(ISarosSession oldSarosSession)
+        {
+
+            LOG.info("Session ended");
+
             assert sarosSession == oldSarosSession;
             sarosSession.getStopManager().removeBlockable(stopManagerListener); //todo
 
-            ThreadUtils.runSafeSync(log, new Runnable()
+            ThreadUtils.runSafeSync(LOG, new Runnable()
             {
 
                 public void run()
@@ -188,93 +152,114 @@ public class EditorManager
 
                     setFollowing(null);
 
-                    // editorAPI.removeEditorPartListener(EditorManager.this); //should be not needed
-
-                    //  preferenceStore.removePropertyChangeListener(annotationPreferenceListener);  //todo
-
-
-                    actionManager.getEditorPool().clear(); //todo
-                    //removeAllEditors(sarosSession); //make multi-session support
-
+                    actionManager.getEditorPool().clear();
 
                     sarosSession.removeListener(sharedProjectListener);
                     uninstallProvider(sarosSession);
 
                     sarosSession = null;
-                    //annotationModelHelper = null;
 
                     remoteEditorManager = null;
                     remoteWriteAccessManager.dispose();
                     remoteWriteAccessManager = null;
-                    locallyActiveEditor = null;
+                    activeEditor = null;
                     locallyOpenEditors.clear();
                 }
             });
         }
 
-        
-        public void projectAdded(String projectID) {
-            //todo
-            System.out.println("EditorManager.projectAdded //todo");
-//            SWTUtils.runSafeSWTSync(LOG, new Runnable()
-//            {
-//
-//                /*
-//                 * When Alice invites Bob to a session with a project and Alice
-//                 * has some Files of the shared project already open, Bob will
-//                 * not receive any Actions (Selection, Contribution etc.) for
-//                 * the open editors. When Alice closes and reopens this Files
-//                 * again everything is going back to normal. To prevent that
-//                 * from happening this method is needed.
-//                 */
-//                
-//                public void run()
-//                {
-//                    // Calling this method might cause openPart events
-//                    Set<IEditorPart> allOpenEditorParts = EditorAPI
-//                            .getOpenEditors();
-//
-//                    Set<IEditorPart> editorsOpenedByRestoring = editorPool
-//                            .getAllEditors();
-//
-//                    // for every open file (editorPart) we act as if we just
-//                    // opened it
-//                    for (IEditorPart editorPart : allOpenEditorParts)
-//                    {
-//                        // Make sure that we open those editors twice
-//                        // (print a warning)
-//                        LOG.debug(editorPart.getTitle());
-//                        if (!editorsOpenedByRestoring.contains(editorPart))
-//                        {
-//                            partOpened(editorPart);
-//                        }
-//                    }
-//
-//                    IEditorPart activeEditor = editorAPI.getActiveEditor();
-//                    if (activeEditor != null)
-//                    {
-//                        locallyActiveEditor = editorAPI
-//                                .getEditorPath(activeEditor);
-//                        partActivated(activeEditor);
-//                    }
-//
-//                }
-//            });
+
+        public void projectAdded(String projectID)
+        {
+            if (!isFollowing())
+            {
+                return;
+            }
+
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
+            {
+                /*
+                  * When Alice invites Bob to a session with a project and Alice
+                  * has some Files of the shared project already open, Bob will
+                  * not receive any Actions (Selection, Contribution etc.) for
+                  * the open editors. When Alice closes and reopens this Files
+                  * again everything is going back to normal. To prevent that
+                  * from happening this method is needed.
+                  */
+                public void run()
+                {
+
+                    Set<SPath> remoteOpenEditors = getRemoteEditorManager().getRemoteOpenEditors(getFollowedUser());
+                    RemoteEditorManager.RemoteEditor remoteSelectedEditor = getRemoteEditorManager().getRemoteActiveEditor(getFollowedUser());
+                    Set<SPath> localOpenEditors = getLocallyOpenEditors();
+
+                    // for every open file we act as if we just
+                    // opened it
+                    for (SPath remoteEditorPath : remoteOpenEditors)
+                    {
+                        // Make sure that we open those editors twice
+                        // (print a warning)
+                        LOG.debug("Remote editor open " + remoteEditorPath);
+                        if (!localOpenEditors.contains(remoteEditorPath))
+                        {
+                            getActionManager().openEditor(remoteEditorPath);
+                        }
+                    }
+
+
+                    if (remoteSelectedEditor != null)
+                    {
+                        //activate editor
+                        SPath remotePath = remoteSelectedEditor.getPath();
+                        if (remoteSelectedEditor.getSelection() != null)
+                        {
+                            int position = remoteSelectedEditor.getSelection().getOffset();
+                            int length = remoteSelectedEditor.getSelection().getLength();
+                            ColorModel colorModel = colorManager.getColorModel(getFollowedUser().getColorID());
+                            getActionManager().selectText(remotePath, position, length, colorModel);
+                        }
+
+                        if (remoteSelectedEditor.getViewport() != null)
+                        {
+                            int startLine = remoteSelectedEditor.getViewport().getStartLine();
+                            int endLine = remoteSelectedEditor.getViewport().getStartLine() + remoteSelectedEditor.getViewport().getNumberOfLines();
+                            getActionManager().setViewPort(remotePath, startLine, endLine);
+                        }
+
+                    }
+
+                }
+            });
         }
     };
 
-    private ISharedEditorListener sharedEditorListener = new AbstractSharedEditorListener() {
+    private ISharedEditorListener sharedEditorListener = new AbstractSharedEditorListener()
+    {
 
-        
-        public void activeEditorChanged(User user, SPath path) {
-            System.out.println("EditorManager.activeEditorChanged>>>>>" + path);
+        @Override
+        public void activeEditorChanged(User user, SPath path)
+        {
+
+            // We only need to react to remote users changing editor
+            if (user.isLocal())
+            {
+                return;
+            }
+
+            // Clear all viewport annotations of this user.
+            for (SPath editorPath : getLocallyOpenEditors())
+            {
+                getActionManager().clearSelection(editorPath);
+            }
         }
     };
 
-    private Blockable stopManagerListener = new Blockable() {
-        
-        public void unblock() {
-            ThreadUtils.runSafeSync(log, new Runnable()
+    private Blockable stopManagerListener = new Blockable()
+    {
+
+        public void unblock()
+        {
+            ThreadUtils.runSafeSync(LOG, new Runnable()
             {
 
 
@@ -285,9 +270,10 @@ public class EditorManager
             });
         }
 
-        
-        public void block() {
-            ThreadUtils.runSafeSync(log, new Runnable()
+
+        public void block()
+        {
+            ThreadUtils.runSafeSync(LOG, new Runnable()
             {
 
 
@@ -299,66 +285,76 @@ public class EditorManager
         }
     };
 
-    private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
+    private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener()
+    {
 
-        
-        public void permissionChanged(final User user) {
 
-            // Make sure we have the up-to-date facts about ourself
+        public void permissionChanged(final User user)
+        {
+
             hasWriteAccess = sarosSession.hasWriteAccess();
 
             // Lock / unlock editors
-            if (user.isLocal()) {
-                actionManager.setWriteAccessEnabled(hasWriteAccess);
+            if (user.isLocal())
+            {
+                actionManager.lockAllEditors(hasWriteAccess);
             }
 
-            // TODO [PERF] 1 Make this lazy triggered on activating a part?
             refreshAnnotations();
         }
 
-        
-        public void userFinishedProjectNegotiation(User user) {
 
-            // TODO The user should be able to ask us for this state
+        public void userFinishedProjectNegotiation(User user)
+        {
 
             // Send awareness-informations
             User localUser = sarosSession.getLocalUser();
-            for (SPath path : getLocallyOpenEditors()) {
+            for (SPath path : getLocallyOpenEditors())
+            {
                 fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
             }
 
             fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
-                    locallyActiveEditor));
+                    activeEditor));
 
-            if (locallyActiveEditor == null) {
+            if (activeEditor == null)
+            {
                 return;
             }
-            if (localViewport != null) {
+            if (localViewport != null)
+            {
                 fireActivity(new ViewportActivity(localUser,
                         localViewport.getStartLine(),
-                        localViewport.getNumberOfLines(), locallyActiveEditor));
-            } else {
-                log.warn("No viewport for locallyActivateEditor: "
-                        + locallyActiveEditor);
+                        localViewport.getNumberOfLines(), activeEditor));
+            }
+            else
+            {
+                LOG.warn("No viewport for locallyActivateEditor: "
+                        + activeEditor);
             }
 
-            if (localSelection != null) {
+            if (localSelection != null)
+            {
                 int offset = localSelection.getNewRange().getStartOffset();
                 int length = localSelection.getNewRange().getEndOffset() - localSelection.getNewRange().getStartOffset();
 
                 fireActivity(new TextSelectionActivity(localUser, offset,
-                        length, locallyActiveEditor));
-            } else {
-                log.warn("No selection for locallyActivateEditor: "
-                        + locallyActiveEditor);
+                        length, activeEditor));
+            }
+            else
+            {
+                LOG.warn("No selection for locallyActivateEditor: "
+                        + activeEditor);
             }
         }
 
-        
-        public void userLeft(final User user) {
+
+        public void userLeft(final User user)
+        {
 
             // If the user left which I am following, then stop following...
-            if (user.equals(followedUser)) {
+            if (user.equals(followedUser))
+            {
                 setFollowing(null);
             }
 
@@ -370,12 +366,10 @@ public class EditorManager
     /**
      * @Inject
      */
-    public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore) {
-
-        System.out.println("EditorManager.EditorManager");
+    public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore)
+    {
 
         remoteEditorManager = new RemoteEditorManager(sarosSession);
-        //   registerCustomAnnotations();
         sessionManager.addSarosSessionListener(this.sessionListener);
         this.preferenceStore = preferenceStore;
 
@@ -384,48 +378,54 @@ public class EditorManager
 
     }
 
-    protected void execEditorActivity(EditorActivity editorActivity) {
+    protected void execEditorActivity(EditorActivity editorActivity)
+    {
 
         SPath path = editorActivity.getPath();
-        if (path == null) {
+        if (path == null)
+        {
             return;
         }
 
+        LOG.debug(path + " editor activity received " + editorActivity);
+
         final User user = editorActivity.getSource();
 
-        System.out.println(">>>EditorManager.execEditorActivity " + editorActivity);
-
-
-        switch (editorActivity.getType()) {
+        switch (editorActivity.getType())
+        {
             case ACTIVATED:
-                if (isFollowing(user)) {
-                    actionManager.openFile(path);
+                if (isFollowing(user))
+                {
+                    actionManager.openEditor(path);
                 }
                 editorListenerDispatch.activeEditorChanged(user, path);
                 break;
 
             case CLOSED:
-                if (isFollowing(user)) {
-                    actionManager.closeFile(path);
+                if (isFollowing(user))
+                {
+                    actionManager.closeEditor(path);
                 }
                 editorListenerDispatch.editorRemoved(user, path);
                 break;
             case SAVED:
-                actionManager.saveFile(path);
+                actionManager.saveEditor(path);
                 editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
                 break;
             default:
-                log.warn("Unexpected type: " + editorActivity.getType());
+                LOG.warn("Unexpected type: " + editorActivity.getType());
         }
 
 
     }
 
-    ColorManager colorManager = new ColorManager(); //todo
-
-    protected void execTextEdit(TextEditActivity editorActivity) {
+    protected void execTextEdit(TextEditActivity editorActivity)
+    {
 
         SPath path = editorActivity.getPath();
+
+        LOG.debug(path + " text edit activity received " + editorActivity);
+
         User user = editorActivity.getSource();
         ColorModel colorModel = colorManager.getColorModel(user.getColorID());
 
@@ -438,23 +438,24 @@ public class EditorManager
 
     }
 
-    protected void execTextSelection(TextSelectionActivity selection) {
-        System.out.println(">>>EditorManager.execTextSelection " + selection);
-//        SPath file = selection.getPath();
-//        actionManager.selectText(file, selection.getOffset(), selection.getLength());
-//
-
+    protected void execTextSelection(TextSelectionActivity selection)
+    {
 
         SPath path = selection.getPath();
-        if (path == null) {
-            log.error("Received text selection but have no writable editor");
+
+        LOG.debug(path + " text selection activity received " + selection);
+
+        if (path == null)
+        {
             return;
         }
+
 
         User user = selection.getSource();
         ColorModel colorModel = colorManager.getColorModel(user.getColorID());
 
-        if (isFollowing(user)) {
+        if (isFollowing(user))
+        {
             actionManager.selectText(path, selection.getOffset(), selection.getLength(), colorModel);
         }
 
@@ -467,20 +468,19 @@ public class EditorManager
 
     }
 
-    protected void execViewport(ViewportActivity viewport) {
-        System.out.println(">>>EditorManager.execViewport " + viewport);
-//        SPath file = editorActivity.getPath();
-//        actionManager.setViewPort(file, editorActivity.getStartLine(), editorActivity.getStartLine() + editorActivity.getNumberOfLines());
-
+    protected void execViewport(ViewportActivity viewport)
+    {
 
         SPath path = viewport.getPath();
-        if (path == null) {
-            log.error("Received text selection but have no writable editor");
+        LOG.debug(path + " viewport activity received " + viewport);
+        if (path == null)
+        {
             return;
         }
 
         User user = viewport.getSource();
-        if (isFollowing(user)) {
+        if (isFollowing(user))
+        {
             actionManager.setViewPort(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
         }
 
@@ -492,12 +492,13 @@ public class EditorManager
     }
 
 
-    
-    public void exec(IActivity activity) {
+    public void exec(IActivity activity)
+    {
 
         User sender = activity.getSource();
-        if (!sender.isInSession()) {
-            log.warn("skipping execution of activity " + activity
+        if (!sender.isInSession())
+        {
+            LOG.warn("skipping execution of activity " + activity
                     + " for user " + sender + " who is not in the current session");
             return;
         }
@@ -505,7 +506,7 @@ public class EditorManager
         // First let the remote managers update itself based on the
         // Activity
         remoteEditorManager.exec(activity);
-//        remoteWriteAccessManager.exec(activity);
+        // remoteWriteAccessManager.exec(activity); //todo
 
 
         activity.dispatch(activityReceiver);
@@ -519,11 +520,13 @@ public class EditorManager
      *             currently editing or <code>null</code> if the local user has
      *             no editor open.
      */
-    public void generateEditorActivated(@Nullable SPath path) {
+    public void generateEditorActivated(@Nullable SPath path)
+    {
 
-        this.locallyActiveEditor = path;
+        this.activeEditor = path;
 
-        if (path != null && sarosSession.isShared(path.getResource())) {
+        if (path != null && sarosSession.isShared(path.getResource()))
+        {
             this.locallyOpenEditors.add(path);
         }
 
@@ -531,18 +534,21 @@ public class EditorManager
         fireActivity(new EditorActivity(sarosSession.getLocalUser(),
                 EditorActivity.Type.ACTIVATED, path));
 
-        //  generateSelection(path, selection);
-        //  generateViewport(path, viewport);
+        //  generateSelection(path, selection);  //todo
+        //  generateViewport(path, viewport);    //todo
 
     }
 
-    public void generateEditorClosed(@Nullable SPath path) {
+    public void generateEditorClosed(@Nullable SPath path)
+    {
         // if closing the followed editor, leave follow mode
-        if (getFollowedUser() != null) {
+        if (getFollowedUser() != null)
+        {
             RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(
                     getFollowedUser()).getActiveEditor();
 
-            if (activeEditor != null && activeEditor.getPath().equals(path)) {
+            if (activeEditor != null && activeEditor.getPath().equals(path))
+            {
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
@@ -564,9 +570,11 @@ public class EditorManager
      * @param newSelection The ITextSelection in the given part which represents the
      *                     currently selected text in editor.
      */
-    public void generateSelection(SPath path, SelectionEvent newSelection) {
+    public void generateSelection(SPath path, SelectionEvent newSelection)
+    {
 
-        if (path.equals(locallyActiveEditor)) {
+        if (path.equals(activeEditor))
+        {
             localSelection = newSelection;
         }
 
@@ -578,17 +586,18 @@ public class EditorManager
     }
 
 
-    public void generateViewport(SPath path, LineRange viewport) {
+    public void generateViewport(SPath path, LineRange viewport)
+    {
 
-        System.out.println("EditorManager.generateViewport " + viewport);
-
-        if (this.sarosSession == null) {
-            log.warn("SharedEditorListener not correctly unregistered!");
+        if (this.sarosSession == null)
+        {
+            LOG.warn("SharedEditorListener not correctly unregistered!");
             return;
         }
 
 
-        if (path.equals(locallyActiveEditor)) {
+        if (path.equals(activeEditor))
+        {
             this.localViewport = viewport;
         }
 
@@ -596,14 +605,15 @@ public class EditorManager
         fireActivity(new ViewportActivity(sarosSession.getLocalUser(),
                 viewport.getStartLine(), viewport.getNumberOfLines(), path));
 
-        //  editorListenerDispatch.viewportGenerated(part, viewport, path);
+        //  editorListenerDispatch.viewportGenerated(part, viewport, path);  //todo
     }
 
     /**
      * Returns <code>true</code> if there is currently a {@link User} followed,
      * otherwise <code>false</code>.
      */
-    public boolean isFollowing() {
+    public boolean isFollowing()
+    {
         return getFollowedUser() != null;
     }
 
@@ -611,7 +621,8 @@ public class EditorManager
      * Returns <code>true</code> if there is currently a {@link User} followed,
      * otherwise <code>false</code>.
      */
-    public boolean isFollowing(User user) {
+    public boolean isFollowing(User user)
+    {
         return getFollowedUser() != null && getFollowedUser().equals(user);
     }
 
@@ -619,7 +630,8 @@ public class EditorManager
      * Returns the followed {@link User} or <code>null</code> if currently no
      * user is followed.
      */
-    public User getFollowedUser() {
+    public User getFollowedUser()
+    {
         return followedUser;
     }
 
@@ -627,70 +639,67 @@ public class EditorManager
      * Sets the {@link User} to follow or <code>null</code> if no user should be
      * followed.
      */
-    public void setFollowing(User newFollowedUser) {
+    public void setFollowing(User newFollowedUser)
+    {
         assert newFollowedUser == null
                 || !newFollowedUser.equals(sarosSession.getLocalUser()) : "local user cannot follow himself!";
 
         User oldFollowedUser = this.followedUser;
         this.followedUser = newFollowedUser;
 
-        if (oldFollowedUser != null && !oldFollowedUser.equals(newFollowedUser)) {
+        if (oldFollowedUser != null && !oldFollowedUser.equals(newFollowedUser))
+        {
             editorListenerDispatch.followModeChanged(oldFollowedUser, false);
         }
 
-        if (newFollowedUser != null) {
+        if (newFollowedUser != null)
+        {
             editorListenerDispatch.followModeChanged(newFollowedUser, true);
             this.jumpToUser(newFollowedUser);
         }
     }
 
-    public void jumpToUser(User jumpTo) {
+    public void jumpToUser(User jumpTo)
+    {
 
         RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(jumpTo)
                 .getActiveEditor();
 
         // you can't follow yourself
-        if (sarosSession.getLocalUser().equals(jumpTo)) {
+        if (sarosSession.getLocalUser().equals(jumpTo))
+        {
             return;
         }
 
-        if (activeEditor == null) {
-            log.info(jumpTo.getJID() + " has no editor open");
+        if (activeEditor == null)
+        {
+            LOG.info(jumpTo.getJID() + " has no editor open");
 
-            // changed waldmann, 22.01.2012: this balloon Notification became
-            // annoying as the awareness information, which file is opened is
-            // now shown in the session view all the time (unless the user has
-            // collapsed the tree element)
-
-            // no active editor on target subject
-            // IntelliJUIHelper.showNotification("Following " +
-            // jumpTo.getJID().getBase()
-            // + "!", jumpTo.getJID().getName()
-            // + " has no shared file opened yet.");
             return;
         }
 
-        Editor newEditor = this.actionManager.openFile(activeEditor.getPath());
+        Editor newEditor = this.actionManager.openEditor(activeEditor.getPath());
 
-        if (newEditor == null) {
+        if (newEditor == null)
+        {
             return;
         }
 
         LineRange viewport = activeEditor.getViewport();
 
-        if (viewport == null) {
-            log.warn(jumpTo.getJID() + " has no viewport in editor: "
+        if (viewport == null)
+        {
+            LOG.warn(jumpTo.getJID() + " has no viewport in editor: "
                     + activeEditor.getPath());
             return;
         }
 
         // selection can be null
         TextSelection selection = remoteEditorManager.getSelection(followedUser);
-
-        this.actionManager.adjustViewport(newEditor, viewport, selection);
-
-
-
+        if (selection != null)
+        {
+            this.actionManager.adjustViewport(newEditor, viewport, selection);
+        }
 
         /*
          * inform all registered ISharedEditorListeners about this jump
@@ -700,77 +709,86 @@ public class EditorManager
     }
 
 
-    public void saveText(SPath path) {
-        System.out.println("EditorManager.saveText");
+    public void setAllLocalOpenedEditorsLocked(boolean locked)
+    {
+        for (Editor editor : getActionManager().getEditorPool().getEditors())
+        {
+            if (locked)
+            {
+                getActionManager().stopEditor(editor);
+            }
+            else
+            {
+                getActionManager().startEditor(editor);
+            }
+        }
     }
 
-    public Set<SPath> getOpenEditorsOfAllParticipants() {
-        System.out.println("EditorManager.getOpenEditorsOfAllParticipants //todo");
-        return new HashSet<SPath>(); //todo
-    }
+    //todo: needs implementation
+    public void refreshAnnotations()
+    {
 
-    
-    public void setAllLocalOpenedEditorsLocked(boolean locked) {
-        System.out.println("EditorManager.setAllLocalOpenedEditorsLocked");
-    }
-
-    
-    public void colorChanged() {
-        System.out.println("EditorManager.colorChanged");
-    }
-
-    
-    public void refreshAnnotations() {
-        System.out.println("EditorManager.refreshAnnotations");
     }
 
 
-    
-    public RemoteEditorManager getRemoteEditorManager() {
+    public RemoteEditorManager getRemoteEditorManager()
+    {
         return remoteEditorManager;
     }
 
-    
-    public boolean isActiveEditorShared() {
-        return false;
+
+    public boolean isActiveEditorShared()
+    {
+        if (activeEditor == null)
+        {
+            return false;
+        }
+
+        return isSharedEditor(activeEditor);
     }
 
 
-    
-    public void addSharedEditorListener(ISharedEditorListener listener) {
+    protected boolean isSharedEditor(SPath editorFilePath)
+    {
+        if (sarosSession == null)
+        {
+            return false;
+        }
+
+        if (!getActionManager().isOpenEditor(editorFilePath))
+        {
+            return false;
+        }
+
+        return this.sarosSession.isShared(editorFilePath.getResource());
+    }
+
+    public void addSharedEditorListener(ISharedEditorListener listener)
+    {
         this.editorListenerDispatch.add(listener);
     }
 
-    
-    public void saveLazy(SPath path) throws FileNotFoundException {
-        getActionManager().saveFile(path);
+    public void removeSharedEditorListener(ISharedEditorListener listener)
+    {
+        this.editorListenerDispatch.remove(listener);
     }
 
-    
-    public void removeSharedEditorListener(ISharedEditorListener listener) {
-        System.out.println("EditorManager.removeSharedEditorListener");
-    }
 
-    
-    public Set<SPath> getLocallyOpenEditors() {
-        System.out.println("EditorManager.getLocallyOpenEditors");
+    public Set<SPath> getLocallyOpenEditors()
+    {
         return actionManager.getEditorPool().getFiles();
     }
 
-    
-    public Set<SPath> getRemoteOpenEditors() {
-        //todo
-        System.out.println("EditorManager.getRemoteOpenEditors //todo");
+
+    public Set<SPath> getRemoteOpenEditors()
+    {
         return remoteEditorManager.getRemoteOpenEditors();
     }
 
+    //todo: not sure how to do it intelliJ
+    public void sendEditorActivitySaved(SPath path)
+    {
 
-    public void sendEditorActivitySaved(SPath path) {
-        System.out.println("EditorManager.sendEditorActivitySaved ");
-    }
-
-    public boolean isConnected(IFile file) {
-        return true;
     }
 
 
@@ -780,28 +798,32 @@ public class EditorManager
      * @param newText
      * @param path
      */
-    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
+    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path)
+    {
 
         if (sarosSession == null)
+        {
             return;
+        }
 
         TextEditActivity textEdit = new TextEditActivity(sarosSession.getLocalUser(), offset, oldText, newText, path);
 
-        //        if (!hasWriteAccess || isLocked)
-//        {
-//            /**
-//             * TODO If we don't have {@link User.Permission#WRITE_ACCESS}, then
-//             * receiving this event might indicate that the user somehow
-//             * achieved to change his document. We should run a consistency
-//             * check.
-//             *
-//             * But watch out for changes because of a consistency check!
-//             */
-//            LOG.warn("local user caused text changes: " + textEdit
-//                    + " | write access : " + hasWriteAccess + ", session locked : "
-//                    + isLocked);
-//            return;
-//        }
+        if (!hasWriteAccess || isLocked)
+        {
+           /*
+             * TODO If we don't have {@link User.Permission#WRITE_ACCESS}, then
+             * receiving this event might indicate that the user somehow
+             * achieved to change his document. We should run a consistency
+             * check.
+             *
+             * But watch out for changes because of a consistency check!
+             */
+
+            LOG.warn("local user caused text changes: " + textEdit
+                    + " | write access : " + hasWriteAccess + ", session locked : "
+                    + isLocked);
+            return;
+        }
 
         fireActivity(textEdit);
 
@@ -809,33 +831,11 @@ public class EditorManager
         editorListenerDispatch.textEditRecieved(sarosSession.getLocalUser(),
                 textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
 
-//        /*
-//         * TODO Investigate if this is really needed here
-//         */
-//        {
-//            IEditorInput input = changedEditor.getEditorInput();
-//            IDocumentProvider provider = getDocumentProvider(input);
-//            IAnnotationModel treeModel = provider.getAnnotationModel(input);
-//            contributionAnnotationManager.splitAnnotation(treeModel, offset);
-//        }
     }
 
-    
-    public boolean isOpenEditor(SPath path) {
-        return false;
-    }
 
-    
-    public void closeEditor(SPath path) {
-
-    }
-
-    
-    public void openEditor(SPath path) {
-
-    }
-
-    public EditorActionManager getActionManager() {
+    public EditorActionManager getActionManager()
+    {
         return actionManager;
     }
 

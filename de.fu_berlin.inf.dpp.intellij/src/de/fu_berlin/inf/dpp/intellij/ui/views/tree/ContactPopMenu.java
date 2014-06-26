@@ -42,12 +42,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-25
- * Time: 08:35
+ * Contact pop-up menu
  */
-
 class ContactPopMenu extends JPopupMenu {
     protected Saros saros = Saros.instance();
 
@@ -155,7 +151,6 @@ class ContactPopMenu extends JPopupMenu {
             JID user = new JID(contactInfo.getRosterEntry().getUser());
             List<JID> contacts = Arrays.asList(user);
 
-            System.out.println("ShareProjectAction.actionPerformed START U=" + contacts + " P=" + resources);
             CollaborationUtils.startSession(resources, contacts);
 
         }
@@ -190,8 +185,6 @@ class ContactPopMenu extends JPopupMenu {
                 JID user = new JID(contactInfo.getRosterEntry().getUser());
                 List<JID> contacts = Arrays.asList(user);
 
-                System.out.println("ShareProjectAction.actionPerformed START U=" + contacts + " P=" + resources);
-
                 CollaborationUtils.startSession(resources, contacts);
             } catch (IOException e1) {
                 e1.printStackTrace();
@@ -202,14 +195,14 @@ class ContactPopMenu extends JPopupMenu {
     private class DeleteContactAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("DeleteContactAction.actionPerformed: DELETING " + contactInfo);
+           //todo: implement it
         }
     }
 
     private class OpenChartAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("OpenChartAction.actionPerformed CHART " + contactInfo);
+           //todo: implement it
         }
     }
 

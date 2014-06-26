@@ -27,12 +27,9 @@ import com.intellij.openapi.editor.markup.RangeHighlighter;
 import java.awt.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-05
- * Time: 13:12
+ * Intellij color model
  */
-
+//todo: temporary implementation to provide random color
 public class ColorModel
 {
     public static final int delta = 50;

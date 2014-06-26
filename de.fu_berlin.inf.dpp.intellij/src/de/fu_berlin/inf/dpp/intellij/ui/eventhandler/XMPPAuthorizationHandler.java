@@ -22,13 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 11.57
- */
-
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -42,10 +35,11 @@ import java.text.MessageFormat;
 /**
  * Handler for accepting or rejecting incoming XMPP subscription requests
  */
+//todo: adaptation from eclipse
 public class XMPPAuthorizationHandler
 {
 
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(XMPPAuthorizationHandler.class);
 
     private final SubscriptionHandler subscriptionHandler;
@@ -57,7 +51,7 @@ public class XMPPAuthorizationHandler
         public void subscriptionRequestReceived(final JID jid)
         {
 
-            ThreadUtils.runSafeAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
                 @Override
                 public void run()

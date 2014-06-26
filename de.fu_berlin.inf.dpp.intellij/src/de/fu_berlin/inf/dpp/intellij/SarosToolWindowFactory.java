@@ -38,11 +38,6 @@ import java.io.File;
 /**
  * Saros core panel tool window factory. Here is a starting point of IntelliJ plugin
  * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 
 public class SarosToolWindowFactory implements ToolWindowFactory
@@ -63,7 +58,6 @@ public class SarosToolWindowFactory implements ToolWindowFactory
         Saros saros = Saros.create(project, toolWindow);
         Workspace ws = new Workspace(project);
 
-        //saros.setWorkspace(new Workspace(project));
         saros.setWorkspace(ws);
         saros.start();
 

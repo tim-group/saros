@@ -44,6 +44,9 @@ import java.util.Map;
  */
 public class SarosToolbar
 {
+    public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
+    public static final String OPEN_REFS_ICON_PATH = "icons/etool16/test_con.gif";
+    public static final String LEAVE_SESSION_ICON_PATH = "icons/elcl16/project_share_leave_tsk.png";
 
     private Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
@@ -157,10 +160,10 @@ public class SarosToolbar
         toolbarButtons.put(connectionButton.getDisconnectAction().getActionName(), connectionButton);
 
         //add contact button
-        addNavigationButton(NewContactAction.NAME, "Add contact to session", "icons/elcl16/buddy_add_tsk.png", "addContact");
+        addNavigationButton(NewContactAction.NAME, "Add contact to session", ADD_CONTACT_ICON_PATH, "addContact");
 
         //preferences button
-        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "icons/etool16/test_con.gif", "preferences");
+        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", OPEN_REFS_ICON_PATH, "preferences");
 
         //follow button
         //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
@@ -176,7 +179,7 @@ public class SarosToolbar
 
         //session leave button
         ISarosAction actionLeave = SarosActionFactory.getAction(LeaveSessionAction.NAME);
-        addNavigationButton(actionLeave.getActionName(), "Leave session", "icons/elcl16/project_share_leave_tsk.png", "leave");
+        addNavigationButton(actionLeave.getActionName(), "Leave session", LEAVE_SESSION_ICON_PATH, "leave");
         actionLeave.addActionListener(treeActionListener);
         actionLeave.addActionListener(toolbarActionListener);
 

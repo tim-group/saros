@@ -95,7 +95,7 @@ public class FolderImp extends ResourceImp implements IFolder {
 
     @Override
     public void refreshLocal() throws IOException {
-        System.out.println("FolderIntl.refreshLocal //todo");
+
     }
 
     @Override

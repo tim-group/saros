@@ -84,9 +84,9 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 
 /**
- * TODO Review if SarosSession, ConcurrentDocumentManager, ActivitySequencer all
- * honor start() and stop() semantics.
+ * Saros session implementation
  */
+//todo: copy from eclipse
 public final class SarosSession implements ISarosSession {
 
     private static final Logger log = Logger.getLogger(SarosSession.class);

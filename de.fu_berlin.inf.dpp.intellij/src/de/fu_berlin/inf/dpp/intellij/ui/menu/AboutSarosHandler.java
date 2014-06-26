@@ -22,37 +22,17 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.menu;
 
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.RangeMarker;
-import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.ui.EditorTextField;
-import de.fu_berlin.inf.dpp.intellij.SarosComponent;
 import de.fu_berlin.inf.dpp.intellij.ui.menu.core.AbstractMenuHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.beans.PropertyChangeListener;
 
 /**
- * General button used to create any common button
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 09.52
+ * About menu action
  */
-
 public class AboutSarosHandler extends AbstractMenuHandler
 {
     @Override

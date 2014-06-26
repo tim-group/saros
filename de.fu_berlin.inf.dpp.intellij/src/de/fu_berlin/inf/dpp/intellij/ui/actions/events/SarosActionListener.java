@@ -26,12 +26,6 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 
 /**
  * Saros action listener
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public interface SarosActionListener
 {

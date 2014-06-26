@@ -23,12 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.editor.text;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-15
- * Time: 10:36
+ * Placeholder too store line range
  */
-
 public class LineRange
 {
     int lineRange;

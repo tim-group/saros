@@ -232,8 +232,6 @@ public abstract class ResourceImp implements IResource
             otherPath = other.project.getFullPath().toFile().getAbsolutePath() + File.separator + other.file.getPath();
         }
 
-        // System.out.println(thisPath + "<>" + otherPath);
-
         return otherPath.equalsIgnoreCase(thisPath);
     }
 }

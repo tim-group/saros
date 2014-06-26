@@ -23,12 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.editor.events;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-28
- * Time: 17:09
+ * Abstract IntelliJ event listener
  */
-
 public abstract class AbstractStoppableListener
 {
     protected boolean enabled = true;

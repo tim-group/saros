@@ -49,12 +49,8 @@ import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import javax.swing.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-25
- * Time: 08:35
+ * Session pop-up menu
  */
-
 class SessionPopMenu extends JPopupMenu
 {
     protected Saros saros = Saros.instance();

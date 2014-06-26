@@ -35,8 +35,8 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
 {
 
 
-    private static final String IN_SYNC_ICON = "icons/etool16/in_sync.png";
-    private static final String OUT_SYNC_ICON = "icons/etool16/out_sync.png";
+    private static final String IN_SYNC_ICON_PATH = "icons/etool16/in_sync.png";
+    private static final String OUT_SYNC_ICON_PATH = "icons/etool16/out_sync.png";
 
     private boolean isInconsistent = false;
 
@@ -72,11 +72,11 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
 
         if (isInconsistent)
         {
-            setIcon(OUT_SYNC_ICON, "Files are NOT consistent");
+            setIcon(OUT_SYNC_ICON_PATH, "Files are NOT consistent");
         }
         else
         {
-            setIcon(IN_SYNC_ICON, "Files are consistent");
+            setIcon(IN_SYNC_ICON_PATH, "Files are consistent");
         }
     }
 

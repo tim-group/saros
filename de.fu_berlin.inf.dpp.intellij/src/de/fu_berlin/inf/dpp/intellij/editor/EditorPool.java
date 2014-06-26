@@ -32,12 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-18
- * Time: 12:14
+ * IntelliJ editor pool
  */
-
 public class EditorPool {
     private Map<SPath, Editor> editors = new HashMap<SPath, Editor>();
     private Map<SPath, Document> documents = new HashMap<SPath, Document>();
@@ -109,6 +105,12 @@ public class EditorPool {
     public SPath getFile(Document doc) {
         return files.get(doc);
     }
+
+    public Collection<Editor> getEditors()
+    {
+        return editors.values();
+    }
+
 
     public Set<SPath> getFiles() {
         return documents.keySet();

@@ -42,7 +42,7 @@ import de.fu_berlin.inf.dpp.net.ITransmitter;
 
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 
-
+//todo: adaptation from eclipse
 public final class SessionStatusRequestHandler {
 
     private static final Logger LOG = Logger

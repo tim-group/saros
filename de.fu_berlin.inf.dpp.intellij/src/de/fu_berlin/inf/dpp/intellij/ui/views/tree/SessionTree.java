@@ -41,12 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 08.53
+ * Session tree part
  */
-
 public class SessionTree extends AbstractTree {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";

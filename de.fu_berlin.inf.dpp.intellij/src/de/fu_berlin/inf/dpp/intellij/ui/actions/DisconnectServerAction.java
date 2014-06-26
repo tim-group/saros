@@ -26,13 +26,6 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 
 /**
  * Disconnects XMPP/Jabber server
- * <p/>
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public class DisconnectServerAction extends AbstractSarosAction  implements IConnectionAction
 {

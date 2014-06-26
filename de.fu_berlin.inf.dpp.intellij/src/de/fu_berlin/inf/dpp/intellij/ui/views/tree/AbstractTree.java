@@ -30,23 +30,16 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 09.02
+ * Parent class for saros tree
  */
-
 public abstract class AbstractTree extends DefaultMutableTreeNode
 {
-    protected static final Logger log = Logger.getLogger(AbstractTree.class);
+    protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
 
 
     protected final DefaultMutableTreeNode parent;
     protected final Saros saros;
     protected IconManager iconManager;
-
-
-
 
     protected AbstractTree()
     {

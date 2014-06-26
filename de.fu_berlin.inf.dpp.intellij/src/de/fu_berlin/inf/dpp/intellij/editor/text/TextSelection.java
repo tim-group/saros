@@ -22,6 +22,9 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.text;
 
+/**
+ * Placeholder to store text selection
+ */
 public class TextSelection {
     int offset;
     int length;

@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
 
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -30,13 +29,11 @@ import java.awt.*;
 /**
  * Class represents default wizard container.
  * Usage:
- *
+ * <p/>
  * Wizard wiz = new Wizard("title");
  * wiz.registerPage();
  * wiz.create();
- *
  */
-
 public class Wizard
 {
     public static final String NEXT_ACTION = "next";
@@ -122,7 +119,7 @@ public class Wizard
      * Registers pages used in wizard.
      * Should be added before using wizard.
      *
-     * @param page  AbstractWizardPage
+     * @param page AbstractWizardPage
      */
     public void registerPage(AbstractWizardPage page)
     {

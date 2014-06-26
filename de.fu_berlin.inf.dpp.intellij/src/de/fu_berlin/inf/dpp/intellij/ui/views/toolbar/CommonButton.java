@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 /**
  * General button used to create any common button
  */
-
 public class CommonButton extends ToolbarButton implements ActionListener
 {
     private String actionCommand;

@@ -33,12 +33,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 11.23
+ * Abstract IntelliJ preference store
  */
-
 public abstract class AbstractStore implements IPreferenceStore
 {
     protected final Logger LOG = Logger.getLogger(AbstractStore.class);

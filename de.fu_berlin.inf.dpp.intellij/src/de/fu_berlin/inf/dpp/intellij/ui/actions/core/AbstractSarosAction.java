@@ -32,12 +32,6 @@ import java.util.List;
 
 /**
  * Parent class for all Saros actions
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 
 public abstract class AbstractSarosAction implements ISarosAction
@@ -115,10 +109,7 @@ public abstract class AbstractSarosAction implements ISarosAction
         {
             actionListeners.add(actionListener);
         }
-        else
-        {
-            System.out.println("AbstractSarosAction.addActionListener PROBLEM");
-        }
+
     }
 
     @Override

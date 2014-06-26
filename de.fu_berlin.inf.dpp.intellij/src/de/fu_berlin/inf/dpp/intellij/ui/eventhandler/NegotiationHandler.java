@@ -52,7 +52,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * This handler is responsible for presenting and running the session and
  * project negotiations that are received by the Saros Session Manager
@@ -60,12 +59,12 @@ import java.util.List;
  *
  * @author srossbach
  */
+//todo: adaptation from eclipse
 public class NegotiationHandler implements INegotiationHandler
 {
 
     public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;
-    private static final Logger LOG = Logger
-            .getLogger(NegotiationHandler.class);
+    private static final Logger LOG = Logger.getLogger(NegotiationHandler.class);
 
 
     /**

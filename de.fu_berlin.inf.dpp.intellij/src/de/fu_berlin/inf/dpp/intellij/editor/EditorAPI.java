@@ -43,7 +43,6 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
@@ -51,13 +50,11 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-18
- * Time: 12:20
+ * IntellJ editor API. Performs IntelliJ editor related actions ins save manner.
  */
 
-public class EditorAPI {
+public class EditorAPI
+{
 
     private ProjectManager projectManager;
     private LocalFileSystem localFileSystem;
@@ -73,49 +70,62 @@ public class EditorAPI {
     private PsiDocumentManager psiDocumentManager;
     private VirtualFileManager virtualFileManager;
 
-    public EditorAPI() {
+    public EditorAPI()
+    {
         Project project = Saros.instance().getProject();
         setProject(project);
     }
 
-    public EditorAPI(Project project) {
+    public EditorAPI(Project project)
+    {
         setProject(project);
     }
 
-    public VirtualFile toVirtualFile(SPath path) {
+    public VirtualFile toVirtualFile(SPath path)
+    {
         return toVirtualFile(path.getFile().toFile());
     }
 
-    public VirtualFile toVirtualFile(File path) {
+    public VirtualFile toVirtualFile(File path)
+    {
         return localFileSystem.refreshAndFindFileByIoFile(path);
     }
 
-    public boolean isOpen(VirtualFile file) {
+    public boolean isOpen(VirtualFile file)
+    {
         return editorFileManager.isFileOpen(file);
     }
 
-    public boolean isOpen(Document doc) {
+    public boolean isOpen(Document doc)
+    {
         VirtualFile file = fileDocumentManager.getFile(doc);
         return isOpen(file);
     }
 
-    class EditorContainer {
+    class EditorContainer
+    {
         Editor editor;
     }
 
-    public Editor openEditor(final VirtualFile path) {
-        // editorFileManager.openFile(path, true);
+
+    public Editor openEditor(final VirtualFile path)
+    {
+        // editorFileManager.openEditor(path, true);
         // return editorFileManager.getSelectedTextEditor();
 
         final EditorContainer result = new EditorContainer();
 
-        Runnable action = new Runnable() {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
 
-                application.runReadAction(new Runnable() {
+                application.runReadAction(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         editorFileManager.openFile(path, true);
 
                         result.editor = editorFileManager.getSelectedTextEditor();
@@ -127,27 +137,24 @@ public class EditorAPI {
 
         UIUtil.invokeAndWaitIfNeeded(action);
 
-
         return result.editor;
 
     }
 
-    public Document createDocument(VirtualFile path) {
+    public Document createDocument(VirtualFile path)
+    {
         return fileDocumentManager.getDocument(path);
     }
 
-   /* public Editor openEditor(Document doc)
+
+    public void closeEditor(final VirtualFile file)
     {
-        return editorFactory.createEditor(doc);
 
-    }*/
-
-    public void closeEditor(final VirtualFile file) {
-        // editorFileManager.addFileEditorManagerListener(); //todo
-
-        Runnable action = new Runnable() {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 editorFileManager.closeFile(file);
             }
         };
@@ -155,31 +162,40 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public Document getDocument(final File file) {
+    public Document getDocument(final File file)
+    {
 
         return fileDocumentManager.getDocument(toVirtualFile(file));
     }
 
-    public Document getDocument(final VirtualFile file) {
+    public Document getDocument(final VirtualFile file)
+    {
         return fileDocumentManager.getDocument(file);
     }
 
-    public void closeEditor(Document doc) {
+    public void closeEditor(Document doc)
+    {
         VirtualFile file = fileDocumentManager.getFile(doc);
         closeEditor(file);
     }
 
-    public Editor getActiveEditor() {
+    public Editor getActiveEditor()
+    {
         return editorFileManager.getSelectedTextEditor();
     }
 
-    public void saveDocument(final Document doc) {
-        application.invokeAndWait(new Runnable() {
+    public void saveDocument(final Document doc)
+    {
+        application.invokeAndWait(new Runnable()
+        {
             @Override
-            public void run() {
-                application.runWriteAction(new Runnable() {
+            public void run()
+            {
+                application.runWriteAction(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         fileDocumentManager.saveDocument(doc);
                     }
                 });
@@ -189,13 +205,18 @@ public class EditorAPI {
     }
 
 
-    public void reloadFromDisk(final Document doc) {
-        application.invokeAndWait(new Runnable() {
+    public void reloadFromDisk(final Document doc)
+    {
+        application.invokeAndWait(new Runnable()
+        {
             @Override
-            public void run() {
-                application.runReadAction(new Runnable() {
+            public void run()
+            {
+                application.runReadAction(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         fileDocumentManager.reloadFromDisk(doc);
                     }
                 });
@@ -206,13 +227,18 @@ public class EditorAPI {
     /**
      * @param doc
      */
-    public void saveAllDocuments(Document doc) {
-        application.invokeAndWait(new Runnable() {
+    public void saveAllDocuments()
+    {
+        application.invokeAndWait(new Runnable()
+        {
             @Override
-            public void run() {
-                application.runWriteAction(new Runnable() {
+            public void run()
+            {
+                application.runWriteAction(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         fileDocumentManager.saveAllDocuments();
                     }
                 });
@@ -221,16 +247,21 @@ public class EditorAPI {
 
     }
 
+
+
     /**
      * @param editor
      * @param lineStart
      * @param lineEnd
      */
-    public void setViewPort(final Editor editor, final int lineStart, final int lineEnd) {
+    public void setViewPort(final Editor editor, final int lineStart, final int lineEnd)
+    {
 
-        Runnable action = new Runnable() {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
 
                 VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, 0);
                 editor.getCaretModel().moveToVisualPosition(posCenter);
@@ -242,16 +273,24 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void insertText(final Document doc, final int position, final String text) {
-        Runnable action = new Runnable() {
+    public void insertText(final Document doc, final int position, final String text)
+    {
+
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
-                commandProcessor.executeCommand(project, new Runnable() {
+            public void run()
+            {
+                commandProcessor.executeCommand(project, new Runnable()
+                {
                     @Override
-                    public void run() {
-                        application.runWriteAction(new Runnable() {
+                    public void run()
+                    {
+                        application.runWriteAction(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 doc.insertString(position, text);
                             }
                         });
@@ -263,16 +302,23 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void setText(final Document doc, final String text) {
-        Runnable action = new Runnable() {
+    public void setText(final Document doc, final String text)
+    {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
-                commandProcessor.executeCommand(project, new Runnable() {
+            public void run()
+            {
+                commandProcessor.executeCommand(project, new Runnable()
+                {
                     @Override
-                    public void run() {
-                        application.runWriteAction(new Runnable() {
+                    public void run()
+                    {
+                        application.runWriteAction(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 doc.setText(text);
                             }
                         });
@@ -284,8 +330,19 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color) {
-        if (color == null || editor == null) {
+    /**
+     * Adds text mark on the editor
+     *
+     * @param editor
+     * @param start
+     * @param end
+     * @param color
+     * @return
+     */
+    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color)
+    {
+        if (color == null || editor == null)
+        {
             return null;
         }
 
@@ -300,24 +357,60 @@ public class EditorAPI {
         return highlighter;
     }
 
-    public void textMarkRemove(final Editor editor, RangeHighlighter highlighter) {
-        if (editor == null || highlighter == null) {
+    /**
+     * Removes text mark from editor
+     * pass null as highlighter to remove all marks
+     *
+     * @param editor
+     * @param highlighter
+     */
+    public void textMarkRemove(final Editor editor, RangeHighlighter highlighter)
+    {
+        if (editor == null)
+        {
             return;
         }
 
-        editor.getMarkupModel().removeHighlighter(highlighter);
+        if (highlighter != null)
+        {
+            editor.getMarkupModel().removeHighlighter(highlighter);
+        }
+        else
+        {
+            //remove all
+            for (RangeHighlighter myHighlighter : editor.getMarkupModel().getAllHighlighters())
+            {
+                editor.getMarkupModel().removeHighlighter(myHighlighter);
+            }
+        }
+
+
     }
 
-    public void deleteText(final Document doc, final int start, final int end) {
-        Runnable action = new Runnable() {
+    /**
+     * Deletes text in document
+     *
+     * @param doc
+     * @param start
+     * @param end
+     */
+    public void deleteText(final Document doc, final int start, final int end)
+    {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
-                commandProcessor.executeCommand(project, new Runnable() {
+            public void run()
+            {
+                commandProcessor.executeCommand(project, new Runnable()
+                {
                     @Override
-                    public void run() {
-                        application.runWriteAction(new Runnable() {
+                    public void run()
+                    {
+                        application.runWriteAction(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 doc.deleteString(start, end);
                             }
                         });
@@ -329,14 +422,27 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public void setSelection(final Editor editor, final int start, final int end, ColorModel colorMode) {
+    /**
+     * Sets text selection in editor
+     *
+     * @param editor
+     * @param start
+     * @param end
+     * @param colorMode
+     */
+    public void setSelection(final Editor editor, final int start, final int end, ColorModel colorMode)
+    {
 
-        Runnable action = new Runnable() {
+        Runnable action = new Runnable()
+        {
             @Override
-            public void run() {
-                application.runReadAction(new Runnable() {
+            public void run()
+            {
+                application.runReadAction(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         //set selection
                         editor.getSelectionModel().setSelection(start, end);
 
@@ -362,53 +468,26 @@ public class EditorAPI {
 
     }
 
-    public void _setSelection(final Editor editor, final int start, final int end) {
-        Runnable action = new Runnable() {
-            @Override
-            public void run() {
-                application.runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        //set selection
-                        editor.getSelectionModel().setSelection(start, end);
-
-                        //move scroll
-                        int lineStart = editor.getSelectionModel().getSelectionStartPosition().getLine();
-                        int lineEnd = editor.getSelectionModel().getSelectionEndPosition().getLine();
-
-                        int colStart = editor.getSelectionModel().getSelectionStartPosition().getColumn();
-                        int colEnd = editor.getSelectionModel().getSelectionEndPosition().getColumn();
-
-                        VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
-                        editor.getCaretModel().moveToVisualPosition(posCenter);
-                        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
-
-                        //move cursor
-                        editor.getCaretModel().moveToOffset(start, true);
-                    }
-                });
-            }
-        };
-
-        UIUtil.invokeAndWaitIfNeeded(action);
-
-    }
-
-    public ModuleManager getModuleManager() {
+    public ModuleManager getModuleManager()
+    {
         return moduleManager;
     }
 
-    public boolean isInitialized() {
+    public boolean isInitialized()
+    {
         return project != null;
     }
 
-    public FileDocumentManager getFileDocumentManager() {
+    public FileDocumentManager getFileDocumentManager()
+    {
         return fileDocumentManager;
     }
 
-    public void setProject(Project project) {
-        if (project != null) {
+    public void setProject(Project project)
+    {
+        if (project != null)
+        {
             this.project = project;
             this.editorFileManager = FileEditorManager.getInstance(project);
             this.psiManager = PsiManager.getInstance(project);
@@ -425,26 +504,6 @@ public class EditorAPI {
             this.editorFactory = EditorFactory.getInstance();
         }
     }
-
-
-    public SPath getActiveEditorPath() {
-        return null;
-    }
-
-
-    public void removeEditorPartListener(EditorManager editorManager) {
-
-    }
-
-    public void addEditorPartListener(EditorManager editorManager) {
-
-    }
-
-
-    public boolean existUnsavedFiles(IProject project) {
-        return false;
-    }
-
 
 
 }

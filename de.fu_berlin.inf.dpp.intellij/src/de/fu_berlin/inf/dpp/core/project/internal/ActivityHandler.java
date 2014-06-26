@@ -142,8 +142,6 @@ public final class ActivityHandler implements Startable
 
     public synchronized void handleIncomingActivities(List<IActivity> activities)
     {
-        System.out.println("ActivityHandler.handleIncomingActivities>>>h="+session.isHost()+" "+activities);
-
 
         if (session.isHost())
         {

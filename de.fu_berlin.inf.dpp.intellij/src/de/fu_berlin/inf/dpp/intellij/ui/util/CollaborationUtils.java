@@ -60,6 +60,7 @@ import java.util.Map.Entry;
  * @author bkahlert
  * @author kheld
  */
+//todo: adopted from eclipse
 public class CollaborationUtils {
 
     private static final Logger LOG = Logger

@@ -53,8 +53,6 @@ import java.text.MessageFormat;
 /**
  * A wizard that guides the user through an incoming invitation process.
  * <p/>
- * TODO Automatically switch to follow mode
- * <p/>
  * more nicely: Long-Running Operation after each step, cancellation by a remote
  * party, auto-advance.
  */
@@ -65,7 +63,7 @@ public class JoinSessionWizard
 
     private static Container parent = Saros.instance().getMainPanel();
 
-    private static final Logger log = Logger.getLogger(JoinSessionWizard.class);
+    private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
 
     private boolean accepted = false;
 
@@ -136,7 +134,7 @@ public class JoinSessionWizard
         try
         {
 
-            ThreadUtils.runSafeAsync(log, new Runnable()
+            ThreadUtils.runSafeAsync(LOG, new Runnable()
             {
                 @Override
                 public void run()
@@ -185,7 +183,7 @@ public class JoinSessionWizard
 
     public boolean performCancel()
     {
-        ThreadUtils.runSafeAsync("CancelJoinSessionWizard", log,
+        ThreadUtils.runSafeAsync("CancelJoinSessionWizard", LOG,
                 new Runnable()
                 {
                     @Override
@@ -204,7 +202,7 @@ public class JoinSessionWizard
     public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation)
     {
 
-        ThreadUtils.runSafeSync(log, new Runnable()
+        ThreadUtils.runSafeSync(LOG, new Runnable()
         {
             @Override
             public void run()
@@ -236,7 +234,7 @@ public class JoinSessionWizard
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
             final CancelLocation cancelLocation)
     {
-        ThreadUtils.runSafeAsync(log, new Runnable()
+        ThreadUtils.runSafeAsync(LOG, new Runnable()
         {
             @Override
             public void run()

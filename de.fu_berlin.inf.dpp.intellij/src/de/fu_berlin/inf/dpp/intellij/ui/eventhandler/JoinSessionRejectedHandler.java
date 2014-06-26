@@ -34,7 +34,7 @@ import de.fu_berlin.inf.dpp.net.IReceiver;
 
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 
-
+//todo: adaptation from eclipse
 public final class JoinSessionRejectedHandler {
 
     private static final Logger LOG = Logger

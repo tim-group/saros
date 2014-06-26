@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.project;
 
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
@@ -63,7 +62,6 @@ import java.util.Map;
  * http://www.eclipse.org/articles/Article-Resource-deltas/resource-deltas.html
  */
 //todo: copy from eclipse
-@Component(module = "core")
 public class SharedResourcesManager extends AbstractActivityProvider implements
         Startable {
     /**
@@ -86,7 +84,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
      */
     static final int INTERESTING_EVENTS = -1;//ResourceChangeEvent.POST_CHANGE;
 
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(SharedResourcesManager.class);
 
     /**
@@ -171,7 +169,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             fileReplacementInProgressObservable.startReplacement();
             fileSystemListener.setEnabled(false);
 
-            log.trace("execing " + activity.toString() + " in "
+            LOG.trace("execing " + activity.toString() + " in "
                     + Thread.currentThread().getName());
 
             if (activity instanceof FileActivity) {
@@ -183,11 +181,11 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             }
 
         } catch (IOException e) {
-            log.error("Failed to execute resource activity.", e);
+            LOG.error("Failed to execute resource activity.", e);
         } finally {
             fileReplacementInProgressObservable.replacementDone();
             fileSystemListener.setEnabled(true);
-            log.trace("done execing " + activity.toString());
+            LOG.trace("done execing " + activity.toString());
         }
     }
 
@@ -215,7 +213,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     private void handleFileRecovery(FileActivity activity) throws IOException {
         SPath path = activity.getPath();
 
-        log.debug("performing recovery for file: "
+        LOG.debug("performing recovery for file: "
                 + activity.getPath().getFullPath());
 
 
@@ -225,10 +223,10 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             if (type == FileActivity.Type.CREATED) {
                 handleFileCreation(activity);
             } else if (type == FileActivity.Type.REMOVED) {
-                editorManager.getActionManager().closeFile(path);
+                editorManager.getActionManager().closeEditor(path);
                 handleFileDeletion(activity);
             } else {
-                log.warn("performing recovery for type " + type
+                LOG.warn("performing recovery for type " + type
                         + " is not supported");
             }
         } finally {
@@ -266,7 +264,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
             FileUtils.delete(file);
             fileSystemListener.setEnabled(true);
         } else {
-            log.warn("could not delete file " + file
+            LOG.warn("could not delete file " + file
                     + " because it does not exist");
         }
     }
@@ -280,7 +278,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         replaced = editorManager.getActionManager().replaceText(activity.getPath(), newText);
 
         if (replaced) {
-            editorManager.getActionManager().saveFile(activity.getPath());
+            editorManager.getActionManager().saveEditor(activity.getPath());
 
         } else {
             IFile file = activity.getPath().getFile();
@@ -294,7 +292,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
                         new NullProgressMonitor());
                 fileSystemListener.setEnabled(true);
             } else {
-                log.info("FileActivity " + activity + " dropped (same content)");
+                LOG.info("FileActivity " + activity + " dropped (same content)");
             }
         }
     }
@@ -318,7 +316,7 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new OperationCanceledException("Canceled due to IO error");
         }
 

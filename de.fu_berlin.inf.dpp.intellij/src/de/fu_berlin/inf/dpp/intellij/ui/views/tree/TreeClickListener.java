@@ -29,12 +29,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-25
- * Time: 08:34
+ * Tree click listener
  */
-
 public class TreeClickListener extends MouseAdapter
 {
     private TreePath sessionPath;

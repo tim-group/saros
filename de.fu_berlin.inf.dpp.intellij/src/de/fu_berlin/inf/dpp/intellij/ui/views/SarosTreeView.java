@@ -38,12 +38,6 @@ import java.awt.*;
 
 /**
  * Saros core panel tree list
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public class SarosTreeView
 {
@@ -105,8 +99,6 @@ public class SarosTreeView
         };
         rootTree.getJtree().addTreeSelectionListener(selectionListener);
 
-
-        //todo: set nice icons
         return rootTree.getJtree();
     }
 

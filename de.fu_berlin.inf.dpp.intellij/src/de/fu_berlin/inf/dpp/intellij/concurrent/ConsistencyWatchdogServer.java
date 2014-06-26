@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit;
  *         TODO Make ConsistencyWatchDog configurable => Timeout, Whether run or
  *         not, etc.
  */
-@Component(module = "consistency")
+//todo: copy from eclipse
 public class ConsistencyWatchdogServer extends AbstractActivityProvider
         implements Startable, Blockable
 {

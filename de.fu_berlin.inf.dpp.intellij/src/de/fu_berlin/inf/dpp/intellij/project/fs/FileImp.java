@@ -90,11 +90,9 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public void setContents(InputStream input, boolean force, boolean keepHistory) throws IOException
     {
-        //todo: implement force, history
-        System.out.println("FileIntl.setContents //todo: force, history");
 
         FileOutputStream fos = new FileOutputStream(file);
-        int read = -1;
+        int read;
         byte[] buffer = new byte[1024];
         while ((read = input.read(buffer)) != -1)
         {
@@ -143,7 +141,7 @@ public class FileImp extends ResourceImp implements IFile
     @Override
     public void refreshLocal() throws IOException
     {
-        System.out.println("FileIntl.refreshLocal //todo");
+
     }
 
     @Override

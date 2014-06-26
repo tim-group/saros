@@ -57,6 +57,7 @@ import java.util.List;
  * @author pcordes
  * @author srossbach
  */
+//todo: adopted from eclipse
 public class SarosContext implements ISarosContext
 {
 

@@ -22,20 +22,22 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-25
- * Time: 10:09
- */
-
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tree helper
+ */
 public class TreeHelper
 {
+    /**
+     * TreeNode -> TreePath
+     *
+     * @param treeNode
+     * @return
+     */
     public static TreePath getPath(TreeNode treeNode)
     {
         List<Object> nodes = new ArrayList<Object>();

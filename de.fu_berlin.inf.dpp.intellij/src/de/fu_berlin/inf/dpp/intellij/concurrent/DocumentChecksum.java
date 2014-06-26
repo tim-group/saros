@@ -22,8 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.concurrent;
 
-
-
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -37,6 +35,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
  *
  * @author chjacob
  */
+//todo: copy from eclipse
 public class DocumentChecksum {
 
     /**
