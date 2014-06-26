@@ -259,14 +259,14 @@ public class JoinSessionWizard
             switch (cancelLocation)
             {
                 case LOCAL:
-                    DialogUtils.openErrorMessageDialog(shell,
+                    DialogUtils.showError(shell,
                             Messages.JoinSessionWizard_inv_cancelled,
                             Messages.JoinSessionWizard_inv_cancelled_text
                                     + Messages.JoinSessionWizard_8 + errorMsg
                     );
                     break;
                 case REMOTE:
-                    DialogUtils.openErrorMessageDialog(shell,
+                    DialogUtils.showError(shell,
 
                             Messages.JoinSessionWizard_inv_cancelled, MessageFormat.format(
                                     Messages.JoinSessionWizard_inv_cancelled_text2, peer,
@@ -281,7 +281,7 @@ public class JoinSessionWizard
                 case LOCAL:
                     break;
                 case REMOTE:
-                    DialogUtils.openInformationMessageDialog(shell,
+                    DialogUtils.showInfo(shell,
                             Messages.JoinSessionWizard_inv_cancelled, MessageFormat
                                     .format(Messages.JoinSessionWizard_inv_cancelled_text3,
                                             peer)

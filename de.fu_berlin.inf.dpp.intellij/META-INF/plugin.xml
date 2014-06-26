@@ -38,7 +38,7 @@
         </group>
 
         <group keep-content="true" compact="false" popup="true" id="saros.ShareWith"
-               icon="/images/tree/project_share_tsk.png" text="Share With..."
+               icon="/icons/elcl16/project_share_tsk.png" text="Share With..."
                class="de.fu_berlin.inf.dpp.intellij.ui.menu.SarosFileShareGroup">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </group>
@@ -46,7 +46,7 @@
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Saros" icon="/images/saros.png" anchor="bottom" secondary="true"
+        <toolWindow id="Saros" icon="/icons/view16/saros_misc.png" anchor="bottom" secondary="true"
                     conditionClass="de.fu_berlin.inf.dpp.intellij.SarosCondition"
                     factoryClass="de.fu_berlin.inf.dpp.intellij.SarosToolWindowFactory"/>
     </extensions>

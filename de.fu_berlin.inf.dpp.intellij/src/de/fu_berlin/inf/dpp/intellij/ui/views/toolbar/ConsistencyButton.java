@@ -29,12 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-21
- * Time: 10:35
+ * Consistency check button implementation
  */
-
 public class ConsistencyButton extends ToolbarButton implements ActionListener
 {
 

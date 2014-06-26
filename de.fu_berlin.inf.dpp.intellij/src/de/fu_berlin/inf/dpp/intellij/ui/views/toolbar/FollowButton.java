@@ -35,12 +35,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-29
- * Time: 13:39
+ * Follow button implementation
  */
-
 public class FollowButton extends ToolbarButton implements SarosActionListener
 {
     private JPopupMenu popupMenu;
@@ -65,7 +61,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("images/btn/followmode.png", "follow");
+        setIcon("icons/ovr16/followmode.png", "follow");
         setActionCommand(FollowModeAction.NAME);
 
         setToolTipText("Enter follow mode");

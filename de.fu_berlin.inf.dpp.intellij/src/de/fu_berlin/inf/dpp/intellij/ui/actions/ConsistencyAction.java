@@ -231,7 +231,7 @@ public class ConsistencyAction extends AbstractSarosAction
         sbInconsistentFiles.append("\nWould you like to get last changes?\n");
 
 
-        if (!DialogUtils.openQuestionMessageDialog(guiFrame, sbInconsistentFiles.toString(), Messages.ConsistencyAction_confirm_dialog_title))
+        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(), Messages.ConsistencyAction_confirm_dialog_title))
         {
             consistencyButton.setEnabled(true);
 

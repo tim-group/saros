@@ -33,11 +33,6 @@ import java.io.File;
 
 /**
  * Selects local project
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-15
- * Time: 13:38
  */
 
 public class SelectProjectPage extends AbstractWizardPage

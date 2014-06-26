@@ -28,64 +28,64 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-11
- * Time: 13:26
+ * Dialog message helper
  */
-
 public class DialogUtils
 {
     private static final Container container = Saros.instance().getMainPanel();
 
-
-    public static void openInformationMessageDialog(Container shell, String msg, String title)
+    public static void showError(Component parent, String title, String msg)
     {
-        JOptionPane.showConfirmDialog(shell, msg, title, JOptionPane.OK_OPTION);
+        JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
     }
 
-    public static void openWarningMessageDialog(Component shell, String msg, String title)
+    public static void showError(String title, String msg)
     {
-
-        JOptionPane.showInternalMessageDialog(shell, msg, title, JOptionPane.WARNING_MESSAGE);
+        showError(getDefaultContainer(), msg, title);
     }
 
-    public static void popUpFailureMessage(String msg, String title, boolean b)
+    public static void showWarning(Component parent, String title, String msg)
     {
-
-        openErrorMessageDialog(getDefaultContainer(), msg, title);
-
+        JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.WARNING_MESSAGE);
     }
 
-    public static void openError(Component shell, String title, String message)
+    public static void showWarning(String title, String msg)
     {
-        JOptionPane.showInternalMessageDialog(shell, title, message, JOptionPane.ERROR_MESSAGE);
+        showWarning(getDefaultContainer(), msg, title);
     }
 
-
-    public static boolean openConfirm(Component shell, String title, String message)
+    public static boolean showConfirm(Component parent, String title, String msg)
     {
-        int resp = JOptionPane.showConfirmDialog(shell, title, message, JOptionPane.YES_OPTION);
+        int resp = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.OK_CANCEL_OPTION);
         return resp == 0;
     }
 
-    public static boolean openQuestion(Container shell, String title, String message)
+    public static boolean showConfirm(String title, String msg)
     {
-        return openConfirm(shell, title, message);
+        return showConfirm(getDefaultContainer(), msg, title);
     }
 
-
-    public static void openErrorMessageDialog(Component parent, String msg, String title)
-    {
-
-        JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
-    }
-
-    public static boolean openQuestionMessageDialog(Component parent, String msg, String title)
+    public static boolean showQuestion(Component parent, String title, String msg)
     {
         int answer = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION);
 
         return answer == 0;
+    }
+
+    public static boolean showQuestion(String title, String msg)
+    {
+        return showQuestion(getDefaultContainer(), msg, title);
+    }
+
+
+    public static void showInfo(Container parent, String title, String msg)
+    {
+        JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void showInfo(String title, String msg)
+    {
+        showInfo(getDefaultContainer(), msg, title);
     }
 
     public static Container getDefaultContainer()

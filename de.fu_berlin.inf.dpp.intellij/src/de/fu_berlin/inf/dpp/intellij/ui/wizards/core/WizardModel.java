@@ -30,11 +30,6 @@ import java.util.Map;
 /**
  * Default wizard model. Class keeps information about
  * wizard position, acts as container for
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 08:27
  */
 
 public class WizardModel

@@ -28,10 +28,6 @@ import javax.swing.*;
 /**
  * Top class for wizard pages
  *
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 08:08
  */
 
 public abstract class AbstractWizardPage extends JPanel

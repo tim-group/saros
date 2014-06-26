@@ -41,12 +41,6 @@ import java.util.Map;
 
 /**
  * Saros core panel toolbar
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
  */
 public class SarosToolbar
 {
@@ -163,10 +157,10 @@ public class SarosToolbar
         toolbarButtons.put(connectionButton.getDisconnectAction().getActionName(), connectionButton);
 
         //add contact button
-        addNavigationButton(NewContactAction.NAME, "Add contact to session", "images/btn/buddy_add_tsk.png", "addContact");
+        addNavigationButton(NewContactAction.NAME, "Add contact to session", "icons/elcl16/buddy_add_tsk.png", "addContact");
 
         //preferences button
-        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "images/btn/test_con.png", "preferences");
+        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", "icons/etool16/test_con.gif", "preferences");
 
         //follow button
         //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
@@ -182,7 +176,7 @@ public class SarosToolbar
 
         //session leave button
         ISarosAction actionLeave = SarosActionFactory.getAction(LeaveSessionAction.NAME);
-        addNavigationButton(actionLeave.getActionName(), "Leave session", "images/btn/project_share_leave_tsk.png", "leave");
+        addNavigationButton(actionLeave.getActionName(), "Leave session", "icons/elcl16/project_share_leave_tsk.png", "leave");
         actionLeave.addActionListener(treeActionListener);
         actionLeave.addActionListener(toolbarActionListener);
 

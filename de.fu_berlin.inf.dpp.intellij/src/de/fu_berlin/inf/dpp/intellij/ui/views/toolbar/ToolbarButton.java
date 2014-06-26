@@ -32,16 +32,13 @@ import java.net.URL;
 
 /**
  * Common class for Toolbar button implementations
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 07.39
  */
 public abstract class ToolbarButton extends JButton
 {
-    protected static final Logger log = Logger.getLogger(ToolbarButton.class);
+    protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
     protected Saros saros = Saros.instance();
+
+
 
     /**
      * @param path
@@ -73,7 +70,7 @@ public abstract class ToolbarButton extends JButton
         {
             //no image found
             button.setText(altText);
-            log.error("Resource not found: " + imageURL);
+            LOG.error("Resource not found: " + imageURL);
         }
     }
 

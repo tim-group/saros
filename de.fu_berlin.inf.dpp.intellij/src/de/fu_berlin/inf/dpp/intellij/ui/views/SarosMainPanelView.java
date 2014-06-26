@@ -30,17 +30,11 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * Saros core panel view
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.18
- * Time: 14.03
+ * Saros main panel view
  */
 public class SarosMainPanelView extends JFrame
 {
-    protected static final Logger log = Logger.getLogger(SarosMainPanelView.class);
+    protected static final Logger LOG = Logger.getLogger(SarosMainPanelView.class);
 
     private Container parent;
 
@@ -52,18 +46,13 @@ public class SarosMainPanelView extends JFrame
     {
         try
         {
-            //Set look&fiel //todo
-            // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            // UIManager.setLookAndFeel("com.apple.laf.AquaLookAndFeel");
-            // UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-            // UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 
-            log.debug("Look&fiel " + UIManager.getCrossPlatformLookAndFeelClassName());
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            LOG.debug("Look&feel " + UIManager.getCrossPlatformLookAndFeelClassName());
         }
         catch (Exception e)
         {
-            log.error("Could not set Look&fiel !", e);
+            LOG.error("Could not set Look&feel !", e);
         }
     }
 
@@ -92,7 +81,7 @@ public class SarosMainPanelView extends JFrame
     public void create()
     {
 
-        log.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
+        LOG.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
 
         sarosTree = new SarosTreeView(this);
         sarosToolbar = new SarosToolbar(this);

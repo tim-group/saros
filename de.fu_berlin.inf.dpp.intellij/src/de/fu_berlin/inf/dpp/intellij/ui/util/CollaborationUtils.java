@@ -155,12 +155,12 @@ public class CollaborationUtils {
                 // Do not ask when host is alone...
                 reallyLeave = true;
             } else {
-                reallyLeave = DialogUtils.openQuestion(shell,
+                reallyLeave = DialogUtils.showConfirm(shell,
                         Messages.CollaborationUtils_confirm_closing,
                         Messages.CollaborationUtils_confirm_closing_text);
             }
         } else {
-            reallyLeave = DialogUtils.openQuestion(shell,
+            reallyLeave = DialogUtils.showConfirm(shell,
                     Messages.CollaborationUtils_confirm_leaving,
                     Messages.CollaborationUtils_confirm_leaving_text);
         }
@@ -209,10 +209,9 @@ public class CollaborationUtils {
                     return;
                 }
 
-                DialogUtils.popUpFailureMessage(
+                DialogUtils.showError(
                         Messages.CollaborationUtils_insufficient_privileges,
-                        Messages.CollaborationUtils_insufficient_privileges_text,
-                        false);
+                        Messages.CollaborationUtils_insufficient_privileges_text);
             }
         });
     }

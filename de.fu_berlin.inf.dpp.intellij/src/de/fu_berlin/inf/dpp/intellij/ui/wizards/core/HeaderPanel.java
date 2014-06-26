@@ -30,10 +30,6 @@ import java.awt.*;
 /**
  * Class presents default header panel for wizard framework
  *
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 12:50
  */
 
 public class HeaderPanel extends JPanel

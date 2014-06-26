@@ -80,7 +80,7 @@ public class XMPPAuthorizationHandler
     {
 
         boolean accept = DialogUtils
-                .openConfirm(
+                .showConfirm(
                         DialogUtils.getDefaultContainer(),
                         Messages.SubscriptionManager_incoming_subscription_request_title,
                         MessageFormat.format(Messages.SubscriptionManager_incoming_subscription_request_message,

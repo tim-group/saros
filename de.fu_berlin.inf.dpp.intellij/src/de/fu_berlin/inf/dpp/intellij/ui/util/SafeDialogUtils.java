@@ -30,12 +30,8 @@ import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-04-17
- * Time: 16:31
+ * Dialog helper used to show messages in save manner starting it in UI thread
  */
-
 public class SafeDialogUtils
 {
     private static Saros saros = Saros.instance();

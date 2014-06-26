@@ -30,12 +30,6 @@ import java.awt.event.ActionListener;
 /**
  * Default navigation panel creates panel with 3 default buttons
  * BACK, NEXT and CANCEL
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 10:01
  */
 
 public class NavigationPanel extends JPanel

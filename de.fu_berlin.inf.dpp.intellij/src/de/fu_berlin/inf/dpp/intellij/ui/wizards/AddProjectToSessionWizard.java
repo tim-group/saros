@@ -44,8 +44,8 @@ import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileUtil;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
@@ -289,8 +289,8 @@ public class AddProjectToSessionWizard
         }
         catch (IOException e)
         {
-            e.printStackTrace();      //todo
-            DialogUtils.openErrorMessageDialog(wizard.getWizard(), e.getMessage(), "Error");
+            LOG.error(e);
+            DialogUtils.showError(wizard.getWizard(), "Calculation error", "Error while calculating modified resources: " + e.getMessage());
             wizard.close();
 
         }
@@ -393,6 +393,7 @@ public class AddProjectToSessionWizard
         {
             UIMonitoredJob job = new UIMonitoredJob("Calculate resources")
             {
+
                 @Override
                 protected IStatus run(IProgressMonitor monitor)
                 {
@@ -419,19 +420,17 @@ public class AddProjectToSessionWizard
 
             if (cause instanceof CoreException)
             {
-                DialogUtils.openError(getShell(),
-                        "Error computing file list",
+                DialogUtils.showError(getShell(), "Error computing file list",
                         "Could not compute local file list: " + cause.getMessage());
             }
             else
             {
                 DialogUtils
-                        .openError(
+                        .showError(
                                 getShell(),
                                 "Error computing file list",
                                 "Internal error while computing local file list: "
-                                        + (cause == null ? e.getMessage() : cause
-                                        .getMessage())
+                                        + (cause == null ? e.getMessage() : cause.getMessage())
                         );
             }
 

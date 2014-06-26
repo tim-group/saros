@@ -30,11 +30,6 @@ import java.awt.event.ActionListener;
 
 /**
  * General button used to create any common button
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 09.52
  */
 
 public class CommonButton extends ToolbarButton implements ActionListener

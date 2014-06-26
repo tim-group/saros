@@ -204,7 +204,7 @@ public class NegotiationHandler implements INegotiationHandler
                             @Override
                             public void run()
                             {
-                                DialogUtils.openInformationMessageDialog(DialogUtils.getDefaultContainer(), message,
+                                DialogUtils.showInfo(DialogUtils.getDefaultContainer(), message,
                                         Messages.NegotiationHandler_project_sharing_cancelled_text);
                             }
                         });

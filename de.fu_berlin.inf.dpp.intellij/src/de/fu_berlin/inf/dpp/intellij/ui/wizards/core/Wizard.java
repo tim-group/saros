@@ -35,10 +35,6 @@ import java.awt.*;
  * wiz.registerPage();
  * wiz.create();
  *
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 08:01
  */
 
 public class Wizard

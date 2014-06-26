@@ -55,7 +55,7 @@ import java.util.Random;
 public class Saros
 {
 
-    protected static Logger log = Logger.getLogger(Saros.class);
+    protected static Logger LOG = Logger.getLogger(Saros.class);
 
     public static Random RANDOM = new Random();
 
@@ -383,7 +383,7 @@ public class Saros
         }
         catch (Exception e)
         {
-            log.error("internal error while connecting to the XMPP server: "
+            LOG.error("internal error while connecting to the XMPP server: "
                     + e.getMessage(), e);
 
         }

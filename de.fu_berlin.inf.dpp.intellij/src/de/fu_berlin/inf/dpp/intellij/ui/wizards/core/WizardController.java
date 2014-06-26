@@ -26,12 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 08:28
+ * Wizard controller
  */
-
 public class WizardController implements ActionListener
 {
     private Wizard wizard;

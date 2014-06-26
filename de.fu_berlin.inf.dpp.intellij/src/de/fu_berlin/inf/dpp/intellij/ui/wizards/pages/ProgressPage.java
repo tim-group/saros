@@ -31,12 +31,7 @@ import java.awt.*;
 
 /**
  * Standard progress bar panel
- * <p/>
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 13:20
+ *
  */
 
 public class ProgressPage extends AbstractWizardPage

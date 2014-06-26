@@ -30,10 +30,6 @@ import java.awt.*;
 /**
  * Standard information page panel. Creates information page with arbitrary number of paragraphs.
  *
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 2014-05-14
- * Time: 17:19
  */
 
 public class InfoPage extends AbstractWizardPage

@@ -77,7 +77,7 @@ public final class JoinSessionRejectedHandler {
             name = from.getBase();
         }
 
-        DialogUtils.openInformationMessageDialog(DialogUtils.getDefaultContainer(),
+        DialogUtils.showInfo(DialogUtils.getDefaultContainer(),
                 "Join Session Request Rejected",
                 "Your request to join the session of " + name + " was rejected.");
     }

@@ -37,11 +37,6 @@ import java.util.List;
 
 /**
  * Implementation of connect XMPP/jabber server button
- * <p/>
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.21
- * Time: 07.39
  */
 public class ConnectButton extends ToolbarButton implements SarosActionListener
 {
@@ -61,7 +56,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
 
     private void createButton()
     {
-        setIcon("images/btn/connect.png", "Connect");
+        setIcon("icons/elcl16/connect.png", "Connect");
         setActionCommand(ConnectServerAction.NAME);
 
         setToolTipText("Connect to XMPP/jabber server");
@@ -168,7 +163,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
      */
     protected void configureAccounts()
     {
-        log.debug("ConnectButton.actionPerformed CONFIGURE");
+        LOG.debug("ConnectButton.actionPerformed CONFIGURE");
 
         throw new IllegalStateException("Not implemented!");
     }
