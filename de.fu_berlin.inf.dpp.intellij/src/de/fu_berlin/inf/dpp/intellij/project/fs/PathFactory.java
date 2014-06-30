@@ -22,12 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-
-import java.io.File;
 
 /**
  * Created by:  r.kvietkauskas@uniplicity.com

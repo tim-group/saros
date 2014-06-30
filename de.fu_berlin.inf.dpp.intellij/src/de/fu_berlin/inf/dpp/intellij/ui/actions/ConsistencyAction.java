@@ -35,7 +35,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
-import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressFrame;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.observables.ValueChangeListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -235,7 +235,7 @@ public class ConsistencyAction extends AbstractSarosAction
         }
 
 
-        final SarosProgressMonitor progress = new SarosProgressMonitor("Consistency action");
+        final ProgressFrame progress = new ProgressFrame("Consistency action");
         progress.setFinishListener(new MonitorProgressBar.FinishListener()
         {
             @Override

@@ -45,15 +45,18 @@ public class PreferenceStore extends AbstractStore implements IPreferenceStore {
      * @throws IOException
      */
     public PreferenceStore() {
-        this.preferenceMap = new Properties();
-        load();
+        try {
+            this.preferenceMap = new Properties();
+            load();
+        } catch (IOException e) {
+            LOG.error("Could not load preferences");
+        }
     }
 
     @Override
     protected String getFileName() {
         return FILE_NAME;
     }
-
 
     @Override
     protected String encode(String text) {

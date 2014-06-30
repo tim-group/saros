@@ -23,7 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.core.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.util.ByteHexUtil;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -35,9 +36,8 @@ import java.util.Properties;
 /**
  * Abstract IntelliJ preference store
  */
-public abstract class AbstractStore implements IPreferenceStore
-{
-    protected final Logger LOG = Logger.getLogger(AbstractStore.class);
+public abstract class AbstractStore implements IPreferenceStore {
+    protected final static Logger LOG = Logger.getLogger(AbstractStore.class);
     protected Properties preferenceMap;
 
     protected abstract String getFileName();
@@ -49,8 +49,7 @@ public abstract class AbstractStore implements IPreferenceStore
     /**
      * @throws java.io.IOException
      */
-    public void save() throws IOException
-    {
+    public void save() throws IOException {
         File propFile = new File(getFileName());
         LOG.info("Saving properties [" + propFile.getAbsolutePath() + "]");
 
@@ -65,23 +64,14 @@ public abstract class AbstractStore implements IPreferenceStore
      *
      * @throws IOException
      */
-    public void load()
-    {
+    public void load() throws IOException {
         File propFile = new File(getFileName());
         LOG.info("Loading properties [" + propFile.getAbsolutePath() + "]");
 
-        if (propFile.exists())
-        {
-            try
-            {
-                FileInputStream fis = new FileInputStream(propFile);
-                preferenceMap.loadFromXML(fis);
-                fis.close();
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+        if (propFile.exists()) {
+            FileInputStream fis = new FileInputStream(propFile);
+            preferenceMap.loadFromXML(fis);
+            fis.close();
         }
     }
 
@@ -90,19 +80,25 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param defValue
      * @return
      */
-    public byte[] getByteArray(String key, byte[] defValue)
-    {
+    public byte[] getByteArray(String key, byte[] defValue) {
         String value = getString(key);
 
-        return value == null ? defValue : ByteHexUtil.hexToByte(value);
+        try {
+            return value == null ?
+                defValue :
+                Hex.decodeHex(value.toCharArray());
+        } catch (DecoderException e) {
+            LOG.error("Could not decode value", e);
+
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * @param key
      * @return
      */
-    public byte[] getByteArray(String key)
-    {
+    public byte[] getByteArray(String key) {
         return getByteArray(key, null);
     }
 
@@ -110,9 +106,8 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @param value
      */
-    public void putByteArray(String key, byte[] value)
-    {
-        putString(key, ByteHexUtil.byteToHex(value));
+    public void putByteArray(String key, byte[] value) {
+        putString(key, new String(Hex.encodeHex(value)));
     }
 
     /**
@@ -120,8 +115,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param defValue
      * @return
      */
-    public boolean getBoolean(String key, boolean defValue)
-    {
+    public boolean getBoolean(String key, boolean defValue) {
         String value = getString(key, Boolean.valueOf(defValue).toString());
         return Boolean.parseBoolean(value);
     }
@@ -130,8 +124,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @return
      */
-    public boolean getBoolean(String key)
-    {
+    public boolean getBoolean(String key) {
         String value = getString(key);
         return value != null && Boolean.parseBoolean(value);
     }
@@ -140,8 +133,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @param value
      */
-    public void putBoolean(String key, boolean value)
-    {
+    public void putBoolean(String key, boolean value) {
         putString(key, Boolean.toString(value));
     }
 
@@ -149,8 +141,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @return
      */
-    public int getInt(String key)
-    {
+    public int getInt(String key) {
         String value = getString(key);
         return value == null || value.isEmpty() ? -1 : Integer.parseInt(value);
     }
@@ -159,8 +150,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @param value
      */
-    public void putInt(String key, int value)
-    {
+    public void putInt(String key, int value) {
         putString(key, Integer.toString(value));
     }
 
@@ -168,8 +158,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @return
      */
-    public String getString(String key)
-    {
+    public String getString(String key) {
         return decode(preferenceMap.getProperty(key));
     }
 
@@ -178,8 +167,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param defValue
      * @return
      */
-    public String getString(String key, String defValue)
-    {
+    public String getString(String key, String defValue) {
         return decode(preferenceMap.getProperty(key, defValue));
     }
 
@@ -187,8 +175,7 @@ public abstract class AbstractStore implements IPreferenceStore
      * @param key
      * @param value
      */
-    public void putString(String key, String value)
-    {
+    public void putString(String key, String value) {
         preferenceMap.setProperty(key, encode(value));
     }
 
@@ -197,8 +184,7 @@ public abstract class AbstractStore implements IPreferenceStore
      *
      * @throws IOException
      */
-    public void flush() throws IOException
-    {
+    public void flush() throws IOException {
         preferenceMap = new Properties();
     }
 }

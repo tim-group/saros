@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.runtime;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
-import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.SarosProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressFrame;
 
 /**
  * Class designed to start long lasting job with progress indicator
@@ -39,7 +39,7 @@ public abstract class UIMonitoredJob extends Thread
         super(name);
         if (monitor == null)
         {
-            this.monitor = new SarosProgressMonitor();
+            this.monitor = new ProgressFrame();
         }
         else
         {
@@ -55,7 +55,7 @@ public abstract class UIMonitoredJob extends Thread
     public UIMonitoredJob(final String name)
     {
         super(name);
-        monitor = new SarosProgressMonitor();
+        monitor = new ProgressFrame();
         monitor.setTaskName(name);
 
 

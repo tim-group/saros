@@ -40,8 +40,6 @@ public class AboutSarosHandler extends AbstractMenuHandler
     {
 
         Application app = ApplicationManager.getApplication();
-        SarosComponent saros = app.getComponent(SarosComponent.class);
-
 
         Project project = e.getData(PlatformDataKeys.PROJECT);
 

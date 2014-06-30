@@ -33,7 +33,7 @@ import java.awt.event.ActionListener;
  * Creates independent progress monitor window
  */
 //todo: use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
-public class SarosProgressMonitor extends MonitorProgressBar
+public class ProgressFrame extends MonitorProgressBar
         implements IProgressMonitor
 {
 
@@ -48,7 +48,7 @@ public class SarosProgressMonitor extends MonitorProgressBar
     /**
      * Constructor with default title
      */
-    public SarosProgressMonitor()
+    public ProgressFrame()
     {
         this(TITLE);
     }
@@ -58,7 +58,7 @@ public class SarosProgressMonitor extends MonitorProgressBar
      *
      * @param title dialog title
      */
-    public SarosProgressMonitor(String title)
+    public ProgressFrame(String title)
     {
         frmMain = new JFrame(title);
         frmMain.setSize(300, 160);
