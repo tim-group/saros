@@ -20,11 +20,12 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core.store;
+package de.fu_berlin.inf.dpp.intellij.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -34,29 +35,55 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Abstract IntelliJ preference store
+ * IntelliJ preference store
  */
-public abstract class AbstractStore implements IPreferenceStore {
-    protected final static Logger LOG = Logger.getLogger(AbstractStore.class);
-    protected Properties preferenceMap;
+public class PreferenceStore implements IPreferenceStore {
+    private static final Logger LOG = Logger.getLogger(PreferenceStore.class);
 
-    protected abstract String getFileName();
+    public static final String FILE_NAME = "saros_properties.properties";
 
-    protected abstract String encode(String text);
+    private Properties preferenceMap;
 
-    protected abstract String decode(String text);
+    /**
+     * Creates a new preference store form preferenceMap
+     *
+     * @param preferenceMap
+     */
+    public PreferenceStore(Properties preferenceMap) {
+        this.preferenceMap = preferenceMap;
+    }
+
+    /**
+     * Creates a new PreferenceStore and loads preferences from {#FILE_NAME}.
+     */
+    public PreferenceStore() {
+        try {
+            this.preferenceMap = new Properties();
+            load();
+        } catch (IOException e) {
+            LOG.error("could not load preferences", e);
+        }
+    }
 
     /**
      * @throws java.io.IOException
      */
     public void save() throws IOException {
-        File propFile = new File(getFileName());
+        File propFile = new File(FILE_NAME);
         LOG.info("Saving properties [" + propFile.getAbsolutePath() + "]");
 
-        FileOutputStream fos = new FileOutputStream(propFile);
-        preferenceMap.storeToXML(fos, "Saros properties", "UTF-8");
-        fos.flush();
-        fos.close();
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(propFile);
+            preferenceMap.store(fos, "Saros properties");
+            fos.flush();
+            fos.close();
+        } finally {
+            if (fos != null) {
+                IOUtils.closeQuietly(fos);
+            }
+        }
     }
 
     /**
@@ -65,126 +92,79 @@ public abstract class AbstractStore implements IPreferenceStore {
      * @throws IOException
      */
     public void load() throws IOException {
-        File propFile = new File(getFileName());
+        File propFile = new File(FILE_NAME);
         LOG.info("Loading properties [" + propFile.getAbsolutePath() + "]");
 
         if (propFile.exists()) {
-            FileInputStream fis = new FileInputStream(propFile);
-            preferenceMap.loadFromXML(fis);
-            fis.close();
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(propFile);
+                preferenceMap.load(fis);
+                fis.close();
+            } finally {
+                IOUtils.closeQuietly(fis);
+            }
         }
     }
 
-    /**
-     * @param key
-     * @param defValue
-     * @return
-     */
     public byte[] getByteArray(String key, byte[] defValue) {
         String value = getString(key);
 
         try {
             return value == null ?
-                defValue :
-                Hex.decodeHex(value.toCharArray());
+                    defValue :
+                    Hex.decodeHex(value.toCharArray());
         } catch (DecoderException e) {
             LOG.error("Could not decode value", e);
-
-            throw new RuntimeException(e);
+            return defValue;
         }
     }
 
-    /**
-     * @param key
-     * @return
-     */
-    public byte[] getByteArray(String key) {
-        return getByteArray(key, null);
-    }
-
-    /**
-     * @param key
-     * @param value
-     */
-    public void setValue(String key, byte[] value) {
-        setValue(key, new String(Hex.encodeHex(value)));
-    }
-
-    /**
-     * @param key
-     * @param defValue
-     * @return
-     */
     public boolean getBoolean(String key, boolean defValue) {
         String value = getString(key, Boolean.valueOf(defValue).toString());
         return Boolean.parseBoolean(value);
     }
 
-    /**
-     * @param key
-     * @return
-     */
     public boolean getBoolean(String key) {
         String value = getString(key);
-        return value != null && Boolean.parseBoolean(value);
+        return value == null ? BOOLEAN_DEFAULT_DEFAULT : Boolean.valueOf(value)
+                .booleanValue();
     }
 
-    /**
-     * @param key
-     * @param value
-     */
     public void setValue(String key, boolean value) {
         setValue(key, Boolean.toString(value));
     }
 
-    /**
-     * @param key
-     * @return
-     */
     public int getInt(String key) {
         String value = getString(key);
-        return value == null || value.isEmpty() ? -1 : Integer.parseInt(value);
+        if (value == null) {
+            return INT_DEFAULT_DEFAULT;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return INT_DEFAULT_DEFAULT;
+        }
     }
 
-    /**
-     * @param key
-     * @param value
-     */
-    public void putInt(String key, int value) {
+    public void setValue(String key, int value) {
         setValue(key, Integer.toString(value));
     }
 
-    /**
-     * @param key
-     * @return
-     */
     public String getString(String key) {
-        return decode(preferenceMap.getProperty(key));
+        String value = preferenceMap.getProperty(key);
+        return value == null ? STRING_DEFAULT_DEFAULT : value;
     }
 
-    /**
-     * @param key
-     * @param defValue
-     * @return
-     */
     public String getString(String key, String defValue) {
-        return decode(preferenceMap.getProperty(key, defValue));
+        return preferenceMap.getProperty(key, defValue);
     }
 
-    /**
-     * @param key
-     * @param value
-     */
     public void setValue(String key, String value) {
-        preferenceMap.setProperty(key, encode(value));
+        preferenceMap.setProperty(key, value);
     }
 
-    /**
-     * Removes all data from memory
-     *
-     * @throws IOException
-     */
-    public void flush() throws IOException {
-        preferenceMap = new Properties();
+    public void setValue(String key, byte[] value) {
+        setValue(key, new String(Hex.encodeHex(value)));
     }
 }

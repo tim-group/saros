@@ -1,15 +1,23 @@
 package de.fu_berlin.inf.dpp.core.preferences;
 
+public interface IPreferenceStore {
 
+    /**
+     * The default-default value for boolean preferences (<code>false</code>).
+     */
+    public static final boolean BOOLEAN_DEFAULT_DEFAULT = false;
 
-import java.io.IOException;
+    /**
+     * The default-default value for int preferences (<code>0</code>).
+     */
+    public static final int INT_DEFAULT_DEFAULT = 0;
 
+    /**
+     * The default-default value for String preferences (<code>""</code>).
+     */
+    public static final String STRING_DEFAULT_DEFAULT = ""; //$NON-NLS-1$
 
-public interface IPreferenceStore
-{
-    void flush() throws IOException;
-
-    byte[] getByteArray(String key, byte[] value) ;
+    byte[] getByteArray(String key, byte[] value);
 
     boolean getBoolean(String key, boolean value);
 
@@ -26,5 +34,7 @@ public interface IPreferenceStore
     void setValue(String key, byte[] value);
 
     void setValue(String key, String value);
+
+    void setValue(String key, int value);
 
 }

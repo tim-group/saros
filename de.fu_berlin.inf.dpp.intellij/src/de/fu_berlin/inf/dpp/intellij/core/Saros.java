@@ -33,7 +33,7 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.core.store.PreferenceStore;
+import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
