@@ -172,9 +172,9 @@ public class PreferenceUtils {
                 .getBoolean(PreferenceConstants.DISABLE_VERSION_CONTROL);
     }
 
-    public void setUseVersionControl(boolean value) {
-        preferenceStore
-                .setValue(PreferenceConstants.DISABLE_VERSION_CONTROL, !value);
+    public void setUseVersionControl(boolean value)
+    {
+        preferenceStore.setValue(PreferenceConstants.DISABLE_VERSION_CONTROL, !value);
     }
 
     public boolean isLocalSOCKS5ProxyEnabled() {
