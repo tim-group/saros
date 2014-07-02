@@ -1,12 +1,10 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
-
 import de.fu_berlin.inf.dpp.util.CoreUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-// TODO java doc
+//TODO: clean up SonarQube comments when moving class to core
 public class CreateArchiveTask implements IWorkspaceRunnable {
 
     private static final int BUFFER_SIZE = 32 * 1024;
@@ -29,6 +27,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
     private final List<IFile> files;
     private final List<String> alias;
     private final IProgressMonitor monitor;
+    private int lastWorked = 0;
 
     public CreateArchiveTask(final File archive, final List<IFile> files,
                              final List<String> alias, final IProgressMonitor monitor) {
@@ -38,6 +37,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         this.monitor = monitor;
     }
 
+    @Override
     public void run(IProgressMonitor monitor) throws IOException {
         if (this.monitor != null)
             monitor = this.monitor;
@@ -47,7 +47,6 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         long totalSize = 0L;
 
         for (IFile file : files) {
-
 
             IPath fileSystemPath = file.getLocation();
 
@@ -59,8 +58,8 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         stopWatch.start();
 
         final Iterator<IFile> fileIt = files.iterator();
-        final Iterator<String> aliasIt = alias == null ? null : alias
-                .iterator();
+        final Iterator<String> aliasIt =
+                alias == null ? null : alias.iterator();
 
         long totalRead = 0L;
 
@@ -73,8 +72,10 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         monitor.beginTask("Compressing files...", 100 /* percent */);
 
         try {
-            zipStream = new ZipOutputStream(new BufferedOutputStream(
-                    new FileOutputStream(archive), BUFFER_SIZE));
+            zipStream = new ZipOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(archive),
+                            BUFFER_SIZE)
+            );
 
             while (fileIt.hasNext()) {
 
@@ -133,8 +134,8 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
         } finally {
             IOUtils.closeQuietly(zipStream);
-            if (cleanup && archive != null && archive.exists()
-                    && !archive.delete())
+            if (cleanup && archive != null && archive.exists() && !archive
+                    .delete())
                 LOG.warn("could not delete archive file: " + archive);
 
             monitor.done();
@@ -142,13 +143,11 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
         stopWatch.stop();
 
-        LOG.debug(String.format("created archive %s I/O: [%s]",
-                archive.getAbsolutePath(),
-                CoreUtils.throughput(archive.length(), stopWatch.getTime())));
+        LOG.debug(String
+                .format("created archive %s I/O: [%s]", archive.getAbsolutePath(),
+                        CoreUtils.throughput(archive.length(), stopWatch.getTime())));
 
     }
-
-    private int lastWorked = 0;
 
     private void updateMonitor(IProgressMonitor monitor, long totalRead,
                                long totalSize) {

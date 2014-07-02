@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.invitation;
 
-
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
@@ -37,6 +36,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+//TODO: Clean up when movin eclipse class to core
 public class DecompressArchiveTask implements IWorkspaceRunnable {
 
     private static final Logger LOG = Logger
@@ -75,9 +75,11 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
      * better response if there exists big files in the archive
      */
     @Override
-    public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
-        if (this.monitor != null)
+    public void run(IProgressMonitor monitor)
+            throws OperationCanceledException, IOException {
+        if (this.monitor != null) {
             monitor = this.monitor;
+        }
 
         ZipFile zipFile = null;
 
@@ -85,18 +87,19 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
 
             zipFile = new ZipFile(file);
 
-            ISubMonitor subMonitor = monitor.convert(
-                    "Unpacking archive file to workspace", zipFile.size());
+            ISubMonitor subMonitor = monitor
+                    .convert("Unpacking archive file to workspace", zipFile.size());
 
-            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries
-                    .hasMoreElements(); ) {
+            for (Enumeration<? extends ZipEntry> entries = zipFile
+                    .entries(); entries.hasMoreElements(); ) {
 
                 final ZipEntry entry = entries.nextElement();
 
                 final String entryName = entry.getName();
 
-                if (subMonitor.isCanceled())
+                if (subMonitor.isCanceled()) {
                     throw new OperationCanceledException();
+                }
 
                 final int delimiterIdx = entry.getName().indexOf(delimiter);
 
@@ -110,7 +113,8 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
 
                 final String id = entryName.substring(0, delimiterIdx);
 
-                final String path = entryName.substring(delimiterIdx + 1, entryName.length());
+                final String path = entryName
+                        .substring(delimiterIdx + 1, entryName.length());
 
                 final IProject project = idToProjectMapping.get(id);
 
@@ -134,13 +138,15 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
 
                 final InputStream in = zipFile.getInputStream(entry);
 
-                if (!file.exists())
+                if (!file.exists()) {
                     file.create(in, true);
-                else
+                } else {
                     file.setContents(in, true, true);
+                }
 
-                if (LOG.isTraceEnabled())
+                if (LOG.isTraceEnabled()) {
                     LOG.trace("file written to disk: " + path);
+                }
             }
 
         } catch (IOException e) {
@@ -151,11 +157,15 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
             monitor.subTask("");
 
             try {
-                if (zipFile != null)
+                if (zipFile != null) {
                     zipFile.close();
+                }
             } catch (IOException e) {
-                LOG.warn("failed to close zip file " + zipFile.getName()
-                        + " : " + e.getMessage());
+                LOG.warn(
+                        "failed to close zip file " + zipFile.getName() + " : " + e
+                                .getMessage()
+                );
+                throw e;
             }
 
             monitor.done();
@@ -168,8 +178,9 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
         IContainer parent = file.getParent();
 
         while (parent != null && parent.getType() == IResource.FOLDER) {
-            if (parent.exists())
+            if (parent.exists()) {
                 break;
+            }
 
             parents.add((IFolder) parent);
             parent = parent.getParent();
@@ -177,7 +188,8 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
 
         Collections.reverse(parents);
 
-        for (IFolder folder : parents)
+        for (IFolder folder : parents) {
             folder.create(false, true);
+        }
     }
 }
