@@ -23,8 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.store;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -107,36 +105,9 @@ public class PreferenceStore implements IPreferenceStore {
         }
     }
 
-    public byte[] getByteArray(String key, byte[] defValue) {
-        String value = getString(key);
-
-        try {
-            return value == null ?
-                    defValue :
-                    Hex.decodeHex(value.toCharArray());
-        } catch (DecoderException e) {
-            LOG.error("Could not decode value", e);
-            return defValue;
-        }
-    }
-
-    public boolean getBoolean(String key, boolean defValue) {
-        String value = getString(key, Boolean.valueOf(defValue).toString());
-        return Boolean.parseBoolean(value);
-    }
-
-    public boolean getBoolean(String key) {
-        String value = getString(key);
-        return value == null ? BOOLEAN_DEFAULT_DEFAULT : Boolean.valueOf(value)
-                .booleanValue();
-    }
-
-    public void setValue(String key, boolean value) {
-        setValue(key, Boolean.toString(value));
-    }
-
+    @Override
     public int getInt(String key) {
-        String value = getString(key);
+        String value = preferenceMap.getProperty(key);
         if (value == null) {
             return INT_DEFAULT_DEFAULT;
         }
@@ -147,24 +118,30 @@ public class PreferenceStore implements IPreferenceStore {
         }
     }
 
-    public void setValue(String key, int value) {
-        setValue(key, Integer.toString(value));
+    @Override
+    public boolean getBoolean(String key) {
+        String value = preferenceMap.getProperty(key);
+        return value == null ? BOOLEAN_DEFAULT_DEFAULT : Boolean.valueOf(value);
     }
 
+    @Override
     public String getString(String key) {
         String value = preferenceMap.getProperty(key);
         return value == null ? STRING_DEFAULT_DEFAULT : value;
     }
 
-    public String getString(String key, String defValue) {
-        return preferenceMap.getProperty(key, defValue);
+    @Override
+    public void setValue(String key, int value) {
+        setValue(key, Integer.toString(value));
     }
 
+    @Override
+    public void setValue(String key, boolean value) {
+        setValue(key, Boolean.toString(value));
+    }
+
+    @Override
     public void setValue(String key, String value) {
         preferenceMap.setProperty(key, value);
-    }
-
-    public void setValue(String key, byte[] value) {
-        setValue(key, new String(Hex.encodeHex(value)));
     }
 }

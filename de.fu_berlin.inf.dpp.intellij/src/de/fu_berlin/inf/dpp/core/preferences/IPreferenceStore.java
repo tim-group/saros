@@ -17,24 +17,16 @@ public interface IPreferenceStore {
      */
     public static final String STRING_DEFAULT_DEFAULT = ""; //$NON-NLS-1$
 
-    byte[] getByteArray(String key, byte[] value);
-
-    boolean getBoolean(String key, boolean value);
-
-    String getString(String key, String value);
-
     int getInt(String value);
 
     boolean getBoolean(String key);
 
     String getString(String key);
 
+    void setValue(String key, int value);
+
     void setValue(String key, boolean value);
 
-    void setValue(String key, byte[] value);
-
     void setValue(String key, String value);
-
-    void setValue(String key, int value);
 
 }
