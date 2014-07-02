@@ -67,7 +67,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
     private final Component[] components = new Component[]{
 
 
-            Component.create(SarosSessionManager.class),
             Component.create(ISarosSessionManager.class, SarosSessionManager.class),
             Component.create(IntelliJUIHelper.class),
             // Core Managers
@@ -76,8 +75,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
             Component.create(EditorAPI.class),
 
             Component.create(EditorManager.class),
-
-            Component.create(Container.class),
 
             // UI handlers
             Component.create(NegotiationHandler.class),
