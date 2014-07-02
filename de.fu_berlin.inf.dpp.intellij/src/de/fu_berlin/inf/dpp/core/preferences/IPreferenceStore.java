@@ -21,10 +21,10 @@ public interface IPreferenceStore
 
     String getString(String key);
 
-    void putBoolean(String key, boolean value);
+    void setValue(String key, boolean value);
 
-    void putByteArray(String key, byte[] value);
+    void setValue(String key, byte[] value);
 
-    void putString(String key, String value);
+    void setValue(String key, String value);
 
 }

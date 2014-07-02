@@ -2,7 +2,6 @@ package de.fu_berlin.inf.dpp.intellij.project;
 
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -34,14 +33,11 @@ public class CreateProjectTask implements IWorkspaceRunnable {
      *                {@link #run(IProgressMonitor)} method
      */
     public CreateProjectTask(String name, IProject base,
-                             IProgressMonitor monitor) {
+                             IProgressMonitor monitor, IWorkspace workspace) {
 
         this.name = name;
         this.base = base;
         this.monitor = monitor;
-    }
-
-    public void setWorkspace(IWorkspace workspace) {
         this.workspace = workspace;
     }
 

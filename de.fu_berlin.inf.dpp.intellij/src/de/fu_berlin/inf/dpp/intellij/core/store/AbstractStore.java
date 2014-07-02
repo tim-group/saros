@@ -106,8 +106,8 @@ public abstract class AbstractStore implements IPreferenceStore {
      * @param key
      * @param value
      */
-    public void putByteArray(String key, byte[] value) {
-        putString(key, new String(Hex.encodeHex(value)));
+    public void setValue(String key, byte[] value) {
+        setValue(key, new String(Hex.encodeHex(value)));
     }
 
     /**
@@ -133,8 +133,8 @@ public abstract class AbstractStore implements IPreferenceStore {
      * @param key
      * @param value
      */
-    public void putBoolean(String key, boolean value) {
-        putString(key, Boolean.toString(value));
+    public void setValue(String key, boolean value) {
+        setValue(key, Boolean.toString(value));
     }
 
     /**
@@ -151,7 +151,7 @@ public abstract class AbstractStore implements IPreferenceStore {
      * @param value
      */
     public void putInt(String key, int value) {
-        putString(key, Integer.toString(value));
+        setValue(key, Integer.toString(value));
     }
 
     /**
@@ -175,7 +175,7 @@ public abstract class AbstractStore implements IPreferenceStore {
      * @param key
      * @param value
      */
-    public void putString(String key, String value) {
+    public void setValue(String key, String value) {
         preferenceMap.setProperty(key, encode(value));
     }
 
