@@ -34,33 +34,20 @@ public abstract class UIMonitoredJob extends Thread
 
     private IProgressMonitor monitor;
 
-    public UIMonitoredJob(String name, IProgressMonitor monitor)
-    {
+    public UIMonitoredJob(String name, IProgressMonitor monitor) {
+
         super(name);
-        if (monitor == null)
-        {
+        if (monitor == null) {
             this.monitor = new ProgressFrame();
-        }
-        else
-        {
+        } else {
             this.monitor = monitor;
         }
+        this.monitor.setTaskName(name);
     }
 
-    /**
-     * Creates job with named progress window
-     *
-     * @param name progress window name
-     */
-    public UIMonitoredJob(final String name)
-    {
-        super(name);
-        monitor = new ProgressFrame();
-        monitor.setTaskName(name);
-
-
+    public UIMonitoredJob(final String name) {
+        this(name, null);
     }
-
 
     public void schedule()
     {
