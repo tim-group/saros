@@ -22,7 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.colorstorage;
 
-import java.awt.*;
+import com.intellij.ui.JBColor;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,15 +39,15 @@ public class ColorManager
 
     public ColorManager()
     {
-
-        colorMapDefault.put(0, new ColorModel(Color.RED));
-        colorMapDefault.put(1, new ColorModel(Color.BLUE));
-        colorMapDefault.put(3, new ColorModel(Color.GREEN));
-        colorMapDefault.put(4, new ColorModel(Color.cyan));
-        colorMapDefault.put(5, new ColorModel(Color.MAGENTA));
-        colorMapDefault.put(6, new ColorModel(Color.ORANGE));
-        colorMapDefault.put(7, new ColorModel(Color.PINK));
-        colorMapDefault.put(8, new ColorModel(Color.YELLOW));
+        //TODO: what about making the selection color a bit ligher than the edit color?
+        colorMapDefault.put(0, new ColorModel(JBColor.RED, JBColor.RED));
+        colorMapDefault.put(1, new ColorModel(JBColor.BLUE, JBColor.BLUE));
+        colorMapDefault.put(3, new ColorModel(JBColor.GREEN, JBColor.GREEN));
+        colorMapDefault.put(4, new ColorModel(JBColor.CYAN, JBColor.CYAN));
+        colorMapDefault.put(5, new ColorModel(JBColor.MAGENTA, JBColor.MAGENTA));
+        colorMapDefault.put(6, new ColorModel(JBColor.ORANGE, JBColor.ORANGE));
+        colorMapDefault.put(7, new ColorModel(JBColor.PINK, JBColor.PINK));
+        colorMapDefault.put(8, new ColorModel(JBColor.YELLOW, JBColor.YELLOW));
     }
 
     public ColorModel getColorModel(int userId)
@@ -55,17 +56,9 @@ public class ColorManager
 
         if (color == null)
         {
-            //get random id
-            int id = (int) ((colorMapDefault.size()) * Math.random());
-            color = colorMapDefault.get(id);
-            if (color == null)
-            {
-                color = new ColorModel();
-            }
-            else
-            {
-                colorMapDefault.remove(id);
-            }
+            //assign random default color
+            int random_color = (int) ((colorMapDefault.size()) * Math.random());
+            color = colorMapDefault.remove(random_color);
             colorMap.put(userId, color);
         }
         return color;

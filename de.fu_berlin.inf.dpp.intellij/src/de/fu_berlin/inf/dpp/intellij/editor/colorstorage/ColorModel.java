@@ -29,61 +29,29 @@ import java.awt.*;
 /**
  * Intellij color model
  */
-//todo: temporary implementation to provide random color
-public class ColorModel
-{
-    public static final int delta = 50;
-    public static final int max = 255;
-    public static final int max_auto = 200;
-
+public class ColorModel {
     private Color selectColor;
     private Color editColor;
     private RangeHighlighter select;
 
-    public ColorModel(Color editColor, Color selectColor)
-    {
+    public ColorModel(Color editColor, Color selectColor) {
         this.selectColor = selectColor;
         this.editColor = editColor;
     }
 
-    public ColorModel(Color editColor)
-    {
-        this.editColor = editColor;
-        int red = editColor.getRed() + delta;
-        red = red > max ? max : red;
-
-        int green = editColor.getGreen() + delta;
-        green = green > max ? max : green;
-
-        int blue = editColor.getBlue() + delta;
-        blue = blue > max ? max : blue;
-
-        this.selectColor = new Color(red, green, blue);
-    }
-
-    public ColorModel()
-    {
-        this(new Color(((int) (max_auto * Math.random())), ((int) (max_auto * Math.random())), ((int) (max_auto * Math.random()))));
-    }
-
-
-    public Color getSelectColor()
-    {
+    public Color getSelectColor() {
         return selectColor;
     }
 
-    public Color getEditColor()
-    {
+    public Color getEditColor() {
         return editColor;
     }
 
-    public RangeHighlighter getSelect()
-    {
+    public RangeHighlighter getSelect() {
         return select;
     }
 
-    public void setSelect(RangeHighlighter select)
-    {
+    public void setSelect(RangeHighlighter select) {
         this.select = select;
     }
 }
