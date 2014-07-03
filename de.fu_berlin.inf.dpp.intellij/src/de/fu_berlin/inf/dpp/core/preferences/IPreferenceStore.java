@@ -5,17 +5,17 @@ public interface IPreferenceStore {
     /**
      * The default-default value for boolean preferences (<code>false</code>).
      */
-    public static final boolean BOOLEAN_DEFAULT_DEFAULT = false;
+    public static final boolean DEFAULT_BOOLEAN = false;
 
     /**
      * The default-default value for int preferences (<code>0</code>).
      */
-    public static final int INT_DEFAULT_DEFAULT = 0;
+    public static final int DEFAULT_INT = 0;
 
     /**
      * The default-default value for String preferences (<code>""</code>).
      */
-    public static final String STRING_DEFAULT_DEFAULT = ""; //$NON-NLS-1$
+    public static final String DEFAULT_STRING = "";
 
     int getInt(String value);
 
