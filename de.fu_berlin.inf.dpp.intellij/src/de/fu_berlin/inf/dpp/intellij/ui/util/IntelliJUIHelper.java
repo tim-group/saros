@@ -22,16 +22,19 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
+import org.apache.log4j.Logger;
+
 /**
  *  Class should use IntelliJ API to show notifications
  */
 //todo: make implementation
 public class IntelliJUIHelper
 {
+    private static final Logger LOG = Logger.getLogger(IntelliJUIHelper.class);
 
     public static void showNotification(String message, String title)
     {
-         //todo: implement it
+        LOG.info("Notification: " + title + ", " + message);
     }
 
     public static void clearNotifications()
