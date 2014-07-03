@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import org.apache.log4j.Logger;
 
@@ -34,8 +34,7 @@ import java.util.List;
  * Parent class for all Saros actions
  */
 
-public abstract class AbstractSarosAction implements ISarosAction
-{
+public abstract class AbstractSarosAction implements ISarosAction {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
     protected Saros saros = Saros.instance();
@@ -44,20 +43,16 @@ public abstract class AbstractSarosAction implements ISarosAction
     private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
     private List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
-    protected AbstractSarosAction()
-    {
+    protected AbstractSarosAction() {
 
     }
 
-    protected void actionStarted()
-    {
+    protected void actionStarted() {
         LOG.info("Action started [" + this.getActionName() + "]");
 
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
-        for (SarosActionListener actionListener : list)
-        {
-            if (actionListener == null)
-            {
+        for (SarosActionListener actionListener : list) {
+            if (actionListener == null) {
                 continue;
             }
 
@@ -65,15 +60,12 @@ public abstract class AbstractSarosAction implements ISarosAction
         }
     }
 
-    protected void actionFinished()
-    {
+    protected void actionFinished() {
         LOG.info("Action finished [" + this.getActionName() + "]");
 
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
-        for (SarosActionListener actionListener : list)
-        {
-            if (actionListener == null)
-            {
+        for (SarosActionListener actionListener : list) {
+            if (actionListener == null) {
                 continue;
             }
 
@@ -81,58 +73,48 @@ public abstract class AbstractSarosAction implements ISarosAction
         }
     }
 
-    protected void refreshAll()
-    {
+    protected void refreshAll() {
         final List<UIRefreshListener> list = new ArrayList<UIRefreshListener>(refreshListeners);
-        for (UIRefreshListener refreshListener : list)
-        {
+        for (UIRefreshListener refreshListener : list) {
             refreshListener.refresh(this);
         }
     }
 
     @Override
-    public void removeAllActionListeners()
-    {
+    public void removeAllActionListeners() {
         actionListeners.clear();
     }
 
     @Override
-    public void removeActionListener(SarosActionListener actionListener)
-    {
+    public void removeActionListener(SarosActionListener actionListener) {
         actionListeners.remove(actionListener);
     }
 
     @Override
-    public void addActionListener(SarosActionListener actionListener)
-    {
-        if (actionListener != null)
-        {
+    public void addActionListener(SarosActionListener actionListener) {
+        if (actionListener != null) {
             actionListeners.add(actionListener);
         }
 
     }
 
     @Override
-    public void removeAllRefreshListeners()
-    {
+    public void removeAllRefreshListeners() {
         refreshListeners.clear();
     }
 
 
     @Override
-    public void addRefreshListener(UIRefreshListener refreshListener)
-    {
+    public void addRefreshListener(UIRefreshListener refreshListener) {
         refreshListeners.add(refreshListener);
     }
 
     @Override
-    public void removeRefreshListener(UIRefreshListener refreshListener)
-    {
+    public void removeRefreshListener(UIRefreshListener refreshListener) {
         refreshListeners.remove(refreshListener);
     }
 
-    public void setGuiFrame(Container guiFrame)
-    {
+    public void setGuiFrame(Container guiFrame) {
         this.guiFrame = guiFrame;
     }
 }

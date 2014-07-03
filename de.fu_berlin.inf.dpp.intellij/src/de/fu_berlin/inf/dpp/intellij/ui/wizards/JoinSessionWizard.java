@@ -31,16 +31,16 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
-import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
+import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
@@ -56,8 +56,7 @@ import java.text.MessageFormat;
  * more nicely: Long-Running Operation after each step, cancellation by a remote
  * party, auto-advance.
  */
-public class JoinSessionWizard
-{
+public class JoinSessionWizard {
     public static final String PAGE_INFO_ID = "JoinSessionInfo";
     public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
 
@@ -75,23 +74,19 @@ public class JoinSessionWizard
     private ProgressPage progressPage;
     private Wizard wizard;
 
-    private PageActionListener actionListener = new PageActionListener()
-    {
+    private PageActionListener actionListener = new PageActionListener() {
         @Override
-        public void back()
-        {
+        public void back() {
 
         }
 
         @Override
-        public void next()
-        {
+        public void next() {
             performFinish();
         }
 
         @Override
-        public void cancel()
-        {
+        public void cancel() {
             performCancel();
         }
     };
@@ -101,8 +96,7 @@ public class JoinSessionWizard
      *
      * @param process
      */
-    public JoinSessionWizard(IncomingSessionNegotiation process)
-    {
+    public JoinSessionWizard(IncomingSessionNegotiation process) {
         this.process = process;
 
         wizard = new Wizard(Messages.JoinSessionWizard_title);
@@ -126,23 +120,18 @@ public class JoinSessionWizard
     }
 
 
-    public boolean performFinish()
-    {
+    public boolean performFinish() {
 
         accepted = true;
 
-        try
-        {
+        try {
 
-            ThreadUtils.runSafeAsync(LOG, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     IProgressMonitor progress = progressPage.getProgressMonitor(true, true);
                     invitationStatus = process.accept(progress);
-                    switch (invitationStatus)
-                    {
+                    switch (invitationStatus) {
                         case OK:
                             break;
                         case CANCEL:
@@ -160,13 +149,10 @@ public class JoinSessionWizard
                 }
             });
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Throwable cause = e.getCause();
 
-            if (cause == null)
-            {
+            if (cause == null) {
                 cause = e;
             }
 
@@ -181,14 +167,11 @@ public class JoinSessionWizard
     }
 
 
-    public boolean performCancel()
-    {
+    public boolean performCancel() {
         ThreadUtils.runSafeAsync("CancelJoinSessionWizard", LOG,
-                new Runnable()
-                {
+                new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         process.localCancel(null, CancelOption.NOTIFY_PEER);
                     }
                 }
@@ -199,14 +182,11 @@ public class JoinSessionWizard
     /**
      * Get rid of this method, use a listener !
      */
-    public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation)
-    {
+    public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation) {
 
-        ThreadUtils.runSafeSync(LOG, new Runnable()
-        {
+        ThreadUtils.runSafeSync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                 /*
                  * do NOT CLOSE the wizard if it performs async operations
@@ -214,8 +194,7 @@ public class JoinSessionWizard
                  * see performFinish() -> getContainer().run(boolean, boolean,
                  * IRunnableWithProgress)
                  */
-                if (accepted)
-                {
+                if (accepted) {
                     return;
                 }
 
@@ -232,30 +211,24 @@ public class JoinSessionWizard
     }
 
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
-            final CancelLocation cancelLocation)
-    {
-        ThreadUtils.runSafeAsync(LOG, new Runnable()
-        {
+                                        final CancelLocation cancelLocation) {
+        ThreadUtils.runSafeAsync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 showCancelMessage(jid, errorMsg, cancelLocation);
             }
         });
     }
 
     private void showCancelMessage(JID jid, String errorMsg,
-            CancelLocation cancelLocation)
-    {
+                                   CancelLocation cancelLocation) {
 
         String peer = jid.getBase();
 
         Container shell = parent;
 
-        if (errorMsg != null)
-        {
-            switch (cancelLocation)
-            {
+        if (errorMsg != null) {
+            switch (cancelLocation) {
                 case LOCAL:
                     DialogUtils.showError(shell,
                             Messages.JoinSessionWizard_inv_cancelled,
@@ -271,11 +244,8 @@ public class JoinSessionWizard
                                     errorMsg)
                     );
             }
-        }
-        else
-        {
-            switch (cancelLocation)
-            {
+        } else {
+            switch (cancelLocation) {
                 case LOCAL:
                     break;
                 case REMOTE:

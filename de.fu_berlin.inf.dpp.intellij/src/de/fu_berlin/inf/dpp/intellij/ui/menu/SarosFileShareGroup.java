@@ -31,13 +31,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
-import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -53,37 +53,29 @@ import java.util.List;
 /**
  *
  */
-public class SarosFileShareGroup extends ActionGroup
-{
+public class SarosFileShareGroup extends ActionGroup {
     private static Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
 
-    public void actionPerformed(AnActionEvent e)
-    {
+    public void actionPerformed(AnActionEvent e) {
 
     }
 
     @NotNull
     @Override
-    public AnAction[] getChildren(@Nullable AnActionEvent e)
-    {
+    public AnAction[] getChildren(@Nullable AnActionEvent e) {
         if (e == null || !Saros.isInitialized()
-                || Saros.instance().getSessionManager().getSarosSession() != null)
-        {
+                || Saros.instance().getSessionManager().getSarosSession() != null) {
             return new AnAction[0];
-        }
-        else
-        {
+        } else {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
             Project project = e.getData(CommonDataKeys.PROJECT);
             if (virtualFile == null || project == null
-                    || virtualFile.equals(project.getBaseDir()))
-            {
+                    || virtualFile.equals(project.getBaseDir())) {
                 return new AnAction[0];
             }
 
             List<AnAction> list = new ArrayList<AnAction>();
-            for (JID user : Saros.instance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers())
-            {
+            for (JID user : Saros.instance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
                 list.add(new ShareWithUser(user));
             }
 
@@ -93,51 +85,41 @@ public class SarosFileShareGroup extends ActionGroup
     }
 
 
-    public class ShareWithUser extends AnAction
-    {
+    public class ShareWithUser extends AnAction {
 
         private JID userJID;
         private String title;
 
 
-        public ShareWithUser(JID user)
-        {
+        public ShareWithUser(JID user) {
             super(user.getName(), null, IconManager.CONTACT_ONLINE_ICON);
             this.userJID = user;
             this.title = user.getName();
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e)
-        {
+        public void actionPerformed(AnActionEvent e) {
             VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
 
-            try
-            {
+            try {
                 File file = new File(virtFile.getPath());
                 ProjectImp project = locateProject(file);
 
                 List<IResource> resources = new ArrayList<IResource>();
 
 
-                if (file.isDirectory())
-                {
+                if (file.isDirectory()) {
                     //check if it is a real project
                     FolderImp resFolder = new FolderImp(project, file);
-                    if (resFolder.getFullPath().segmentCount() == project.getFullPath().segmentCount())
-                    {
+                    if (resFolder.getFullPath().segmentCount() == project.getFullPath().segmentCount()) {
                         project.refreshLocal();
                         resources.add(project);
-                    }
-                    else
-                    {
+                    } else {
                         resources.addAll(getParentFolders(project, project.getFullPath(), resFolder.getFullPath()));
                         loadChildResources(project, resFolder.toFile(), resources);
                     }
 
-                }
-                else
-                {
+                } else {
                     FileImp resFile = new FileImp(project, file);
                     resources.addAll(getParentFolders(project, project.getFullPath(), resFile.getFullPath()));
                     resources.add(resFile);
@@ -148,9 +130,7 @@ public class SarosFileShareGroup extends ActionGroup
                 CollaborationUtils.startSession(resources, contacts);
 
 
-            }
-            catch (IOException e1)
-            {
+            } catch (IOException e1) {
                 LOG.trace(e1.getMessage(), e1);
             }
         }
@@ -164,18 +144,13 @@ public class SarosFileShareGroup extends ActionGroup
          * @param resources
          * @throws IOException
          */
-        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) throws IOException
-        {
-            if (file.isDirectory())
-            {
+        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) throws IOException {
+            if (file.isDirectory()) {
                 resources.add(new FolderImp(project, file));
-                for (File f : file.listFiles())
-                {
+                for (File f : file.listFiles()) {
                     loadChildResources(project, f, resources);
                 }
-            }
-            else
-            {
+            } else {
                 resources.add(new FileImp(project, file));
             }
 
@@ -190,14 +165,12 @@ public class SarosFileShareGroup extends ActionGroup
          * @param bottom
          * @return
          */
-        private List<IResource> getParentFolders(ProjectImp project, IPath top, IPath bottom)
-        {
+        private List<IResource> getParentFolders(ProjectImp project, IPath top, IPath bottom) {
             List<IResource> folders = new ArrayList<IResource>();
             File base = top.toFile();
             StringBuilder sbPath = new StringBuilder(base.getAbsolutePath());
             String[] segments = bottom.segments();
-            for (int i = top.segmentCount(); i < segments.length - 1; i++)
-            {
+            for (int i = top.segmentCount(); i < segments.length - 1; i++) {
                 sbPath.append(File.separator);
                 sbPath.append(segments[i]);
                 IFolder folder = new FolderImp(project, new File(sbPath.toString()));
@@ -211,26 +184,23 @@ public class SarosFileShareGroup extends ActionGroup
          * @param resource
          * @return
          */
-        private ProjectImp locateProject(File resource)
-        {
+        private ProjectImp locateProject(File resource) {
             Project p = Saros.instance().getProject();
             IPath basePath = new PathImp(p.getBasePath());
             IPath resourcePath = new PathImp(resource);
             String[] resourceSegments = resourcePath.segments();
             int nameIndex = basePath.segmentCount();
-            if (nameIndex >= resourceSegments.length)
-            {
+            if (nameIndex >= resourceSegments.length) {
                 nameIndex = --nameIndex;
             }
 
             String moduleName = resourceSegments[nameIndex];
             basePath = basePath.append(moduleName);
-            return (ProjectImp)Saros.instance().getWorkspace().getRoot().addProject(moduleName,basePath.toFile());
+            return (ProjectImp) Saros.instance().getWorkspace().getRoot().addProject(moduleName, basePath.toFile());
         }
 
 
-        public String toString()
-        {
+        public String toString() {
             return super.toString() + " " + title;
         }
     }

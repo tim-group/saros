@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import org.apache.log4j.Logger;
 
@@ -32,8 +32,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 /**
  * Parent class for saros tree
  */
-public abstract class AbstractTree extends DefaultMutableTreeNode
-{
+public abstract class AbstractTree extends DefaultMutableTreeNode {
     protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
 
 
@@ -41,16 +40,14 @@ public abstract class AbstractTree extends DefaultMutableTreeNode
     protected final Saros saros;
     protected IconManager iconManager;
 
-    protected AbstractTree()
-    {
+    protected AbstractTree() {
         this.saros = Saros.instance();
         this.parent = this;
         this.iconManager = new IconManager();
 
     }
 
-    protected AbstractTree(DefaultMutableTreeNode parent)
-    {
+    protected AbstractTree(DefaultMutableTreeNode parent) {
         this.parent = parent;
         this.saros = Saros.instance();
         this.iconManager = new IconManager();
@@ -61,38 +58,31 @@ public abstract class AbstractTree extends DefaultMutableTreeNode
     /**
      * Class to keep category information
      */
-    class CategoryInfo
-    {
+    class CategoryInfo {
         String title;
         private ImageIcon icon;
 
-        CategoryInfo(String title)
-        {
+        CategoryInfo(String title) {
             this.title = title;
         }
 
-        public String getTitle()
-        {
+        public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title)
-        {
+        public void setTitle(String title) {
             this.title = title;
         }
 
-        public ImageIcon getIcon()
-        {
+        public ImageIcon getIcon() {
             return icon;
         }
 
-        public void setIcon(ImageIcon icon)
-        {
+        public void setIcon(ImageIcon icon) {
             this.icon = icon;
         }
 
-        public String toString()
-        {
+        public String toString() {
             return title;
         }
     }
@@ -100,23 +90,19 @@ public abstract class AbstractTree extends DefaultMutableTreeNode
     /**
      * Default class to keep item info
      */
-    class LeafInfo extends CategoryInfo
-    {
+    class LeafInfo extends CategoryInfo {
         String key;
 
-        LeafInfo(String key, String title)
-        {
+        LeafInfo(String key, String title) {
             super(title);
             this.key = key;
         }
 
-        public String getKey()
-        {
+        public String getKey() {
             return key;
         }
 
-        public void setKey(String key)
-        {
+        public void setKey(String key) {
             this.key = key;
         }
     }

@@ -44,20 +44,18 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 
 import javax.swing.*;
 
 /**
  * Session pop-up menu
  */
-class SessionPopMenu extends JPopupMenu
-{
+class SessionPopMenu extends JPopupMenu {
     protected Saros saros = Saros.instance();
     private SessionTree.SessionInfo sessionInfo;
 
-    public SessionPopMenu(SessionTree.SessionInfo sessionInfo)
-    {
+    public SessionPopMenu(SessionTree.SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
 
         JMenuItem menuItemFollowParticipant = new JMenuItem("Follow participant");

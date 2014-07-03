@@ -24,161 +24,111 @@ package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 
 import javax.swing.*;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Dialog helper used to show messages in save manner starting it in UI thread
  */
-public class SafeDialogUtils
-{
+public class SafeDialogUtils {
     private static Saros saros = Saros.instance();
 
     /**
-     *
      * @param message
      * @param initialValue
      * @return
      */
-    public static String showInputDialog(final String message, final String initialValue,final String title)
-    {
+    public static String showInputDialog(final String message, final String initialValue, final String title) {
         final StringBuilder response = new StringBuilder();
-        Runnable action = new Runnable()
-        {
-           @Override
-            public void run()
-            {
-                if (saros.getProject() == null)
-                {
+        Runnable action = new Runnable() {
+            @Override
+            public void run() {
+                if (saros.getProject() == null) {
                     String option = JOptionPane.showInputDialog(saros.getMainPanel(), message, initialValue);
                     response.append(option);
-                }
-                else
-                {
-                    String option = Messages.showInputDialog(saros.getProject(), message,title,Messages.getQuestionIcon(), initialValue,null );
+                } else {
+                    String option = Messages.showInputDialog(saros.getProject(), message, title, Messages.getQuestionIcon(), initialValue, null);
                     response.append(option);
                 }
             }
 
-        } ;
+        };
 
-        if(saros.getProject()==null)
-        {
-            if (SwingUtilities.isEventDispatchThread())
-            {
+        if (saros.getProject() == null) {
+            if (SwingUtilities.isEventDispatchThread()) {
                 action.run();
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     SwingUtilities.invokeAndWait(action);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }
-        else
-        {
+        } else {
             UIUtil.invokeAndWaitIfNeeded(action);
         }
         return response.toString();
     }
 
     /**
-     *
      * @param message
      * @param title
      */
-    public static void showWarning(final String message, final String title)
-    {
-        Runnable action = new Runnable()
-        {
+    public static void showWarning(final String message, final String title) {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
-                if (saros.getProject() == null)
-                {
+            public void run() {
+                if (saros.getProject() == null) {
                     JOptionPane.showMessageDialog(saros.getMainPanel(), message, title, JOptionPane.WARNING_MESSAGE);
-                }
-                else
-                {
+                } else {
                     Messages.showErrorDialog(saros.getProject(), message, title);
                 }
             }
         };
 
-        if(saros.getProject()==null)
-        {
-            if (SwingUtilities.isEventDispatchThread())
-            {
+        if (saros.getProject() == null) {
+            if (SwingUtilities.isEventDispatchThread()) {
                 action.run();
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     SwingUtilities.invokeAndWait(action);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }
-        else
-        {
+        } else {
             UIUtil.invokeAndWaitIfNeeded(action);
         }
     }
 
     /**
-     *
      * @param message
      * @param title
      */
-    public static void showError(final String message, final String title)
-    {
-        Runnable action = new Runnable()
-        {
+    public static void showError(final String message, final String title) {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
-                if (saros.getProject() == null)
-                {
+            public void run() {
+                if (saros.getProject() == null) {
                     JOptionPane.showMessageDialog(saros.getMainPanel(), message, title, JOptionPane.ERROR_MESSAGE);
-                }
-                else
-                {
+                } else {
                     Messages.showErrorDialog(saros.getProject(), message, title);
                 }
             }
         };
 
-        if(saros.getProject()==null)
-        {
-            if (SwingUtilities.isEventDispatchThread())
-            {
+        if (saros.getProject() == null) {
+            if (SwingUtilities.isEventDispatchThread()) {
                 action.run();
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     SwingUtilities.invokeAndWait(action);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }
-        else
-        {
+        } else {
             UIUtil.invokeAndWaitIfNeeded(action);
         }
     }

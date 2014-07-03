@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import org.apache.log4j.Logger;
@@ -33,19 +33,16 @@ import java.net.URL;
 /**
  * Common class for Toolbar button implementations
  */
-public abstract class ToolbarButton extends JButton
-{
+public abstract class ToolbarButton extends JButton {
     protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
     protected Saros saros = Saros.instance();
-
 
 
     /**
      * @param path
      * @param altText
      */
-    protected void setIcon(String path, String altText)
-    {
+    protected void setIcon(String path, String altText) {
         setButtonIcon(this, path, altText);
     }
 
@@ -55,19 +52,15 @@ public abstract class ToolbarButton extends JButton
      * @param iconPath
      * @param altText
      */
-    public static void setButtonIcon(JButton button, String iconPath, String altText)
-    {
-        if(!iconPath.startsWith("/"))
-            iconPath = "/"+iconPath;
+    public static void setButtonIcon(JButton button, String iconPath, String altText) {
+        if (!iconPath.startsWith("/"))
+            iconPath = "/" + iconPath;
 
         URL imageURL = ToolbarButton.class.getResource(iconPath);
-        if (imageURL != null)
-        {
+        if (imageURL != null) {
             //image found
             button.setIcon(new ImageIcon(imageURL, altText));
-        }
-        else
-        {
+        } else {
             //no image found
             button.setText(altText);
             LOG.error("Resource not found: " + imageURL);
@@ -78,32 +71,28 @@ public abstract class ToolbarButton extends JButton
      * @param actionCommand
      * @return
      */
-    protected ISarosAction getAction(String actionCommand)
-    {
+    protected ISarosAction getAction(String actionCommand) {
         return SarosActionFactory.getAction(actionCommand);
     }
 
     /**
      *
      */
-    protected void startAction()
-    {
+    protected void startAction() {
         startAction(getActionCommand());
     }
 
     /**
      * @param actionName
      */
-    protected void startAction(String actionName)
-    {
+    protected void startAction(String actionName) {
         SarosActionFactory.startAction(actionName);
     }
 
     /**
      * @param action
      */
-    protected void startAction(ISarosAction action)
-    {
+    protected void startAction(ISarosAction action) {
         SarosActionFactory.startAction(action);
     }
 }

@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import org.apache.log4j.PropertyConfigurator;
@@ -52,8 +51,7 @@ public class SarosToolWindowFactory implements ToolWindowFactory
     public void createToolWindowContent(Project project, ToolWindow toolWindow)
     {
 
-        PropertyConfigurator.configure("c:\\Develop\\Saros\\idea\\saros\\de.fu_berlin.inf.dpp.intellij\\src\\log4j.properties");  //todo
-      //  PropertyConfigurator.configure("c:\\Develop\\Saros\\idea\\saros\\log4j.properties");  //todo
+        PropertyConfigurator.configure("src/log4j.properties");  //todo
 
         Saros saros = Saros.create(project, toolWindow);
         Workspace ws = new Workspace(project);

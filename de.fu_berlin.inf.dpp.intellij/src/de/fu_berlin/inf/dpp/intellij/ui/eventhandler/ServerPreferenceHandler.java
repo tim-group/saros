@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
 import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
@@ -40,7 +40,7 @@ public class ServerPreferenceHandler {
 
         @Override
         public void connectionStateChanged(Connection connection,
-                ConnectionState newState) {
+                                           ConnectionState newState) {
 
             // Adding the feature while state is CONNECTING would be much
             // better, yet it's not possible since the ServiceDiscoveryManager
@@ -59,7 +59,7 @@ public class ServerPreferenceHandler {
     };
 
     public ServerPreferenceHandler(XMPPConnectionService connectionService,
-            IPreferenceStore preferenceStore) {
+                                   IPreferenceStore preferenceStore) {
         this.preferenceStore = preferenceStore;
 
         connectionService.addListener(connectionListener);

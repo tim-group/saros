@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.context;
+package de.fu_berlin.inf.dpp.core.context;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
@@ -57,7 +57,6 @@ import java.util.List;
  * @author pcordes
  * @author srossbach
  */
-//todo: adopted from eclipse
 public class SarosContext implements ISarosContext
 {
 

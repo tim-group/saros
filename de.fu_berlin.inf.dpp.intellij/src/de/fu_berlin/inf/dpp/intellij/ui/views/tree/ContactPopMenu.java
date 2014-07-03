@@ -26,7 +26,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
@@ -195,14 +195,14 @@ class ContactPopMenu extends JPopupMenu {
     private class DeleteContactAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-           //todo: implement it
+            //todo: implement it
         }
     }
 
     private class OpenChartAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-           //todo: implement it
+            //todo: implement it
         }
     }
 

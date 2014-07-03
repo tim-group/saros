@@ -22,13 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.context;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosContext;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 
 /**
  * Provides the possibility to initialize a component with the components hold
  * in the given {@link de.fu_berlin.inf.dpp.SarosContext}. You can set the
  * context via
- * {@link de.fu_berlin.inf.dpp.SarosPluginContext#setSarosContext(SarosContext)}
+ * {@link de.fu_berlin.inf.dpp.SarosPluginContext#setSarosContext(de.fu_berlin.inf.dpp.core.context.SarosContext)}
  * .
  * <p/>
  * Typically this is the context created by {@link de.fu_berlin.inf.dpp.Saros}

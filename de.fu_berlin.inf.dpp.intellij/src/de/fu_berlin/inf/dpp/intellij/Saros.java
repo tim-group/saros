@@ -20,21 +20,21 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.core;
+package de.fu_berlin.inf.dpp.intellij;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.context.SarosContext;
+import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.intellij.context.SarosContext;
-import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
+import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
-import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
@@ -126,7 +126,7 @@ public class Saros
 
     /**
      * Returns true if the Saros instance has been initialized so that calling
-     * {@link de.fu_berlin.inf.dpp.intellij.context.SarosContext#reinject(Object)} will be well defined.
+     * {@link de.fu_berlin.inf.dpp.core.context.SarosContext#reinject(Object)} will be well defined.
      */
     public static boolean isInitialized()
     {

@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
@@ -38,24 +38,21 @@ import java.util.List;
 /**
  * Implementation of connect XMPP/jabber server button
  */
-public class ConnectButton extends ToolbarButton implements SarosActionListener
-{
+public class ConnectButton extends ToolbarButton implements SarosActionListener {
     public static final String CONNECT_ICON_PATH = "icons/elcl16/connect.png";
     private JPopupMenu popupMenu = new JPopupMenu();
 
     private final ISarosAction disconnectAction;
     private final ConnectServerAction connectAction;
 
-    public ConnectButton()
-    {
+    public ConnectButton() {
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
         connectAction = SarosActionFactory.getConnectServerAction();
 
         createButton();
     }
 
-    private void createButton()
-    {
+    private void createButton() {
         setIcon(CONNECT_ICON_PATH, "Connect");
         setActionCommand(ConnectServerAction.NAME);
 
@@ -69,40 +66,31 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
 
         final JButton button = this;
         final Saros saros = this.saros;
-        this.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ev)
-            {
+        this.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
 
-                if (saros.getAccountStore().isEmpty())
-                {
+                if (saros.getAccountStore().isEmpty()) {
                     button.setEnabled(false);
                     startAction();
-                }
-                else
-                {
+                } else {
                     popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
                 }
             }
         });
     }
 
-    private JPopupMenu createMenu()
-    {
+    private JPopupMenu createMenu() {
 
         final JButton button = this;
         //set accounts
         final List<XMPPAccount> accounts = saros.getAccountStore().getAllAccounts();
-        for (XMPPAccount account : accounts)
-        {
+        for (XMPPAccount account : accounts) {
             // final String userName = account.getUsername();
             // JMenuItem accountItem = new JMenuItem(account.getUsername() + "@" + account.getServer());
             final String userName = account.getUsername() + "@" + account.getServer();
             JMenuItem accountItem = new JMenuItem(userName);
-            accountItem.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
+            accountItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
                     button.setEnabled(false);
                     connectAction.setActiveUser(userName);
                     startAction(connectAction);
@@ -114,10 +102,8 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
         popupMenu.addSeparator();
 
         JMenuItem menuItemAdd = new JMenuItem("Add account...");
-        menuItemAdd.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        menuItemAdd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 button.setEnabled(false);
                 createNewAccount();
             }
@@ -125,20 +111,16 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
         popupMenu.add(menuItemAdd);
 
         JMenuItem configure = new JMenuItem("Configure accounts...");
-        configure.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        configure.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 configureAccounts();
             }
         });
         popupMenu.add(configure);
 
         JMenuItem disconnect = new JMenuItem("Disconnect server");
-        disconnect.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        disconnect.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 button.setEnabled(false);
                 startAction(disconnectAction);
             }
@@ -152,8 +134,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
     /**
      *
      */
-    protected void createNewAccount()
-    {
+    protected void createNewAccount() {
         connectAction.setCreateNew(true);
         startAction(connectAction);
     }
@@ -161,33 +142,28 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener
     /**
      *
      */
-    protected void configureAccounts()
-    {
+    protected void configureAccounts() {
         LOG.debug("ConnectButton.actionPerformed CONFIGURE");
 
         throw new IllegalStateException("Not implemented!");
     }
 
     @Override
-    public void actionStarted(ISarosAction action)
-    {
+    public void actionStarted(ISarosAction action) {
 
     }
 
     @Override
-    public void actionFinished(ISarosAction action)
-    {
+    public void actionFinished(ISarosAction action) {
         popupMenu.removeAll();
         createMenu();
     }
 
-    public ISarosAction getDisconnectAction()
-    {
+    public ISarosAction getDisconnectAction() {
         return disconnectAction;
     }
 
-    public ConnectServerAction getConnectAction()
-    {
+    public ConnectServerAction getConnectAction() {
         return connectAction;
     }
 }

@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
@@ -42,8 +42,7 @@ import java.util.Map;
 /**
  * Saros core panel toolbar
  */
-public class SarosToolbar
-{
+public class SarosToolbar {
     public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
     public static final String OPEN_REFS_ICON_PATH = "icons/etool16/test_con.gif";
     public static final String LEAVE_SESSION_ICON_PATH = "icons/elcl16/project_share_leave_tsk.png";
@@ -55,50 +54,38 @@ public class SarosToolbar
     private SarosMainPanelView sarosMainView;
     private JToolBar jToolBar;
 
-    private SarosActionListener toolbarActionListener = new SarosActionListener()
-    {
+    private SarosActionListener toolbarActionListener = new SarosActionListener() {
         @Override
-        public void actionStarted(ISarosAction action)
-        {
+        public void actionStarted(ISarosAction action) {
 
         }
 
         @Override
-        public void actionFinished(ISarosAction action)
-        {
+        public void actionFinished(ISarosAction action) {
             initButtons();
         }
     };
 
-    private SarosActionListener treeActionListener = new SarosActionListener()
-    {
+    private SarosActionListener treeActionListener = new SarosActionListener() {
         @Override
-        public void actionStarted(ISarosAction action)
-        {
+        public void actionStarted(ISarosAction action) {
 
         }
 
         @Override
-        public void actionFinished(ISarosAction action)
-        {
-            if (action instanceof IConnectionAction)
-            {
+        public void actionFinished(ISarosAction action) {
+            if (action instanceof IConnectionAction) {
 
                 final SarosTreeView sarosTree = sarosMainView.getSarosTree();
-                if (saros.isConnected())
-                {
+                if (saros.isConnected()) {
                     sarosTree.renderConnected();
-                }
-                else
-                {
+                } else {
                     sarosTree.renderDisconnected();
                 }
 
-                Runnable run = new Runnable()
-                {
+                Runnable run = new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         JTree jTree = sarosTree.getRootTree().getJtree();
                         DefaultTreeModel model = (DefaultTreeModel) (jTree.getModel());
                         model.reload();
@@ -115,8 +102,7 @@ public class SarosToolbar
     /**
      * @param mainPanel
      */
-    public SarosToolbar(SarosMainPanelView mainPanel)
-    {
+    public SarosToolbar(SarosMainPanelView mainPanel) {
         this.jToolBar = create(mainPanel);
         mainPanel.getParent().add(this.jToolBar, BorderLayout.NORTH);
     }
@@ -125,8 +111,7 @@ public class SarosToolbar
      * @param parent
      * @return
      */
-    private JToolBar create(SarosMainPanelView parent)
-    {
+    private JToolBar create(SarosMainPanelView parent) {
         this.sarosMainView = parent;
 
         jToolBar = new JToolBar("Saros IntelliJ toolbar");
@@ -144,8 +129,7 @@ public class SarosToolbar
     /**
      *
      */
-    protected void addToolbarButtons()
-    {
+    protected void addToolbarButtons() {
 
         ConnectButton connectionButton = new ConnectButton();
         //triggers tree changes
@@ -191,8 +175,7 @@ public class SarosToolbar
      * @param iconPath
      * @param altText
      */
-    private void addNavigationButton(String action, String toolTipText, String iconPath, String altText)
-    {
+    private void addNavigationButton(String action, String toolTipText, String iconPath, String altText) {
         //Create and initialize the button.
         JButton button = new CommonButton(action, toolTipText, iconPath, altText);
         toolbarButtons.put(button.getActionCommand(), button);
@@ -202,18 +185,13 @@ public class SarosToolbar
     /**
      *
      */
-    private void initButtons()
-    {
-        Runnable action = new Runnable()
-        {
+    private void initButtons() {
+        Runnable action = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 JButton btnConnect = toolbarButtons.get(ConnectServerAction.NAME);
-                for (JButton button : toolbarButtons.values())
-                {
-                    if (btnConnect != button)
-                    {
+                for (JButton button : toolbarButtons.values()) {
+                    if (btnConnect != button) {
                         button.setEnabled(saros.isConnected());
                     }
                 }
@@ -224,13 +202,11 @@ public class SarosToolbar
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-    public Map<String, JButton> getToolbarButtons()
-    {
+    public Map<String, JButton> getToolbarButtons() {
         return toolbarButtons;
     }
 
-    public JToolBar getJToolBar()
-    {
+    public JToolBar getJToolBar() {
         return jToolBar;
     }
 }

@@ -43,7 +43,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
 import java.awt.*;
@@ -72,6 +72,7 @@ public class EditorAPI
 
     public EditorAPI()
     {
+
         Project project = Saros.instance().getProject();
         setProject(project);
     }

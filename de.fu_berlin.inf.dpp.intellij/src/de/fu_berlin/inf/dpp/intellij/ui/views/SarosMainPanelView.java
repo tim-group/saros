@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import de.fu_berlin.inf.dpp.intellij.core.Saros;
+import de.fu_berlin.inf.dpp.intellij.Saros;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -32,8 +32,7 @@ import java.io.File;
 /**
  * Saros main panel view
  */
-public class SarosMainPanelView extends JFrame
-{
+public class SarosMainPanelView extends JFrame {
     protected static final Logger LOG = Logger.getLogger(SarosMainPanelView.class);
 
     private Container parent;
@@ -42,16 +41,12 @@ public class SarosMainPanelView extends JFrame
     private SarosTreeView sarosTree;
     private Saros saros;
 
-    static
-    {
-        try
-        {
+    static {
+        try {
 
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
             LOG.debug("Look&feel " + UIManager.getCrossPlatformLookAndFeelClassName());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             LOG.error("Could not set Look&feel !", e);
         }
     }
@@ -60,26 +55,21 @@ public class SarosMainPanelView extends JFrame
      * @param saros
      * @throws HeadlessException
      */
-    public SarosMainPanelView(Saros saros) throws HeadlessException
-    {
+    public SarosMainPanelView(Saros saros) throws HeadlessException {
 
         this.saros = saros;
         this.saros.setMainPanel(this);
 
-        if (saros.getToolWindow() != null)
-        {
+        if (saros.getToolWindow() != null) {
             this.parent = saros.getToolWindow().getComponent().getParent();
-        }
-        else
-        {
+        } else {
             this.parent = this;
             setTitle("Saros panel");
         }
     }
 
 
-    public void create()
-    {
+    public void create() {
 
         LOG.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
 
@@ -110,18 +100,15 @@ public class SarosMainPanelView extends JFrame
     }
 
 
-    public SarosToolbar getSarosToolbar()
-    {
+    public SarosToolbar getSarosToolbar() {
         return sarosToolbar;
     }
 
-    public SarosTreeView getSarosTree()
-    {
+    public SarosTreeView getSarosTree() {
         return sarosTree;
     }
 
-    public Container getParent()
-    {
+    public Container getParent() {
         return parent;
     }
 }
