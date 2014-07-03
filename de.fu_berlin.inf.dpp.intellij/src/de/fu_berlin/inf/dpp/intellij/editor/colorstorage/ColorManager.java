@@ -22,47 +22,42 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.colorstorage;
 
-import com.intellij.ui.JBColor;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
 
 /**
  * IntelliJ color manager
  */
-//todo: temporary implementation to provide random colors
-public class ColorManager
-{
+//todo: temporary implementation to provide default colors
+public class ColorManager {
 
-    private Map<Integer, ColorModel> colorMapDefault = new HashMap<Integer, ColorModel>();
-    private Map<Integer, ColorModel> colorMap = new HashMap<Integer, ColorModel>();
+    public static final Color DEFAULT_COLOR = new Color(128, 128, 128);
 
-    public ColorManager()
-    {
-        //TODO: what about making the selection color a bit ligher than the edit color?
-        colorMapDefault.put(0, new ColorModel(JBColor.RED, JBColor.RED));
-        colorMapDefault.put(1, new ColorModel(JBColor.BLUE, JBColor.BLUE));
-        colorMapDefault.put(3, new ColorModel(JBColor.GREEN, JBColor.GREEN));
-        colorMapDefault.put(4, new ColorModel(JBColor.CYAN, JBColor.CYAN));
-        colorMapDefault.put(5, new ColorModel(JBColor.MAGENTA, JBColor.MAGENTA));
-        colorMapDefault.put(6, new ColorModel(JBColor.ORANGE, JBColor.ORANGE));
-        colorMapDefault.put(7, new ColorModel(JBColor.PINK, JBColor.PINK));
-        colorMapDefault.put(8, new ColorModel(JBColor.YELLOW, JBColor.YELLOW));
+    static final Color[] CONTRIBUTION_COLORS = { new Color(141, 206, 231),
+        new Color(191, 187, 130), new Color(186, 220, 81),
+        new Color(237, 237, 169), new Color(137, 180, 178) };
+
+    static final Color[] SELECTION_COLORS = { new Color(183, 224, 240),
+        new Color(208, 205, 164), new Color(220, 237, 166),
+        new Color(246, 246, 211), new Color(184, 210, 209) };
+
+    private ColorManager() {
+
     }
 
-    public ColorModel getColorModel(int userId)
-    {
-        ColorModel color = colorMap.get(userId);
+    /**
+     * Returns the color for the given userID. Returns the DEFAULT_COLOR when
+     * there is no color for the userID.
+     *
+     * @param userID
+     * @return the color for the given userID.
+     */
+    public static ColorModel getColorModel(int userID) {
 
-        if (color == null)
-        {
-            //assign random default color
-            int random_color = (int) ((colorMapDefault.size()) * Math.random());
-            color = colorMapDefault.remove(random_color);
-            colorMap.put(userId, color);
+        if (userID <= 0 || userID >= 5) {
+            return new ColorModel(DEFAULT_COLOR, DEFAULT_COLOR);
         }
-        return color;
 
+        return new ColorModel(CONTRIBUTION_COLORS[userID],
+            SELECTION_COLORS[userID]);
     }
-
 }
