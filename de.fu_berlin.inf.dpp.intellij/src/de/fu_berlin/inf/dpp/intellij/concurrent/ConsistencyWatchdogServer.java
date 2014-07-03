@@ -24,13 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.concurrent;
 
 import com.intellij.openapi.editor.Document;
 import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
-import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
@@ -67,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  *         not, etc.
  */
 //todo: copy from eclipse
-public class ConsistencyWatchdogServer extends AbstractActivityProvider
+public class ConsistencyWatchdogServer extends AbstractActivityProducer
         implements Startable, Blockable
 {
 
@@ -136,7 +134,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
                     "component can only be run on host side");
         }
 
-        installProvider(session);
+        session.addActivityProducer(this);
         stopManager.addBlockable(this);
 
         executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(
@@ -152,7 +150,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
     @Override
     public void stop()
     {
-        uninstallProvider(session);
+        session.removeActivityProducer(this);
         stopManager.removeBlockable(this);
 
         triggerChecksumFuture.cancel(false);
@@ -195,12 +193,6 @@ public class ConsistencyWatchdogServer extends AbstractActivityProvider
         {
             Thread.currentThread().interrupt();
         }
-    }
-
-    @Override
-    public void exec(IActivity activity)
-    {
-        // NOP
     }
 
     @Override

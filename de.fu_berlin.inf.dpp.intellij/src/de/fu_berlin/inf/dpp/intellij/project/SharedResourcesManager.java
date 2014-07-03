@@ -33,7 +33,9 @@ import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
@@ -62,7 +64,7 @@ import java.util.Map;
  * http://www.eclipse.org/articles/Article-Resource-deltas/resource-deltas.html
  */
 //todo: copy from eclipse
-public class SharedResourcesManager extends AbstractActivityProvider implements
+public class SharedResourcesManager extends AbstractActivityProducer implements
         Startable {
     /**
      * The {@link de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent}s we're going to register for.
@@ -130,7 +132,8 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
 
     @Override
     public void start() {
-        installProvider(sarosSession);
+        sarosSession.addActivityProducer(this);
+        sarosSession.addActivityConsumer(consumer);
         stopManager.addBlockable(stopManagerListener);
         workspace.addResourceListener(fileSystemListener);
 
@@ -139,7 +142,8 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     @Override
     public void stop() {
         workspace.removeResourceListener(fileSystemListener);
-        uninstallProvider(sarosSession);
+        sarosSession.removeActivityProducer(this);
+        sarosSession.removeActivityConsumer(consumer);
         stopManager.removeBlockable(stopManagerListener);
     }
 
@@ -152,42 +156,43 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
     }
 
 
-    @Override
-    public void exec(IActivity activity) {
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
+        @Override
+        public void exec(IActivity activity) {
+            if (!(activity instanceof FileActivity
+                    || activity instanceof FolderActivity || activity instanceof VCSActivity))
+                return;
 
-        if (!(activity instanceof FileActivity
-                || activity instanceof FolderActivity || activity instanceof VCSActivity)) {
-            return;
-        }
-
-        try {
+            try {
         /*
              * FIXME this will lockout everything. File changes made in the
              * meantime from another background job are not recognized. See
              * AddMultipleFilesTest STF test which fails randomly.
              */
-            fileReplacementInProgressObservable.startReplacement();
-            fileSystemListener.setEnabled(false);
+                fileReplacementInProgressObservable.startReplacement();
+                fileSystemListener.setEnabled(false);
+                super.exec(activity);
 
-            LOG.trace("execing " + activity.toString() + " in "
-                    + Thread.currentThread().getName());
+                LOG.trace("execing " + activity.toString() + " in "
+                        + Thread.currentThread().getName());
 
-            if (activity instanceof FileActivity) {
-                exec((FileActivity) activity);
-            } else if (activity instanceof FolderActivity) {
-                exec((FolderActivity) activity);
-            } else if (activity instanceof VCSActivity) {
-                exec((VCSActivity) activity);
+                if (activity instanceof FileActivity) {
+                    exec((FileActivity) activity);
+                } else if (activity instanceof FolderActivity) {
+                    exec((FolderActivity) activity);
+                } else if (activity instanceof VCSActivity) {
+                    exec((VCSActivity) activity);
+                }
+
+            } /* catch (IOException e) {
+                LOG.error("Failed to execute resource activity.", e);
+            } */ finally {
+                fileReplacementInProgressObservable.replacementDone();
+                fileSystemListener.setEnabled(true);
+                LOG.trace("done execing " + activity.toString());
             }
-
-        } catch (IOException e) {
-            LOG.error("Failed to execute resource activity.", e);
-        } finally {
-            fileReplacementInProgressObservable.replacementDone();
-            fileSystemListener.setEnabled(true);
-            LOG.trace("done execing " + activity.toString());
         }
-    }
+    };
 
     protected void exec(FileActivity activity) throws IOException {
 
@@ -392,10 +397,6 @@ public class SharedResourcesManager extends AbstractActivityProvider implements
         } catch (InterruptedException e) {
             LOG.error("Code not designed to be interrupted!");
         }*/
-    }
-
-    protected void fireActivityInternal(IActivity activity) {
-        super.fireActivity(activity);
     }
 
     // HACK

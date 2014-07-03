@@ -30,7 +30,7 @@ import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
@@ -47,7 +47,7 @@ import java.util.concurrent.CancellationException;
  * This component is responsible for handling Consistency Errors on the host
  */
 //todo: copy from eclipse
-public class ConsistencyWatchdogHandler extends AbstractActivityProvider
+public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         implements Startable
 {
 
@@ -57,7 +57,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
 
     protected final ConsistencyWatchdogClient watchdogClient;
 
-    protected final ISarosSession sarosSession;
+    protected final ISarosSession session;
 
     protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver()
     {
@@ -71,31 +71,20 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
     @Override
     public void start()
     {
-        installProvider(sarosSession);
+        session.addActivityProducer(this);
     }
 
     @Override
-    public void stop()
-    {
-        uninstallProvider(sarosSession);
+    public void stop() {
+        session.addActivityProducer(this);
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
             EditorManager editorManager, ConsistencyWatchdogClient watchdogClient)
     {
-        this.sarosSession = sarosSession;
+        this.session = sarosSession;
         this.editorManager = editorManager;
         this.watchdogClient = watchdogClient;
-    }
-
-    @Override
-    public void exec(IActivity activity)
-    {
-        if (!sarosSession.isHost())
-        {
-            return;
-        }
-        activity.dispatch(activityReceiver);
     }
 
     /**
@@ -137,8 +126,8 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
         try
         {
 
-            startHandles = sarosSession.getStopManager().stop(
-                    sarosSession.getUsers(), "Consistency recovery");
+            startHandles = session.getStopManager().stop(
+                    session.getUsers(), "Consistency recovery");
 
             progress.subTask("Sending files to client...");
             recoverFiles(checksumError, progress);
@@ -202,12 +191,12 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProvider
             {
                 progress.subTask("Recovering file: "
                         + path.getProjectRelativePath());
-                recoverFile(checksumError.getSource(), sarosSession, path,
+                recoverFile(checksumError.getSource(), session, path,
                         progress);
             }
 
             // Tell the user that we sent all files
-            fireActivity(new ChecksumErrorActivity(sarosSession.getLocalUser(),
+            fireActivity(new ChecksumErrorActivity(session.getLocalUser(),
                     checksumError.getSource(), null, checksumError.getRecoveryID()));
         }
         finally

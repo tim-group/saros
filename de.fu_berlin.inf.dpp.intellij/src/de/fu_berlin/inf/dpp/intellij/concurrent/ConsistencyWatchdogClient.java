@@ -58,8 +58,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 //todo: copy from eclipse
 public class ConsistencyWatchdogClient extends
-        AbstractActivityProvider
-{
+        AbstractActivityProducer {
 
     private static Logger LOG = Logger
             .getLogger(ConsistencyWatchdogClient.class);
@@ -86,17 +85,13 @@ public class ConsistencyWatchdogClient extends
 
     protected Map<SPath, ChecksumActivity> latestChecksums = new HashMap<SPath, ChecksumActivity>();
 
-    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
-    {
-        private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener()
-        {
+    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+        private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
             @Override
-            public void permissionChanged(User user)
-            {
+            public void permissionChanged(User user) {
 
-                if (user.isRemote())
-                {
+                if (user.isRemote()) {
                     return;
                 }
 
@@ -106,90 +101,67 @@ public class ConsistencyWatchdogClient extends
         };
 
         @Override
-        public void sessionStarted(ISarosSession newSarosSession)
-        {
-            synchronized (this)
-            {
+        public void sessionStarted(ISarosSession newSarosSession) {
+            synchronized (this) {
                 sarosSession = newSarosSession;
             }
 
             pathsWithWrongChecksums.clear();
             inconsistencyToResolve.setValue(false);
 
-            installProvider(newSarosSession);
+            newSarosSession.addActivityConsumer(consumer);
+            newSarosSession.addActivityProducer(ConsistencyWatchdogClient.this);
             newSarosSession.addListener(sharedProjectListener);
         }
 
         @Override
-        public void sessionEnded(ISarosSession oldSarosSession)
-        {
-            uninstallProvider(oldSarosSession);
+        public void sessionEnded(ISarosSession oldSarosSession) {
+            oldSarosSession.removeActivityConsumer(consumer);
+            oldSarosSession
+                    .removeActivityProducer(ConsistencyWatchdogClient.this);
+
             oldSarosSession.removeListener(sharedProjectListener);
 
             latestChecksums.clear();
             pathsWithWrongChecksums.clear();
 
-            synchronized (this)
-            {
+            synchronized (this) {
                 sarosSession = null;
             }
         }
     };
 
-    public ConsistencyWatchdogClient(ISarosSessionManager sessionManager)
-    {
-        this.sessionManager = sessionManager;
-        this.sessionManager.addSarosSessionListener(sessionListener);
-    }
-
-    public void dispose()
-    {
-        this.sessionManager.removeSarosSessionListener(sessionListener);
-    }
-
-    protected IActivityReceiver activityReceiver = new AbstractActivityReceiver()
-    {
-
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
-        public void receive(ChecksumActivity checksumActivity)
-        {
+        public void receive(ChecksumActivity checksumActivity) {
             latestChecksums.put(checksumActivity.getPath(), checksumActivity);
 
             performCheck(checksumActivity);
         }
 
         @Override
-        public void receive(TextEditActivity text)
-        {
+        public void receive(TextEditActivity text) {
             latestChecksums.remove(text.getPath());
         }
 
         @Override
-        public void receive(ChecksumErrorActivity error)
-        {
-            if (error.getSource().isHost())
-            {
+        public void receive(ChecksumErrorActivity error) {
+            if (error.getSource().isHost()) {
                 String myRecoveryID = recoveryID;
                 if (myRecoveryID != null
-                        && myRecoveryID.equals(error.getRecoveryID()))
-                {
+                        && myRecoveryID.equals(error.getRecoveryID())) {
                     filesRemaining.set(0); // Host tell us he is done
                 }
             }
         }
 
         @Override
-        public void receive(FileActivity fileActivity)
-        {
-
-            if (fileActivity.isRecovery())
-            {
+        public void receive(FileActivity fileActivity) {
+            if (fileActivity.isRecovery()) {
                 int currentValue;
-                while ((currentValue = filesRemaining.get()) > 0)
-                {
+                while ((currentValue = filesRemaining.get()) > 0) {
                     if (filesRemaining.compareAndSet(currentValue,
-                            currentValue - 1))
-                    {
+                            currentValue - 1)) {
                         break;
                     }
                 }
@@ -202,8 +174,76 @@ public class ConsistencyWatchdogClient extends
              * created/deleted via FileActivity)
              */
 
-            switch (fileActivity.getType())
-            {
+            switch (fileActivity.getType()) {
+                case CREATED:
+                case REMOVED:
+                    latestChecksums.remove(fileActivity.getPath());
+                    break;
+                case MOVED:
+                    latestChecksums.remove(fileActivity.getPath());
+                    latestChecksums.remove(fileActivity.getOldPath());
+                    break;
+                default:
+                    LOG.error("Unhandled FileActivity.Type: " + fileActivity);
+            }
+        }
+    };
+
+    public ConsistencyWatchdogClient(ISarosSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        this.sessionManager.addSarosSessionListener(sessionListener);
+    }
+
+    public void dispose() {
+        this.sessionManager.removeSarosSessionListener(sessionListener);
+    }
+
+    protected IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+
+        @Override
+        public void receive(ChecksumActivity checksumActivity) {
+            latestChecksums.put(checksumActivity.getPath(), checksumActivity);
+
+            performCheck(checksumActivity);
+        }
+
+        @Override
+        public void receive(TextEditActivity text) {
+            latestChecksums.remove(text.getPath());
+        }
+
+        @Override
+        public void receive(ChecksumErrorActivity error) {
+            if (error.getSource().isHost()) {
+                String myRecoveryID = recoveryID;
+                if (myRecoveryID != null
+                        && myRecoveryID.equals(error.getRecoveryID())) {
+                    filesRemaining.set(0); // Host tell us he is done
+                }
+            }
+        }
+
+        @Override
+        public void receive(FileActivity fileActivity) {
+
+            if (fileActivity.isRecovery()) {
+                int currentValue;
+                while ((currentValue = filesRemaining.get()) > 0) {
+                    if (filesRemaining.compareAndSet(currentValue,
+                            currentValue - 1)) {
+                        break;
+                    }
+                }
+                // Recoveries do not invalidate checksums :-)
+                return;
+            }
+
+            /*
+             * (we do not need to handle FolderActivities because all files are
+             * created/deleted via FileActivity)
+             */
+
+            switch (fileActivity.getType()) {
                 case CREATED:
                 case REMOVED:
                     latestChecksums.remove(fileActivity.getPath());
@@ -222,8 +262,7 @@ public class ConsistencyWatchdogClient extends
      * Returns the set of files for which the ConsistencyWatchdog has identified
      * an inconsistency
      */
-    public Set<SPath> getPathsWithWrongChecksums()
-    {
+    public Set<SPath> getPathsWithWrongChecksums() {
         return this.pathsWithWrongChecksums;
     }
 
@@ -260,56 +299,45 @@ public class ConsistencyWatchdogClient extends
      * @blocking This method returns after the recovery has finished
      * @client Can only be called on the client!
      */
-    public void runRecovery(ISubMonitor monitor)
-    {
+    public void runRecovery(ISubMonitor monitor) {
 
 
         ISarosSession session;
-        synchronized (this)
-        {
+        synchronized (this) {
             // Keep a local copy, since the session might end while we're doing
             // this.
             session = sarosSession;
         }
 
-        if (session.isHost())
-        {
+        if (session.isHost()) {
             throw new IllegalStateException("Can only be called on the client");
         }
 
-        if (!lock.tryLock())
-        {
+        if (!lock.tryLock()) {
             LOG.error("Restarting Checksum Error Handling"
                     + " while another operation is running");
-            try
-            {
+            try {
                 // Try to cancel currently running recovery
-                do
-                {
+                do {
                     cancelRecovery.set(true);
                 }
                 while (!lock.tryLock(100, TimeUnit.MILLISECONDS));
-            }
-            catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 LOG.error("Not designed to be interruptable");
                 return;
             }
         }
 
         // Lock has been acquired
-        try
-        {
+        try {
             cancelRecovery.set(false);
 
             final ArrayList<SPath> pathsOfHandledFiles = new ArrayList<SPath>(
                     pathsWithWrongChecksums);
 
-            for (SPath path : pathsOfHandledFiles)
-            {
+            for (SPath path : pathsOfHandledFiles) {
 
-                if (cancelRecovery.get() || monitor.isCanceled())
-                {
+                if (cancelRecovery.get() || monitor.isCanceled()) {
                     return;
                 }
 
@@ -317,8 +345,7 @@ public class ConsistencyWatchdogClient extends
 
             }
 
-            if (cancelRecovery.get())
-            {
+            if (cancelRecovery.get()) {
                 return;
             }
 
@@ -339,21 +366,17 @@ public class ConsistencyWatchdogClient extends
             fireActivity(new ChecksumErrorActivity(session.getLocalUser(),
                     session.getHost(), pathsOfHandledFiles, recoveryID));
 
-            try
-            {
+            try {
                 // block until all inconsistencies are resolved
                 int filesRemainingBefore = filesRemaining.get();
                 int filesRemainingCurrently;
-                while ((filesRemainingCurrently = filesRemaining.get()) > 0)
-                {
+                while ((filesRemainingCurrently = filesRemaining.get()) > 0) {
                     if (cancelRecovery.get() || monitor.isCanceled()
-                            || sarosSession == null)
-                    {
+                            || sarosSession == null) {
                         return;
                     }
 
-                    if (filesRemainingCurrently < filesRemainingBefore)
-                    {
+                    if (filesRemainingCurrently < filesRemainingBefore) {
                         int worked = filesRemainingBefore
                                 - filesRemainingCurrently;
 
@@ -363,25 +386,18 @@ public class ConsistencyWatchdogClient extends
 
                         filesRemainingBefore = filesRemainingCurrently;
                     }
-                    try
-                    {
+                    try {
                         Thread.sleep(100);
-                    }
-                    catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         return;
                     }
                 }
-            }
-            finally
-            {
+            } finally {
                 // Inform others for progress...
                 remoteProgress.done();
             }
 
-        }
-        finally
-        {
+        } finally {
             monitor.getMain().done();
             lock.unlock();
         }
@@ -389,25 +405,16 @@ public class ConsistencyWatchdogClient extends
 
     protected SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
 
-    protected String getNextRecoveryID()
-    {
+    protected String getNextRecoveryID() {
         return format.format(new Date()) + RANDOM.nextLong();
     }
 
-    @Override
-    public void exec(IActivity activity)
-    {
-        activity.dispatch(activityReceiver);
-    }
-
-    protected boolean isInconsistent(ChecksumActivity checksum)
-    {
+    protected boolean isInconsistent(ChecksumActivity checksum) {
 
         SPath path = checksum.getPath();
         IFile file = path.getFile();
 
-        if (!checksum.existsFile())
-        {
+        if (!checksum.existsFile()) {
             /*
              * If the checksum tells us that the file does not exist at the
              * host, check whether we still have it. If it exists, we do have an
@@ -420,24 +427,21 @@ public class ConsistencyWatchdogClient extends
          * If the checksum tells us, that the file exists, but we do not have
          * it, it is an inconsistency as well
          */
-        if (!file.exists())
-        {
+        if (!file.exists()) {
             return true;
         }
 
         IDocument doc = editorManager.getActionManager().getAdapter().getDocument(file);
 
         // if doc is still null give up
-        if (doc == null)
-        {
+        if (doc == null) {
             LOG.warn("Could not check checksum of file " + path.toString());
             return false;
         }
 
 
         if ((doc.getLength() != checksum.getLength())
-                || (doc.get().hashCode() != checksum.getHash()))
-        {
+                || (doc.get().hashCode() != checksum.getHash())) {
 
             LOG.debug(String.format(
                     "Inconsistency detected: %s L(%d %s %d) H(%x %s %x)", path
@@ -462,66 +466,50 @@ public class ConsistencyWatchdogClient extends
      * @swt This must be called from SWT
      * @client This can only be called on the client
      */
-    public boolean performCheck(SPath path)
-    {
+    public boolean performCheck(SPath path) {
 
-        if (sarosSession == null)
-        {
+        if (sarosSession == null) {
             LOG.warn("Session already ended. Cannot perform consistency check",
                     new StackTrace());
             return false;
         }
 
         ChecksumActivity checksumActivity = latestChecksums.get(path);
-        if (checksumActivity != null)
-        {
+        if (checksumActivity != null) {
             performCheck(checksumActivity);
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    protected synchronized void performCheck(ChecksumActivity checksumActivity)
-    {
+    protected synchronized void performCheck(ChecksumActivity checksumActivity) {
 
         if (sarosSession.hasWriteAccess()
                 && !sarosSession.getConcurrentDocumentClient().isCurrent(
-                checksumActivity))
-        {
+                checksumActivity)) {
             return;
         }
 
         boolean changed;
-        if (isInconsistent(checksumActivity))
-        {
+        if (isInconsistent(checksumActivity)) {
             changed = pathsWithWrongChecksums.add(checksumActivity.getPath());
-        }
-        else
-        {
+        } else {
             changed = pathsWithWrongChecksums
                     .remove(checksumActivity.getPath());
         }
-        if (!changed)
-        {
+        if (!changed) {
             return;
         }
 
         // Update InconsistencyToResolve observable
-        if (pathsWithWrongChecksums.isEmpty())
-        {
-            if (inconsistencyToResolve.getValue())
-            {
+        if (pathsWithWrongChecksums.isEmpty()) {
+            if (inconsistencyToResolve.getValue()) {
                 LOG.info("All Inconsistencies are resolved");
             }
             inconsistencyToResolve.setValue(false);
-        }
-        else
-        {
-            if (!inconsistencyToResolve.getValue())
-            {
+        } else {
+            if (!inconsistencyToResolve.getValue()) {
                 LOG.info("Inconsistencies have been detected");
             }
             inconsistencyToResolve.setValue(true);

@@ -22,47 +22,19 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-
-import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.internal.*;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
-
-import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.annotations.Inject;
-
 import de.fu_berlin.inf.dpp.ISarosContext;
-import de.fu_berlin.inf.dpp.activities.EditorActivity;
-import de.fu_berlin.inf.dpp.activities.FileActivity;
-import de.fu_berlin.inf.dpp.activities.FolderActivity;
-import de.fu_berlin.inf.dpp.activities.IActivity;
-import de.fu_berlin.inf.dpp.activities.IResourceActivity;
-import de.fu_berlin.inf.dpp.activities.JupiterActivity;
-import de.fu_berlin.inf.dpp.activities.NOPActivity;
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
-import de.fu_berlin.inf.dpp.activities.ViewportActivity;
+import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.communication.extensions.ActivitiesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
-
-import de.fu_berlin.inf.dpp.filesystem.IContainer;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.filesystem.IFolder;
-import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
+import de.fu_berlin.inf.dpp.core.project.internal.*;
+import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
+import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
+import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.misc.xstream.SPathConverter;
 import de.fu_berlin.inf.dpp.misc.xstream.UserConverter;
 import de.fu_berlin.inf.dpp.net.IConnectionManager;
@@ -70,18 +42,22 @@ import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
-
-import de.fu_berlin.inf.dpp.session.IActivityConsumer;
-import de.fu_berlin.inf.dpp.session.IActivityListener;
-import de.fu_berlin.inf.dpp.session.IActivityProducer;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
-import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.annotations.Inject;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Saros session implementation
@@ -168,11 +144,11 @@ public final class SarosSession implements ISarosSession {
          * @JTourBusStop 5, Activity sending, Forwarding the IActivity:
          *
          *               This is where the SarosSession will receive the
-         *               activity, it is not part of the ISarosSession interface
-         *               to avoid misuse.
+         *               activity. This listener it is not part of the
+         *               ISarosSession interface to avoid misuse.
          */
         @Override
-        public void activityCreated(final IActivity activity) {
+        public void created(final IActivity activity) {
             if (activity == null)
                 throw new NullPointerException("activity is null");
 

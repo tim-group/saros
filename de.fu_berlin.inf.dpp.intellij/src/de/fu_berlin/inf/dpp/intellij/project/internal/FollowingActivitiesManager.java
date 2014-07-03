@@ -22,27 +22,19 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.internal;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import de.fu_berlin.inf.dpp.activities.StartFollowingActivity;
+import de.fu_berlin.inf.dpp.activities.StopFollowingActivity;
 import de.fu_berlin.inf.dpp.core.project.internal.IFollowModeChangesListener;
 import de.fu_berlin.inf.dpp.intellij.awareness.AwarenessInformationCollector;
-
 import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.session.*;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
-import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.IActivity;
-import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
-import de.fu_berlin.inf.dpp.activities.StartFollowingActivity;
-import de.fu_berlin.inf.dpp.activities.StopFollowingActivity;
-import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.session.AbstractActivityProvider;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This manager is responsible for distributing knowledge about changes in
@@ -51,7 +43,7 @@ import de.fu_berlin.inf.dpp.session.User;
  * @author Alexander Waldmann (contact@net-corps.de)
  */
 //todo: copy from eclipse with minor changes
-public class FollowingActivitiesManager extends AbstractActivityProvider
+public class FollowingActivitiesManager extends AbstractActivityProducer
         implements Startable {
 
     private static final Logger LOG = Logger
@@ -78,7 +70,7 @@ public class FollowingActivitiesManager extends AbstractActivityProvider
         }
     };
 
-    private final IActivityReceiver receiver = new AbstractActivityReceiver() {
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(StartFollowingActivity activity) {
             final User source = activity.getSource();
@@ -115,20 +107,17 @@ public class FollowingActivitiesManager extends AbstractActivityProvider
     @Override
     public void start() {
         collector.flushFollowModes();
-        installProvider(session);
+        session.addActivityProducer(this);
+        session.addActivityConsumer(consumer);
         editor.addSharedEditorListener(followModeListener);
     }
 
     @Override
     public void stop() {
-        uninstallProvider(session);
+        session.removeActivityProducer(this);
+        session.removeActivityConsumer(consumer);
         editor.removeSharedEditorListener(followModeListener);
         collector.flushFollowModes();
-    }
-
-    @Override
-    public void exec(IActivity activity) {
-        activity.dispatch(receiver);
     }
 
     private void notifyListeners() {

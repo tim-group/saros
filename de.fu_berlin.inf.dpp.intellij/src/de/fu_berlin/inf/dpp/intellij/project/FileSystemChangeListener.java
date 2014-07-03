@@ -69,7 +69,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         User user = resourceManager.getSession().getLocalUser();
         ProjectImp project = (ProjectImp) oldSPath.getProject();
         IActivity createActivity = new FolderActivity(user, FolderActivity.Type.CREATED, newSPath);
-        resourceManager.fireActivityInternal(createActivity);
+        resourceManager.internalFireActivity(createActivity);
 
         IFolder folder = before ? oldSPath.getFolder() : newSPath.getFolder();
 
@@ -99,7 +99,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         IActivity removeActivity = new FolderActivity(user, FolderActivity.Type.REMOVED, oldSPath);
-        resourceManager.fireActivityInternal(removeActivity);
+        resourceManager.internalFireActivity(removeActivity);
 
         project.addFile(newSPath.getFile().toFile());
         project.removeFile(oldSPath.getFile().toFile());
@@ -138,7 +138,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         editorManager.getActionManager().getEditorPool().replaceAll(oldSPath, newSPath);
         project.addFile(newSPath.getFile().toFile());
         project.removeFile(oldSPath.getFile().toFile());
-        resourceManager.fireActivityInternal(activity);
+        resourceManager.internalFireActivity(activity);
     }
 
     @Override
@@ -212,7 +212,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         ((ProjectImp) project).addFile(file);
 
 
-        resourceManager.fireActivityInternal(activity);
+        resourceManager.internalFireActivity(activity);
     }
 
     @Override
@@ -263,7 +263,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         ((ProjectImp) project).removeFile(file);
         editorManager.getActionManager().getEditorPool().removeAll(spath);
 
-        resourceManager.fireActivityInternal(activity);
+        resourceManager.internalFireActivity(activity);
     }
 
     @Override
@@ -429,7 +429,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         ((ProjectImp) project).addFile(newFile);
 
-        resourceManager.fireActivityInternal(activity);
+        resourceManager.internalFireActivity(activity);
     }
 
     @Override

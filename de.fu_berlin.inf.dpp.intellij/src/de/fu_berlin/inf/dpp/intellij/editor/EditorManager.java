@@ -48,8 +48,7 @@ import java.util.Set;
  * IntelliJ implementation of editor manager
  */
 public class EditorManager
-        extends AbstractActivityProvider
-{
+        extends AbstractActivityProducer {
 
     protected static final Logger LOG = Logger.getLogger(EditorManager.class);
 
@@ -63,7 +62,7 @@ public class EditorManager
 
     protected RemoteWriteAccessManager remoteWriteAccessManager;
 
-    protected ISarosSession sarosSession;
+    protected ISarosSession session;
 
     /**
      * The user that is followed or <code>null</code> if no user is followed.
@@ -111,6 +110,59 @@ public class EditorManager
         }
     };
 
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
+        /**
+         * @JTourBusStop 12, Activity sending, More complex example of a second
+         *               dispatch:
+         *
+         *               The exec() method below is a more complex example of
+         *               the second dispatch: Before letting the activity
+         *               perform the third dispatch (done in super.exec()), this
+         *               specific implementation dispatches the activity to two
+         *               other consumers.
+         */
+
+        /***/
+        @Override
+        public void exec(IActivity activity) {
+
+            User sender = activity.getSource();
+            if (!sender.isInSession()) {
+                LOG.warn("skipping execution of activity " + activity
+                        + " for user " + sender
+                        + " who is not in the current session");
+                return;
+            }
+
+            // First let the remote managers update itself based on the
+            // Activity
+            remoteEditorManager.exec(activity);
+            remoteWriteAccessManager.exec(activity);
+
+            super.exec(activity);
+        }
+
+        @Override
+        public void receive(EditorActivity editorActivity) {
+            execEditorActivity(editorActivity);
+        }
+
+        @Override
+        public void receive(TextEditActivity textEditActivity) {
+            execTextEdit(textEditActivity);
+        }
+
+        @Override
+        public void receive(TextSelectionActivity textSelectionActivity) {
+            execTextSelection(textSelectionActivity);
+        }
+
+        @Override
+        public void receive(ViewportActivity viewportActivity) {
+            execViewport(viewportActivity);
+        }
+    };
+
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
     {
 
@@ -121,16 +173,17 @@ public class EditorManager
 
             assert getActionManager().getEditorPool().getEditors().size() == 0 : "EditorPool was not correctly reset!";
 
-            sarosSession = newSarosSession;
-            sarosSession.getStopManager().addBlockable(stopManagerListener);
+            session = newSarosSession;
+            session.getStopManager().addBlockable(stopManagerListener);
 
-            hasWriteAccess = sarosSession.hasWriteAccess();
-            sarosSession.addListener(sharedProjectListener);
+            hasWriteAccess = session.hasWriteAccess();
+            session.addListener(sharedProjectListener);
 
-            installProvider(sarosSession);
+            session.addActivityProducer(EditorManager.this);
+            session.addActivityConsumer(consumer);
 
-            remoteEditorManager = new RemoteEditorManager(sarosSession);
-            remoteWriteAccessManager = new RemoteWriteAccessManager(sarosSession);
+            remoteEditorManager = new RemoteEditorManager(session);
+            remoteWriteAccessManager = new RemoteWriteAccessManager(session);
 
             LocalFileSystem.getInstance().refresh(true);
         }
@@ -141,8 +194,8 @@ public class EditorManager
 
             LOG.info("Session ended");
 
-            assert sarosSession == oldSarosSession;
-            sarosSession.getStopManager().removeBlockable(stopManagerListener); //todo
+            assert session == oldSarosSession;
+            session.getStopManager().removeBlockable(stopManagerListener); //todo
 
             ThreadUtils.runSafeSync(LOG, new Runnable()
             {
@@ -154,10 +207,11 @@ public class EditorManager
 
                     actionManager.getEditorPool().clear();
 
-                    sarosSession.removeListener(sharedProjectListener);
-                    uninstallProvider(sarosSession);
+                    session.removeListener(sharedProjectListener);
+                    session.removeActivityProducer(EditorManager.this);
+                    session.removeActivityConsumer(consumer);
 
-                    sarosSession = null;
+                    session = null;
 
                     remoteEditorManager = null;
                     remoteWriteAccessManager.dispose();
@@ -292,7 +346,7 @@ public class EditorManager
         public void permissionChanged(final User user)
         {
 
-            hasWriteAccess = sarosSession.hasWriteAccess();
+            hasWriteAccess = session.hasWriteAccess();
 
             // Lock / unlock editors
             if (user.isLocal())
@@ -308,7 +362,7 @@ public class EditorManager
         {
 
             // Send awareness-informations
-            User localUser = sarosSession.getLocalUser();
+            User localUser = session.getLocalUser();
             for (SPath path : getLocallyOpenEditors())
             {
                 fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
@@ -369,7 +423,7 @@ public class EditorManager
     public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore)
     {
 
-        remoteEditorManager = new RemoteEditorManager(sarosSession);
+        remoteEditorManager = new RemoteEditorManager(session);
         sessionManager.addSarosSessionListener(this.sessionListener);
         this.preferenceStore = preferenceStore;
 
@@ -525,13 +579,13 @@ public class EditorManager
 
         this.activeEditor = path;
 
-        if (path != null && sarosSession.isShared(path.getResource()))
+        if (path != null && session.isShared(path.getResource()))
         {
             this.locallyOpenEditors.add(path);
         }
 
-        editorListenerDispatch.activeEditorChanged(sarosSession.getLocalUser(), path);
-        fireActivity(new EditorActivity(sarosSession.getLocalUser(),
+        editorListenerDispatch.activeEditorChanged(session.getLocalUser(), path);
+        fireActivity(new EditorActivity(session.getLocalUser(),
                 EditorActivity.Type.ACTIVATED, path));
 
         //  generateSelection(path, selection);  //todo
@@ -557,7 +611,7 @@ public class EditorManager
         }
 
 
-        fireActivity(new EditorActivity(sarosSession.getLocalUser(),
+        fireActivity(new EditorActivity(session.getLocalUser(),
                 EditorActivity.Type.CLOSED, path));
     }
 
@@ -581,7 +635,7 @@ public class EditorManager
         int offset = newSelection.getNewRange().getStartOffset();
         int length = newSelection.getNewRange().getLength();
 
-        fireActivity(new TextSelectionActivity(sarosSession.getLocalUser(),
+        fireActivity(new TextSelectionActivity(session.getLocalUser(),
                 offset, length, path));
     }
 
@@ -589,7 +643,7 @@ public class EditorManager
     public void generateViewport(SPath path, LineRange viewport)
     {
 
-        if (this.sarosSession == null)
+        if (this.session == null)
         {
             LOG.warn("SharedEditorListener not correctly unregistered!");
             return;
@@ -602,7 +656,7 @@ public class EditorManager
         }
 
 
-        fireActivity(new ViewportActivity(sarosSession.getLocalUser(),
+        fireActivity(new ViewportActivity(session.getLocalUser(),
                 viewport.getStartLine(), viewport.getNumberOfLines(), path));
 
         //  editorListenerDispatch.viewportGenerated(part, viewport, path);  //todo
@@ -642,7 +696,7 @@ public class EditorManager
     public void setFollowing(User newFollowedUser)
     {
         assert newFollowedUser == null
-                || !newFollowedUser.equals(sarosSession.getLocalUser()) : "local user cannot follow himself!";
+                || !newFollowedUser.equals(session.getLocalUser()) : "local user cannot follow himself!";
 
         User oldFollowedUser = this.followedUser;
         this.followedUser = newFollowedUser;
@@ -666,7 +720,7 @@ public class EditorManager
                 .getActiveEditor();
 
         // you can't follow yourself
-        if (sarosSession.getLocalUser().equals(jumpTo))
+        if (session.getLocalUser().equals(jumpTo))
         {
             return;
         }
@@ -750,7 +804,7 @@ public class EditorManager
 
     protected boolean isSharedEditor(SPath editorFilePath)
     {
-        if (sarosSession == null)
+        if (session == null)
         {
             return false;
         }
@@ -760,7 +814,7 @@ public class EditorManager
             return false;
         }
 
-        return this.sarosSession.isShared(editorFilePath.getResource());
+        return this.session.isShared(editorFilePath.getResource());
     }
 
     public void addSharedEditorListener(ISharedEditorListener listener)
@@ -801,12 +855,12 @@ public class EditorManager
     public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path)
     {
 
-        if (sarosSession == null)
+        if (session == null)
         {
             return;
         }
 
-        TextEditActivity textEdit = new TextEditActivity(sarosSession.getLocalUser(), offset, oldText, newText, path);
+        TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(), offset, oldText, newText, path);
 
         if (!hasWriteAccess || isLocked)
         {
@@ -828,7 +882,7 @@ public class EditorManager
         fireActivity(textEdit);
 
         // inform all registered ISharedEditorListeners about this text edit
-        editorListenerDispatch.textEditRecieved(sarosSession.getLocalUser(),
+        editorListenerDispatch.textEditRecieved(session.getLocalUser(),
                 textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
 
     }

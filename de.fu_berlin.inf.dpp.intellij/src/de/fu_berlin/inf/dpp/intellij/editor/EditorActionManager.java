@@ -49,8 +49,7 @@ import java.util.Map;
 /**
  * Editor action manager. Class
  */
-public class EditorActionManager
-{
+public class EditorActionManager {
     private Logger LOG = Logger.getLogger(EditorActionManager.class);
     private EditorPool editorPool;
     private EditorAPI editorAPI;
@@ -65,8 +64,7 @@ public class EditorActionManager
     public Map<VirtualFile, byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
 
 
-    public EditorActionManager(EditorManager manager)
-    {
+    public EditorActionManager(EditorManager manager) {
         this.editorPool = new EditorPool();
         this.editorAPI = new EditorAPI();
         this.manager = manager;
@@ -78,23 +76,19 @@ public class EditorActionManager
         this.viewportListener = new StoppableViewPortListener(manager);
         this.adapter = new DocumentProvider(this);
 
-        if (this.editorAPI.editorFileManager != null)
-        {
+        if (this.editorAPI.editorFileManager != null) {
             this.editorAPI.editorFileManager.addFileEditorManagerListener(this.fileListener);
         }
     }
 
 
-    public Editor openEditor(SPath file)
-    {
+    public Editor openEditor(SPath file) {
 
         VirtualFile virtualFile = editorAPI.toVirtualFile(file);
-        if (virtualFile.exists())
-        {
+        if (virtualFile.exists()) {
             // this.fileListener.setEnabled(false);
 
-            if (editorAPI.isOpen(virtualFile))
-            {
+            if (editorAPI.isOpen(virtualFile)) {
                 Editor editor = editorAPI.openEditor(virtualFile);   //todo: need to activate only, not open!
 
 
@@ -106,9 +100,7 @@ public class EditorActionManager
 
                 //  return editorPool.getEditor(file);
                 //  editorFileManager.setSelectedEditor(path,FileEditorProvider.getEditorTypeId());
-            }
-            else
-            {
+            } else {
                 Editor editor = editorAPI.openEditor(virtualFile);
 
 //            DocumentAdapter pooledDoc = editorPool.getDocument(file);
@@ -129,25 +121,21 @@ public class EditorActionManager
 
                 return editor;
             }
-        }
-        else
-        {
+        } else {
             LOG.warn("File not exist " + file);
         }
 
         return null;
     }
 
-    public void startEditor(Editor editor)
-    {
+    public void startEditor(Editor editor) {
         editor.getDocument().setReadOnly(false);
         editor.getSelectionModel().addSelectionListener(selectionListener);
         editor.getScrollingModel().addVisibleAreaListener(viewportListener);
         documentListener.setDocument(editor.getDocument());
     }
 
-    public void stopEditor(Editor editor)
-    {
+    public void stopEditor(Editor editor) {
         editor.getSelectionModel().removeSelectionListener(selectionListener);
         editor.getScrollingModel().removeVisibleAreaListener(viewportListener);
         documentListener.setDocument(null);
@@ -160,11 +148,9 @@ public class EditorActionManager
      * @param text
      * @return
      */
-    public boolean replaceText(SPath path, String text)
-    {
+    public boolean replaceText(SPath path, String text) {
         Document doc = editorPool.getDocument(path);
-        if (doc != null)
-        {
+        if (doc != null) {
             boolean bWritable = doc.isWritable();
             doc.setReadOnly(false);
             editorAPI.setText(doc, text);
@@ -175,17 +161,13 @@ public class EditorActionManager
         return false;
     }
 
-    public void closeEditor(SPath file)
-    {
+    public void closeEditor(SPath file) {
         VirtualFile virtualFile = editorAPI.toVirtualFile(file);
-        if (virtualFile != null && virtualFile.exists())
-        {
+        if (virtualFile != null && virtualFile.exists()) {
             //   this.fileListener.setEnabled(false);
-            if (editorAPI.isOpen(virtualFile))
-            {
+            if (editorAPI.isOpen(virtualFile)) {
                 Document doc = editorPool.getDocument(file);
-                if (doc != null)
-                {
+                if (doc != null) {
                     // doc.removeDocumentListener(documentListener);
                     documentListener.setDocument(null);
                 }
@@ -195,33 +177,25 @@ public class EditorActionManager
             editorPool.removeEditor(file);
 
             //      this.fileListener.setEnabled(true);
-        }
-        else
-        {
+        } else {
             LOG.warn("File not exist " + file);
         }
     }
 
-    public void saveEditor(SPath file)
-    {
+    public void saveEditor(SPath file) {
         Document doc = editorPool.getDocument(file);
-        if (doc != null)
-        {
+        if (doc != null) {
             // this.fileListener.setEnabled(false);
             editorAPI.saveDocument(doc);
             // this.fileListener.setEnabled(true);
-        }
-        else
-        {
+        } else {
             LOG.warn("DocumentAdapter not exist " + file);
         }
     }
 
-    public void editText(SPath file, Operation operations, Color color)
-    {
+    public void editText(SPath file, Operation operations, Color color) {
         Document doc = editorPool.getDocument(file);
-        if (doc == null)
-        {
+        if (doc == null) {
             VirtualFile virtualFile = editorAPI.toVirtualFile(file);
             doc = editorAPI.createDocument(virtualFile);
             editorPool.add(file, doc);
@@ -232,18 +206,13 @@ public class EditorActionManager
          * change
          */
         documentListener.setEnabled(false);
-        for (ITextOperation op : operations.getTextOperations())
-        {
-            if (op instanceof DeleteOperation)
-            {
+        for (ITextOperation op : operations.getTextOperations()) {
+            if (op instanceof DeleteOperation) {
                 editorAPI.deleteText(doc, op.getPosition(), op.getPosition() + op.getTextLength());
-            }
-            else
-            {
+            } else {
                 editorAPI.insertText(doc, op.getPosition(), op.getText());
                 Editor editor = editorPool.getEditor(file);
-                if (editor != null)
-                {
+                if (editor != null) {
                     editorAPI.textMarkAdd(editor, op.getPosition(), op.getPosition() + op.getTextLength(), color);
                 }
             }
@@ -252,20 +221,16 @@ public class EditorActionManager
         documentListener.setEnabled(true);
     }
 
-    public void clearSelection(SPath file)
-    {
+    public void clearSelection(SPath file) {
         Editor editor = editorPool.getEditor(file);
-        if (editor != null)
-        {
-            editorAPI.textMarkRemove(editor,null);
+        if (editor != null) {
+            editorAPI.textMarkRemove(editor, null);
         }
     }
 
-    public void selectText(SPath file, int position, int length, ColorModel colorModel)
-    {
+    public void selectText(SPath file, int position, int length, ColorModel colorModel) {
         Editor editor = editorPool.getEditor(file);
-        if (editor != null)
-        {
+        if (editor != null) {
             editorAPI.textMarkRemove(editor, colorModel.getSelect());
             RangeHighlighter highlighter = editorAPI.textMarkAdd(editor, position, position + length, colorModel.getSelectColor());
             colorModel.setSelect(highlighter);
@@ -274,11 +239,9 @@ public class EditorActionManager
         }
     }
 
-    public void setViewPort(final SPath file, final int lineStart, final int lineEnd)
-    {
+    public void setViewPort(final SPath file, final int lineStart, final int lineEnd) {
         Editor editor = editorPool.getEditor(file);
-        if (editor != null)
-        {
+        if (editor != null) {
             editorAPI.setViewPort(editor, lineStart, lineEnd);
         }
     }
@@ -292,10 +255,8 @@ public class EditorActionManager
      * @param range     viewport of the followed user. Can be <code>null</code>.
      * @param selection text selection of the followed user. Can be <code>null</code>.
      */
-    public void adjustViewport(Editor editor, LineRange range, TextSelection selection)
-    {
-        if (editor == null || selection == null || range == null)
-        {
+    public void adjustViewport(Editor editor, LineRange range, TextSelection selection) {
+        if (editor == null || selection == null || range == null) {
             return;
         }
 
@@ -417,20 +378,16 @@ public class EditorActionManager
    */
     }
 
-    public void setEditable(SPath path, boolean editable)
-    {
+    public void setEditable(SPath path, boolean editable) {
         Document doc = editorAPI.getDocument(path.getFile().toFile());
-        if (doc != null)
-        {
+        if (doc != null) {
             doc.setReadOnly(!editable);
         }
     }
 
 
-    public SPath toPath(VirtualFile virtualFile)
-    {
-        if (virtualFile == null || !virtualFile.exists() || manager.sarosSession == null)
-        {
+    public SPath toPath(VirtualFile virtualFile) {
+        if (virtualFile == null || !virtualFile.exists() || manager.session == null) {
             return null;
         }
 
@@ -439,11 +396,9 @@ public class EditorActionManager
 
         String path = virtualFile.getPath();
 
-        for (IProject project : manager.sarosSession.getProjects())
-        {
+        for (IProject project : manager.session.getProjects()) {
             resource = project.getFile(path);
-            if (resource != null)
-            {
+            if (resource != null) {
                 break;
             }
 
@@ -451,79 +406,64 @@ public class EditorActionManager
         return resource == null ? null : new SPath(resource);
     }
 
-    public void reloadDocuments()
-    {
-        for (Document doc : getEditorPool().getDocuments())
-        {
+    public void reloadDocuments() {
+        for (Document doc : getEditorPool().getDocuments()) {
             editorAPI.reloadFromDisk(doc);
         }
     }
 
-    public boolean isOpenEditor(SPath path)
-    {
+    public boolean isOpenEditor(SPath path) {
         Document doc = editorPool.getDocument(path);
-        if (doc == null)
-        {
+        if (doc == null) {
             return false;
         }
 
         return editorAPI.isOpen(doc);
     }
 
-    public void lockAllEditors(boolean lock)
-    {
+    public void lockAllEditors(boolean lock) {
 
         enableListeners(!lock);
 
-        for (Document doc : editorPool.getDocuments())
-        {
+        for (Document doc : editorPool.getDocuments()) {
             doc.setReadOnly(lock);
         }
 
     }
 
-    public void enableListeners(boolean enable)
-    {
+    public void enableListeners(boolean enable) {
 
-        if (documentListener != null)
-        {
+        if (documentListener != null) {
             documentListener.setEnabled(enable);
         }
 
-        if (fileListener != null)
-        {
+        if (fileListener != null) {
             fileListener.setEnabled(enable);
         }
 
-        if (selectionListener != null)
-        {
+        if (selectionListener != null) {
             selectionListener.setEnabled(enable);
         }
 
-        if (viewportListener != null)
-        {
+        if (viewportListener != null) {
             viewportListener.setEnabled(enable);
         }
     }
 
-    public void registerNewFile(VirtualFile virtualFile, byte[] content)
-    {
+    public void registerNewFile(VirtualFile virtualFile, byte[] content) {
         this.newFiles.put(virtualFile, content);
     }
 
-    public DocumentProvider getAdapter()
-    {
+    public DocumentProvider getAdapter() {
         return adapter;
     }
 
-    public EditorPool getEditorPool()
-    {
+    public EditorPool getEditorPool() {
         return editorPool;
     }
 
 
-    public EditorAPI getEditorAPI()
-    {
+    public EditorAPI getEditorAPI() {
         return editorAPI;
     }
 }
