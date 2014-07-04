@@ -328,6 +328,10 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         fileSystemListener.setEnabled(true);
     }
 
+    void internalFireActivity(IActivity activity) {
+        fireActivity(activity);
+    }
+
     protected void exec(VCSActivity activity) {
         final VCSActivity.Type activityType = activity.getType();
         SPath path = activity.getPath();
