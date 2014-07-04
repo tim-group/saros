@@ -34,7 +34,7 @@ import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
@@ -606,7 +606,7 @@ public class EditorManager
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
-                IntelliJUIHelper.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+                NotificationHandler.showNotification("Follow Mode stopped!", "You closed the followed editor.");
             }
         }
 

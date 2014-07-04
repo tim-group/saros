@@ -25,20 +25,30 @@ package de.fu_berlin.inf.dpp.intellij.ui.util;
 import org.apache.log4j.Logger;
 
 /**
- *  Class should use IntelliJ API to show notifications
+ * Class should use IntelliJ API to show notifications
  */
 //todo: make implementation
-public class IntelliJUIHelper
-{
-    private static final Logger LOG = Logger.getLogger(IntelliJUIHelper.class);
+public class NotificationHandler {
+    private static final Logger LOG = Logger.getLogger(NotificationHandler.class);
 
-    public static void showNotification(String message, String title)
-    {
+    private NotificationHandler() {
+    }
+
+    /**
+     * Dispaly the Notification.
+     * TODO: Implement
+     *
+     * @param message
+     * @param title
+     */
+    public static void showNotification(String message, String title) {
         LOG.info("Notification: " + title + ", " + message);
     }
 
-    public static void clearNotifications()
-    {
+    /**
+     * Clears all notifications.
+     */
+    public static void clearNotifications() {
         //todo: implement it
     }
 }

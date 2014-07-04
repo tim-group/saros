@@ -36,8 +36,8 @@ import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
@@ -60,8 +60,7 @@ import java.util.List;
  * @author srossbach
  */
 //todo: adaptation from eclipse
-public class NegotiationHandler implements INegotiationHandler
-{
+public class NegotiationHandler implements INegotiationHandler {
 
     public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;
     private static final Logger LOG = Logger.getLogger(NegotiationHandler.class);
@@ -75,14 +74,12 @@ public class NegotiationHandler implements INegotiationHandler
      * It notifies the user about the progress using the Eclipse Jobs API and
      * interrupts the process if the session closes.
      */
-    private class OutgoingInvitationJob extends UIMonitoredJob
-    {
+    private class OutgoingInvitationJob extends UIMonitoredJob {
 
         private OutgoingSessionNegotiation process;
         private String peer;
 
-        public OutgoingInvitationJob(OutgoingSessionNegotiation process)
-        {
+        public OutgoingInvitationJob(OutgoingSessionNegotiation process) {
             super(MessageFormat.format(
                     Messages.NegotiationHandler_inviting_user,
                     getNickname(process.getPeer())));
@@ -91,15 +88,12 @@ public class NegotiationHandler implements INegotiationHandler
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor)
-        {
-            try
-            {
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
                 SessionNegotiation.Status status = process
                         .start(monitor);
 
-                switch (status)
-                {
+                switch (status) {
                     case CANCEL:
                         return Status.CANCEL_STATUS;
                     case ERROR:
@@ -108,7 +102,7 @@ public class NegotiationHandler implements INegotiationHandler
                     case OK:
                         break;
                     case REMOTE_CANCEL:
-                        IntelliJUIHelper
+                        NotificationHandler
                                 .showNotification(
                                         Messages.NegotiationHandler_canceled_invitation,
                                         MessageFormat
@@ -127,7 +121,7 @@ public class NegotiationHandler implements INegotiationHandler
                         );
 
                     case REMOTE_ERROR:
-                        IntelliJUIHelper
+                        NotificationHandler
                                 .showNotification(
                                         Messages.NegotiationHandler_error_during_invitation,
                                         MessageFormat
@@ -145,9 +139,7 @@ public class NegotiationHandler implements INegotiationHandler
                                                 peer, process.getErrorMessage())
                         );
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOG.error("This exceptions is not expected here: ", e);
                 return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
 
@@ -159,32 +151,27 @@ public class NegotiationHandler implements INegotiationHandler
         }
     }
 
-    private class OutgoingProjectJob extends UIMonitoredJob
-    {
+    private class OutgoingProjectJob extends UIMonitoredJob {
 
         private OutgoingProjectNegotiation process;
         private String peer;
 
         public OutgoingProjectJob(
-                OutgoingProjectNegotiation outgoingProjectNegotiation)
-        {
+                OutgoingProjectNegotiation outgoingProjectNegotiation) {
             super(Messages.NegotiationHandler_sharing_project);
             process = outgoingProjectNegotiation;
             peer = process.getPeer().getBase();
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor)
-        {
-            try
-            {
+        protected IStatus run(IProgressMonitor monitor) {
+            try {
                 ProjectNegotiation.Status status = process.start(monitor);
                 String peerName = getNickname(new JID(peer));
 
                 final String message;
 
-                switch (status)
-                {
+                switch (status) {
                     case CANCEL:
                         return Status.CANCEL_STATUS;
                     case ERROR:
@@ -198,11 +185,9 @@ public class NegotiationHandler implements INegotiationHandler
                                         Messages.NegotiationHandler_project_sharing_cancelled_text,
                                         peerName);
 
-                        ThreadUtils.runSafeAsync(LOG, new Runnable()
-                        {
+                        ThreadUtils.runSafeAsync(LOG, new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 DialogUtils.showInfo(DialogUtils.getDefaultContainer(), message,
                                         Messages.NegotiationHandler_project_sharing_cancelled_text);
                             }
@@ -215,16 +200,14 @@ public class NegotiationHandler implements INegotiationHandler
                                 .format(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely,
                                         peerName, process.getErrorMessage());
-                        IntelliJUIHelper
+                        NotificationHandler
                                 .showNotification(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
                                         message);
 
                         return new Status(IStatus.ERROR, NAMESPACE, message);
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOG.error("This exceptions is not expected here: ", e);
                 return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
 
@@ -237,16 +220,14 @@ public class NegotiationHandler implements INegotiationHandler
     private final ISarosSessionManager sessionManager;
 
     public NegotiationHandler(ISarosSessionManager sessionManager,
-            XMPPConnectionService connectionService)
-    {
+                              XMPPConnectionService connectionService) {
         this.sessionManager = sessionManager;
         this.sessionManager.setNegotiationHandler(this);
     }
 
     @Override
     public void handleOutgoingSessionNegotiation(
-            OutgoingSessionNegotiation negotiation)
-    {
+            OutgoingSessionNegotiation negotiation) {
 
         OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
                 negotiation);
@@ -257,15 +238,13 @@ public class NegotiationHandler implements INegotiationHandler
 
     @Override
     public void handleIncomingSessionNegotiation(
-            IncomingSessionNegotiation negotiation)
-    {
+            IncomingSessionNegotiation negotiation) {
         showIncomingInvitationUI(negotiation);
     }
 
     @Override
     public void handleOutgoingProjectNegotiation(
-            OutgoingProjectNegotiation negotiation)
-    {
+            OutgoingProjectNegotiation negotiation) {
 
         OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
         job.setPriority(Thread.NORM_PRIORITY);
@@ -274,22 +253,18 @@ public class NegotiationHandler implements INegotiationHandler
 
     @Override
     public void handleIncomingProjectNegotiation(
-            IncomingProjectNegotiation negotiation)
-    {
+            IncomingProjectNegotiation negotiation) {
         showIncomingProjectUI(negotiation);
     }
 
     private void showIncomingInvitationUI(
-            final IncomingSessionNegotiation process)
-    {
+            final IncomingSessionNegotiation process) {
 
         // Fixes #2727848: InvitationDialog is opened in the
         // background
-        ThreadUtils.runSafeAsync(LOG, new Runnable()
-        {
+        ThreadUtils.runSafeAsync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                 /**
                  * @JTourBusStop 8, Invitation Process:
@@ -309,22 +284,18 @@ public class NegotiationHandler implements INegotiationHandler
 
     }
 
-    private void showIncomingProjectUI(final IncomingProjectNegotiation process)
-    {
+    private void showIncomingProjectUI(final IncomingProjectNegotiation process) {
 
         List<ProjectNegotiationData> pInfos = process.getProjectInfos();
         final List<FileList> fileLists = new ArrayList<FileList>(pInfos.size());
 
-        for (ProjectNegotiationData pInfo : pInfos)
-        {
+        for (ProjectNegotiationData pInfo : pInfos) {
             fileLists.add(pInfo.getFileList());
         }
 
-        ThreadUtils.runSafeSync(LOG, new Runnable()
-        {
+        ThreadUtils.runSafeSync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
                 AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
                         .getProjectNames());
@@ -332,12 +303,10 @@ public class NegotiationHandler implements INegotiationHandler
         });
     }
 
-    private static String getNickname(JID jid)
-    {
+    private static String getNickname(JID jid) {
         String nickname = XMPPUtils.getNickname(null, jid);
 
-        if (nickname == null)
-        {
+        if (nickname == null) {
             nickname = jid.getBareJID().toString();
         }
 

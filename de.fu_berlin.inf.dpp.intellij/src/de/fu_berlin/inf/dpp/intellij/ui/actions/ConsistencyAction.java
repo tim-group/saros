@@ -23,16 +23,16 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressFrame;
@@ -50,38 +50,31 @@ import java.util.Set;
 /**
  * Checks shared project consistency
  */
-public class ConsistencyAction extends AbstractSarosAction
-{
+public class ConsistencyAction extends AbstractSarosAction {
     public static final String ACTION_NAME = "consistency";
 
 
     @Override
-    public String getActionName()
-    {
+    public String getActionName() {
         return ACTION_NAME;
     }
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener()
-    {
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
-        public void sessionStarted(ISarosSession newSarosSession)
-        {
+        public void sessionStarted(ISarosSession newSarosSession) {
             setSharedProject(newSarosSession);
         }
 
         @Override
-        public void sessionEnded(ISarosSession oldSarosSession)
-        {
+        public void sessionEnded(ISarosSession oldSarosSession) {
             setSharedProject(null);
         }
     };
 
-    private final ValueChangeListener<Boolean> isConsistencyListener = new ValueChangeListener<Boolean>()
-    {
+    private final ValueChangeListener<Boolean> isConsistencyListener = new ValueChangeListener<Boolean>() {
 
         @Override
-        public void setValue(Boolean newValue)
-        {
+        public void setValue(Boolean newValue) {
             handleConsistencyChange(newValue);
         }
     };
@@ -100,37 +93,31 @@ public class ConsistencyAction extends AbstractSarosAction
     private ISarosSession sarosSession;
 
 
-    public ConsistencyAction()
-    {
+    public ConsistencyAction() {
         SarosPluginContext.initComponent(this);
 
         setSharedProject(sessionManager.getSarosSession());
         sessionManager.addSarosSessionListener(sessionListener);
     }
 
-    private void setSharedProject(ISarosSession newSharedProject)
-    {
+    private void setSharedProject(ISarosSession newSharedProject) {
 
         // Unregister from previous project
-        if (sarosSession != null)
-        {
+        if (sarosSession != null) {
             inconsistentObservable.remove(isConsistencyListener);
         }
 
         sarosSession = newSharedProject;
 
-        if (sarosSession != null)
-        {
+        if (sarosSession != null) {
             inconsistentObservable.addAndNotify(isConsistencyListener);
         }
 
     }
 
-    private void handleConsistencyChange(final Boolean isInconsistent)
-    {
+    private void handleConsistencyChange(final Boolean isInconsistent) {
 
-        if (sarosSession.isHost() && isInconsistent)
-        {
+        if (sarosSession.isHost() && isInconsistent) {
             LOG.warn("No inconsistency should ever be reported" //$NON-NLS-1$
                     + " to the host"); //$NON-NLS-1$
             return;
@@ -138,18 +125,15 @@ public class ConsistencyAction extends AbstractSarosAction
         LOG.debug("Inconsistency indicator goes: " //$NON-NLS-1$
                 + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
 
-        SwingUtilities.invokeLater(new Runnable()
-        {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 consistencyButton.setInconsistent(isInconsistent);
             }
         });
 
 
-        if (!isInconsistent)
-        {
+        if (!isInconsistent) {
             setToolTipText(Messages.ConsistencyAction_tooltip_no_inconsistency);
             return;
         }
@@ -158,18 +142,14 @@ public class ConsistencyAction extends AbstractSarosAction
         final Set<SPath> paths = new HashSet<SPath>(
                 watchdogClient.getPathsWithWrongChecksums());
 
-        SwingUtilities.invokeLater(new Runnable()
-        {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                 StringBuilder sb = new StringBuilder();
 
-                for (SPath path : paths)
-                {
-                    if (sb.length() > 0)
-                    {
+                for (SPath path : paths) {
+                    if (sb.length() > 0) {
                         sb.append(", ");
                     }
 
@@ -188,7 +168,7 @@ public class ConsistencyAction extends AbstractSarosAction
                 // when refactoring)
 
                 // show balloon notification
-                IntelliJUIHelper
+                NotificationHandler
                         .showNotification(
                                 Messages.ConsistencyAction_title_inconsistency_deteced,
                                 MessageFormat
@@ -200,22 +180,19 @@ public class ConsistencyAction extends AbstractSarosAction
         });
     }
 
-    private void setToolTipText(String text)
-    {
-        IntelliJUIHelper.showNotification(text, "Consistency warning");
+    private void setToolTipText(String text) {
+        NotificationHandler.showNotification(text, "Consistency warning");
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         LOG.debug("user activated CW recovery.");
 
         final Set<SPath> paths = new HashSet<SPath>(
                 watchdogClient.getPathsWithWrongChecksums());
 
         StringBuilder sbInconsistentFiles = new StringBuilder();
-        for (SPath path : paths)
-        {
+        for (SPath path : paths) {
             sbInconsistentFiles.append("project: ");
             sbInconsistentFiles.append(path.getProject().getName());
             sbInconsistentFiles.append(", file: ");
@@ -227,8 +204,7 @@ public class ConsistencyAction extends AbstractSarosAction
         sbInconsistentFiles.append("\nWould you like to get last changes?\n");
 
 
-        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(), Messages.ConsistencyAction_confirm_dialog_title))
-        {
+        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(), Messages.ConsistencyAction_confirm_dialog_title)) {
             consistencyButton.setEnabled(true);
 
             return;
@@ -236,16 +212,14 @@ public class ConsistencyAction extends AbstractSarosAction
 
 
         final ProgressFrame progress = new ProgressFrame("Consistency action");
-        progress.setFinishListener(new MonitorProgressBar.FinishListener()
-        {
+        progress.setFinishListener(new MonitorProgressBar.FinishListener() {
             @Override
-            public void finished()
-            {
+            public void finished() {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         consistencyButton.setEnabled(true);
-                        consistencyButton.setInconsistent(watchdogClient.getPathsWithWrongChecksums().size()>0);
+                        consistencyButton.setInconsistent(watchdogClient.getPathsWithWrongChecksums().size() > 0);
                     }
                 });
 
@@ -253,23 +227,20 @@ public class ConsistencyAction extends AbstractSarosAction
             }
         });
 
-        ThreadUtils.runSafeAsync(LOG, new Runnable()
-        {
+        ThreadUtils.runSafeAsync(LOG, new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                 progress.beginTask(
                         Messages.ConsistencyAction_progress_perform_recovery, IProgressMonitor.UNKNOWN);
                 watchdogClient.runRecovery(progress.convert());
 
-              //  progress.done();
+                //  progress.done();
             }
         });
     }
 
-    public void setConsistencyButton(ConsistencyButton consistencyButton)
-    {
+    public void setConsistencyButton(ConsistencyButton consistencyButton) {
         this.consistencyButton = consistencyButton;
     }
 }

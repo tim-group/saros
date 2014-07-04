@@ -1,31 +1,27 @@
 package de.fu_berlin.inf.dpp.intellij.project;
 
+import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
+import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.util.IntelliJUIHelper;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
+import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
-import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
-import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.xmpp.JID;
-
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.User;
-
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
-
 /**
  * Business logic for handling Leave Message
- * 
  */
 public class LeaveAndKickHandler {
 
     private static final Logger log = Logger
-        .getLogger(LeaveAndKickHandler.class.getName());
+            .getLogger(LeaveAndKickHandler.class.getName());
 
     private final ISarosSessionManager sessionManager;
 
@@ -37,12 +33,13 @@ public class LeaveAndKickHandler {
         @Override
         public void sessionStarted(ISarosSession session) {
             receiver
-                .addPacketListener(leaveExtensionListener,
-                    LeaveSessionExtension.PROVIDER.getPacketFilter(session
-                        .getID()));
+                    .addPacketListener(leaveExtensionListener,
+                            LeaveSessionExtension.PROVIDER.getPacketFilter(session
+                                    .getID())
+                    );
 
             receiver.addPacketListener(kickExtensionListener,
-                KickUserExtension.PROVIDER.getPacketFilter(session.getID()));
+                    KickUserExtension.PROVIDER.getPacketFilter(session.getID()));
         }
 
         @Override
@@ -69,7 +66,7 @@ public class LeaveAndKickHandler {
     };
 
     public LeaveAndKickHandler(IReceiver receiver,
-        ISarosSessionManager sessionManager) {
+                               ISarosSessionManager sessionManager) {
 
         this.receiver = receiver;
 
@@ -92,7 +89,7 @@ public class LeaveAndKickHandler {
         }
 
         stopSession(sarosSession, "Removed from the session",
-            user.getNickname() + " removed you from the current session.");
+                user.getNickname() + " removed you from the current session.");
     }
 
     private void leaveReceived(JID from) {
@@ -101,14 +98,14 @@ public class LeaveAndKickHandler {
 
         if (sarosSession == null) {
             log.warn("Received leave message but shared"
-                + " project has already ended: " + from);
+                    + " project has already ended: " + from);
             return;
         }
 
         final User user = sarosSession.getUser(from);
         if (user == null) {
             log.warn("received leave message from user who"
-                + " is not part of the current session: " + from);
+                    + " is not part of the current session: " + from);
             return;
         }
 
@@ -122,14 +119,14 @@ public class LeaveAndKickHandler {
          */
         if (user.isHost()) {
             stopSession(sarosSession, "Closing the session",
-                "Session was closed by inviter " + user.getNickname() + ".");
+                    "Session was closed by inviter " + user.getNickname() + ".");
 
         }
 
         // host will send us an update
         if (!sarosSession.isHost()) {
             log.warn("received leave message from user " + user
-                + " which is not the host of the current session");
+                    + " which is not the host of the current session");
             return;
         }
 
@@ -147,12 +144,12 @@ public class LeaveAndKickHandler {
     }
 
     private void stopSession(final ISarosSession session, final String topic,
-        final String reason) {
+                             final String reason) {
         ThreadUtils.runSafeAsync("StopSessionOnHostLeave", log, new Runnable() {
             @Override
             public void run() {
                 sessionManager.stopSarosSession();
-                IntelliJUIHelper.showNotification(topic, reason);
+                NotificationHandler.showNotification(topic, reason);
             }
         });
     }
