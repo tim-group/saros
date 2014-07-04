@@ -1,11 +1,10 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import org.junit.Test;
 
-import de.fu_berlin.inf.dpp.filesystem.IResource;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileListDiffTest extends AbstractFileListTest {
 
@@ -29,7 +28,7 @@ public class FileListDiffTest extends AbstractFileListTest {
         resources.add(fileInSubDir1);
 
         FileList list = FileListFactory.createFileList(null, resources, null,
-            false, null);
+                null, null);
 
         FileListDiff diff = FileListDiff.diff(emptyFileList, list);
 
@@ -43,7 +42,7 @@ public class FileListDiffTest extends AbstractFileListTest {
         resources.add(fileInSubDir1);
 
         FileList list = FileListFactory.createFileList(null, resources, null,
-            false, null);
+                null, null);
 
         FileListDiff diff = FileListDiff.diff(emptyFileList, list);
 

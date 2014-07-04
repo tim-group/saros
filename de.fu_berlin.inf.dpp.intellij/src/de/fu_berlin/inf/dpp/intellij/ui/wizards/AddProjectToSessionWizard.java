@@ -384,13 +384,13 @@ public class AddProjectToSessionWizard {
                     project.refreshLocal();
                 }
 
-
                 if (session.isShared(project)) {
 
                     List<IResource> eclipseResources = session.getSharedResources(project);
 
+                    //FIXME: Change VCSprovider back from null, if VCS support is added
                     FileList sharedFileList = FileListFactory.createFileList(
-                            project, eclipseResources, checksumCache, true,
+                            project, eclipseResources, checksumCache, null,
                             subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS));
 
                     // FIXME FileList objects should be immutable after creation
@@ -399,8 +399,9 @@ public class AddProjectToSessionWizard {
                     subMonitor.worked(1);
                 }
 
+                //FIXME: Change VCSprovider back from null, if VCS support is added
                 diff = FileListDiff.diff(FileListFactory.createFileList(
-                                project, null, checksumCache, true,
+                                project, null, checksumCache, null,
                                 subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS)),
                         remoteFileList
                 );

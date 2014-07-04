@@ -12,7 +12,6 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -31,6 +30,8 @@ import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.CoreUtils;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
@@ -459,7 +460,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 return null;
 
             final String repositoryRoot = fileList.getRepositoryRoot();
-            final String directory = fileList.getProjectInfo().url
+            final String directory = fileList.getProjectInfo().getURL()
                     .substring(repositoryRoot.length());
 
             // FIXME this should at least throw a OperationCanceledException
@@ -579,14 +580,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * @throws IOException
      */
     private FileList computeRequiredFiles(IProject currentLocalProject,
-                                          FileList remoteFileList, String projectID, VCSAdapter vcs,
+                                          FileList remoteFileList, String projectID, VCSProvider provider,
                                           IProgressMonitor monitor) throws LocalCancellationException,
             IOException {
 
         ISubMonitor subMonitor = monitor.convert("Compute required Files...", 1);
 
         FileList localFileList = FileListFactory.createFileList(currentLocalProject, null,
-                checksumCache, vcs != null, subMonitor.newChild(1));
+                checksumCache, provider, subMonitor.newChild(1));
 
         FileListDiff filesToSynchronize = computeDiff(localFileList,
                 remoteFileList, currentLocalProject, projectID);
@@ -751,14 +752,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             // The resource might have been deleted.
             return;
         }
-        if (!info.url.equals(url)) {
-            LOG.trace("Switching " + resource.getName() + " from " + info.url
+        if (!info.getURL().equals(url)) {
+            LOG.trace("Switching " + resource.getName() + " from " + info.getURL()
                     + " to " + url);
             vcs.switch_(resource, url, revision, monitor);
-        } else if (!info.revision.equals(revision)
+        } else if (!info.getRevision().equals(revision)
                 && remoteFileList.getPaths().contains(path)) {
             LOG.trace("Updating " + resource.getName() + " from "
-                    + info.revision + " to " + revision);
+                    + info.getRevision() + " to " + revision);
             vcs.update(resource, revision, monitor);
         }
         if (monitor.isCanceled())

@@ -2,7 +2,6 @@ package de.fu_berlin.inf.dpp.core.project;
 
 
 import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -11,6 +10,7 @@ import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -213,8 +213,8 @@ public class SharedProject {
             assert resource != null : "Resource not found at " + path; //$NON-NLS-1$
             VCSResourceInfo info = vcs.getResourceInfo(resource);
 
-            updateVcsUrl(resource, info.url);
-            updateRevision(resource, info.revision);
+            updateVcsUrl(resource, info.getRevision());
+            updateRevision(resource, info.getRevision());
         }
 
     }

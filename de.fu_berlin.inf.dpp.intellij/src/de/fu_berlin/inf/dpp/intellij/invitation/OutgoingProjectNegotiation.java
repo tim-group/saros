@@ -12,6 +12,7 @@ import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
@@ -39,8 +40,7 @@ import java.util.*;
 import java.util.concurrent.CancellationException;
 
 //todo: copy from eclipse
-public class OutgoingProjectNegotiation extends ProjectNegotiation
-{
+public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
     private static Logger log = Logger
             .getLogger(OutgoingProjectNegotiation.class);
@@ -66,8 +66,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     private ISarosSessionManager sessionManager;
 
     public OutgoingProjectNegotiation(JID to, ISarosSession sarosSession,
-            List<IProject> projects, ISarosContext sarosContext)
-    {
+                                      List<IProject> projects, ISarosContext sarosContext) {
         super(to, sarosSession.getID(), sarosContext);
 
         this.processID = String.valueOf(PROCESS_ID_GENERATOR.nextLong());
@@ -75,8 +74,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         this.projects = projects;
     }
 
-    public Status start(IProgressMonitor monitor)
-    {
+    public Status start(IProgressMonitor monitor) {
 
         createCollectors();
 
@@ -86,8 +84,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
         Exception exception = null;
 
-        try
-        {
+        try {
             if (fileTransferManager == null)
             // FIXME: the logic will try to send this to the remote contact
             {
@@ -109,8 +106,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
             editorManager.setAllLocalOpenedEditorsLocked(false);
 
             List<StartHandle> stoppedUsers = null;
-            try
-            {
+            try {
                 stoppedUsers = stopUsers(monitor);
                 monitor.subTask("");
 
@@ -119,8 +115,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
                 User user = sarosSession.getUser(peer);
 
-                if (user == null)
-                {
+                if (user == null) {
                     throw new LocalCancellationException(null,
                             CancelOption.DO_NOT_NOTIFY_PEER);
                 }
@@ -138,43 +133,33 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
                 zipArchive = createProjectArchive(fileLists, monitor);
                 monitor.subTask("");
-            }
-            finally
-            {
-                if (stoppedUsers != null)
-                {
+            } finally {
+                if (stoppedUsers != null) {
                     startUsers(stoppedUsers);
                 }
             }
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
-            if (zipArchive != null)
-            {
+            if (zipArchive != null) {
                 sendArchive(zipArchive, peer, ARCHIVE_TRANSFER_ID + processID,
                         monitor);
             }
 
             User user = sarosSession.getUser(peer);
 
-            if (user == null)
-            {
+            if (user == null) {
                 throw new LocalCancellationException(null,
                         CancelOption.DO_NOT_NOTIFY_PEER);
             }
 
             sarosSession.userFinishedProjectNegotiation(user);
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             exception = e;
-        }
-        finally
-        {
+        } finally {
 
-            if (zipArchive != null && !zipArchive.delete())
-            {
+            if (zipArchive != null && !zipArchive.delete()) {
                 log.warn("could not delete archive file: "
                         + zipArchive.getAbsolutePath());
             }
@@ -188,8 +173,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     private void sendFileList(
             List<ProjectNegotiationData> projectExchangeInfos,
             IProgressMonitor monitor) throws IOException,
-            SarosCancellationException
-    {
+            SarosCancellationException {
 
         /*
          * FIXME display the remote side something that will it receive
@@ -229,8 +213,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
      * @throws SarosCancellationException
      */
     private List<FileList> getRemoteFileList(IProgressMonitor monitor)
-            throws IOException, SarosCancellationException
-    {
+            throws IOException, SarosCancellationException {
 
         log.debug(this + " : waiting for remote file list");
 
@@ -242,8 +225,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         Packet packet = collectPacket(remoteFileListResponseCollector,
                 60 * 60 * 1000);
 
-        if (packet == null)
-        {
+        if (packet == null) {
             throw new LocalCancellationException("received no response from "
                     + peer + " while waiting for the file list",
                     CancelOption.DO_NOT_NOTIFY_PEER
@@ -263,11 +245,9 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     }
 
     @Override
-    public Map<String, String> getProjectNames()
-    {
+    public Map<String, String> getProjectNames() {
         Map<String, String> result = new HashMap<String, String>();
-        for (IProject project : projects)
-        {
+        for (IProject project : projects) {
             result.put(sarosSession.getProjectID(project), project.getName());
         }
 
@@ -275,17 +255,14 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     }
 
     @Override
-    protected void executeCancellation()
-    {
-        if (sarosSession.getRemoteUsers().isEmpty())
-        {
+    protected void executeCancellation() {
+        if (sarosSession.getRemoteUsers().isEmpty()) {
             sessionManager.stopSarosSession();
         }
     }
 
     private List<StartHandle> stopUsers(IProgressMonitor monitor)
-            throws SarosCancellationException
-    {
+            throws SarosCancellationException {
         Collection<User> usersToStop;
 
         /*
@@ -317,13 +294,10 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
          * would lead to a broken session because we have no proper cancellation
          * logic !
          */
-        try
-        {
+        try {
             startHandles = sarosSession.getStopManager().stop(usersToStop,
                     "Synchronizing invitation");
-        }
-        catch (CancellationException e)
-        {
+        } catch (CancellationException e) {
             checkCancellation(CancelOption.NOTIFY_PEER);
             return null;
         }
@@ -332,10 +306,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         return startHandles;
     }
 
-    private void startUsers(List<StartHandle> startHandles)
-    {
-        for (StartHandle startHandle : startHandles)
-        {
+    private void startUsers(List<StartHandle> startHandles) {
+        for (StartHandle startHandle : startHandles) {
             log.debug(this + " : restarting user " + startHandle.getUser());
             startHandle.start();
         }
@@ -348,22 +320,19 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
      */
 
     private File createProjectArchive(final List<FileList> fileLists,
-            final IProgressMonitor monitor) throws IOException,
-            SarosCancellationException
-    {
+                                      final IProgressMonitor monitor) throws IOException,
+            SarosCancellationException {
 
         boolean skip = true;
 
         int fileCount = 0;
 
-        for (final FileList list : fileLists)
-        {
+        for (final FileList list : fileLists) {
             skip &= list.getPaths().isEmpty();
             fileCount += list.getPaths().size();
         }
 
-        if (skip)
-        {
+        if (skip) {
             return null;
         }
 
@@ -378,8 +347,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
          */
 
         // FIXME this throws a NPE if the session has already been stopped
-        for (SPath path : editorManager.getRemoteOpenEditors())
-        {
+        for (SPath path : editorManager.getRemoteOpenEditors()) {
             editorManager.getActionManager().saveEditor(path);
         }
 
@@ -388,15 +356,13 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         final List<IFile> filesToCompress = new ArrayList<IFile>(fileCount);
         final List<String> fileAlias = new ArrayList<String>(fileCount);
 
-        for (final FileList list : fileLists)
-        {
+        for (final FileList list : fileLists) {
             final String projectID = list.getProjectID();
 
             final IProject project = sarosSession.getProject(projectID);
             project.refreshLocal();
 
-            if (project == null)
-            {
+            if (project == null) {
                 throw new LocalCancellationException("project with id "
                         + projectID + " was unshared during synchronization",
                         CancelOption.NOTIFY_PEER
@@ -420,8 +386,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
             final int prefixLength = aliasBuilder.length();
 
-            for (final String path : list.getPaths())
-            {
+            for (final String path : list.getPaths()) {
                 // assert path is relative !
                 filesToCompress.add(project.getFile(path));
                 aliasBuilder.append(path);
@@ -434,16 +399,13 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
         File tempArchive = null;
 
-        try
-        {
+        try {
             tempArchive = File.createTempFile("saros_" + processID, ".zip");
 
             // TODO run inside workspace ?
             new CreateArchiveTask(tempArchive, filesToCompress, fileAlias,
                     monitor).run(null);
-        }
-        catch (OperationCanceledException e)
-        {
+        } catch (OperationCanceledException e) {
             throw new LocalCancellationException();
         }
 
@@ -452,8 +414,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         return tempArchive;
     }
 
-    private void createCollectors()
-    {
+    private void createCollectors() {
         remoteFileListResponseCollector = xmppReceiver
                 .createCollector(ProjectNegotiationMissingFilesExtension.PROVIDER
                         .getPacketFilter(sessionID, processID));
@@ -463,32 +424,27 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
                         .getPacketFilter(sessionID, processID));
     }
 
-    private void deleteCollectors()
-    {
+    private void deleteCollectors() {
         remoteFileListResponseCollector.cancel();
         startActivityQueuingResponseCollector.cancel();
     }
 
     private void sendArchive(File archive, JID remoteContact,
-            String transferID, IProgressMonitor monitor)
-            throws SarosCancellationException, IOException
-    {
+                             String transferID, IProgressMonitor monitor)
+            throws SarosCancellationException, IOException {
 
         log.debug(this + " : sending archive");
         monitor.beginTask("Sending archive file...", 100);
 
         assert fileTransferManager != null;
 
-        try
-        {
+        try {
             OutgoingFileTransfer transfer = fileTransferManager
                     .createOutgoingFileTransfer(remoteContact.toString());
 
             transfer.sendFile(archive, transferID);
             monitorFileTransfer(transfer, monitor);
-        }
-        catch (XMPPException e)
-        {
+        } catch (XMPPException e) {
             throw new IOException(e.getMessage(), e);
         }
 
@@ -504,8 +460,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
      */
     private List<ProjectNegotiationData> createProjectExchangeInfoList(
             List<IProject> projectsToShare, IProgressMonitor monitor)
-            throws IOException, LocalCancellationException
-    {
+            throws IOException, LocalCancellationException {
 
         /*
          * FIXME must be calculated while the session is blocked !
@@ -518,19 +473,24 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         List<ProjectNegotiationData> pInfos = new ArrayList<ProjectNegotiationData>(
                 projectsToShare.size());
 
-        for (IProject project : projectsToShare)
-        {
+        for (IProject project : projectsToShare) {
 
-            if (monitor.isCanceled())
-            {
+            if (monitor.isCanceled()) {
                 throw new LocalCancellationException(null,
                         CancelOption.DO_NOT_NOTIFY_PEER);
             }
-            try
-            {
+            try {
+
+                VCSAdapter vcs = null;
+                if (sarosSession.useVersionControl()) {
+                    //FIXME: There is no VCS implementation anyways, alwasy pass null?
+                    //vcs = VCSAdapter.getAdapter(project);
+                    // TODO how to handle this if no adapter is available ?
+                    // if(vcs == null)
+                }
                 FileList projectFileList = FileListFactory.createFileList(
                         project, sarosSession.getSharedResources(project),
-                        checksumCache, sarosSession.useVersionControl(),
+                        checksumCache, null,
                         subMonitor.newChild(1));
 
                 boolean partial = !sarosSession.isCompletelyShared(project);
@@ -543,9 +503,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
 
                 pInfos.add(pInfo);
 
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 /*
                  * avoid that the error is send to remote side (which is default
                  * for IOExceptions) at this point because the remote side has
@@ -569,8 +527,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
      * @param monitor
      */
     private void sendAndAwaitActivityQueueingActivation(IProgressMonitor monitor)
-            throws IOException, SarosCancellationException
-    {
+            throws IOException, SarosCancellationException {
 
         monitor.beginTask("Waiting for " + peer.getName()
                         + " to perform additional initialization...",
@@ -585,8 +542,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
         Packet packet = collectPacket(startActivityQueuingResponseCollector,
                 PACKET_TIMEOUT);
 
-        if (packet == null)
-        {
+        if (packet == null) {
             throw new LocalCancellationException("received no response from "
                     + peer + " while waiting to finish additional initialization",
                     CancelOption.DO_NOT_NOTIFY_PEER
@@ -597,8 +553,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "OPN [remote side: " + peer + "]";
     }
 }

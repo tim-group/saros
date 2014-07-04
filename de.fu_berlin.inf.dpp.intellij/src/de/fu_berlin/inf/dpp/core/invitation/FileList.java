@@ -22,7 +22,7 @@ package de.fu_berlin.inf.dpp.core.invitation;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.util.*;
@@ -86,7 +86,7 @@ public class FileList {
 
     public String getVCSRevision(String path) {
         if (path.isEmpty()) {
-            return vcsProjectInfo.revision;
+            return vcsProjectInfo.getRevision();
         }
 
         MetaData metaData = root.getMetaData(path);
@@ -95,12 +95,12 @@ public class FileList {
             return null;
         }
 
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.revision;
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.getRevision();
     }
 
     public String getVCSUrl(String path) {
         if (path.isEmpty()) {
-            return vcsProjectInfo.url;
+            return vcsProjectInfo.getURL();
         }
 
         MetaData metaData = root.getMetaData(path);
@@ -109,7 +109,7 @@ public class FileList {
             return null;
         }
 
-        return metaData.vcsInfo == null ? null : metaData.vcsInfo.url;
+        return metaData.vcsInfo == null ? null : metaData.vcsInfo.getURL();
     }
 
     /**
@@ -241,13 +241,19 @@ public class FileList {
     @XStreamAlias("f")
     private static class File {
 
-        @XStreamAlias("p") @XStreamAsAttribute String path;
+        @XStreamAlias("p")
+        @XStreamAsAttribute
+        String path;
 
-        @XStreamAlias("m") MetaData metaData;
+        @XStreamAlias("m")
+        MetaData metaData;
 
-        @XStreamAlias("l") List<File> files;
+        @XStreamAlias("l")
+        List<File> files;
 
-        @XStreamAlias("d") @XStreamAsAttribute boolean isDirectory;
+        @XStreamAlias("d")
+        @XStreamAsAttribute
+        boolean isDirectory;
 
         private File(String path, MetaData metaData, boolean isDirectory) {
             this.path = path;
@@ -367,7 +373,7 @@ public class FileList {
             // current : a/b/c/d : return this
 
             if (path.equals(segments[segmentIndex])
-                && segmentIndex + 1 == segments.length) {
+                    && segmentIndex + 1 == segments.length) {
                 return this;
             }
 
@@ -396,7 +402,7 @@ public class FileList {
          * @param metaData can be <code>null</code>
          */
         public void addPath(String path, MetaData metaData,
-            boolean isDirectory) {
+                            boolean isDirectory) {
             addPath(segments(path), 0, metaData, isDirectory);
         }
 
@@ -405,7 +411,7 @@ public class FileList {
          * its segments including all folder hierarchy levels.
          */
         private void addPath(String[] segments, int segmentIndex,
-            MetaData metaData, boolean isDirectory) {
+                             MetaData metaData, boolean isDirectory) {
 
             if (segmentIndex >= segments.length) {
                 return;
@@ -419,7 +425,7 @@ public class FileList {
                         return;
                     } else {
                         file.addPath(segments, segmentIndex + 1, metaData,
-                            isDirectory);
+                                isDirectory);
                         return;
                     }
                 }
@@ -427,7 +433,7 @@ public class FileList {
 
             if (segmentIndex + 1 == segments.length) {
                 files.add(
-                    new File(segments[segmentIndex], metaData, isDirectory));
+                        new File(segments[segmentIndex], metaData, isDirectory));
                 return;
             }
 
@@ -485,13 +491,15 @@ public class FileList {
          * Checksum of this file.
          */
 
-        @XStreamAlias("crc") long checksum;
+        @XStreamAlias("crc")
+        long checksum;
 
         /**
          * Identifies the version of this file in the repository.
          */
 
-        @XStreamAlias("vcs") VCSResourceInfo vcsInfo;
+        @XStreamAlias("vcs")
+        VCSResourceInfo vcsInfo;
 
         @Override
         public boolean equals(Object o) {
@@ -525,7 +533,7 @@ public class FileList {
         @Override
         public String toString() {
             return "[Checksum: 0x" + Long.toHexString(checksum).toUpperCase()
-                + ", VCS: " + vcsInfo + "]";
+                    + ", VCS: " + vcsInfo + "]";
         }
     }
 

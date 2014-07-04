@@ -1,7 +1,9 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
+import org.easymock.EasyMock;
+import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,15 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
-import org.easymock.EasyMock;
-import org.junit.Before;
-
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.filesystem.IFolder;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractFileListTest {
     /*
@@ -114,18 +109,18 @@ public class AbstractFileListTest {
         threeFileList.addAll(resources);
 
         threeEntryList = FileListFactory.createFileList(null, resources, null,
-            false, null);
+                null, null);
 
         resources.add(fileInSubDir2);
 
         fourEntryList = FileListFactory.createFileList(null, resources, null,
-            false, null);
+                null, null);
 
         resources.remove(fileInSubDir1);
         resources.add(fileInSubDir1changed);
 
         modifiedFourEntryList = FileListFactory.createFileList(null, resources,
-            null, false, null);
+                null, null, null);
 
         emptyFileList = new FileList();
     }

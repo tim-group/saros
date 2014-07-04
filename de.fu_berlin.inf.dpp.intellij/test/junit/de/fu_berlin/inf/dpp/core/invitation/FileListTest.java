@@ -19,23 +19,17 @@
  */
 package de.fu_berlin.inf.dpp.core.invitation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import org.junit.Test;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.BooleanConverter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * TODO [TEST] Add Testcases for non-existing files florianthiel: Does FileList
@@ -77,7 +71,7 @@ public class FileListTest extends AbstractFileListTest {
     @Test
     public void testEquals() throws IOException {
         FileList sameFileList = FileListFactory.createFileList(null,
-            threeFileList, null, false, null);
+                threeFileList, null, null, null);
         assertEquals(threeEntryList, sameFileList);
         assertEquals(emptyFileList, emptyFileList);
 

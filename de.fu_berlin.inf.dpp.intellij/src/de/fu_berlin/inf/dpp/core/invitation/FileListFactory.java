@@ -3,9 +3,9 @@ package de.fu_berlin.inf.dpp.core.invitation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
-import de.fu_berlin.inf.dpp.core.vcs.VCSResourceInfo;
 import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -43,11 +43,11 @@ public class FileListFactory {
 
     public static FileList createFileList(IProject project,
         List<IResource> resources, IChecksumCache checksumCache,
-        boolean useVersionControl, IProgressMonitor monitor)
+        VCSProvider provider, IProgressMonitor monitor)
         throws IOException {
 
         FileListFactory fact = new FileListFactory(checksumCache, monitor);
-        return fact.build(project, resources, useVersionControl);
+        return fact.build(project, resources, provider);
     }
 
     /**
@@ -74,21 +74,21 @@ public class FileListFactory {
     }
 
     private FileList build(IProject project, List<IResource> resources,
-        boolean useVersionControl) throws IOException {
+                           VCSProvider provider) throws IOException {
 
-        FileList list = new FileList(useVersionControl);
+        FileList list = new FileList(provider != null);
 
         if (resources == null) {
             list.addEncoding(project.getDefaultCharset());
             resources = Arrays.asList(project.members());
         }
 
-        addMembersToList(list, resources);
+        addMembersToList(list, resources, provider);
 
         return list;
     }
 
-    private void addMembersToList(FileList list, List<IResource> resources)
+    private void addMembersToList(FileList list, List<IResource> resources, final VCSProvider provider)
         throws IOException {
 
         if (resources.size() == 0) {
@@ -96,21 +96,16 @@ public class FileListFactory {
         }
 
         IProject project = null;
-        VCSAdapter vcs = null;
 
         if (list.useVersionControl()) {
             project = resources.get(0).getProject();
 
-            vcs = VCSAdapter.getAdapter(project);
+            if (provider != null) {
+                String providerID = provider.getID();
 
-            if (vcs != null) {
-                String providerID = vcs.getProviderID(project);
 
-                list.setVcsProviderID(providerID);
-                list.setVcsRepositoryRoot(
-                    vcs.getRepositoryString(project));
-                list.setVcsRepositoryRoot(
-                    vcs.getCurrentResourceInfo(project));
+                list.setVcsRepositoryRoot(provider.getRepositoryString(project));
+                list.setVcsRepositoryRoot(provider.getCurrentResourceInfo(project));
                 /*
                  * FIXME we need to stop querying for VCS revisions the moment
                  * we reach the first exception
@@ -150,9 +145,8 @@ public class FileListFactory {
 
             VCSResourceInfo info = null;
 
-            if (vcs != null) {
-                info = vcs.getCurrentResourceInfo(resource);
-            }
+            if (provider != null)
+                info = provider.getCurrentResourceInfo(resource);
 
             assert !list.useVersionControl() || (project != null && project
                 .equals(resource.getProject()));

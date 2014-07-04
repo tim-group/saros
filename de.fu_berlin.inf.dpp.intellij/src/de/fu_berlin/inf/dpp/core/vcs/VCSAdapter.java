@@ -23,14 +23,16 @@
 package de.fu_berlin.inf.dpp.core.vcs;
 
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.exceptions.TeamException;
+import de.fu_berlin.inf.dpp.core.invitation.FileList;
+import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
@@ -40,8 +42,7 @@ import org.picocontainer.annotations.Inject;
  * @author haferburg
  */
 // TODO Maybe change to VCProject implements IAdaptable? Make connect static.
-public abstract class VCSAdapter
-{
+public abstract class VCSAdapter implements VCSProvider {
     protected static final Logger log = Logger.getLogger(VCSAdapter.class);
 
     protected IRepositoryProviderType provider;
