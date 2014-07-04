@@ -60,7 +60,7 @@ public class FileListFactory {
      * <b>responsible</b> for the <b>correct</b> input !
      */
     public static FileList createFileList(List<String> paths) {
-        FileList list = new FileList(false);
+        FileList list = new FileList();
 
         for (String path : paths) {
             list.addPath(path);
@@ -76,7 +76,7 @@ public class FileListFactory {
     private FileList build(IProject project, List<IResource> resources,
                            VCSProvider provider) throws IOException {
 
-        FileList list = new FileList(provider != null);
+        FileList list = new FileList();
 
         if (resources == null) {
             list.addEncoding(project.getDefaultCharset());
@@ -97,10 +97,8 @@ public class FileListFactory {
 
         IProject project = null;
 
-        if (list.useVersionControl()) {
-            project = resources.get(0).getProject();
-
             if (provider != null) {
+                project = resources.get(0).getProject();
                 String providerID = provider.getID();
 
 
@@ -121,7 +119,6 @@ public class FileListFactory {
                  * overall...
                  */
             }
-        }
 
         Deque<IResource> stack = new LinkedList<IResource>();
 
@@ -129,7 +126,9 @@ public class FileListFactory {
 
         List<IFile> files = new LinkedList<IFile>();
 
-        monitor.subTask("Reading SVN revisions for shared files...");
+        if (provider != null)
+            monitor.subTask("Reading SVN revisions for shared files...");
+
         while (!stack.isEmpty()) {
             IResource resource = stack.pop();
 
