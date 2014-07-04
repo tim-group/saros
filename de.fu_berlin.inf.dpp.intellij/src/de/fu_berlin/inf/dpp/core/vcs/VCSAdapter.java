@@ -47,8 +47,7 @@ public abstract class VCSAdapter implements VCSProvider {
 
     protected IRepositoryProviderType provider;
 
-    public VCSAdapter(IRepositoryProviderType provider)
-    {
+    public VCSAdapter(IRepositoryProviderType provider) {
         this.provider = provider;
     }
 
@@ -66,12 +65,12 @@ public abstract class VCSAdapter implements VCSProvider {
 
     @Inject
     private static IVCSFactory vcsFactory;
+
     /**
      * @param resource
      * @return The identifier of the resource's Team Provider.
      */
-    public String getProviderID(IResource resource)
-    {
+    public String getProviderID(IResource resource) {
         IProject project = resource.getProject();
         IRepositoryProvider provider = vcsFactory.getProvider(project);
         String vcsIdentifier = provider.getID();
@@ -83,21 +82,16 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param resource
      * @return The revision of the resource as a String, or null.
      */
-    public String getRevisionString(IResource resource)
-    {
+    public String getRevisionString(IResource resource) {
         ISubscriber subscriber = provider.getSubscriber();
         ISyncInfo syncInfo;
-        try
-        {
+        try {
             syncInfo = subscriber.getSyncInfo(resource);
-        }
-        catch (TeamException e)
-        {
+        } catch (TeamException e) {
             undocumentedException(e);
             return null;
         }
-        if (syncInfo == null)
-        {
+        if (syncInfo == null) {
             return null;
         }
         return syncInfo.getLocalContentIdentifier();
@@ -106,7 +100,7 @@ public abstract class VCSAdapter implements VCSProvider {
     /**
      * @param resource
      * @return The URL of the repository root of this resource as a String, or
-     *         null.
+     * null.
      */
     public abstract String getRepositoryString(IResource resource);
 
@@ -126,7 +120,7 @@ public abstract class VCSAdapter implements VCSProvider {
      * @return The newly created project.
      */
     public abstract IProject checkoutProject(String newProjectName,
-            FileList fileList, IProgressMonitor monitor)
+                                             FileList fileList, IProgressMonitor monitor)
             throws OperationCanceledException;
 
     /**
@@ -137,7 +131,7 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param monitor        must not be null.
      */
     public abstract void update(IResource resource, String targetRevision,
-            IProgressMonitor monitor);
+                                IProgressMonitor monitor);
 
     /**
      * Switches the resource to the specified URL and revision.
@@ -145,7 +139,7 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param monitor
      */
     public abstract void switch_(IResource resource, String url,
-            String revision, IProgressMonitor monitor);
+                                 String revision, IProgressMonitor monitor);
 
     /**
      * Reverts the local changes to the resource.
@@ -190,7 +184,7 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param progress       may be null.
      */
     public abstract void connect(IProject project, String repositoryRoot,
-            String directory, IProgressMonitor progress);
+                                 String directory, IProgressMonitor progress);
 
     /**
      * Disconnects the project from the repository.
@@ -200,7 +194,7 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param progress      may be null.
      */
     public abstract void disconnect(IProject project, boolean deleteContent,
-            IProgressMonitor progress);
+                                    IProgressMonitor progress);
 
     /**
      * Returns true if there is a folder like e.g. SVN's .svn for the project.
@@ -212,26 +206,15 @@ public abstract class VCSAdapter implements VCSProvider {
     /**
      * It is unclear under which circumstances this exceptions is thrown.
      */
-    protected void undocumentedException(Exception e)
-    {
+    protected void undocumentedException(Exception e) {
         log.error("Undocumented exceptions", e);
     }
 
-    /**
-     * Determine and instantiate the corresponding {@link VCSAdapter} for the
-     * provided identifier.<br>
-     *
-     * @param identifier
-     * @return
-     * @see RepositoryProvider#getID()
-     */
-
-
     public abstract VCSActivity getUpdateActivity(ISarosSession sarosSession,
-            IResource resource);
+                                                  IResource resource);
 
     public abstract VCSActivity getSwitchActivity(ISarosSession sarosSession,
-            IResource resource);
+                                                  IResource resource);
 
     /**
      * Determine the repository provider of the project and return the
@@ -242,17 +225,16 @@ public abstract class VCSAdapter implements VCSProvider {
      * @param project
      * @return
      */
-    public static VCSAdapter getAdapter(IProject project)
-    {
-        if(vcsFactory==null)
+    public static VCSAdapter getAdapter(IProject project) {
+        if (vcsFactory == null)
             return null;
 
-       IRepositoryProvider provider = vcsFactory.getProvider(project);
+        IRepositoryProvider provider = vcsFactory.getProvider(project);
 
-       if (!provider.isShared(project))
-           return null;
+        if (!provider.isShared(project))
+            return null;
 
-       return getAdapter(provider.getID());
+        return getAdapter(provider.getID());
     }
 
     public static VCSAdapter getAdapter(String identifier) {
