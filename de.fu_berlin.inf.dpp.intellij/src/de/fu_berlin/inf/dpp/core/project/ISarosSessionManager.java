@@ -22,21 +22,19 @@
 
 package de.fu_berlin.inf.dpp.core.project;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
-import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-
-
+import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An interface behind which the {@link SarosSessionManager} hides its

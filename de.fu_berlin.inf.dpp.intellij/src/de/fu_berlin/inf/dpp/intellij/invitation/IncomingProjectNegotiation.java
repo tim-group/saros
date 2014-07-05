@@ -2,10 +2,12 @@ package de.fu_berlin.inf.dpp.intellij.invitation;
 
 
 import de.fu_berlin.inf.dpp.ISarosContext;
+import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.invitation.*;
+import de.fu_berlin.inf.dpp.core.invitation.CreateProjectTask;
+import de.fu_berlin.inf.dpp.core.invitation.DecompressArchiveTask;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
@@ -20,11 +22,10 @@ import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.*;
 import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
+import de.fu_berlin.inf.dpp.invitation.*;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
@@ -113,7 +114,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     /**
      * @param projectID
-     * @return The {@link de.fu_berlin.inf.dpp.core.invitation.FileList fileList} which belongs to the project with
+     * @return The {@link de.fu_berlin.inf.dpp.invitation.FileList fileList} which belongs to the project with
      * the ID <code>projectID</code> from inviter <br />
      * <code><b>null<b></code> if there isn't such a {@link de.fu_berlin.inf.dpp.core.invitation.FileList
      * fileList}
@@ -490,12 +491,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                         sarosSession.getHost(), monitor);
         remoteMonitor.setTaskName("Project checkout via subversion");
 
-        try {
+        //TODO: CVS does not work anyways, remove?
+        /*try {
             project = vcs.checkoutProject(project.getName(), fileList,
                     remoteMonitor);
         } catch (OperationCanceledException e) {
             throw new LocalCancellationException();
-        }
+        }*/
 
         /*
          * HACK: After checking out a project, give Eclipse/the Team provider

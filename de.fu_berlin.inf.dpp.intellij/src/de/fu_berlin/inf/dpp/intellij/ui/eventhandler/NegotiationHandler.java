@@ -23,10 +23,8 @@
 package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
@@ -40,7 +38,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
+import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;

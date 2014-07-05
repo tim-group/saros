@@ -29,8 +29,6 @@ import de.fu_berlin.inf.dpp.misc.pico.ChildContainer;
 import de.fu_berlin.inf.dpp.misc.pico.ChildContainerProvider;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.misc.xstream.XStreamExtensionProvider;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationMissingFilesExtension;
-import de.fu_berlin.inf.dpp.net.internal.extensions.ProjectNegotiationOfferingExtension;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;
@@ -57,8 +55,7 @@ import java.util.List;
  * @author pcordes
  * @author srossbach
  */
-public class SarosContext implements ISarosContext
-{
+public class SarosContext implements ISarosContext {
 
     private static final Logger log = Logger.getLogger(SarosContext.class);
 
@@ -77,15 +74,13 @@ public class SarosContext implements ISarosContext
     private Reinjector reinjector;
 
     public SarosContext(ISarosContextFactory factory,
-            DotGraphMonitor dotGraphMonitor)
-    {
+                        DotGraphMonitor dotGraphMonitor) {
         this.factory = factory;
         this.dotMonitor = dotGraphMonitor;
         init();
     }
 
-    private void installPacketExtensionProviders()
-    {
+    private void installPacketExtensionProviders() {
         /* *
          *
          * @JTourBusStop 6, Creating custom network messages, Installing the
@@ -99,8 +94,7 @@ public class SarosContext implements ISarosContext
          * Smack ExtensionProvider at context startup.
          */
 
-        try
-        {
+        try {
 
             Class.forName(XStreamExtensionProvider.class.getName());
 
@@ -112,7 +106,7 @@ public class SarosContext implements ISarosContext
             Class.forName(InvitationAcceptedExtension.class.getName());
             Class.forName(InvitationCompletedExtension.class.getName());
             Class.forName(CancelProjectNegotiationExtension.class.getName());
-            Class.forName(ProjectNegotiationMissingFilesExtension.class .getName());
+            Class.forName(ProjectNegotiationMissingFilesExtension.class.getName());
             Class.forName(KickUserExtension.class.getName());
             Class.forName(UserListExtension.class.getName());
             Class.forName(LeaveSessionExtension.class.getName());
@@ -133,15 +127,12 @@ public class SarosContext implements ISarosContext
             Class.forName(SessionStatusRequestExtension.class.getName());
             Class.forName(SessionStatusResponseExtension.class.getName());
 
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void init()
-    {
+    private void init() {
 
         log.info("creating Saros runtime context...");
         /*
@@ -157,8 +148,7 @@ public class SarosContext implements ISarosContext
          * If given, the dotMonitor is used to capture an architecture diagram
          * of the application
          */
-        if (dotMonitor != null)
-        {
+        if (dotMonitor != null) {
             picoBuilder = picoBuilder.withMonitor(dotMonitor);
         }
 
@@ -198,10 +188,8 @@ public class SarosContext implements ISarosContext
      * that were created by Eclipse, which have the same life cycle as the Saros
      * plug-in, e.g. the popup menu actions.
      */
-    public synchronized void reinject(Object toInjectInto)
-    {
-        try
-        {
+    public synchronized void reinject(Object toInjectInto) {
+        try {
             // Remove the component if an instance of it was already registered
             Class<?> clazz = toInjectInto.getClass();
             ComponentAdapter<?> removed = container.removeComponent(clazz);
@@ -218,9 +206,7 @@ public class SarosContext implements ISarosContext
              * annotated with @Inject
              */
             reinjector.reinject(clazz, new AnnotatedFieldInjection());
-        }
-        catch (PicoCompositionException e)
-        {
+        } catch (PicoCompositionException e) {
             log.error("Internal error in reinjection:", e);
         }
     }
@@ -231,8 +217,7 @@ public class SarosContext implements ISarosContext
      * have a different life cycle than the Saros plug-in.
      */
     @Override
-    public synchronized void initComponent(Object toInjectInto)
-    {
+    public synchronized void initComponent(Object toInjectInto) {
         ChildContainer dummyContainer = container
                 .getComponent(ChildContainer.class);
         dummyContainer.reinject(toInjectInto);
@@ -240,50 +225,41 @@ public class SarosContext implements ISarosContext
     }
 
     @Override
-    public <T> T getComponent(Class<T> tClass)
-    {
+    public <T> T getComponent(Class<T> tClass) {
         return container.getComponent(tClass);
     }
 
-    public <T> List<T> getComponents(Class<T> tClass)
-    {
+    public <T> List<T> getComponents(Class<T> tClass) {
         return container.getComponents(tClass);
     }
 
-    public List<Object> getComponents()
-    {
+    public List<Object> getComponents() {
         return container.getComponents();
     }
 
-    public void addComponent(Object o, Object o1, Parameter... parameters)
-    {
+    public void addComponent(Object o, Object o1, Parameter... parameters) {
         container.addComponent(o, o1, parameters);
     }
 
-    public void removeComponent(Object o)
-    {
+    public void removeComponent(Object o) {
         container.removeComponent(o);
     }
 
     @Override
-    public boolean removeChildContainer(PicoContainer picoContainer)
-    {
+    public boolean removeChildContainer(PicoContainer picoContainer) {
         return container.removeChildContainer(picoContainer);
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         container.dispose();
     }
 
     @Override
-    public MutablePicoContainer createSimpleChildContainer()
-    {
+    public MutablePicoContainer createSimpleChildContainer() {
         return container.makeChildContainer();
     }
 
-    public MutablePicoContainer getContainer()
-    {
+    public MutablePicoContainer getContainer() {
         return container;
     }
 }

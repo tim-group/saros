@@ -23,9 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
-import de.fu_berlin.inf.dpp.core.invitation.FileListDiff;
-import de.fu_berlin.inf.dpp.core.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
@@ -48,6 +45,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoWithProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.SelectProjectPage;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.FileListDiff;
+import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;

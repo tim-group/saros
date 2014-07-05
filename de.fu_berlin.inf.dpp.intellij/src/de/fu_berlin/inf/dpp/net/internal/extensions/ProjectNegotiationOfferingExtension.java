@@ -1,12 +1,11 @@
 package de.fu_berlin.inf.dpp.net.internal.extensions;
 
-import java.util.List;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationExtension;
-import de.fu_berlin.inf.dpp.core.invitation.FileList;
-import de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+
+import java.util.List;
 
 
 //TODO Move to core (package communication.extensions)
