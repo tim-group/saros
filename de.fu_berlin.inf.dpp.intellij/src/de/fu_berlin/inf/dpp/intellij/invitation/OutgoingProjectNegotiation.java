@@ -11,7 +11,6 @@ import de.fu_berlin.inf.dpp.core.invitation.CreateArchiveTask;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
@@ -28,6 +27,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
@@ -481,7 +481,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
             }
             try {
 
-                VCSAdapter vcs = null;
+                VCSProvider vcs = null;
                 if (sarosSession.useVersionControl()) {
                     //FIXME: There is no VCS implementation anyways, alwasy pass null?
                     //vcs = VCSAdapter.getAdapter(project);

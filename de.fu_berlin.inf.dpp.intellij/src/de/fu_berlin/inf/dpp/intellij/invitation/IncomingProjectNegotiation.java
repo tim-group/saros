@@ -13,7 +13,6 @@ import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.core.vcs.VCSAdapter;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
@@ -32,7 +31,6 @@ import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.CoreUtils;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
-import de.fu_berlin.inf.dpp.vcs.VCSResourceInfo;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
@@ -351,14 +349,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 throw new RuntimeException("cannot add project with id "
                         + projectID + ", this id is unknown");
 
-            VCSAdapter vcs = null;
+            VCSProvider vcs = null;
 
             // FIXME we should stop here for partial shared projects
-            if (preferenceUtils.useVersionControl() && useVersionControl
+            /*if (preferenceUtils.useVersionControl() && useVersionControl
                     && !projectInfo.isPartial()) {
                 vcs = VCSAdapter.getAdapter(projectInfo.getFileList()
                         .getVcsProviderID());
-            }
+            }*/
 
             IProject project = workspace.getRoot()
                     .getProject(projectName);
@@ -381,11 +379,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 if (project == null)
                     throw new LocalCancellationException("VCS checkout failed",
                             CancelOption.NOTIFY_PEER);
-
+                //TODO: IS VCS support needed?
+/*
                 LOG.debug("initVcState");
                 initVcState(project, vcs, lMonitor.newChild(40),
                         projectInfo.getFileList());
 
+  */
             } else if (!project.exists()) {
                 project = createProject(project, null);
             }
@@ -449,7 +449,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * checked out
      * @throws LocalCancellationException if the process is canceled locally
      */
-    private IProject checkoutVCSProject(final VCSAdapter vcs, IProject project,
+    private IProject checkoutVCSProject(final VCSProvider vcs, IProject project,
                                         final FileList fileList) throws LocalCancellationException {
 
         if (isPartialRemoteProject(fileList.getProjectID()))
@@ -457,15 +457,17 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                     "VCS operations on partial shared projects are not supported");
 
         if (project.exists()) {
-            if (!vcs.isManaged(project))
+            //TODO: Is VCS support needed?
+           /* if (!vcs.isManaged(project))
                 return null;
-
+*/
             final String repositoryRoot = fileList.getRepositoryRoot();
             final String directory = fileList.getProjectInfo().getURL()
                     .substring(repositoryRoot.length());
 
             // FIXME this should at least throw a OperationCanceledException
-            vcs.connect(project, repositoryRoot, directory, monitor);
+            //Is VCS support needed?
+            //          vcs.connect(project, repositoryRoot, directory, monitor);
 
             return project;
         }
@@ -723,20 +725,21 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * @param remoteFileList
      * @throws SarosCancellationException
      */
-    private void initVcState(IResource resource, VCSAdapter vcs,
+    private void initVcState(IResource resource, VCSProvider vcs,
                              ISubMonitor monitor, FileList remoteFileList)
             throws SarosCancellationException {
         if (monitor.isCanceled())
             return;
-
+/* TODO: Is VCS support needed?
         if (!vcs.isManaged(resource))
             return;
-
-        final VCSResourceInfo info = vcs.getCurrentResourceInfo(resource);
+*/
+        //final VCSResourceInfo info = vcs.getCurrentResourceInfo(resource);
         final String path = resource.getProjectRelativePath()
                 .toPortableString();
 
-        if (resource instanceof IProject) {
+        //TODO: VCS support?
+        /*if (resource instanceof IProject) {
             /*
              * We have to revert the project first because the invitee could
              * have deleted a managed resource. Also, we don't want an update or
@@ -744,8 +747,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
              * leave some unmanaged files, but these will get cleaned up later;
              * we're only concerned with managed files here.
              */
-            vcs.revert(resource, monitor);
-        }
+//            vcs.revert(resource, monitor);
+//        }
 
         String url = remoteFileList.getVCSUrl(path);
         String revision = remoteFileList.getVCSRevision(path);
@@ -754,6 +757,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             // The resource might have been deleted.
             return;
         }
+        /* TODO: Is VCS support needed?
         if (!info.getURL().equals(url)) {
             LOG.trace("Switching " + resource.getName() + " from " + info.getURL()
                     + " to " + url);
@@ -763,7 +767,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             LOG.trace("Updating " + resource.getName() + " from "
                     + info.getRevision() + " to " + revision);
             vcs.update(resource, revision, monitor);
-        }
+        }*/
         if (monitor.isCanceled())
             return;
 
