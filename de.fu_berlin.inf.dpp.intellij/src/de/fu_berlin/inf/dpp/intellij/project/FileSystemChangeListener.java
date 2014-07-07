@@ -134,7 +134,15 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         byte[] bytes = FileUtils.getLocalFileContent(file);
 
-        IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);
+        String charset = null;
+
+        try {
+            charset = file.getCharset();
+        } catch (IOException e) {
+            LOG.error("could not determine encoding for file: " + file, e);
+        }
+
+        IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
         editorManager.getActionManager().getEditorPool().replaceAll(oldSPath, newSPath);
         project.addFile(newSPath.getFile().toFile());
         project.removeFile(oldSPath.getFile().toFile());
@@ -157,7 +165,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             return;
         }
 
-        File file = new File(virtualFileEvent.getFile().getPath());
+        VirtualFile virtualFile = virtualFileEvent.getFile();
+        File file = new File(virtualFile.getPath());
         IPath path = new PathImp(file);
         IProject project = workspace.getRoot().locateProject(path);
 
@@ -199,7 +208,12 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
                 workspace.log.error(e.getMessage(), e);
             }
 
-            activity = FileActivity.created(user, spath, bytes, FileActivity.Purpose.ACTIVITY);
+            String charset = null;
+
+            charset = virtualFile.getCharset().name();
+
+
+            activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
             editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(), bytes);
 
         }
@@ -386,7 +400,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             return;
         }
 
-        File newFile = new File(virtualFileCopyEvent.getFile().getPath());
+        VirtualFile virtualFile = virtualFileCopyEvent.getFile();
+        File newFile = new File(virtualFile.getPath());
         if (incomingList.contains(newFile))
         {
             incomingList.remove(newFile);
@@ -425,7 +440,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             workspace.log.error(e.getMessage(), e);
         }
 
-        activity = FileActivity.created(user, spath, bytes, FileActivity.Purpose.ACTIVITY);
+        activity = FileActivity.created(user, spath, bytes, virtualFile.getCharset().name(), FileActivity.Purpose.ACTIVITY);
 
         ((ProjectImp) project).addFile(newFile);
 
