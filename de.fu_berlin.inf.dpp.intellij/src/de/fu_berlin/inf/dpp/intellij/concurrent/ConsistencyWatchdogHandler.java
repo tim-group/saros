@@ -243,9 +243,18 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
                     throw new IOException();
                 }
 
+
+                String charset = null;
+
+                try {
+                    charset = file.getCharset();
+                } catch (IOException e) {
+                    LOG.error("could not determine encoding for file: " + file, e);
+                }
+
                 // Send the file to client
                 fireActivity(RecoveryFileActivity.created(
-                        user, path, content, from));
+                        user, path, content, from, charset));
 
                 String checksum = new String(content);
 
@@ -263,7 +272,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
             // TODO Warn the user...
             // Tell the client to delete the file
             fireActivity(RecoveryFileActivity.removed(user,
-                    path, from));
+                    path, from, null));
             fireActivity(ChecksumActivity.missing(user, path));
 
             progress.worked(8);

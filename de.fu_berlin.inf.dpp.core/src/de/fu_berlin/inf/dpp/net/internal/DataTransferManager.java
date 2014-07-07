@@ -1,13 +1,21 @@
 package de.fu_berlin.inf.dpp.net.internal;
 
+import de.fu_berlin.inf.dpp.ISarosContextBindings.IBBTransport;
+import de.fu_berlin.inf.dpp.ISarosContextBindings.Socks5Transport;
+import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.net.*;
+import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smackx.bytestreams.socks5.Socks5Proxy;
+import org.picocontainer.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -15,24 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
-
-import org.apache.log4j.Logger;
-import org.jivesoftware.smack.Connection;
-import org.jivesoftware.smackx.bytestreams.socks5.Socks5Proxy;
-import org.picocontainer.annotations.Nullable;
-
-import de.fu_berlin.inf.dpp.ISarosContextBindings.IBBTransport;
-import de.fu_berlin.inf.dpp.ISarosContextBindings.Socks5Transport;
-import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.net.ConnectionMode;
-import de.fu_berlin.inf.dpp.net.ConnectionState;
-import de.fu_berlin.inf.dpp.net.IConnectionManager;
-import de.fu_berlin.inf.dpp.net.IPacketInterceptor;
-import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.ITransferListener;
-import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
-import de.fu_berlin.inf.dpp.net.xmpp.JID;
-import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 
 /**
  * This class is responsible for handling all transfers of binary data. It
@@ -642,4 +632,3 @@ public class DataTransferManager implements IConnectionListener,
         }
     }
 }
->>>>>>> 6ce61f3... [LOG] improved log statements in network classes

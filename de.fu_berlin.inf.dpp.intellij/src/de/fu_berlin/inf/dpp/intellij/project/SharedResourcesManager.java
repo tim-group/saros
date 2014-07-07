@@ -253,7 +253,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         FileUtils.mkdirs(activity.getPath().getResource());
         FileUtils.move(newFilePath, oldResource);
 
-        if (activity.getContents() == null)
+        if (activity.getContent() == null)
             return;
 
         handleFileCreation(activity);
@@ -279,7 +279,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         //We need to try replaceAll directly in document if it is open
         boolean replaced = false;
 
-        String newText = new String(activity.getContents(), EncodingProjectManager.getInstance().getDefaultCharset());
+        String newText = new String(activity.getContent(), EncodingProjectManager.getInstance().getDefaultCharset());
         replaced = editorManager.getActionManager().replaceText(activity.getPath(), newText);
 
         if (replaced) {
@@ -288,7 +288,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         } else {
             IFile file = activity.getPath().getFile();
             byte[] actualContent = FileUtils.getLocalFileContent(file);
-            byte[] newContent = activity.getContents();
+            byte[] newContent = activity.getContent();
 
             if (!Arrays.equals(newContent, actualContent)) {
                 fileSystemListener.setEnabled(false);
