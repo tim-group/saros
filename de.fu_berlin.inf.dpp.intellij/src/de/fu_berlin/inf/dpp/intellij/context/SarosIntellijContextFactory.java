@@ -44,7 +44,6 @@ import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -66,7 +65,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
 
             Component.create(ISarosSessionManager.class, SarosSessionManager.class),
-            Component.create(NotificationHandler.class),
+            //TODO: Not necessary
+            //Component.create(NotificationHandler.class),
             // Core Managers
             Component.create(ConsistencyWatchdogClient.class),
 
