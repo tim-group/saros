@@ -20,17 +20,17 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor;
+package de.fu_berlin.inf.dpp.core.editor;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.editor.*;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorActionManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
@@ -81,44 +81,35 @@ public class EditorManager
     protected LineRange localViewport;
 
     protected SPath activeEditor;
-    protected ColorManager colorManager = new ColorManager();
-
 
     private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
 
+        @Override
         public void receive(EditorActivity editorActivity) {
             execEditorActivity(editorActivity);
         }
 
 
+        @Override
         public void receive(TextEditActivity textEditActivity) {
             execTextEdit(textEditActivity);
         }
 
 
+        @Override
         public void receive(TextSelectionActivity textSelectionActivity) {
             execTextSelection(textSelectionActivity);
         }
 
 
+        @Override
         public void receive(ViewportActivity viewportActivity) {
             execViewport(viewportActivity);
         }
     };
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
-        /**
-         * @JTourBusStop 12, Activity sending, More complex example of a second
-         *               dispatch:
-         *
-         *               The exec() method below is a more complex example of
-         *               the second dispatch: Before letting the activity
-         *               perform the third dispatch (done in super.exec()), this
-         *               specific implementation dispatches the activity to two
-         *               other consumers.
-         */
 
-        /***/
         @Override
         public void exec(IActivity activity) {
 
@@ -162,6 +153,7 @@ public class EditorManager
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
 
+        @Override
         public void sessionStarted(ISarosSession newSarosSession) {
             LOG.info("Session started");
 
@@ -183,6 +175,7 @@ public class EditorManager
         }
 
 
+        @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
 
             LOG.info("Session ended");
@@ -214,6 +207,7 @@ public class EditorManager
         }
 
 
+        @Override
         public void projectAdded(String projectID) {
             if (!isFollowing()) {
                 return;
@@ -252,7 +246,7 @@ public class EditorManager
                         if (remoteSelectedEditor.getSelection() != null) {
                             int position = remoteSelectedEditor.getSelection().getOffset();
                             int length = remoteSelectedEditor.getSelection().getLength();
-                            ColorModel colorModel = colorManager.getColorModel(getFollowedUser().getColorID());
+                            ColorModel colorModel = ColorManager.getColorModel(getFollowedUser().getColorID());
                             getActionManager().selectText(remotePath, position, length, colorModel);
                         }
 
@@ -288,6 +282,7 @@ public class EditorManager
 
     private Blockable stopManagerListener = new Blockable() {
 
+        @Override
         public void unblock() {
             ThreadUtils.runSafeSync(LOG, new Runnable() {
 
@@ -299,6 +294,7 @@ public class EditorManager
         }
 
 
+        @Override
         public void block() {
             ThreadUtils.runSafeSync(LOG, new Runnable() {
 
@@ -313,6 +309,7 @@ public class EditorManager
     private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
 
+        @Override
         public void permissionChanged(final User user) {
 
             hasWriteAccess = session.hasWriteAccess();
@@ -326,6 +323,7 @@ public class EditorManager
         }
 
 
+        @Override
         public void userFinishedProjectNegotiation(User user) {
 
             // Send awareness-informations
@@ -362,6 +360,7 @@ public class EditorManager
         }
 
 
+        @Override
         public void userLeft(final User user) {
 
             // If the user left which I am following, then stop following...
@@ -374,9 +373,6 @@ public class EditorManager
         }
     };
 
-    /**
-     * @Inject
-     */
     public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore) {
 
         remoteEditorManager = new RemoteEditorManager(session);
@@ -431,7 +427,7 @@ public class EditorManager
         LOG.debug(path + " text edit activity received " + editorActivity);
 
         User user = editorActivity.getSource();
-        ColorModel colorModel = colorManager.getColorModel(user.getColorID());
+        ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
         actionManager.editText(path, editorActivity.toOperation(), colorModel.getEditColor());
 
@@ -454,7 +450,7 @@ public class EditorManager
 
 
         User user = selection.getSource();
-        ColorModel colorModel = colorManager.getColorModel(user.getColorID());
+        ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
         if (isFollowing(user)) {
             actionManager.selectText(path, selection.getOffset(), selection.getLength(), colorModel);
@@ -528,8 +524,8 @@ public class EditorManager
         fireActivity(new EditorActivity(session.getLocalUser(),
                 EditorActivity.Type.ACTIVATED, path));
 
-        //  generateSelection(path, selection);  //todo
-        //  generateViewport(path, viewport);    //todo
+        //  generateSelection(path, selection);  //todo add this feature
+        //  generateViewport(path, viewport);    //todo add this feature
 
     }
 
@@ -591,7 +587,7 @@ public class EditorManager
         fireActivity(new ViewportActivity(session.getLocalUser(),
                 viewport.getStartLine(), viewport.getNumberOfLines(), path));
 
-        //  editorListenerDispatch.viewportGenerated(part, viewport, path);  //todo
+        //  editorListenerDispatch.viewportGenerated(part, viewport, path);  //todo add this feature
     }
 
     /**
@@ -603,8 +599,7 @@ public class EditorManager
     }
 
     /**
-     * Returns <code>true</code> if there is currently a {@link User} followed,
-     * otherwise <code>false</code>.
+     * Returns <code>true</code> if it is currently following user, otherwise <code>false</code>.
      */
     public boolean isFollowing(User user) {
         return getFollowedUser() != null && getFollowedUser().equals(user);
@@ -750,6 +745,8 @@ public class EditorManager
 
 
     /**
+     * Generates a TextEditActivity and fires it.
+     *
      * @param offset
      * @param oldText
      * @param newText
@@ -792,5 +789,11 @@ public class EditorManager
         return actionManager;
     }
 
+    public ISarosSession getSession() {
+        return session;
+    }
 
+    public boolean hasSession() {
+        return session == null;
+    }
 }

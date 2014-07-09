@@ -25,42 +25,36 @@ package de.fu_berlin.inf.dpp.intellij.editor.events;
 import com.intellij.openapi.editor.event.VisibleAreaEvent;
 import com.intellij.openapi.editor.event.VisibleAreaListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 
 import java.awt.*;
 
 /**
  * Intellij editor ViewPort listener
  */
-public class StoppableViewPortListener extends AbstractStoppableListener implements VisibleAreaListener
-{
+public class StoppableViewPortListener extends AbstractStoppableListener implements VisibleAreaListener {
     private EditorManager manager;
 
-    public StoppableViewPortListener(EditorManager manager)
-    {
+    public StoppableViewPortListener(EditorManager manager) {
         this.manager = manager;
     }
 
     @Override
-    public void visibleAreaChanged(VisibleAreaEvent event)
-    {
-        if (!enabled)
-        {
+    public void visibleAreaChanged(VisibleAreaEvent event) {
+        if (!enabled) {
             return;
 
         }
         SPath path = manager.getActionManager().getEditorPool().getFile(event.getEditor().getDocument());
 
-        if (path != null)
-        {
+        if (path != null) {
             manager.generateViewport(path, getLineRange(event));
         }
 
     }
 
-    protected LineRange getLineRange(VisibleAreaEvent event)
-    {
+    protected LineRange getLineRange(VisibleAreaEvent event) {
         Rectangle rec = event.getEditor().getScrollingModel().getVisibleAreaOnScrollingFinished();
         int lineHeight = event.getEditor().getLineHeight();
 

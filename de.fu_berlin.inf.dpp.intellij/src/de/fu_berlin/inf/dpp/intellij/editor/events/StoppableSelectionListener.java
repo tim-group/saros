@@ -26,32 +26,27 @@ package de.fu_berlin.inf.dpp.intellij.editor.events;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.editor.event.SelectionListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 
 /**
  * IntelliJ editor selection listener
  */
-public class StoppableSelectionListener extends AbstractStoppableListener implements SelectionListener
-{
+public class StoppableSelectionListener extends AbstractStoppableListener implements SelectionListener {
     private EditorManager manager;
 
 
-    public StoppableSelectionListener(EditorManager manager)
-    {
+    public StoppableSelectionListener(EditorManager manager) {
         this.manager = manager;
     }
 
     @Override
-    public void selectionChanged(SelectionEvent event)
-    {
-        if (!enabled)
-        {
+    public void selectionChanged(SelectionEvent event) {
+        if (!enabled) {
             return;
         }
 
         SPath path = manager.getActionManager().getEditorPool().getFile(event.getEditor().getDocument());
-        if (path != null)
-        {
+        if (path != null) {
             manager.generateSelection(path, event);
         }
     }

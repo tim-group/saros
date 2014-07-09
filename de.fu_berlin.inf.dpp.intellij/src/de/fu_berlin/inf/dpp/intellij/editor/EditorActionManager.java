@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.DeleteOperation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.ITextOperation;
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.DocumentProvider;
@@ -387,7 +388,7 @@ public class EditorActionManager {
 
 
     public SPath toPath(VirtualFile virtualFile) {
-        if (virtualFile == null || !virtualFile.exists() || manager.session == null) {
+        if (virtualFile == null || !virtualFile.exists() || !manager.hasSession()) {
             return null;
         }
 
@@ -396,7 +397,7 @@ public class EditorActionManager {
 
         String path = virtualFile.getPath();
 
-        for (IProject project : manager.session.getProjects()) {
+        for (IProject project : manager.getSession().getProjects()) {
             resource = project.getFile(path);
             if (resource != null) {
                 break;

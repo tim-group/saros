@@ -50,7 +50,7 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * IntellJ editor API. Performs IntelliJ editor related actions ins save manner.
+ * IntellJ editor API. Performs IntelliJ editor related actions in the UI thread.
  */
 
 public class EditorAPI {
@@ -70,13 +70,28 @@ public class EditorAPI {
     private VirtualFileManager virtualFileManager;
 
     public EditorAPI() {
-
-        Project project = Saros.instance().getProject();
-        setProject(project);
+        this(Saros.instance().getProject());
     }
 
     public EditorAPI(Project project) {
-        setProject(project);
+        if (project != null) {
+            this.project = project;
+            this.editorFileManager = FileEditorManager.getInstance(project);
+            this.psiManager = PsiManager.getInstance(project);
+            this.psiDocumentManager = PsiDocumentManager.getInstance(project);
+            this.moduleManager = ModuleManager.getInstance(project);
+
+            this.virtualFileManager = VirtualFileManager.getInstance();
+            this.projectManager = ProjectManager.getInstance();
+            this.localFileSystem = LocalFileSystem.getInstance();
+
+            this.application = ApplicationManager.getApplication();
+            this.commandProcessor = CommandProcessor.getInstance();
+            this.fileDocumentManager = FileDocumentManager.getInstance();
+            this.editorFactory = EditorFactory.getInstance();
+        } else {
+            throw new IllegalArgumentException("Tried to initialize EditorAPI with project that was null");
+        }
     }
 
     public VirtualFile toVirtualFile(SPath path) {
@@ -101,9 +116,13 @@ public class EditorAPI {
     }
 
 
+    /**
+     * Opens an editor for the given path in the UI thread.
+     *
+     * @param path
+     * @return
+     */
     public Editor openEditor(final VirtualFile path) {
-        // editorFileManager.openEditor(path, true);
-        // return editorFileManager.getSelectedTextEditor();
 
         final EditorContainer result = new EditorContainer();
 
@@ -194,9 +213,6 @@ public class EditorAPI {
         }, ModalityState.NON_MODAL);
     }
 
-    /**
-     * @param doc
-     */
     public void saveAllDocuments() {
         application.invokeAndWait(new Runnable() {
             @Override
@@ -214,6 +230,8 @@ public class EditorAPI {
 
 
     /**
+     * Sets the given Editor to the specified line range.
+     *
      * @param editor
      * @param lineStart
      * @param lineEnd
@@ -234,6 +252,13 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
+    /**
+     * Inserts test at the given position.
+     *
+     * @param doc
+     * @param position
+     * @param text
+     */
     public void insertText(final Document doc, final int position, final String text) {
 
         Runnable action = new Runnable() {
@@ -256,6 +281,12 @@ public class EditorAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
+    /**
+     * Overwrites the content of the document with text.
+     *
+     * @param doc
+     * @param text
+     */
     public void setText(final Document doc, final String text) {
         Runnable action = new Runnable() {
             @Override
@@ -278,7 +309,7 @@ public class EditorAPI {
     }
 
     /**
-     * Adds text mark on the editor
+     * Adds text mark on the editor.
      *
      * @param editor
      * @param start
@@ -297,14 +328,13 @@ public class EditorAPI {
         RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.LAST, textAttr, HighlighterTargetArea.EXACT_RANGE);
         highlighter.setGreedyToLeft(false);
         highlighter.setGreedyToRight(false);
-        //highlighter.setLineSeparatorColor(Color.WHITE); //todo
 
         return highlighter;
     }
 
     /**
-     * Removes text mark from editor
-     * pass null as highlighter to remove all marks
+     * Removes text mark from editor.
+     * When highlighter is null, it removes all marks.
      *
      * @param editor
      * @param highlighter
@@ -314,16 +344,14 @@ public class EditorAPI {
             return;
         }
 
+        //TODO: Check if this is necessary at all.
         if (highlighter != null) {
             editor.getMarkupModel().removeHighlighter(highlighter);
         } else {
-            //remove all
             for (RangeHighlighter myHighlighter : editor.getMarkupModel().getAllHighlighters()) {
                 editor.getMarkupModel().removeHighlighter(myHighlighter);
             }
         }
-
-
     }
 
     /**
@@ -395,37 +423,7 @@ public class EditorAPI {
 
     }
 
-
     public ModuleManager getModuleManager() {
         return moduleManager;
     }
-
-    public boolean isInitialized() {
-        return project != null;
-    }
-
-    public FileDocumentManager getFileDocumentManager() {
-        return fileDocumentManager;
-    }
-
-    public void setProject(Project project) {
-        if (project != null) {
-            this.project = project;
-            this.editorFileManager = FileEditorManager.getInstance(project);
-            this.psiManager = PsiManager.getInstance(project);
-            this.psiDocumentManager = PsiDocumentManager.getInstance(project);
-            this.moduleManager = ModuleManager.getInstance(project);
-
-            this.virtualFileManager = VirtualFileManager.getInstance();
-            this.projectManager = ProjectManager.getInstance();
-            this.localFileSystem = LocalFileSystem.getInstance();
-
-            this.application = ApplicationManager.getApplication();
-            this.commandProcessor = CommandProcessor.getInstance();
-            this.fileDocumentManager = FileDocumentManager.getInstance();
-            this.editorFactory = EditorFactory.getInstance();
-        }
-    }
-
-
 }

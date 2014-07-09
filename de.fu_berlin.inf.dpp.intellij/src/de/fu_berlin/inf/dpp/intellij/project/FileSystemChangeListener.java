@@ -27,10 +27,10 @@ import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.events.AbstractStoppableListener;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
@@ -49,8 +49,7 @@ import java.util.List;
 /**
  * Local file system change listener. Creates network events on file create/delete/rename/move
  */
-public class FileSystemChangeListener extends AbstractStoppableListener implements VirtualFileListener
-{
+public class FileSystemChangeListener extends AbstractStoppableListener implements VirtualFileListener {
 
     private static Logger LOG = Logger.getLogger(FileSystemChangeListener.class);
     private SharedResourcesManager resourceManager;
@@ -59,13 +58,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     private EditorManager editorManager;
 
-    public FileSystemChangeListener(SharedResourcesManager resourceManager)
-    {
+    public FileSystemChangeListener(SharedResourcesManager resourceManager) {
         this.resourceManager = resourceManager;
     }
 
-    private void generateFolderMove(SPath oldSPath, SPath newSPath, boolean before)
-    {
+    private void generateFolderMove(SPath oldSPath, SPath newSPath, boolean before) {
         User user = resourceManager.getSession().getLocalUser();
         ProjectImp project = (ProjectImp) oldSPath.getProject();
         IActivity createActivity = new FolderActivity(user, FolderActivity.Type.CREATED, newSPath);
@@ -74,26 +71,19 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IFolder folder = before ? oldSPath.getFolder() : newSPath.getFolder();
 
         IResource[] members = new IResource[0];
-        try
-        {
+        try {
             members = folder.members();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             LOG.error(e.getMessage(), e);
             throw new OperationCanceledException("Internal I/O error");
         }
 
-        for (IResource resource : members)
-        {
+        for (IResource resource : members) {
             SPath oldChildSPath = new FileImp((ProjectImp) oldSPath.getProject(), new File(oldSPath.getFullPath().toOSString() + File.separator + resource.getName())).getSPath();
             SPath newChildSPath = new FileImp((ProjectImp) newSPath.getProject(), new File(newSPath.getFullPath().toOSString() + File.separator + resource.getName())).getSPath();
-            if (resource.getType() == IResource.FOLDER)
-            {
+            if (resource.getType() == IResource.FOLDER) {
                 generateFolderMove(oldChildSPath, newChildSPath, before);
-            }
-            else
-            {
+            } else {
                 generateFileMove(oldChildSPath, newChildSPath, before);
             }
         }
@@ -106,28 +96,23 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
 
-    private void generateFileMove(SPath oldSPath, SPath newSPath, boolean before)
-    {
+    private void generateFileMove(SPath oldSPath, SPath newSPath, boolean before) {
         User user = resourceManager.getSession().getLocalUser();
         ProjectImp project = (ProjectImp) oldSPath.getProject();
 
         IFile file;
 
-        if (before)
-        {
+        if (before) {
 
             file = project.getFile(oldSPath.getFullPath());
             editorManager.getActionManager().saveEditor(oldSPath);
-        }
-        else
-        {
+        } else {
 
             file = project.getFile(newSPath.getFullPath());
             editorManager.getActionManager().saveEditor(newSPath);
         }
 
-        if (file == null)
-        {
+        if (file == null) {
             return;
         }
 
@@ -150,18 +135,15 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent)
-    {
+    public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
 
 
     }
 
 
     @Override
-    public void fileCreated(@NotNull VirtualFileEvent virtualFileEvent)
-    {
-        if (!enabled)
-        {
+    public void fileCreated(@NotNull VirtualFileEvent virtualFileEvent) {
+        if (!enabled) {
             return;
         }
 
@@ -170,13 +152,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IPath path = new PathImp(file);
         IProject project = workspace.getRoot().locateProject(path);
 
-        if (project == null || !project.exists())
-        {
+        if (project == null || !project.exists()) {
             return;
         }
 
-        if (incomingList.contains(file))
-        {
+        if (incomingList.contains(file)) {
             incomingList.remove(file);
 
             ((ProjectImp) project).addFile(file);
@@ -185,8 +165,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
 
-        if (!resourceManager.getSession().isCompletelyShared(project))
-        {
+        if (!resourceManager.getSession().isCompletelyShared(project)) {
             return;
         }
 
@@ -196,15 +175,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         SPath spath = new SPath(project, path);
         User user = resourceManager.getSession().getLocalUser();
         IActivity activity;
-        if (file.isFile())
-        {
+        if (file.isFile()) {
             byte[] bytes = new byte[0];
-            try
-            {
+            try {
                 bytes = virtualFileEvent.getFile().contentsToByteArray();
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 workspace.log.error(e.getMessage(), e);
             }
 
@@ -216,9 +191,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
             editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(), bytes);
 
-        }
-        else
-        {
+        } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
 
         }
@@ -230,16 +203,13 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void fileDeleted(@NotNull VirtualFileEvent virtualFileEvent)
-    {
-        if (!enabled)
-        {
+    public void fileDeleted(@NotNull VirtualFileEvent virtualFileEvent) {
+        if (!enabled) {
             return;
         }
 
         File file = new File(virtualFileEvent.getFile().getPath());
-        if (incomingList.contains(file))
-        {
+        if (incomingList.contains(file)) {
             incomingList.remove(file);
             return;
         }
@@ -248,13 +218,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IPath path = new PathImp(file);
         IProject project = workspace.getRoot().locateProject(path);
 
-        if (project == null || !project.exists())
-        {
+        if (project == null || !project.exists()) {
             return;
         }
 
-        if (!resourceManager.getSession().isCompletelyShared(project))
-        {
+        if (!resourceManager.getSession().isCompletelyShared(project)) {
             return;
         }
 
@@ -265,12 +233,9 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         User user = resourceManager.getSession().getLocalUser();
 
         IActivity activity;
-        if (virtualFileEvent.getFile().isDirectory())
-        {
+        if (virtualFileEvent.getFile().isDirectory()) {
             activity = new FolderActivity(user, FolderActivity.Type.REMOVED, spath);
-        }
-        else
-        {
+        } else {
             activity = FileActivity.removed(user, spath, FileActivity.Purpose.ACTIVITY);
         }
 
@@ -281,16 +246,13 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void fileMoved(@NotNull VirtualFileMoveEvent virtualFileMoveEvent)
-    {
-        if (!enabled)
-        {
+    public void fileMoved(@NotNull VirtualFileMoveEvent virtualFileMoveEvent) {
+        if (!enabled) {
             return;
         }
 
         File newFile = new File(virtualFileMoveEvent.getFile().getPath());
-        if (incomingList.contains(newFile))
-        {
+        if (incomingList.contains(newFile)) {
             incomingList.remove(newFile);
             return;
         }
@@ -298,13 +260,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IPath path = new PathImp(newFile);
         IProject project = workspace.getRoot().locateProject(path);
 
-        if (project == null || !project.exists())
-        {
+        if (project == null || !project.exists()) {
             return;
         }
 
-        if (!resourceManager.getSession().isCompletelyShared(project))
-        {
+        if (!resourceManager.getSession().isCompletelyShared(project)) {
             return;
         }
 
@@ -321,8 +281,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         //  User user = resourceManager.getSession().getLocalUser();
 
         //move activity
-        if (newFile.isFile())
-        {
+        if (newFile.isFile()) {
            /* byte[] bytes = new byte[0];
             try {
                 bytes = virtualFileMoveEvent.getFile().contentsToByteArray();
@@ -335,9 +294,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             resourceManager.fireActivity(activity);*/
             generateFileMove(oldSPath, newSPath, false);
 
-        }
-        else
-        {
+        } else {
             generateFolderMove(oldSPath, newSPath, false);
         }
 
@@ -348,18 +305,15 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void propertyChanged(@NotNull VirtualFilePropertyEvent filePropertyEvent)
-    {
-        if (!enabled)
-        {
+    public void propertyChanged(@NotNull VirtualFilePropertyEvent filePropertyEvent) {
+        if (!enabled) {
             return;
         }
 
         File oldFile = new File(filePropertyEvent.getFile().getParent().getPath() + File.separator + filePropertyEvent.getOldValue());
         File newFile = new File(filePropertyEvent.getFile().getPath());
 
-        if (incomingList.contains(newFile))
-        {
+        if (incomingList.contains(newFile)) {
             incomingList.remove(newFile);
             return;
         }
@@ -367,8 +321,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IPath oldPath = new PathImp(oldFile);
         IProject project = workspace.getRoot().locateProject(oldPath);
 
-        if (project == null || !project.exists())
-        {
+        if (project == null || !project.exists()) {
             return;
         }
 
@@ -382,28 +335,22 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         SPath newSPath = new SPath(project, newPath);
         //move activity
-        if (newFile.isFile())
-        {
+        if (newFile.isFile()) {
             generateFileMove(oldSPath, newSPath, false);
-        }
-        else
-        {
+        } else {
             generateFolderMove(oldSPath, newSPath, false);
         }
     }
 
     @Override
-    public void fileCopied(@NotNull VirtualFileCopyEvent virtualFileCopyEvent)
-    {
-        if (!enabled)
-        {
+    public void fileCopied(@NotNull VirtualFileCopyEvent virtualFileCopyEvent) {
+        if (!enabled) {
             return;
         }
 
         VirtualFile virtualFile = virtualFileCopyEvent.getFile();
         File newFile = new File(virtualFile.getPath());
-        if (incomingList.contains(newFile))
-        {
+        if (incomingList.contains(newFile)) {
             incomingList.remove(newFile);
             return;
         }
@@ -411,13 +358,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IPath path = new PathImp(newFile);
         IProject project = workspace.getRoot().locateProject(path);
 
-        if (project == null || !project.exists())
-        {
+        if (project == null || !project.exists()) {
             return;
         }
 
-        if (!resourceManager.getSession().isCompletelyShared(project))
-        {
+        if (!resourceManager.getSession().isCompletelyShared(project)) {
             return;
         }
 
@@ -431,12 +376,9 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IActivity activity;
 
         byte[] bytes = new byte[0];
-        try
-        {
+        try {
             bytes = virtualFileCopyEvent.getOriginalFile().contentsToByteArray();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             workspace.log.error(e.getMessage(), e);
         }
 
@@ -448,41 +390,34 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     }
 
     @Override
-    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent filePropertyEvent)
-    {
+    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent filePropertyEvent) {
 
     }
 
     @Override
-    public void beforeContentsChange(@NotNull VirtualFileEvent virtualFileEvent)
-    {
+    public void beforeContentsChange(@NotNull VirtualFileEvent virtualFileEvent) {
 
     }
 
     @Override
-    public void beforeFileDeletion(@NotNull VirtualFileEvent virtualFileEvent)
-    {
+    public void beforeFileDeletion(@NotNull VirtualFileEvent virtualFileEvent) {
 
     }
 
     @Override
-    public void beforeFileMovement(@NotNull VirtualFileMoveEvent virtualFileMoveEvent)
-    {
+    public void beforeFileMovement(@NotNull VirtualFileMoveEvent virtualFileMoveEvent) {
 
     }
 
-    public void setWorkspace(Workspace workspace)
-    {
+    public void setWorkspace(Workspace workspace) {
         this.workspace = workspace;
     }
 
-    public void addIncoming(File file)
-    {
+    public void addIncoming(File file) {
         incomingList.add(file);
     }
 
-    public void setEditorManager(EditorManager editorManager)
-    {
+    public void setEditorManager(EditorManager editorManager) {
         this.editorManager = editorManager;
     }
 }

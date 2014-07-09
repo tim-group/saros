@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.core.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -30,7 +31,6 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.IDocument;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.util.StackTrace;
