@@ -22,29 +22,36 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import org.picocontainer.annotations.Inject;
 
 /**
  * Disconnects XMPP/Jabber server
  */
-public class DisconnectServerAction extends AbstractSarosAction  implements IConnectionAction
-{
+public class DisconnectServerAction extends AbstractSarosAction implements IConnectionAction {
     public static final String NAME = "disconnect";
 
 
+    @Inject
+    private XMPPConnectionService connectionService;
+
+    public DisconnectServerAction() {
+        SarosPluginContext.initComponent(this);
+    }
+
     @Override
-    public String getActionName()
-    {
+    public String getActionName() {
         return NAME;
     }
 
 
     @Override
-    public void run()
-    {
+    public void run() {
         actionStarted();
 
-        saros.getConnectionService().disconnect();
+        connectionService.disconnect();
 
         LOG.info("DISCONNECTED");
 

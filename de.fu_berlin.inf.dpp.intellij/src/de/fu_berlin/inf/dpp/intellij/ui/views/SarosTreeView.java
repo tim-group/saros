@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.TreeClickListener;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
@@ -52,9 +53,11 @@ public class SarosTreeView {
     private SessionTree sessionTree;
     private ContactTree contactTree;
 
-
     @Inject
     private XMPPAccountStore accountStore;
+
+    @Inject
+    private XMPPConnectionService connectionService;
 
     /**
      * @param parent
@@ -127,7 +130,7 @@ public class SarosTreeView {
         contactTree.createContactNodes();
 
         //add listener for on-line contacts
-        saros.getConnectionService().getRoster().addRosterListener(contactTree);
+        connectionService.getRoster().addRosterListener(contactTree);
 
     }
 

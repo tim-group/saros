@@ -28,6 +28,7 @@ import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.picocontainer.annotations.Inject;
@@ -46,6 +47,9 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
 
     @Inject
     private XMPPAccountStore accountStore;
+
+    @Inject
+    private XMPPConnectionService connectionService;
 
     public ConnectServerAction() {
         SarosPluginContext.initComponent(this);
@@ -140,7 +144,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
         try {
 
 
-            saros.getConnectionService().connect(new ConnectionConfiguration(account.getServer()), account.getUsername(), account.getPassword());
+            connectionService.connect(new ConnectionConfiguration(account.getServer()), account.getUsername(), account.getPassword());
 
             //store account
             if (isNew &&

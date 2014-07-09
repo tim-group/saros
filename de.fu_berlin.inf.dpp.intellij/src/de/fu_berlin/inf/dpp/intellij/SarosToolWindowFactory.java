@@ -50,7 +50,7 @@ public class SarosToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
 
-        PropertyConfigurator.configure("src/log4j.properties");  //todo
+        PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/log4j.properties");  //todo
 
         Saros saros = Saros.create(project, toolWindow);
         Workspace ws = new Workspace(project);

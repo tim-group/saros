@@ -192,14 +192,6 @@ public class Saros {
         this.isInitialized = false;
     }
 
-    public boolean isConnected() {
-        return connectionService.isConnected();
-    }
-
-    public XMPPConnectionService getConnectionService() {
-        return connectionService;
-    }
-
     //TODO: Check if this can be replaced by injection
     public ISarosSessionManager getSessionManager() {
         return sessionManager;

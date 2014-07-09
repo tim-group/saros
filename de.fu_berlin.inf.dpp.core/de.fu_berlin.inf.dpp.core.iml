@@ -13,7 +13,6 @@
     <orderEntry type="library" exported="" name="commons-io-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="commons-lang-2.4" level="project" />
     <orderEntry type="library" exported="" name="jmdns-3.4.1" level="project" />
-    <orderEntry type="library" exported="" name="log4j-1.2.15" level="project" />
     <orderEntry type="library" exported="" name="picocontainer-2.11.2" level="project" />
     <orderEntry type="library" exported="" name="smack" level="project" />
     <orderEntry type="library" exported="" name="smackx" level="project" />
@@ -80,6 +79,15 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="jmdns-3.4.1" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/log4j.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

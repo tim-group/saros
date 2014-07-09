@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
@@ -32,6 +33,8 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -53,6 +56,9 @@ public class SarosToolbar {
 
     private SarosMainPanelView sarosMainView;
     private JToolBar jToolBar;
+
+    @Inject
+    private XMPPConnectionService connectionService;
 
     private SarosActionListener toolbarActionListener = new SarosActionListener() {
         @Override
@@ -77,7 +83,7 @@ public class SarosToolbar {
             if (action instanceof IConnectionAction) {
 
                 final SarosTreeView sarosTree = sarosMainView.getSarosTree();
-                if (saros.isConnected()) {
+                if (connectionService.isConnected()) {
                     sarosTree.renderConnected();
                 } else {
                     sarosTree.renderDisconnected();
@@ -105,6 +111,7 @@ public class SarosToolbar {
     public SarosToolbar(SarosMainPanelView mainPanel) {
         this.jToolBar = create(mainPanel);
         mainPanel.getParent().add(this.jToolBar, BorderLayout.NORTH);
+        SarosPluginContext.initComponent(this);
     }
 
     /**
@@ -192,7 +199,7 @@ public class SarosToolbar {
                 JButton btnConnect = toolbarButtons.get(ConnectServerAction.NAME);
                 for (JButton button : toolbarButtons.values()) {
                     if (btnConnect != button) {
-                        button.setEnabled(saros.isConnected());
+                        button.setEnabled(connectionService.isConnected());
                     }
                 }
                 btnConnect.setEnabled(true); //always enabled!

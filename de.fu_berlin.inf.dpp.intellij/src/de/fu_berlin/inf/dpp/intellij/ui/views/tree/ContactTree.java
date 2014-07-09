@@ -24,13 +24,16 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 
 import com.intellij.util.ui.UIUtil;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.IRosterListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
+import org.picocontainer.annotations.Inject;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -47,6 +50,9 @@ public class ContactTree extends AbstractTree implements IRosterListener
     private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
     private DefaultTreeModel treeModel;
 
+    @Inject
+    XMPPConnectionService connectionService;
+
     /**
      * @param parent
      */
@@ -56,6 +62,9 @@ public class ContactTree extends AbstractTree implements IRosterListener
         this.rootTree = parent;
         this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
         setUserObject(new AbstractTree.CategoryInfo(TREE_TITLE));
+
+
+        SarosPluginContext.initComponent(this);
 
         create();
     }
@@ -70,7 +79,7 @@ public class ContactTree extends AbstractTree implements IRosterListener
         removeAllChildren();
         DefaultMutableTreeNode node;
 
-        Roster roster = saros.getConnectionService().getRoster();
+        Roster roster = connectionService.getRoster();
         //add contacts
         for (RosterEntry contactEntry : roster.getEntries())
         {
