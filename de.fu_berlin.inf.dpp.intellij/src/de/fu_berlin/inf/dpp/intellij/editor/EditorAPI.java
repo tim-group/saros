@@ -45,6 +45,7 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceImp;
 
 import java.awt.*;
 import java.io.File;
@@ -95,7 +96,7 @@ public class EditorAPI {
     }
 
     public VirtualFile toVirtualFile(SPath path) {
-        return toVirtualFile(path.getFile().toFile());
+        return toVirtualFile(((ResourceImp) path.getFile()).toFile());
     }
 
     public VirtualFile toVirtualFile(File path) {

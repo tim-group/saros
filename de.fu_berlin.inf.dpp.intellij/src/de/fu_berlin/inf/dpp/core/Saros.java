@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.core;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
@@ -36,7 +35,6 @@ import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
-import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
@@ -93,17 +91,11 @@ public class Saros {
 
     private static boolean isInitialized;
 
-    private static boolean isRunning;
-
     private Project project;
     private ToolWindow toolWindow;
 
     private XMPPConnectionService connectionService;
     private ISarosSessionManager sessionManager;
-    private DataTransferManager transferManager;
-
-    private XMPPAccountStore accountStore;
-
     protected PreferenceUtils preferenceUtils;
 
     private SarosMainPanelView mainPanel;
@@ -119,10 +111,6 @@ public class Saros {
      */
     public static boolean isInitialized() {
         return isInitialized;
-    }
-
-    public static boolean isIsRunning() {
-        return isRunning;
     }
 
     public static void checkInitialized() {
@@ -162,9 +150,11 @@ public class Saros {
     private Saros(Project project, ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
-        this.isRunning = false;
     }
 
+    /**
+     * If not initizalied yet, this method initializes fields, the SarosPluginContext and the XMPPConnectionService.
+     */
     public void start() {
 
         if (isInitialized) {
@@ -184,9 +174,7 @@ public class Saros {
         connectionService = sarosContext
                 .getComponent(XMPPConnectionService.class);
         sessionManager = sarosContext.getComponent(ISarosSessionManager.class);
-        accountStore = sarosContext.getComponent(XMPPAccountStore.class);
         preferenceUtils = sarosContext.getComponent(PreferenceUtils.class);
-        transferManager = sarosContext.getComponent(DataTransferManager.class);
 
         //todo: set parameters from config
         connectionService
@@ -201,7 +189,6 @@ public class Saros {
     }
 
     public void stop() {
-
         this.isInitialized = false;
     }
 
