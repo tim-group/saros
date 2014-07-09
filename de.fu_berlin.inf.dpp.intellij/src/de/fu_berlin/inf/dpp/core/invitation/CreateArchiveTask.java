@@ -4,7 +4,6 @@ import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.util.CoreUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -34,7 +33,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
     private int lastWorked = 0;
 
     public CreateArchiveTask(final File archive, final List<IFile> files,
-                             final List<String> alias, final IProgressMonitor monitor) {
+        final List<String> alias, final IProgressMonitor monitor) {
         this.archive = archive;
         this.files = files;
         this.alias = alias;
@@ -51,11 +50,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         long totalSize = 0L;
 
         for (IFile file : files) {
-
-            IPath fileSystemPath = file.getLocation();
-
-            totalSize += fileSystemPath.toFile().length();
-
+            totalSize += file.getSize();
         }
 
         StopWatch stopWatch = new StopWatch();
@@ -63,7 +58,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
         final Iterator<IFile> fileIt = files.iterator();
         final Iterator<String> aliasIt =
-                alias == null ? null : alias.iterator();
+            alias == null ? null : alias.iterator();
 
         long totalRead = 0L;
 
@@ -77,9 +72,8 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
         try {
             zipStream = new ZipOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(archive),
-                            BUFFER_SIZE)
-            );
+                new BufferedOutputStream(new FileOutputStream(archive),
+                    BUFFER_SIZE));
 
             while (fileIt.hasNext()) {
 
@@ -114,9 +108,8 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
                         if (monitor.isCanceled())
                             throw new OperationCanceledException(
-                                    "compressing of file '" + originalEntryName
-                                            + "' was canceled"
-                            );
+                                "compressing of file '" + originalEntryName
+                                    + "' was canceled");
 
                         zipStream.write(buffer, 0, read);
 
@@ -139,7 +132,7 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         } finally {
             IOUtils.closeQuietly(zipStream);
             if (cleanup && archive != null && archive.exists() && !archive
-                    .delete())
+                .delete())
                 LOG.warn("could not delete archive file: " + archive);
 
             monitor.done();
@@ -148,13 +141,13 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
         stopWatch.stop();
 
         LOG.debug(String
-                .format("created archive %s I/O: [%s]", archive.getAbsolutePath(),
-                        CoreUtils.throughput(archive.length(), stopWatch.getTime())));
+            .format("created archive %s I/O: [%s]", archive.getAbsolutePath(),
+                CoreUtils.throughput(archive.length(), stopWatch.getTime())));
 
     }
 
     private void updateMonitor(IProgressMonitor monitor, long totalRead,
-                               long totalSize) {
+        long totalSize) {
 
         if (totalSize == 0)
             return;

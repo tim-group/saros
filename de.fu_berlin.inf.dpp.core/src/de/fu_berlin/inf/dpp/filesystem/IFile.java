@@ -40,7 +40,7 @@ public interface IFile extends IResource {
      * <code>IFile#setContents(input, force, keepHistory, null)</code>
      */
     public void setContents(InputStream input, boolean force,
-                            boolean keepHistory) throws IOException;
+        boolean keepHistory) throws IOException;
 
     /**
      * Equivalent to the Eclipse call
@@ -49,4 +49,9 @@ public interface IFile extends IResource {
     public void create(InputStream input, boolean force) throws IOException;
 
     public IPath getLocation();
+
+    /**
+     * @return the size of the file.
+     */
+    public long getSize() throws IOException;
 }

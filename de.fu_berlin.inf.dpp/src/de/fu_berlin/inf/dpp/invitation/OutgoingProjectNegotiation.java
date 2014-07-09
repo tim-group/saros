@@ -30,6 +30,7 @@ import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.EclipseProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.monitoring.ProgressMonitorAdapterFactory;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
@@ -390,15 +391,20 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         File tempArchive = null;
 
-        try {
-            if (toSend.size() > 0) {
-                tempArchive = File.createTempFile(prefix, ".zip");
+        /*
+         * org.eclipse.core.resources.IFile will be converted to
+         * de.fu_berlin.inf.dpp.filesystem.IFile and there is no need for a
+         * check
+         */
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        List<de.fu_berlin.inf.dpp.filesystem.IFile> coreFilesToCompress = (List) ResourceAdapterFactory
+            .convertTo(filesToCompress);
 
-                FileZipper.createProjectZipArchive(
-                    ((EclipseProjectImpl) project).getDelegate(), toSend,
-                    tempArchive, new ZipProgressMonitor(monitor, toSend.size(),
-                        true));
-            }
+        try {
+            tempArchive = File.createTempFile("saros_" + processID, ".zip");
+            // TODO run inside workspace ?
+            new CreateArchiveTask(tempArchive, coreFilesToCompress, fileAlias,
+                monitor).run(null);
         } catch (OperationCanceledException e) {
             throw new LocalCancellationException();
         }

@@ -82,7 +82,7 @@ public class FileImp extends ResourceImp implements IFile {
         return new PathImp(file);
     }
 
-    //@Override
+    @Override
     public long getSize() throws IOException {
         return file.length();
     }
