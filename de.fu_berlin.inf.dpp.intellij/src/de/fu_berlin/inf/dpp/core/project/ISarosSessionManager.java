@@ -23,9 +23,9 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.annotations.Component;
+import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * An interface behind which the {@link SarosSessionManager} hides its
  * non-public methods.
- *
+ * <p/>
  * The (I)SessionManager is responsible for providing a link between the
  * basically static world managed by PicoContainer where every class has just a
  * singleton instance which never changes and the {@link ISarosSession} which
@@ -51,24 +51,22 @@ public interface ISarosSessionManager {
 
     /**
      * @return the active SarosSession object or <code>null</code> if there is
-     *         no active session.
+     * no active session.
      */
     public ISarosSession getSarosSession();
 
     /**
      * Starts a new Saros session with the local user as only participant.
      *
-     * @param projectResources
-     *            the local Eclipse project resources which should become
-     *            shared.
+     * @param projectResources the local Eclipse project resources which should become
+     *                         shared.
      */
     public void startSession(Map<IProject, List<IResource>> projectResources);
 
     /**
      * Creates a Saros session. The returned session is NOT started!
      *
-     * @param host
-     *            the host of the session.
+     * @param host the host of the session.
      * @return the new Saros session.
      */
     public ISarosSession joinSession(JID host, String clientNickname,
@@ -77,7 +75,7 @@ public interface ISarosSessionManager {
     /**
      * Leaves the currently active session. If the local user is the host, this
      * will close the session for everybody.
-     *
+     * <p/>
      * Has no effect if there is no open session.
      */
     public void stopSarosSession();
@@ -85,32 +83,25 @@ public interface ISarosSessionManager {
     /**
      * Add the given session listener.
      *
-     * @param listener
-     *            the listener that is to be added.
+     * @param listener the listener that is to be added.
      */
     public void addSarosSessionListener(ISarosSessionListener listener);
 
     /**
      * Removes the given session listener.
      *
-     * @param listener
-     *            the listener that is to be removed.
+     * @param listener the listener that is to be removed.
      */
     public void removeSarosSessionListener(ISarosSessionListener listener);
 
     /**
      * Handles the negotiation process for a received invitation.
      *
-     * @param from
-     *            the sender of this invitation
-     * @param sessionID
-     *            the unique session ID of the inviter side
-     * @param invitationID
-     *            a unique identifier for the negotiation process
-     * @param version
-     *            remote Saros version of the inviter side
-     * @param description
-     *            what this session invitation is about
+     * @param from         the sender of this invitation
+     * @param sessionID    the unique session ID of the inviter side
+     * @param invitationID a unique identifier for the negotiation process
+     * @param version      remote Saros version of the inviter side
+     * @param description  what this session invitation is about
      */
     public void invitationReceived(JID from, String sessionID,
                                    String invitationID, String version, String description);
@@ -120,8 +111,7 @@ public interface ISarosSessionManager {
      * participant. This should be called after a the invitation to a session
      * was completed successfully.
      *
-     * @param user
-     *            JID of session participant to share projects with
+     * @param user JID of session participant to share projects with
      */
     public void startSharingProjects(JID user);
 
@@ -130,16 +120,14 @@ public interface ISarosSessionManager {
      * running, the user is already part of the session or is currently in the
      * invitation process.
      *
-     * @param toInvite
-     *            the JID of the user that is to be invited.
+     * @param toInvite the JID of the user that is to be invited.
      */
     public void invite(JID toInvite, String description);
 
     /**
      * Invites users to the shared project.
      *
-     * @param jidsToInvite
-     *            the JIDs of the users that should be invited.
+     * @param jidsToInvite the JIDs of the users that should be invited.
      */
     public void invite(Collection<JID> jidsToInvite, String description);
 
@@ -147,7 +135,6 @@ public interface ISarosSessionManager {
      * Adds project resources to an existing session.
      *
      * @param projectResourcesMapping
-     *
      */
     public void addResourcesToSession(
             Map<IProject, List<IResource>> projectResourcesMapping);
@@ -155,13 +142,10 @@ public interface ISarosSessionManager {
     /**
      * This method is called when a new project was added to the session
      *
-     * @param from
-     *            The one who added the project.
-     * @param projectInfos
-     *            what projects where added ({@link FileList}, projectName etc.)
-     *            see: {@link ProjectNegotiationData}
-     * @param processID
-     *            ID of the exchanging process
+     * @param from         The one who added the project.
+     * @param projectInfos what projects where added ({@link FileList}, projectName etc.)
+     *                     see: {@link ProjectNegotiationData}
+     * @param processID    ID of the exchanging process
      */
     public void incomingProjectReceived(JID from,
                                         List<ProjectNegotiationData> projectInfos, String processID);
@@ -169,8 +153,7 @@ public interface ISarosSessionManager {
     /**
      * Call this when a new project was added.
      *
-     * @param projectID
-     *            TODO
+     * @param projectID TODO
      */
     void projectAdded(String projectID);
 
@@ -191,13 +174,11 @@ public interface ISarosSessionManager {
     void postOutgoingInvitationCompleted(IProgressMonitor monitor, User newUser);
 
     /**
-     * Sets the {@link de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler negotiation handler} that will handle
+     * Sets the {@link de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler negotiation handler} that will handle
      * incoming and outgoing session and project negotiations requests.
      *
-     * @param handler
-     *            the handler to handle the request or <code>null</code> if the
-     *            requests should not be handled
-     *
+     * @param handler the handler to handle the request or <code>null</code> if the
+     *                requests should not be handled
      */
     public void setNegotiationHandler(INegotiationHandler handler);
 }

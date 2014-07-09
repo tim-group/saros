@@ -20,21 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-import de.fu_berlin.inf.dpp.net.IReceiver;
-
-import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
-
-//todo: adaptation from eclipse
 public final class JoinSessionRejectedHandler {
 
     private static final Logger LOG = Logger

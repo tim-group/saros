@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;

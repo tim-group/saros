@@ -24,12 +24,12 @@ package de.fu_berlin.inf.dpp.intellij.project;
 
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;

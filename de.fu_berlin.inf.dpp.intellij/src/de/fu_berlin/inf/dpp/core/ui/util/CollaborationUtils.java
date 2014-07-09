@@ -20,25 +20,25 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.util;
+package de.fu_berlin.inf.dpp.core.ui.util;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
-import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
+import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -60,7 +60,6 @@ import java.util.Map.Entry;
  * @author bkahlert
  * @author kheld
  */
-//todo: adopted from eclipse
 public class CollaborationUtils {
 
     private static final Logger LOG = Logger

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
@@ -40,7 +40,6 @@ import java.text.MessageFormat;
  *
  * @author srossbach
  */
-//todo: adaptation from eclipse
 public class UserStatusChangeHandler {
 
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {

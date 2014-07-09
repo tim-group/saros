@@ -24,13 +24,13 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
-import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 
 import javax.swing.*;

@@ -29,9 +29,9 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
  * Time: 08.51
  */
 
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;

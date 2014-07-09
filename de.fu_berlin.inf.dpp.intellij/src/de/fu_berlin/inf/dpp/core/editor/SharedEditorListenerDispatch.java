@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor;
+package de.fu_berlin.inf.dpp.core.editor;
 
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
@@ -31,8 +31,8 @@ import de.fu_berlin.inf.dpp.session.User;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener} which can dispatch to a changing set of
- * {@link de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener}s.
+ * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener} which can dispatch to a changing set of
+ * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener}s.
  */
 //todo: copy from eclipse
 public class SharedEditorListenerDispatch implements ISharedEditorListener {
@@ -107,6 +107,6 @@ public class SharedEditorListenerDispatch implements ISharedEditorListener {
     @Override
     public void viewportGenerated(LineRange viewport, SPath path) {
         for (ISharedEditorListener listener : editorListeners)
-            listener.viewportGenerated(viewport,path);
+            listener.viewportGenerated(viewport, path);
     }
 }

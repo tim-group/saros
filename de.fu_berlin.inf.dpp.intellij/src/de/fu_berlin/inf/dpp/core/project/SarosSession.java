@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.project;
+package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.activities.*;
@@ -29,11 +29,12 @@ import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
+import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogHandler;
+import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogServer;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.internal.*;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogHandler;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogServer;
+import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.misc.xstream.SPathConverter;
 import de.fu_berlin.inf.dpp.misc.xstream.UserConverter;
@@ -184,6 +185,7 @@ public final class SarosSession implements ISarosSession {
     private UserConverter userConverter;
 
     // FIXME those parameter passing feels strange, find a better way
+
     /**
      * Constructor for host.
      */
@@ -409,7 +411,8 @@ public final class SarosSession implements ISarosSession {
                 // FIXME do not throw a runtime exceptions here
                 throw new RuntimeException(
                         "could not synchronize user list, following users did not respond: "
-                                + StringUtils.join(timedOutUsers, ", "));
+                                + StringUtils.join(timedOutUsers, ", ")
+                );
             }
         }
 
@@ -536,7 +539,8 @@ public final class SarosSession implements ISarosSession {
         try {
             transmitter.send(SESSION_CONNECTION_ID, user.getJID(),
                     KickUserExtension.PROVIDER
-                            .create(new KickUserExtension(getID())));
+                            .create(new KickUserExtension(getID()))
+            );
         } catch (IOException e) {
             log.warn("could not kick user "
                     + user
@@ -589,8 +593,7 @@ public final class SarosSession implements ISarosSession {
      * Stops this session and performing cleanup as necessary. All remote users
      * will also be notified about the local session stop.
      *
-     * @throws IllegalStateException
-     *             if the session is already stopped or was not started at all
+     * @throws IllegalStateException if the session is already stopped or was not started at all
      */
     // FIMXE synchronization
     public void stop() {
@@ -617,7 +620,8 @@ public final class SarosSession implements ISarosSession {
             try {
                 transmitter.send(SESSION_CONNECTION_ID, user.getJID(),
                         LeaveSessionExtension.PROVIDER
-                                .create(new LeaveSessionExtension(getID())));
+                                .create(new LeaveSessionExtension(getID()))
+                );
             } catch (IOException e) {
                 log.warn("failed to notify user " + user
                         + " about local session stop", e);
@@ -686,10 +690,9 @@ public final class SarosSession implements ISarosSession {
 
     /**
      * @JTourBusStop 7, Activity sending, Incoming activities:
-     *
-     *               The ActivitySequencer will call this function for
-     *               activities received over the Network Layer.
-     *
+     * <p/>
+     * The ActivitySequencer will call this function for
+     * activities received over the Network Layer.
      */
 
     @Override
@@ -760,10 +763,9 @@ public final class SarosSession implements ISarosSession {
      * Method to update the project mapper when changes on shared files oder
      * folders happened.
      *
-     * @param activity
-     *            {@link FileActivity} or {@link FolderActivity} to handle
+     * @param activity {@link FileActivity} or {@link FolderActivity} to handle
      * @return <code>true</code> if the activity should be send to the user,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     private boolean updatePartialSharedResources(IActivity activity) {
         if (!(activity instanceof FileActivity)
@@ -874,8 +876,7 @@ public final class SarosSession implements ISarosSession {
     /**
      * Recursively add non-shared resources
      *
-     * @param resource
-     *            of type {@link IResource#FOLDER} or {@link IResource#FILE}
+     * @param resource of type {@link IResource#FOLDER} or {@link IResource#FILE}
      */
     private void addMembers(IResource resource) {
         if (isShared(resource))

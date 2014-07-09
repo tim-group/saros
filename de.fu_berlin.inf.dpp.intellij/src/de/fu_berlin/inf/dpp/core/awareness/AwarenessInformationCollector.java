@@ -20,14 +20,10 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.awareness;
+package de.fu_berlin.inf.dpp.core.awareness;
 
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.RemoteEditorManager;
-import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
 import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
@@ -35,8 +31,6 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author waldmann
  */
-//todo: copy from eclipse
 public class AwarenessInformationCollector {
     private static final Logger log = Logger
             .getLogger(AwarenessInformationCollector.class);

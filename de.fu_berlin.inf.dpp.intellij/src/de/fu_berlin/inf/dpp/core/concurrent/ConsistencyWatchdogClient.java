@@ -20,19 +20,18 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.concurrent;
+package de.fu_berlin.inf.dpp.core.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.IDocument;
-import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.session.*;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
@@ -56,7 +55,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * {@link SarosView}. 2.) Send a ChecksumError to the host, if the user wants to
  * recover from an inconsistency. See {@link #runRecovery(SubMonitor)}
  */
-//todo: copy from eclipse
 public class ConsistencyWatchdogClient extends
         AbstractActivityProducer {
 

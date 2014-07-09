@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import org.apache.log4j.Logger;
 

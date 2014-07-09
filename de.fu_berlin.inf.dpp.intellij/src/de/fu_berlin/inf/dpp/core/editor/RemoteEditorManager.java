@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor;
+package de.fu_berlin.inf.dpp.core.editor;
 
 
 import de.fu_berlin.inf.dpp.activities.*;

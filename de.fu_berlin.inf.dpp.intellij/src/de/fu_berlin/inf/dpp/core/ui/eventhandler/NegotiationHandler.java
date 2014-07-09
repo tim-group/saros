@@ -20,18 +20,14 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.*;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
-import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
@@ -59,7 +55,6 @@ import java.util.List;
  *
  * @author srossbach
  */
-//todo: adaptation from eclipse
 public class NegotiationHandler implements INegotiationHandler {
 
     public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;

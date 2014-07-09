@@ -25,25 +25,25 @@ package de.fu_berlin.inf.dpp.intellij.context;
 import de.fu_berlin.inf.dpp.AbstractSarosContextFactory;
 import de.fu_berlin.inf.dpp.ISarosContextBindings;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.intellij.Saros;
-import de.fu_berlin.inf.dpp.intellij.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.eventhandler.*;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -123,7 +123,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
         FileUtils.workspace = workspace;
 
         // container.addComponent(Saros.class,saros);
-        container.addComponent(IPreferenceStore.class, saros.getConfigPrefs());
+        container.addComponent(IPreferenceStore.class, saros.getPreferenceStore());
 
         // Saros Core PathIntl Support
         container.addComponent(IPathFactory.class, workspace.getPathFactory());

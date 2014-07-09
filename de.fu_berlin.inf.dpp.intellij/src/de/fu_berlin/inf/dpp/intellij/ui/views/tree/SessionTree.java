@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -51,7 +52,6 @@ public class SessionTree extends AbstractTree {
     private Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
     private Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
     private DefaultTreeModel treeModel;
-
 
     private ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
@@ -122,6 +122,7 @@ public class SessionTree extends AbstractTree {
      */
     public SessionTree(RootTree parent) {
         super(parent);
+
         this.rootTree = parent;
 
         this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
@@ -130,7 +131,7 @@ public class SessionTree extends AbstractTree {
         create();
 
         //register listener
-        saros.getSessionManager().addSarosSessionListener(sessionListener);
+        Saros.instance().getSessionManager().addSarosSessionListener(sessionListener);
     }
 
     protected void create() {

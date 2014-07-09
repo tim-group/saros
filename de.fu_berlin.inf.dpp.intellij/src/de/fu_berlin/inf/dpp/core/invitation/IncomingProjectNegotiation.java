@@ -1,4 +1,4 @@
-package de.fu_berlin.inf.dpp.intellij.invitation;
+package de.fu_berlin.inf.dpp.core.invitation;
 
 
 import de.fu_berlin.inf.dpp.ISarosContext;
@@ -6,12 +6,11 @@ import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFi
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.invitation.CreateProjectTask;
-import de.fu_berlin.inf.dpp.core.invitation.DecompressArchiveTask;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
@@ -19,7 +18,6 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.*;
-import de.fu_berlin.inf.dpp.intellij.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.*;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;

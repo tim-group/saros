@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
@@ -35,7 +35,6 @@ import java.text.MessageFormat;
 /**
  * Handler for accepting or rejecting incoming XMPP subscription requests
  */
-//todo: adaptation from eclipse
 public class XMPPAuthorizationHandler
 {
 

@@ -20,18 +20,17 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
-import de.fu_berlin.inf.dpp.intellij.Saros;
 import de.fu_berlin.inf.dpp.net.ConnectionState;
 import de.fu_berlin.inf.dpp.net.xmpp.IConnectionListener;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 
-//todo: adaptation from eclipse
 public class ServerPreferenceHandler {
 
     private IPreferenceStore preferenceStore;

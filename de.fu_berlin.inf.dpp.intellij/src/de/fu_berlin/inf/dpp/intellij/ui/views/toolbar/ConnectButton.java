@@ -23,12 +23,15 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -45,10 +48,13 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
     private final ISarosAction disconnectAction;
     private final ConnectServerAction connectAction;
 
+    @Inject
+    private XMPPAccountStore accountStore;
+
     public ConnectButton() {
+        SarosPluginContext.initComponent(this);
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
         connectAction = SarosActionFactory.getConnectServerAction();
-
         createButton();
     }
 
@@ -69,7 +75,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         this.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
 
-                if (saros.getAccountStore().isEmpty()) {
+                if (accountStore.isEmpty()) {
                     button.setEnabled(false);
                     startAction();
                 } else {
@@ -83,7 +89,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
 
         final JButton button = this;
         //set accounts
-        final List<XMPPAccount> accounts = saros.getAccountStore().getAllAccounts();
+        final List<XMPPAccount> accounts = accountStore.getAllAccounts();
         for (XMPPAccount account : accounts) {
             // final String userName = account.getUsername();
             // JMenuItem accountItem = new JMenuItem(account.getUsername() + "@" + account.getServer());

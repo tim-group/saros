@@ -23,11 +23,14 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
+import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
 
@@ -39,6 +42,14 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
 
     private String activeUser;
     private boolean createNew = false;
+
+
+    @Inject
+    private XMPPAccountStore accountStore;
+
+    public ConnectServerAction() {
+        SarosPluginContext.initComponent(this);
+    }
 
     @Override
     public String getActionName() {
@@ -76,7 +87,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
             server = pair[1];
         }
 
-        for (XMPPAccount account : saros.getAccountStore().getAllAccounts()) {
+        for (XMPPAccount account : accountStore.getAllAccounts()) {
             if (server == null) {
                 if (user.equalsIgnoreCase(account.getUsername())) {
                     return account;
@@ -103,7 +114,7 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
         if (activeUser != null) {
             account = locateAccount(activeUser);
             activeUser = null; //removeAll user name
-        } else if (createNew || saros.getAccountStore().isEmpty()) {
+        } else if (createNew || accountStore.isEmpty()) {
             //throw new RuntimeException("No current account set!"); //todo: open dialog
 
 
@@ -117,11 +128,11 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
                 actionFinished();
                 return;
             }
-            account = saros.getAccountStore().createAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
+            account = accountStore.createAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
             //account = new XMPPAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
             isNew = true;
         } else {
-            account = saros.getAccountStore().getActiveAccount();
+            account = accountStore.getActiveAccount();
         }
 
         LOG.info("Connecting server: [" + account.getUsername() + "@" + account.getServer() + "]");
@@ -133,11 +144,11 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
 
             //store account
             if (isNew &&
-                    !saros.getAccountStore().exists(account.getUsername(), account.getDomain(), account.getServer(), account.getPort())) {
+                    !accountStore.exists(account.getUsername(), account.getDomain(), account.getServer(), account.getPort())) {
 
-                account = saros.getAccountStore().createAccount(account.getUsername(), account.getPassword(), account.getDomain(), account.getServer(), account.getPort(), account.useTLS(), account.useSASL());
+                account = accountStore.createAccount(account.getUsername(), account.getPassword(), account.getDomain(), account.getServer(), account.getPort(), account.useTLS(), account.useSASL());
             }
-            saros.getAccountStore().setAccountActive(account);
+            accountStore.setAccountActive(account);
         } catch (XMPPException e) {
             // Messages.showErrorDialog("Bad login or password. Try again!","Error");
             JOptionPane.showMessageDialog(guiFrame, "Bad login or password. Try again!", "Error", JOptionPane.ERROR_MESSAGE);

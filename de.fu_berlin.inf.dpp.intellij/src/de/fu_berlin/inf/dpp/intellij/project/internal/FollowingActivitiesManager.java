@@ -24,11 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.project.internal;
 
 import de.fu_berlin.inf.dpp.activities.StartFollowingActivity;
 import de.fu_berlin.inf.dpp.activities.StopFollowingActivity;
+import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
+import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.internal.IFollowModeChangesListener;
-import de.fu_berlin.inf.dpp.intellij.awareness.AwarenessInformationCollector;
-import de.fu_berlin.inf.dpp.intellij.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.session.*;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;

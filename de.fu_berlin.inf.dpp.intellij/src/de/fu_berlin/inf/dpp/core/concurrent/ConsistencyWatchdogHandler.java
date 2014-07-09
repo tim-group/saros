@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.concurrent;
+package de.fu_berlin.inf.dpp.core.concurrent;
 
 import de.fu_berlin.inf.dpp.activities.*;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
@@ -46,10 +46,8 @@ import java.util.concurrent.CancellationException;
 /**
  * This component is responsible for handling Consistency Errors on the host
  */
-//todo: copy from eclipse
 public class ConsistencyWatchdogHandler extends AbstractActivityProducer
-        implements Startable
-{
+        implements Startable {
 
     private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
 
@@ -59,18 +57,15 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     protected final ISarosSession session;
 
-    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver()
-    {
+    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
         @Override
-        public void receive(ChecksumErrorActivity checksumError)
-        {
+        public void receive(ChecksumErrorActivity checksumError) {
             startRecovery(checksumError);
         }
     };
 
     @Override
-    public void start()
-    {
+    public void start() {
         session.addActivityProducer(this);
     }
 
@@ -80,8 +75,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-            EditorManager editorManager, ConsistencyWatchdogClient watchdogClient)
-    {
+                                      EditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
         this.session = sarosSession;
         this.editorManager = editorManager;
         this.watchdogClient = watchdogClient;
@@ -95,17 +89,14 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * handled files as key. You can use <code>closeChecksumErrorMessage</code>
      * with the same arguments to close this message again.
      */
-    protected void startRecovery(final ChecksumErrorActivity checksumError)
-    {
+    protected void startRecovery(final ChecksumErrorActivity checksumError) {
 
         LOG.debug("Received Checksum Error: " + checksumError);
 
 
-        UIMonitoredJob recoveryJob = new UIMonitoredJob("File recovery")
-        {
+        UIMonitoredJob recoveryJob = new UIMonitoredJob("File recovery") {
             @Override
-            protected IStatus run(IProgressMonitor monitor)
-            {
+            protected IStatus run(IProgressMonitor monitor) {
                 runRecovery(checksumError, monitor.convert());
 
                 return new Status(IStatus.OK);
@@ -117,14 +108,12 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     protected void runRecovery(ChecksumErrorActivity checksumError,
-            IProgressMonitor progress) throws CancellationException
-    {
+                               IProgressMonitor progress) throws CancellationException {
 
         List<StartHandle> startHandles = null;
 
         progress.beginTask("Performing recovery", 1200);
-        try
-        {
+        try {
 
             startHandles = session.getStopManager().stop(
                     session.getUsers(), "Consistency recovery");
@@ -142,32 +131,23 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
             // find the StartHandle of the inconsistent user
             StartHandle inconsistentStartHandle = null;
-            for (StartHandle startHandle : startHandles)
-            {
-                if (checksumError.getSource().equals(startHandle.getUser()))
-                {
+            for (StartHandle startHandle : startHandles) {
+                if (checksumError.getSource().equals(startHandle.getUser())) {
                     inconsistentStartHandle = startHandle;
                     break;
                 }
             }
-            if (inconsistentStartHandle == null)
-            {
+            if (inconsistentStartHandle == null) {
                 LOG.error("could not find start handle"
                         + " of the inconsistent user");
-            }
-            else
-            {
+            } else {
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
                 startHandles.remove(inconsistentStartHandle);
             }
-        }
-        finally
-        {
-            if (startHandles != null)
-            {
-                for (StartHandle startHandle : startHandles)
-                {
+        } finally {
+            if (startHandles != null) {
+                for (StartHandle startHandle : startHandles) {
                     startHandle.start();
                 }
             }
@@ -180,15 +160,12 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * @nonSWT This method should not be called from the SWT Thread!
      */
     protected void recoverFiles(ChecksumErrorActivity checksumError,
-            IProgressMonitor progress)
-    {
+                                IProgressMonitor progress) {
 
         progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
 
-        try
-        {
-            for (SPath path : checksumError.getPaths())
-            {
+        try {
+            for (SPath path : checksumError.getPaths()) {
                 progress.subTask("Recovering file: "
                         + path.getProjectRelativePath());
                 recoverFile(checksumError.getSource(), session, path,
@@ -198,9 +175,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
             // Tell the user that we sent all files
             fireActivity(new ChecksumErrorActivity(session.getLocalUser(),
                     checksumError.getSource(), null, checksumError.getRecoveryID()));
-        }
-        finally
-        {
+        } finally {
             progress.done();
         }
     }
@@ -210,16 +185,14 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * tell the user to removeAll it).
      */
     protected void recoverFile(User from, final ISarosSession sarosSession,
-            final SPath path, IProgressMonitor progress)
-    {
+                               final SPath path, IProgressMonitor progress) {
 
         progress.beginTask("Handling file: " + path.toString(), 10);
 
         IFile file = path.getFile();
 
         // Save document before sending to client
-        if (file.exists())
-        {
+        if (file.exists()) {
             editorManager.getActionManager().saveEditor(path);
         }
         progress.worked(1);
@@ -230,16 +203,13 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         progress.worked(15);
         final User user = sarosSession.getLocalUser();
 
-        if (file.exists())
-        {
+        if (file.exists()) {
 
-            try
-            {
+            try {
 
                 byte[] content = FileUtils.getLocalFileContent(file);
 
-                if (content == null)
-                {
+                if (content == null) {
                     throw new IOException();
                 }
 
@@ -260,15 +230,11 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
                 fireActivity(new ChecksumActivity(user,
                         path, checksum.hashCode(), checksum.length(), null));
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 LOG.error("File could not be read, despite existing: " + path,
                         e);
             }
-        }
-        else
-        {
+        } else {
             // TODO Warn the user...
             // Tell the client to delete the file
             fireActivity(RecoveryFileActivity.removed(user,
@@ -281,8 +247,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
 
-    protected Image getWarningImage()
-    {
+    protected Image getWarningImage() {
         return null;
 
     }

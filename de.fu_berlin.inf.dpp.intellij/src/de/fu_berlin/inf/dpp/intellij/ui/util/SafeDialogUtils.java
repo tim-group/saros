@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.core.Saros;
 
 import javax.swing.*;
 

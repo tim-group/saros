@@ -20,13 +20,12 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.concurrent;
+package de.fu_berlin.inf.dpp.core.concurrent;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
-
 
 
 /**
@@ -35,7 +34,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
  *
  * @author chjacob
  */
-//todo: copy from eclipse
 public class DocumentChecksum {
 
     /**
@@ -46,8 +44,7 @@ public class DocumentChecksum {
     protected DocumentListener dirtyListener = new DocumentListener() {
 
         @Override
-        public void beforeDocumentChange(DocumentEvent documentEvent)
-        {
+        public void beforeDocumentChange(DocumentEvent documentEvent) {
 
         }
 
@@ -72,7 +69,7 @@ public class DocumentChecksum {
 
     /**
      * Creates a new Checksum for the document represented in the given path.
-     *
+     * <p/>
      * The checksum is initially created without being bound to a document.
      */
     public DocumentChecksum(SPath path) {
@@ -147,7 +144,7 @@ public class DocumentChecksum {
 
     /**
      * Returns whether this checksum represents a file which exists at the host.
-     *
+     * <p/>
      * If false is returned, then this checksum indicates that the host has no
      * file under the given path.
      */

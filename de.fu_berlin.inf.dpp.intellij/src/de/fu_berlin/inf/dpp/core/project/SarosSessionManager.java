@@ -20,19 +20,13 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.project;
+package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.*;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.invitation.INegotiationHandler;
-import de.fu_berlin.inf.dpp.intellij.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.intellij.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProcessListener;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;

@@ -23,33 +23,29 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
 
 /**
  * Leaves session
  */
-public class LeaveSessionAction extends AbstractSarosAction
-{
+public class LeaveSessionAction extends AbstractSarosAction {
     public static final String NAME = "leave";
 
     private ISarosSessionManager sessionManager;
 
-    public LeaveSessionAction(ISarosSessionManager sessionManager)
-    {
+    public LeaveSessionAction(ISarosSessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
     @Override
-    public String getActionName()
-    {
+    public String getActionName() {
         return NAME;
     }
 
 
     @Override
-    public void run()
-    {
+    public void run() {
         actionStarted();
 
         //sessionManager.stopSarosSession();

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.concurrent;
+package de.fu_berlin.inf.dpp.core.concurrent;
 
 import com.intellij.openapi.editor.Document;
 import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
@@ -64,10 +64,8 @@ import java.util.concurrent.TimeUnit;
  *         TODO Make ConsistencyWatchDog configurable => Timeout, Whether run or
  *         not, etc.
  */
-//todo: copy from eclipse
 public class ConsistencyWatchdogServer extends AbstractActivityProducer
-        implements Startable, Blockable
-{
+        implements Startable, Blockable {
 
     private static final Logger LOG = Logger
             .getLogger(ConsistencyWatchdogServer.class);
@@ -93,19 +91,14 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
     @Inject
     private EditorAPI editorAPI;
 
-    private final Runnable checksumCalculationTrigger = new Runnable()
-    {
+    private final Runnable checksumCalculationTrigger = new Runnable() {
 
         @Override
-        public void run()
-        {
-            synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable()
-            {
+        public void run() {
+            synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
                 @Override
-                public void run()
-                {
-                    if (locked)
-                    {
+                public void run() {
+                    if (locked) {
                         return;
                     }
 
@@ -116,9 +109,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
     };
 
     public ConsistencyWatchdogServer(ISarosSession session,
-            EditorManager editorManager, StopManager stopManager,
-            UISynchronizer synchronizer)
-    {
+                                     EditorManager editorManager, StopManager stopManager,
+                                     UISynchronizer synchronizer) {
         this.session = session;
         this.editorManager = editorManager;
         this.stopManager = stopManager;
@@ -126,10 +118,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
     }
 
     @Override
-    public void start()
-    {
-        if (!session.isHost())
-        {
+    public void start() {
+        if (!session.isHost()) {
             throw new IllegalStateException(
                     "component can only be run on host side");
         }
@@ -148,8 +138,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
         session.removeActivityProducer(this);
         stopManager.removeBlockable(this);
 
@@ -159,29 +148,22 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
         boolean isTerminated = false;
         boolean isInterrupted = false;
 
-        try
-        {
+        try {
             isTerminated = executor.awaitTermination(10000,
                     TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             LOG.warn("interrupted while waiting for consistency watchdog to terminate");
             isInterrupted = true;
         }
 
-        if (!isTerminated)
-        {
+        if (!isTerminated) {
             LOG.error("consistency watchdog is still running");
         }
 
-        synchronizer.asyncExec(new Runnable()
-        {
+        synchronizer.asyncExec(new Runnable() {
             @Override
-            public void run()
-            {
-                for (DocumentChecksum document : docsChecksums.values())
-                {
+            public void run() {
+                for (DocumentChecksum document : docsChecksums.values()) {
                     document.dispose();
                 }
 
@@ -189,37 +171,31 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             }
         });
 
-        if (isInterrupted)
-        {
+        if (isInterrupted) {
             Thread.currentThread().interrupt();
         }
     }
 
     @Override
-    public void block()
-    {
+    public void block() {
         // sync here to ensure we do not send anything after we return
-        synchronizer.syncExec(new Runnable()
-        {
+        synchronizer.syncExec(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 locked = true;
             }
         });
     }
 
     @Override
-    public void unblock()
-    {
+    public void unblock() {
         // unlock lazy is sufficient as it does not matter if we miss one update
         // cycle
         locked = false;
     }
 
     // UI thread access only !
-    private void calculateChecksums()
-    {
+    private void calculateChecksums() {
 
         Set<SPath> localEditors = editorManager.getLocallyOpenEditors();
         Set<SPath> remoteEditors = editorManager.getRemoteOpenEditors();
@@ -232,51 +208,43 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
         Iterator<Entry<SPath, DocumentChecksum>> it = docsChecksums.entrySet()
                 .iterator();
 
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             Entry<SPath, DocumentChecksum> entry = it.next();
 
-            if (!allEditors.contains(entry.getKey()))
-            {
+            if (!allEditors.contains(entry.getKey())) {
                 entry.getValue().dispose();
                 it.remove();
             }
         }
 
-        for (SPath docPath : allEditors)
-        {
+        for (SPath docPath : allEditors) {
             updateChecksum(localEditors, remoteEditors, docPath);
         }
     }
 
     // UI thread access only !
     private void updateChecksum(final Set<SPath> localEditors,
-            final Set<SPath> remoteEditors, final SPath docPath)
-    {
+                                final Set<SPath> remoteEditors, final SPath docPath) {
 
         IFile file = docPath.getFile();
 
         Document doc = null;
 
-        if (file.exists())
-        {
+        if (file.exists()) {
             doc = editorAPI.getDocument(file.toFile());
         }
 
         // Null means that the document does not exist locally
-        if (doc == null)
-        {
+        if (doc == null) {
 
-            if (localEditors.contains(docPath))
-            {
+            if (localEditors.contains(docPath)) {
                 LOG.error("EditorManagerEcl is in an inconsistent state. "
                         + "It is reporting a locally open editor but no"
                         + " document could be found in the underlying file system: "
                         + docPath);
             }
 
-            if (!remoteEditors.contains(docPath))
-            {
+            if (!remoteEditors.contains(docPath)) {
                     /*
                      * Since session participants do not report this document as
                      * open, they are right (and our EditorPool might be
@@ -288,8 +256,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
 
         DocumentChecksum checksum = docsChecksums.get(docPath);
 
-        if (checksum == null)
-        {
+        if (checksum == null) {
             checksum = new DocumentChecksum(docPath);
             docsChecksums.put(docPath, checksum);
         }

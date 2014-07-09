@@ -19,32 +19,28 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * /
  */
-package de.fu_berlin.inf.dpp.intellij.ui.eventhandler;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRequestExtension;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceConstants;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.ui.util.CollaborationUtils;
+import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.ITransmitter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-
-//todo: adaptation from eclipse
 public final class JoinSessionRequestHandler {
 
     private static final Logger LOG = Logger

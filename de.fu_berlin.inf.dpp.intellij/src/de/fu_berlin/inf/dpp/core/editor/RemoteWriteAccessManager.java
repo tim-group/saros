@@ -20,30 +20,28 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor;
+package de.fu_berlin.inf.dpp.core.editor;
+
+import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.core.util.AutoHashMap;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
+import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.session.User.Permission;
+import org.apache.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import de.fu_berlin.inf.dpp.activities.*;
-
-import de.fu_berlin.inf.dpp.core.util.AutoHashMap;
-import org.apache.log4j.Logger;
-
-import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
-import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.session.User.Permission;
-
 /**
  * This class manages state of open editors of all users with
  * {@link Permission#WRITE_ACCESS} and connects to/disconnects from the
  * corresponding DocumentProviders to make sure that TextEditActivities can be
  * executed.
- *
+ * <p/>
  * The main idea is to connect at the site of user with
  * {@link Permission#READONLY_ACCESS}, when a user with
  * {@link Permission#WRITE_ACCESS} activates his editor with the document.
@@ -56,7 +54,9 @@ public class RemoteWriteAccessManager {
     private static final Logger log = Logger
             .getLogger(RemoteWriteAccessManager.class);
 
-    /** stores users and their opened files (identified by their path) */
+    /**
+     * stores users and their opened files (identified by their path)
+     */
     protected Map<SPath, Set<User>> editorStates = AutoHashMap.getSetHashMap();
 
     /**

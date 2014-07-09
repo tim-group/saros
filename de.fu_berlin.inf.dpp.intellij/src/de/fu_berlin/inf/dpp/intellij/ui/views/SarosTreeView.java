@@ -23,11 +23,14 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
-import de.fu_berlin.inf.dpp.intellij.Saros;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.TreeClickListener;
+import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -50,12 +53,16 @@ public class SarosTreeView {
     private ContactTree contactTree;
 
 
+    @Inject
+    private XMPPAccountStore accountStore;
+
     /**
      * @param parent
      */
     public SarosTreeView(Container parent) {
         this.parent = parent;
         this.parent.add(create());
+        SarosPluginContext.initComponent(this);
     }
 
     /**
@@ -111,7 +118,7 @@ public class SarosTreeView {
      * Renders event connected
      */
     protected void renderConnected() {
-        XMPPAccount activeAccount = saros.getAccountStore().getActiveAccount();
+        XMPPAccount activeAccount = accountStore.getActiveAccount();
 
         String rootText = activeAccount.getUsername() + "@" + activeAccount.getServer() + " (Connected)";
         rootTree.setTitle(rootText);

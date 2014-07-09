@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import org.apache.log4j.PropertyConfigurator;
@@ -39,8 +40,7 @@ import java.io.File;
  * <p/>
  */
 
-public class SarosToolWindowFactory implements ToolWindowFactory
-{
+public class SarosToolWindowFactory implements ToolWindowFactory {
     /**
      * Plugin starting point via IntelliJ
      *
@@ -48,8 +48,7 @@ public class SarosToolWindowFactory implements ToolWindowFactory
      * @param toolWindow
      */
     @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow)
-    {
+    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
 
         PropertyConfigurator.configure("src/log4j.properties");  //todo
 
@@ -69,9 +68,8 @@ public class SarosToolWindowFactory implements ToolWindowFactory
      *
      * @param args
      */
-    public static void main(String[] args)
-    {
-        final Saros saros = Saros.create(null,null);
+    public static void main(String[] args) {
+        final Saros saros = Saros.create(null, null);
         File projects = new File("../../test_projects");
         projects.mkdirs();
 
@@ -85,10 +83,8 @@ public class SarosToolWindowFactory implements ToolWindowFactory
         SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
         mainPanel.setSize(new Dimension(800, 300));
 
-        mainPanel.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
+        mainPanel.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
 
                 saros.stop();
                 System.exit(0);
