@@ -91,8 +91,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IActivity removeActivity = new FolderActivity(user, FolderActivity.Type.REMOVED, oldSPath);
         resourceManager.internalFireActivity(removeActivity);
 
-        project.addFile(newSPath.getFile().toFile());
-        project.removeFile(oldSPath.getFile().toFile());
+        project.addFile(newSPath.getFile().getLocation().toFile());
+        project.removeFile(oldSPath.getFile().getLocation().toFile());
     }
 
 
@@ -129,8 +129,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
         editorManager.getActionManager().getEditorPool().replaceAll(oldSPath, newSPath);
-        project.addFile(newSPath.getFile().toFile());
-        project.removeFile(oldSPath.getFile().toFile());
+        project.addFile(newSPath.getFile().getLocation().toFile());
+        project.removeFile(oldSPath.getFile().getLocation().toFile());
         resourceManager.internalFireActivity(activity);
     }
 

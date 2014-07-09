@@ -231,7 +231,9 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
         Document doc = null;
 
         if (file.exists()) {
-            doc = editorAPI.getDocument(file.toFile());
+            //LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
+            //localFileSystem.refreshAndFindFileByIoFile((ResourceImp));
+            //doc = editorManager.getDocument(docPath);
         }
 
         // Null means that the document does not exist locally

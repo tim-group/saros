@@ -42,7 +42,7 @@ public class DocumentProvider
 
     public IDocument getDocument(IFile file)
     {
-        Document nativeDocument = actionManager.getEditorAPI().getDocument(file.toFile());
+        Document nativeDocument = actionManager.getEditorAPI().getDocument(file.getLocation().toFile());
         return nativeDocument == null ? null : new DocumentAdapter(nativeDocument);
     }
 

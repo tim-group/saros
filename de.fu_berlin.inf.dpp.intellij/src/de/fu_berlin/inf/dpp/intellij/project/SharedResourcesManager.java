@@ -265,7 +265,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
 
         if (file.exists()) {
             fileSystemListener.setEnabled(false);
-            fileSystemListener.addIncoming(file.toFile());
+            fileSystemListener.addIncoming(file.getLocation().toFile());
             FileUtils.delete(file);
             fileSystemListener.setEnabled(true);
         } else {
@@ -292,7 +292,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
 
             if (!Arrays.equals(newContent, actualContent)) {
                 fileSystemListener.setEnabled(false);
-                fileSystemListener.addIncoming(file.toFile());
+                fileSystemListener.addIncoming(file.getLocation().toFile());
                 FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
                         new NullProgressMonitor());
                 fileSystemListener.setEnabled(true);

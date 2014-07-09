@@ -380,7 +380,7 @@ public class EditorActionManager {
     }
 
     public void setEditable(SPath path, boolean editable) {
-        Document doc = editorAPI.getDocument(path.getFile().toFile());
+        Document doc = editorAPI.getDocument(path.getFile().getLocation().toFile());
         if (doc != null) {
             doc.setReadOnly(!editable);
         }

@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.filesystem;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,7 +40,7 @@ public interface IFile extends IResource {
      * <code>IFile#setContents(input, force, keepHistory, null)</code>
      */
     public void setContents(InputStream input, boolean force,
-        boolean keepHistory) throws IOException;
+                            boolean keepHistory) throws IOException;
 
     /**
      * Equivalent to the Eclipse call
@@ -50,6 +49,4 @@ public interface IFile extends IResource {
     public void create(InputStream input, boolean force) throws IOException;
 
     public IPath getLocation();
-
-    public File toFile();
 }

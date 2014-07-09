@@ -47,9 +47,12 @@ import java.util.Random;
  */
 public class Saros {
 
-    protected static Logger LOG = Logger.getLogger(Saros.class);
+    private static final Logger LOG = Logger.getLogger(Saros.class);
 
-    public static Random RANDOM = new Random();
+    /**
+     * Global random generator,
+     */
+    public static final Random RANDOM = new Random();
 
     /**
      * This is the Bundle-SymbolicName (a.k.a the pluginID)
@@ -87,7 +90,7 @@ public class Saros {
     public static final String NAMESPACE_SERVER =
             NAMESPACE + ".server";
 
-    private static Saros _instance;
+    private static Saros instance;
 
     private static boolean isInitialized;
 
@@ -129,10 +132,10 @@ public class Saros {
     }
 
     public static Saros create(Project project, ToolWindow toolWindow) {
-        if (_instance == null) {
-            _instance = new Saros(project, toolWindow);
+        if (instance == null) {
+            instance = new Saros(project, toolWindow);
         }
-        return _instance;
+        return instance;
     }
 
     /**
@@ -141,10 +144,10 @@ public class Saros {
      * @return
      */
     public static Saros instance() {
-        if (_instance == null) {
-            throw new Error("Saros not initialized");
+        if (instance == null) {
+            throw new IllegalStateException("Saros not initialized");
         }
-        return _instance;
+        return instance;
     }
 
     private Saros(Project project, ToolWindow toolWindow) {
@@ -208,6 +211,7 @@ public class Saros {
     public void setProject(Project project) {
         this.project = project;
     }
+
 
     public ToolWindow getToolWindow() {
         return toolWindow;
