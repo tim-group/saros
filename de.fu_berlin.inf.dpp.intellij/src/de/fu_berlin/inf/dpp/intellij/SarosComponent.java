@@ -35,7 +35,7 @@ public class SarosComponent implements com.intellij.openapi.components.ProjectCo
 
 
     public SarosComponent(Project project) {
-        PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/log4j.properties");  //todo
+        PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/src/log4j.properties");  //todo
 
         Saros saros = Saros.create(project);
         saros.start();

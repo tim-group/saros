@@ -109,9 +109,10 @@ public class SarosToolbar {
      * @param mainPanel
      */
     public SarosToolbar(SarosMainPanelView mainPanel) {
+        SarosPluginContext.initComponent(this);
         this.jToolBar = create(mainPanel);
         mainPanel.getParent().add(this.jToolBar, BorderLayout.NORTH);
-        SarosPluginContext.initComponent(this);
+
     }
 
     /**
