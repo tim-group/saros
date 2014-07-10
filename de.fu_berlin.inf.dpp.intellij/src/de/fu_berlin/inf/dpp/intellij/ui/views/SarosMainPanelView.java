@@ -71,7 +71,7 @@ public class SarosMainPanelView extends JFrame {
 
     public void create() {
 
-        LOG.info("Plugin stated in [" + new File("").getAbsolutePath() + "] directory");
+        LOG.info("Plugin started in [" + new File("").getAbsolutePath() + "] directory");
 
         sarosTree = new SarosTreeView(this);
         sarosToolbar = new SarosToolbar(this);

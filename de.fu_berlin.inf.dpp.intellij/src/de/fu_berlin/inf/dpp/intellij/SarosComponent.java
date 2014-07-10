@@ -39,7 +39,6 @@ public class SarosComponent implements com.intellij.openapi.components.ProjectCo
 
         Saros saros = Saros.create(project);
         saros.start();
-        System.out.println("Saros created");
     }
 
     @Override
