@@ -25,6 +25,8 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
@@ -44,6 +46,7 @@ import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +54,7 @@ import java.util.Map;
  * Editor action manager. Class
  */
 public class EditorActionManager {
+    private final ProjectAPI projectAPI;
     private Logger LOG = Logger.getLogger(EditorActionManager.class);
     private EditorPool editorPool;
     private EditorAPI editorAPI;
@@ -64,10 +68,13 @@ public class EditorActionManager {
     private DocumentProvider adapter;
     public Map<VirtualFile, byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
 
+    private LocalFileSystem localFileSystem;
+    private FileDocumentManager fileDocumentManager;
 
     public EditorActionManager(EditorManager manager) {
         this.editorPool = new EditorPool();
         this.editorAPI = new EditorAPI();
+        this.projectAPI = new ProjectAPI();
         this.manager = manager;
 
         this.documentListener = new StoppableDocumentListener(manager);
@@ -77,20 +84,21 @@ public class EditorActionManager {
         this.viewportListener = new StoppableViewPortListener(manager);
         this.adapter = new DocumentProvider(this);
 
-        if (this.editorAPI.editorFileManager != null) {
-            this.editorAPI.editorFileManager.addFileEditorManagerListener(this.fileListener);
-        }
+        this.localFileSystem = LocalFileSystem.getInstance();
+        this.fileDocumentManager = FileDocumentManager.getInstance();
+
+        projectAPI.addFileEditorManagerListener(this.fileListener);
     }
 
 
     public Editor openEditor(SPath file) {
 
-        VirtualFile virtualFile = editorAPI.toVirtualFile(file);
+        VirtualFile virtualFile = toVirtualFile(file);
         if (virtualFile.exists()) {
             // this.fileListener.setEnabled(false);
 
-            if (editorAPI.isOpen(virtualFile)) {
-                Editor editor = editorAPI.openEditor(virtualFile);   //todo: need to activate only, not open!
+            if (projectAPI.isOpen(virtualFile)) {
+                Editor editor = projectAPI.openEditor(virtualFile);   //todo: need to activate only, not open!
 
 
                 startEditor(editor);
@@ -102,7 +110,7 @@ public class EditorActionManager {
                 //  return editorPool.getEditor(file);
                 //  editorFileManager.setSelectedEditor(path,FileEditorProvider.getEditorTypeId());
             } else {
-                Editor editor = editorAPI.openEditor(virtualFile);
+                Editor editor = projectAPI.openEditor(virtualFile);
 
 //            DocumentAdapter pooledDoc = editorPool.getDocument(file);
 //            if (pooledDoc != null)
@@ -163,17 +171,17 @@ public class EditorActionManager {
     }
 
     public void closeEditor(SPath file) {
-        VirtualFile virtualFile = editorAPI.toVirtualFile(file);
+        VirtualFile virtualFile = toVirtualFile(file);
         if (virtualFile != null && virtualFile.exists()) {
             //   this.fileListener.setEnabled(false);
-            if (editorAPI.isOpen(virtualFile)) {
+            if (projectAPI.isOpen(virtualFile)) {
                 Document doc = editorPool.getDocument(file);
                 if (doc != null) {
                     // doc.removeDocumentListener(documentListener);
                     documentListener.setDocument(null);
                 }
 
-                editorAPI.closeEditor(virtualFile);
+                projectAPI.closeEditor(virtualFile);
             }
             editorPool.removeEditor(file);
 
@@ -187,7 +195,7 @@ public class EditorActionManager {
         Document doc = editorPool.getDocument(file);
         if (doc != null) {
             // this.fileListener.setEnabled(false);
-            editorAPI.saveDocument(doc);
+            projectAPI.saveDocument(doc);
             // this.fileListener.setEnabled(true);
         } else {
             LOG.warn("DocumentAdapter not exist " + file);
@@ -197,8 +205,8 @@ public class EditorActionManager {
     public void editText(SPath file, Operation operations, Color color) {
         Document doc = editorPool.getDocument(file);
         if (doc == null) {
-            VirtualFile virtualFile = editorAPI.toVirtualFile(file);
-            doc = editorAPI.createDocument(virtualFile);
+            VirtualFile virtualFile = toVirtualFile(file);
+            doc = projectAPI.createDocument(virtualFile);
             editorPool.add(file, doc);
         }
 
@@ -380,7 +388,7 @@ public class EditorActionManager {
     }
 
     public void setEditable(SPath path, boolean editable) {
-        Document doc = editorAPI.getDocument(path.getFile().getLocation().toFile());
+        Document doc = getDocument(path.getFile().getLocation().toFile());
         if (doc != null) {
             doc.setReadOnly(!editable);
         }
@@ -409,7 +417,7 @@ public class EditorActionManager {
 
     public void reloadDocuments() {
         for (Document doc : getEditorPool().getDocuments()) {
-            editorAPI.reloadFromDisk(doc);
+            projectAPI.reloadFromDisk(doc);
         }
     }
 
@@ -419,7 +427,7 @@ public class EditorActionManager {
             return false;
         }
 
-        return editorAPI.isOpen(doc);
+        return projectAPI.isOpen(doc);
     }
 
     public void lockAllEditors(boolean lock) {
@@ -466,5 +474,18 @@ public class EditorActionManager {
 
     public EditorAPI getEditorAPI() {
         return editorAPI;
+    }
+
+    public VirtualFile toVirtualFile(SPath path) {
+        return toVirtualFile(path.getFile().getLocation().toFile());
+    }
+
+    public VirtualFile toVirtualFile(File path) {
+        return localFileSystem.refreshAndFindFileByIoFile(path);
+    }
+
+    public Document getDocument(final File file) {
+
+        return fileDocumentManager.getDocument(toVirtualFile(file));
     }
 }

@@ -24,211 +24,42 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
-import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceImp;
 
 import java.awt.*;
-import java.io.File;
 
 /**
- * IntellJ editor API. Performs IntelliJ editor related actions in the UI thread.
+ * IntellJ editor API. An Editor is a window for editing source files.
+ *
+ * Performs IntelliJ editor related actions in the UI thread.
  */
 
 public class EditorAPI {
 
-    private ProjectManager projectManager;
-    private LocalFileSystem localFileSystem;
     private Application application;
     private CommandProcessor commandProcessor;
-    private FileDocumentManager fileDocumentManager;
-    private EditorFactory editorFactory;
-    private ModuleManager moduleManager;
-
     private Project project;
-    private PsiManager psiManager;
-    protected FileEditorManager editorFileManager;
-    private PsiDocumentManager psiDocumentManager;
-    private VirtualFileManager virtualFileManager;
-
-    public EditorAPI() {
-        this(Saros.instance().getProject());
-    }
-
-    public EditorAPI(Project project) {
-        if (project != null) {
-            this.project = project;
-            this.editorFileManager = FileEditorManager.getInstance(project);
-            this.psiManager = PsiManager.getInstance(project);
-            this.psiDocumentManager = PsiDocumentManager.getInstance(project);
-            this.moduleManager = ModuleManager.getInstance(project);
-
-            this.virtualFileManager = VirtualFileManager.getInstance();
-            this.projectManager = ProjectManager.getInstance();
-            this.localFileSystem = LocalFileSystem.getInstance();
-
-            this.application = ApplicationManager.getApplication();
-            this.commandProcessor = CommandProcessor.getInstance();
-            this.fileDocumentManager = FileDocumentManager.getInstance();
-            this.editorFactory = EditorFactory.getInstance();
-        } else {
-            throw new IllegalArgumentException("Tried to initialize EditorAPI with project that was null");
-        }
-    }
-
-    public VirtualFile toVirtualFile(SPath path) {
-        return toVirtualFile(((ResourceImp) path.getFile()).toFile());
-    }
-
-    public VirtualFile toVirtualFile(File path) {
-        return localFileSystem.refreshAndFindFileByIoFile(path);
-    }
-
-    public boolean isOpen(VirtualFile file) {
-        return editorFileManager.isFileOpen(file);
-    }
-
-    public boolean isOpen(Document doc) {
-        VirtualFile file = fileDocumentManager.getFile(doc);
-        return isOpen(file);
-    }
-
-    class EditorContainer {
-        Editor editor;
-    }
-
 
     /**
-     * Opens an editor for the given path in the UI thread.
-     *
-     * @param path
-     * @return
+     * Creates an EditorAPI with the current Project.
      */
-    public Editor openEditor(final VirtualFile path) {
-
-        final EditorContainer result = new EditorContainer();
-
-        Runnable action = new Runnable() {
-            @Override
-            public void run() {
-
-                application.runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        editorFileManager.openFile(path, true);
-
-                        result.editor = editorFileManager.getSelectedTextEditor();
-                    }
-                });
-
-            }
-        };
-
-        UIUtil.invokeAndWaitIfNeeded(action);
-
-        return result.editor;
-
+    public EditorAPI() {
+        this.project = Saros.instance().getProject();
+        this.application = ApplicationManager.getApplication();
+        this.commandProcessor = CommandProcessor.getInstance();
     }
-
-    public Document createDocument(VirtualFile path) {
-        return fileDocumentManager.getDocument(path);
-    }
-
-
-    public void closeEditor(final VirtualFile file) {
-
-        Runnable action = new Runnable() {
-            @Override
-            public void run() {
-                editorFileManager.closeFile(file);
-            }
-        };
-
-        UIUtil.invokeAndWaitIfNeeded(action);
-    }
-
-    public Document getDocument(final File file) {
-
-        return fileDocumentManager.getDocument(toVirtualFile(file));
-    }
-
-    public Document getDocument(final VirtualFile file) {
-        return fileDocumentManager.getDocument(file);
-    }
-
-    public void closeEditor(Document doc) {
-        VirtualFile file = fileDocumentManager.getFile(doc);
-        closeEditor(file);
-    }
-
-    public Editor getActiveEditor() {
-        return editorFileManager.getSelectedTextEditor();
-    }
-
-    public void saveDocument(final Document doc) {
-        application.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                application.runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.saveDocument(doc);
-                    }
-                });
-            }
-        }, ModalityState.NON_MODAL);
-
-    }
-
-
-    public void reloadFromDisk(final Document doc) {
-        application.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                application.runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.reloadFromDisk(doc);
-                    }
-                });
-            }
-        }, ModalityState.NON_MODAL);
-    }
-
-    public void saveAllDocuments() {
-        application.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                application.runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.saveAllDocuments();
-                    }
-                });
-            }
-        }, ModalityState.NON_MODAL);
-
-    }
-
 
     /**
      * Sets the given Editor to the specified line range.
@@ -422,9 +253,5 @@ public class EditorAPI {
 
         UIUtil.invokeAndWaitIfNeeded(action);
 
-    }
-
-    public ModuleManager getModuleManager() {
-        return moduleManager;
     }
 }

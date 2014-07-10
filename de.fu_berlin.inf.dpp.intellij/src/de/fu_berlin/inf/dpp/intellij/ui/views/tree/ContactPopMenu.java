@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
@@ -49,7 +50,9 @@ class ContactPopMenu extends JPopupMenu {
 
     private ContactTree.ContactInfo contactInfo;
 
-    private EditorAPI editorApi = new EditorAPI();
+    private EditorAPI editorApi;
+
+    private ModuleManager moduleManager;
 
     /**
      *
@@ -57,7 +60,8 @@ class ContactPopMenu extends JPopupMenu {
     public ContactPopMenu(ContactTree.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
 
-        editorApi = new EditorAPI(saros.getProject());
+        this.editorApi = new EditorAPI();
+        this.moduleManager = ModuleManager.getInstance(Saros.instance().getProject());
 
         JMenu menuShareProject = new JMenu("Work together on...");
         menuShareProject.setIcon(IconManager.SESSIONS_ICON);
@@ -69,7 +73,7 @@ class ContactPopMenu extends JPopupMenu {
             menuShareProject.add(projectItem);
 
             //add sub-projects
-            Module[] modules = editorApi.getModuleManager().getModules();
+            Module[] modules = moduleManager.getModules();
             //  if (modules.length > 0)
             if (false) {
                 menuShareProject.addSeparator();
