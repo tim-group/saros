@@ -20,33 +20,22 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij;
+package de.fu_berlin.inf.dpp.core.vcs;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
-import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 
-/**
- * Saros core panel tool window factory. Here is a starting point of IntelliJ plugin
- * <p/>
- */
+public class DummyVCSProviderFactoryImpl implements VCSProviderFactory {
 
-public class SarosToolWindowFactory implements ToolWindowFactory {
     /**
-     * Plugin starting point via IntelliJ
+     * Returns null.
      *
      * @param project
-     * @param toolWindow
+     * @return
      */
     @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-
-        Saros saros = Saros.instance();
-        saros.setToolWindow(toolWindow);
-
-        SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
-        mainPanel.create();
+    public VCSProvider getProvider(IProject project) {
+        return null;
     }
 }

@@ -34,6 +34,8 @@ import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.project.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
+import de.fu_berlin.inf.dpp.core.vcs.DummyVCSProvider;
+import de.fu_berlin.inf.dpp.core.vcs.DummyVCSProviderFactoryImpl;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.DispatchThreadContext;
 import de.fu_berlin.inf.dpp.net.IReceiver;
@@ -50,6 +52,8 @@ import de.fu_berlin.inf.dpp.net.xmpp.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.RosterTracker;
 import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
 import de.fu_berlin.inf.dpp.observables.*;
+import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 import de.fu_berlin.inf.dpp.versioning.VersionManager;
 import org.picocontainer.BindKey;
 import org.picocontainer.MutablePicoContainer;
@@ -82,6 +86,10 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory {
 
             // Invitation hooks
             Component.create(SessionNegotiationHookManager.class),
+
+            // VCS (only dummy to satisfy dependencies)
+            Component.create(VCSProviderFactory.class, DummyVCSProviderFactoryImpl.class),
+            Component.create(VCSProvider.class, DummyVCSProvider.class),
 
 
             // Network
