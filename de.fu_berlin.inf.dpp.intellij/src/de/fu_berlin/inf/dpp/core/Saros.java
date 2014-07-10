@@ -32,6 +32,7 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
@@ -95,6 +96,7 @@ public class Saros {
     private static boolean isInitialized;
 
     private Project project;
+
     private ToolWindow toolWindow;
 
     private XMPPConnectionService connectionService;
@@ -131,9 +133,9 @@ public class Saros {
         this.mainPanel = mainPanel;
     }
 
-    public static Saros create(Project project, ToolWindow toolWindow) {
+    public static Saros create(Project project) {
         if (instance == null) {
-            instance = new Saros(project, toolWindow);
+            instance = new Saros(project);
         }
         return instance;
     }
@@ -150,9 +152,9 @@ public class Saros {
         return instance;
     }
 
-    private Saros(Project project, ToolWindow toolWindow) {
+    private Saros(Project project) {
         this.project = project;
-        this.toolWindow = toolWindow;
+        this.workspace = new Workspace(project);
     }
 
     /**
@@ -227,5 +229,9 @@ public class Saros {
 
     public void setWorkspace(IWorkspace workspace) {
         this.workspace = workspace;
+    }
+
+    public void setToolWindow(ToolWindow toolWindow) {
+        this.toolWindow = toolWindow;
     }
 }

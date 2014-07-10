@@ -794,6 +794,6 @@ public class EditorManager
     }
 
     public boolean hasSession() {
-        return session == null;
+        return session != null;
     }
 }

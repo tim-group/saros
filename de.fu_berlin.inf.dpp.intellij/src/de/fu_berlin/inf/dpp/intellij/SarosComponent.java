@@ -23,33 +23,48 @@
 package de.fu_berlin.inf.dpp.intellij;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import org.apache.log4j.PropertyConfigurator;
+import org.jetbrains.annotations.NotNull;
+
 
 /**
- * Saros core panel tool window factory. Here is a starting point of IntelliJ plugin
- * <p/>
+ * Component that is initalized when a project is loaded. It initializes Saros.
  */
+public class SarosComponent implements com.intellij.openapi.components.ProjectComponent {
 
-public class SarosToolWindowFactory implements ToolWindowFactory {
-    /**
-     * Plugin starting point via IntelliJ
-     *
-     * @param project
-     * @param toolWindow
-     */
-    @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
 
+    public SarosComponent(Project project) {
         PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/log4j.properties");  //todo
 
-        Saros saros = Saros.instance();
-        saros.setToolWindow(toolWindow);
+        Saros saros = Saros.create(project);
+        saros.start();
+        System.out.println("Saros created");
+    }
 
-        SarosMainPanelView mainPanel = new SarosMainPanelView(saros);
-        mainPanel.create();
+    @Override
+    public void initComponent() {
+
+    }
+
+    @Override
+    public void disposeComponent() {
+
+    }
+
+    @NotNull
+    @Override
+    public String getComponentName() {
+        return "Saros";
+    }
+
+    @Override
+    public void projectOpened() {
+
+    }
+
+    @Override
+    public void projectClosed() {
+
     }
 }

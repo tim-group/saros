@@ -20,13 +20,14 @@
 
     <application-components>
         <!-- Add your application components here -->
-        <!-- <component>
-             <implementation-class>de.fu_berlin.inf.dpp.intellij.SarosComponent</implementation-class>
-         </component>-->
+
     </application-components>
 
     <project-components>
         <!-- Add your project components here -->
+        <component>
+            <implementation-class>de.fu_berlin.inf.dpp.intellij.SarosComponent</implementation-class>
+        </component>
     </project-components>
 
     <actions>
