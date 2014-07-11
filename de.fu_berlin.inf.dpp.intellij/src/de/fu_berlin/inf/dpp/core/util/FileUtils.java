@@ -296,9 +296,10 @@ public class FileUtils {
 
                 folder.create(IResource.NONE, true);
 
-                if (monitor.isCanceled()) {
-                    log.warn("Creating folder failed: " + folder);
-                }
+                //TODO: find out about exceptions that get thrown here
+                // if (monitor.isCanceled()) {
+                //       log.warn("Creating folder failed: " + folder);
+                //  }
 
             }
         };
