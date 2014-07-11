@@ -46,9 +46,13 @@ public class PathImp implements IPath {
         if (path.startsWith("file:/") || path.startsWith("file:\\"))
             path = path.substring("file:/".length());
 
-        if (path.startsWith("\\") || path.startsWith("/"))
-            path = path.substring(1);
-
+        String os = System.getProperty("os.name");
+        boolean isWindows = os != null && os.toLowerCase().contains("windows");
+        //Linux: Removing the first slash makes the file inaccessible, so we only do it for windows
+        if (isWindows) {
+            if (path.startsWith("\\") || path.startsWith("/"))
+                path = path.substring(1);
+        }
 
         this._path = path;
         _path = toPortableString();
