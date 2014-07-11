@@ -118,6 +118,10 @@ public class Saros {
         return isInitialized;
     }
 
+    /**
+     * Checks if Saros was already initialized by create(). Throws an
+     * IllegalStateException if not initialized.
+     */
     public static void checkInitialized() {
         if (!isInitialized()) {
             LogLog.error("Saros not initialized", new StackTrace());
@@ -125,14 +129,12 @@ public class Saros {
         }
     }
 
-    public SarosMainPanelView getMainPanel() {
-        return mainPanel;
-    }
-
-    public void setMainPanel(SarosMainPanelView mainPanel) {
-        this.mainPanel = mainPanel;
-    }
-
+    /**
+     * Creates a new Saros singleton instance from a project.
+     *
+     * @param project
+     * @return
+     */
     public static Saros create(Project project) {
         if (instance == null) {
             instance = new Saros(project);
@@ -141,7 +143,8 @@ public class Saros {
     }
 
     /**
-     * Instance of Saros
+     * Instance of Saros. Throws an IllegalStateException if it was not
+     * initialized yet.
      *
      * @return
      */
@@ -234,4 +237,13 @@ public class Saros {
     public void setToolWindow(ToolWindow toolWindow) {
         this.toolWindow = toolWindow;
     }
+
+    public SarosMainPanelView getMainPanel() {
+        return mainPanel;
+    }
+
+    public void setMainPanel(SarosMainPanelView mainPanel) {
+        this.mainPanel = mainPanel;
+    }
 }
+
