@@ -28,10 +28,10 @@ import org.apache.log4j.Logger;
  * Class should use IntelliJ API to show notifications
  */
 //todo: make implementation
-public class NotificationHandler {
-    private static final Logger LOG = Logger.getLogger(NotificationHandler.class);
+public class NotificationPanel {
+    private static final Logger LOG = Logger.getLogger(NotificationPanel.class);
 
-    private NotificationHandler() {
+    private NotificationPanel() {
     }
 
     /**

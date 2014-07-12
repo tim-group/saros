@@ -47,7 +47,7 @@ public class SarosTreeView {
 
     private Container parent;
 
-    private Saros saros = Saros.instance();
+    private Saros saros = Saros.getInstance();
 
     private RootTree rootTree;
     private SessionTree sessionTree;

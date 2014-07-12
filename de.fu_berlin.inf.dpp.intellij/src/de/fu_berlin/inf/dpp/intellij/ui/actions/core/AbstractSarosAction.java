@@ -37,7 +37,7 @@ import java.util.List;
 public abstract class AbstractSarosAction implements ISarosAction {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
-    protected Saros saros = Saros.instance();
+    protected Saros saros = Saros.getInstance();
     protected Container guiFrame;
 
     private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();

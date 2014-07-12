@@ -64,7 +64,7 @@ public class SarosFileShareGroup extends ActionGroup {
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
         if (e == null || !Saros.isInitialized()
-                || Saros.instance().getSessionManager().getSarosSession() != null) {
+                || Saros.getInstance().getSessionManager().getSarosSession() != null) {
             return new AnAction[0];
         } else {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -75,7 +75,7 @@ public class SarosFileShareGroup extends ActionGroup {
             }
 
             List<AnAction> list = new ArrayList<AnAction>();
-            for (JID user : Saros.instance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
+            for (JID user : Saros.getInstance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
                 list.add(new ShareWithUser(user));
             }
 
@@ -185,7 +185,7 @@ public class SarosFileShareGroup extends ActionGroup {
          * @return
          */
         private ProjectImp locateProject(File resource) {
-            Project p = Saros.instance().getProject();
+            Project p = Saros.getInstance().getProject();
             IPath basePath = new PathImp(p.getBasePath());
             IPath resourcePath = new PathImp(resource);
             String[] resourceSegments = resourcePath.segments();
@@ -196,7 +196,7 @@ public class SarosFileShareGroup extends ActionGroup {
 
             String moduleName = resourceSegments[nameIndex];
             basePath = basePath.append(moduleName);
-            return (ProjectImp) Saros.instance().getWorkspace().getRoot().addProject(moduleName, basePath.toFile());
+            return (ProjectImp) Saros.getInstance().getWorkspace().getRoot().addProject(moduleName, basePath.toFile());
         }
 
 

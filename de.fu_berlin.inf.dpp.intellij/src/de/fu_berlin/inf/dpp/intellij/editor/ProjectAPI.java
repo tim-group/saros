@@ -51,7 +51,7 @@ public class ProjectAPI {
      * Creates an EditorAPI with the current Project.
      */
     public ProjectAPI() {
-        this.project = Saros.instance().getProject();
+        this.project = Saros.getInstance().getProject();
         this.editorFileManager = FileEditorManager.getInstance(project);
 
         this.application = ApplicationManager.getApplication();

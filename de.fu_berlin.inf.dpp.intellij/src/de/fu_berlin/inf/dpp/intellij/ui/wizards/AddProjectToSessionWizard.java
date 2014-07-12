@@ -289,7 +289,7 @@ public class AddProjectToSessionWizard {
     }
 
     protected Component getShell() {
-        return Saros.instance().getMainPanel();
+        return Saros.getInstance().getMainPanel();
     }
 
 

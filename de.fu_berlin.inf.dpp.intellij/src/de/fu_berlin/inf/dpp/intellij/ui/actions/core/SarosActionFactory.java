@@ -40,7 +40,7 @@ public class SarosActionFactory {
 
     private static ConnectServerAction connectServerAction;
 
-    private static Saros saros = Saros.instance();
+    private static Saros saros = Saros.getInstance();
 
     static {
         MutablePicoContainer pico = saros.getSarosContext().createSimpleChildContainer();

@@ -27,13 +27,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
-import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
@@ -41,19 +39,12 @@ import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
-import java.util.Random;
-
 /**
  * Saros plugin class
  */
 public class Saros {
 
     private static final Logger LOG = Logger.getLogger(Saros.class);
-
-    /**
-     * Global random generator,
-     */
-    public static final Random RANDOM = new Random();
 
     /**
      * This is the Bundle-SymbolicName (a.k.a the pluginID)
@@ -108,8 +99,6 @@ public class Saros {
 
     private SarosContext sarosContext;
 
-    protected IPreferenceStore preferenceStore;
-
     /**
      * Returns true if the Saros instance has been initialized so that calling
      * {@link de.fu_berlin.inf.dpp.core.context.SarosContext#reinject(Object)} will be well defined.
@@ -121,6 +110,8 @@ public class Saros {
     /**
      * Checks if Saros was already initialized by create(). Throws an
      * IllegalStateException if not initialized.
+     *
+     * @throws java.lang.IllegalStateException
      */
     public static void checkInitialized() {
         if (!isInitialized()) {
@@ -135,9 +126,10 @@ public class Saros {
      * @param project
      * @return
      */
-    public static Saros create(Project project) {
+    public synchronized static Saros create(Project project) {
         if (instance == null) {
             instance = new Saros(project);
+            instance.start();
         }
         return instance;
     }
@@ -148,7 +140,7 @@ public class Saros {
      *
      * @return
      */
-    public static Saros instance() {
+    public static Saros getInstance() {
         if (instance == null) {
             throw new IllegalStateException("Saros not initialized");
         }
@@ -161,7 +153,7 @@ public class Saros {
     }
 
     /**
-     * If not initizalied yet, this method initializes fields, the SarosPluginContext and the XMPPConnectionService.
+     * If not initialized yet, this method initializes fields, the SarosPluginContext and the XMPPConnectionService.
      */
     public void start() {
 
@@ -169,10 +161,8 @@ public class Saros {
             return;
         }
 
-        this.preferenceStore = new PreferenceStore();
-
         //CONTEXT
-        this.sarosContext = new SarosContext(
+        sarosContext = new SarosContext(
                 new SarosIntellijContextFactory(this,
                         new SarosCoreContextFactory()), new DotGraphMonitor()
         );
@@ -189,15 +179,15 @@ public class Saros {
                 .configure(Saros.NAMESPACE, Saros.RESOURCE, false, false, 8888,
                         null, null, true, null, 80, true);
 
-        this.isInitialized = true;
+        isInitialized = true;
         // Make sure that all components in the container are
         // instantiated
-        this.sarosContext.getComponents(Object.class);
-
+        sarosContext.getComponents(Object.class);
     }
 
-    public void stop() {
-        this.isInitialized = false;
+    //FIXME: Properly stop network and context classes
+    void stop() {
+        isInitialized = false;
     }
 
     //TODO: Check if this can be replaced by injection
@@ -205,18 +195,9 @@ public class Saros {
         return sessionManager;
     }
 
-    public IPreferenceStore getPreferenceStore() {
-        return preferenceStore;
-    }
-
     public Project getProject() {
         return project;
     }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
 
     public ToolWindow getToolWindow() {
         return toolWindow;
@@ -228,10 +209,6 @@ public class Saros {
 
     public IWorkspace getWorkspace() {
         return workspace;
-    }
-
-    public void setWorkspace(IWorkspace workspace) {
-        this.workspace = workspace;
     }
 
     public void setToolWindow(ToolWindow toolWindow) {

@@ -46,7 +46,7 @@ import java.util.List;
  * Contact pop-up menu
  */
 class ContactPopMenu extends JPopupMenu {
-    protected Saros saros = Saros.instance();
+    protected Saros saros = Saros.getInstance();
 
     private ContactTree.ContactInfo contactInfo;
 
@@ -61,7 +61,7 @@ class ContactPopMenu extends JPopupMenu {
         this.contactInfo = contactInfo;
 
         this.editorApi = new EditorAPI();
-        this.moduleManager = ModuleManager.getInstance(Saros.instance().getProject());
+        this.moduleManager = ModuleManager.getInstance(Saros.getInstance().getProject());
 
         JMenu menuShareProject = new JMenu("Work together on...");
         menuShareProject.setIcon(IconManager.SESSIONS_ICON);

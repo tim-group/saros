@@ -35,7 +35,7 @@ import java.net.URL;
  */
 public abstract class ToolbarButton extends JButton {
     protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
-    protected Saros saros = Saros.instance();
+    protected Saros saros = Saros.getInstance();
 
 
     /**

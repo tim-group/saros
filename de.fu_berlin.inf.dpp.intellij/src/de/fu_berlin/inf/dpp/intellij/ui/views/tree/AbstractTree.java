@@ -41,7 +41,7 @@ public abstract class AbstractTree extends DefaultMutableTreeNode {
     protected IconManager iconManager;
 
     protected AbstractTree() {
-        this.saros = Saros.instance();
+        this.saros = Saros.getInstance();
         this.parent = this;
         this.iconManager = new IconManager();
 
@@ -49,7 +49,7 @@ public abstract class AbstractTree extends DefaultMutableTreeNode {
 
     protected AbstractTree(DefaultMutableTreeNode parent) {
         this.parent = parent;
-        this.saros = Saros.instance();
+        this.saros = Saros.getInstance();
         this.iconManager = new IconManager();
         parent.add(this);
     }

@@ -52,7 +52,7 @@ import javax.swing.*;
  * Session pop-up menu
  */
 class SessionPopMenu extends JPopupMenu {
-    protected Saros saros = Saros.instance();
+    protected Saros saros = Saros.getInstance();
     private SessionTree.SessionInfo sessionInfo;
 
     public SessionPopMenu(SessionTree.SessionInfo sessionInfo) {

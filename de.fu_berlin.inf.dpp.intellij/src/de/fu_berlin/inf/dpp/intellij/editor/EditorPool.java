@@ -34,6 +34,8 @@ import java.util.Set;
 /**
  * IntelliJ editor pool
  */
+//FIXME: Document instances should not be stored.
+// Maybe just store editors here, load all non-opened files on the fly?
 public class EditorPool {
     private Map<SPath, Editor> editors = new HashMap<SPath, Editor>();
     private Map<SPath, Document> documents = new HashMap<SPath, Document>();
@@ -106,8 +108,7 @@ public class EditorPool {
         return files.get(doc);
     }
 
-    public Collection<Editor> getEditors()
-    {
+    public Collection<Editor> getEditors() {
         return editors.values();
     }
 

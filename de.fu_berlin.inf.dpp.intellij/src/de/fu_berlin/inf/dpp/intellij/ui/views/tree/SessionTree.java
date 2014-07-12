@@ -131,7 +131,7 @@ public class SessionTree extends AbstractTree {
         create();
 
         //register listener
-        Saros.instance().getSessionManager().addSarosSessionListener(sessionListener);
+        Saros.getInstance().getSessionManager().addSarosSessionListener(sessionListener);
     }
 
     protected void create() {

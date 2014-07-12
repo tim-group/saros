@@ -51,7 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Editor action manager. Class
+ * Class for executing actions on the IntelliJ editors.
  */
 public class EditorActionManager {
     private final ProjectAPI projectAPI;
@@ -470,7 +470,6 @@ public class EditorActionManager {
     public EditorPool getEditorPool() {
         return editorPool;
     }
-
 
     public EditorAPI getEditorAPI() {
         return editorAPI;

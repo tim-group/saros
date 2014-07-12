@@ -52,7 +52,7 @@ public class SarosToolbar {
 
     private Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
-    private Saros saros = Saros.instance();
+    private Saros saros = Saros.getInstance();
 
     private SarosMainPanelView sarosMainView;
     private JToolBar jToolBar;

@@ -60,7 +60,7 @@ public class JoinSessionWizard {
     public static final String PAGE_INFO_ID = "JoinSessionInfo";
     public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
 
-    private static Container parent = Saros.instance().getMainPanel();
+    private static Container parent = Saros.getInstance().getMainPanel();
 
     private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
 

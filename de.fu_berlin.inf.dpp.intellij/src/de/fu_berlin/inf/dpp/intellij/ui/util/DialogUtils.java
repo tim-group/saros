@@ -31,7 +31,7 @@ import java.awt.*;
  * Dialog message helper
  */
 public class DialogUtils {
-    private static final Container container = Saros.instance().getMainPanel();
+    private static final Container container = Saros.getInstance().getMainPanel();
 
     public static void showError(Component parent, String title, String msg) {
         JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);

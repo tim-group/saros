@@ -32,7 +32,7 @@ import javax.swing.*;
  * Dialog helper used to show messages in save manner starting it in UI thread
  */
 public class SafeDialogUtils {
-    private static Saros saros = Saros.instance();
+    private static Saros saros = Saros.getInstance();
 
     /**
      * @param message

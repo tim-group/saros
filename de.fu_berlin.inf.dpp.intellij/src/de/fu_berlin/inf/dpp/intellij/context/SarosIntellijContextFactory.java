@@ -42,6 +42,7 @@ import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
+import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
@@ -123,7 +124,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
         FileUtils.workspace = workspace;
 
         // container.addComponent(Saros.class,saros);
-        container.addComponent(IPreferenceStore.class, saros.getPreferenceStore());
+        container.addComponent(IPreferenceStore.class, new PreferenceStore());
 
         // Saros Core PathIntl Support
         container.addComponent(IPathFactory.class, workspace.getPathFactory());

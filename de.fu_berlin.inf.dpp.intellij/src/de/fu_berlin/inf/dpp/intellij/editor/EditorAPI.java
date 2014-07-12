@@ -42,7 +42,7 @@ import java.awt.*;
 
 /**
  * IntellJ editor API. An Editor is a window for editing source files.
- *
+ * <p/>
  * Performs IntelliJ editor related actions in the UI thread.
  */
 
@@ -56,7 +56,8 @@ public class EditorAPI {
      * Creates an EditorAPI with the current Project.
      */
     public EditorAPI() {
-        this.project = Saros.instance().getProject();
+//
+        this.project = Saros.getInstance().getProject();
         this.application = ApplicationManager.getApplication();
         this.commandProcessor = CommandProcessor.getInstance();
     }
