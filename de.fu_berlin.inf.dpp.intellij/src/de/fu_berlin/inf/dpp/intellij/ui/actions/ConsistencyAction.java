@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressFrame;
@@ -168,7 +168,7 @@ public class ConsistencyAction extends AbstractSarosAction {
                 // when refactoring)
 
                 // show balloon notification
-                NotificationHandler
+                NotificationPanel
                         .showNotification(
                                 Messages.ConsistencyAction_title_inconsistency_deteced,
                                 MessageFormat
@@ -181,7 +181,7 @@ public class ConsistencyAction extends AbstractSarosAction {
     }
 
     private void setToolTipText(String text) {
-        NotificationHandler.showNotification(text, "Consistency warning");
+        NotificationPanel.showNotification(text, "Consistency warning");
     }
 
     @Override

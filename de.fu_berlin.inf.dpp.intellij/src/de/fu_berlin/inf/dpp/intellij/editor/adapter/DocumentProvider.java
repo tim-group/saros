@@ -25,24 +25,15 @@ package de.fu_berlin.inf.dpp.intellij.editor.adapter;
 
 import com.intellij.openapi.editor.Document;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorActionManager;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
 
 /**
- * Saros style document factory
+ * Saros style document factory.
  */
-public class DocumentProvider
-{
+public class DocumentProvider {
 
-    private EditorActionManager actionManager;
-
-    public DocumentProvider(EditorActionManager actionManager)
-    {
-        this.actionManager = actionManager;
-    }
-
-    public IDocument getDocument(IFile file)
-    {
-        Document nativeDocument = actionManager.getDocument(file.getLocation().toFile());
+    public static IDocument getDocument(IFile file) {
+        Document nativeDocument = ResourceConverter.getDocument(file.getLocation().toFile());
         return nativeDocument == null ? null : new DocumentAdapter(nativeDocument);
     }
 

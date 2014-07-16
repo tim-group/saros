@@ -26,25 +26,16 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
-import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
-import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * IntelliJ editor file listener
  */
 public class StoppableEditorFileListener extends AbstractStoppableListener implements FileEditorManagerListener {
-    private EditorManager manager;
-    protected static final Logger LOG = Logger.getLogger(StoppableEditorFileListener.class);
 
     public StoppableEditorFileListener(EditorManager manager) {
-        this.manager = manager;
-        this.enabled = true;
+        super(manager);
     }
 
     @Override
@@ -53,38 +44,9 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             return;
         }
 
-        SPath path = manager.getActionManager().toPath(virtualFile);
-        if (path != null) {
-
-            if (manager.getActionManager().newFiles.containsKey(virtualFile)) {
-                //File is new, need to replaceAll content
-                byte[] bytes = new byte[0];
-                try {
-                    bytes = virtualFile.contentsToByteArray();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-
-                byte[] bytesRemote = manager.getActionManager().newFiles.get(virtualFile);
-
-                if (!Arrays.equals(bytes, bytesRemote)) {
-
-                    String replacedText = new String(bytes, EncodingProjectManager.getInstance().getDefaultCharset());
-                    String text = new String(bytesRemote, EncodingProjectManager.getInstance().getDefaultCharset());
-
-                    manager.generateTextEdit(0, replacedText, text, path);
-
-
-                }
-
-                manager.getActionManager().newFiles.remove(virtualFile);
-            }
-
-            manager.getActionManager().getEditorPool().add(path, fileEditorManager.getSelectedTextEditor());
-            manager.getActionManager().startEditor(fileEditorManager.getSelectedTextEditor());
-
-        }
+        editorManager.getEditorManipulator().openEditorFromLocal(virtualFile);
     }
+
 
     @Override
     public void fileClosed(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
@@ -92,12 +54,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             return;
         }
 
-
-        SPath path = manager.getActionManager().toPath(virtualFile);
-        if (path != null) {
-            manager.getActionManager().getEditorPool().removeEditor(path);
-            manager.generateEditorClosed(path);
-        }
+        editorManager.getEditorManipulator().closeEditorFromLocal(virtualFile);
     }
 
     @Override
@@ -106,12 +63,6 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             return;
         }
 
-        VirtualFile virtualFile = event.getNewFile();
-        SPath path = manager.getActionManager().toPath(virtualFile);
-        if (path != null) {
-            manager.generateEditorActivated(path);
-        }
-
+        editorManager.getEditorManipulator().activateEditorFromLocal(event.getNewFile());
     }
-
 }

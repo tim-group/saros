@@ -35,11 +35,12 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * IntellIJ API for project-level operations on editors and documents.
  */
 public class ProjectAPI {
-
 
     private Application application;
     private FileDocumentManager fileDocumentManager;
@@ -47,8 +48,34 @@ public class ProjectAPI {
     private Project project;
     protected FileEditorManager editorFileManager;
 
+    private class WriteAction implements Runnable {
+        Runnable action;
+
+        WriteAction(Runnable action) {
+            this.action = action;
+        }
+
+        @Override
+        public void run() {
+            application.runWriteAction(action);
+        }
+    }
+
+    private class ReadAction implements Runnable {
+        Runnable action;
+
+        ReadAction(Runnable action) {
+            this.action = action;
+        }
+
+        @Override
+        public void run() {
+            application.runReadAction(action);
+        }
+    }
+
     /**
-     * Creates an EditorAPI with the current Project.
+     * Creates an ProjectAPI with the current Project and initializes Fields.
      */
     public ProjectAPI() {
         this.project = Saros.getInstance().getProject();
@@ -58,20 +85,26 @@ public class ProjectAPI {
         this.fileDocumentManager = FileDocumentManager.getInstance();
     }
 
-
+    /**
+     * Returns whether the file is opened.
+     *
+     * @param file
+     * @return
+     */
     public boolean isOpen(VirtualFile file) {
         return editorFileManager.isFileOpen(file);
     }
 
+    /**
+     * Returns whether the document is opened.
+     *
+     * @param doc
+     * @return
+     */
     public boolean isOpen(Document doc) {
         VirtualFile file = fileDocumentManager.getFile(doc);
         return isOpen(file);
     }
-
-    class EditorContainer {
-        Editor editor;
-    }
-
 
     /**
      * Opens an editor for the given path in the UI thread.
@@ -81,35 +114,35 @@ public class ProjectAPI {
      */
     public Editor openEditor(final VirtualFile path) {
 
-        final EditorContainer result = new EditorContainer();
+        final AtomicReference<Editor> result = new AtomicReference<Editor>();
 
-        Runnable action = new Runnable() {
+        UIUtil.invokeAndWaitIfNeeded(new ReadAction(new Runnable() {
             @Override
             public void run() {
-
-                application.runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        editorFileManager.openFile(path, true);
-
-                        result.editor = editorFileManager.getSelectedTextEditor();
-                    }
-                });
-
+                editorFileManager.openFile(path, true);
+                result.set(editorFileManager.getSelectedTextEditor());
             }
-        };
+        }));
 
-        UIUtil.invokeAndWaitIfNeeded(action);
-
-        return result.editor;
+        return result.get();
 
     }
 
+    /**
+     * Creates the given document.
+     *
+     * @param path
+     * @return
+     */
     public Document createDocument(VirtualFile path) {
         return fileDocumentManager.getDocument(path);
     }
 
-
+    /**
+     * Closes the editor for the given file in the UI thread.
+     *
+     * @param file
+     */
     public void closeEditor(final VirtualFile file) {
 
         Runnable action = new Runnable() {
@@ -122,7 +155,6 @@ public class ProjectAPI {
         UIUtil.invokeAndWaitIfNeeded(action);
     }
 
-
     public void closeEditor(Document doc) {
         VirtualFile file = fileDocumentManager.getFile(doc);
         closeEditor(file);
@@ -132,48 +164,46 @@ public class ProjectAPI {
         return editorFileManager.getSelectedTextEditor();
     }
 
+    /**
+     * Saves the given document in the UI thread.
+     *
+     * @param doc
+     */
     public void saveDocument(final Document doc) {
-        application.invokeAndWait(new Runnable() {
+        application.invokeAndWait(new WriteAction(new Runnable() {
             @Override
             public void run() {
-                application.runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.saveDocument(doc);
-                    }
-                });
+                fileDocumentManager.saveDocument(doc);
             }
-        }, ModalityState.NON_MODAL);
+        }), ModalityState.NON_MODAL);
 
     }
 
-
+    /**
+     * Reloads the current document in the UI thread.
+     *
+     * @param doc
+     */
     public void reloadFromDisk(final Document doc) {
-        application.invokeAndWait(new Runnable() {
+        application.invokeAndWait(new ReadAction(new Runnable() {
             @Override
             public void run() {
-                application.runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.reloadFromDisk(doc);
-                    }
-                });
+                fileDocumentManager.reloadFromDisk(doc);
             }
-        }, ModalityState.NON_MODAL);
+        }), ModalityState.NON_MODAL);
     }
 
+    /**
+     * Saves all documents in the UI thread.
+     */
     public void saveAllDocuments() {
-        application.invokeAndWait(new Runnable() {
+
+        application.invokeAndWait(new WriteAction(new Runnable() {
             @Override
             public void run() {
-                application.runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileDocumentManager.saveAllDocuments();
-                    }
-                });
+                fileDocumentManager.saveAllDocuments();
             }
-        }, ModalityState.NON_MODAL);
+        }), ModalityState.NON_MODAL);
 
     }
 
@@ -181,6 +211,5 @@ public class ProjectAPI {
         if (editorFileManager != null) {
             editorFileManager.addFileEditorManagerListener(listener);
         }
-
     }
 }

@@ -28,6 +28,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
@@ -90,6 +91,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
 
     @Inject
     private EditorAPI editorAPI;
+
 
     private final Runnable checksumCalculationTrigger = new Runnable() {
 
@@ -231,14 +233,14 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
         Document doc = null;
 
         if (file.exists()) {
-            doc = editorManager.getActionManager().getDocument(file.getLocation().toFile());
+            doc = ResourceConverter.getDocument(file.getLocation().toFile());
         }
 
         // Null means that the document does not exist locally
         if (doc == null) {
 
             if (localEditors.contains(docPath)) {
-                LOG.error("EditorManagerEcl is in an inconsistent state. "
+                LOG.error("EditorManager is in an inconsistent state. "
                         + "It is reporting a locally open editor but no"
                         + " document could be found in the underlying file system: "
                         + docPath);

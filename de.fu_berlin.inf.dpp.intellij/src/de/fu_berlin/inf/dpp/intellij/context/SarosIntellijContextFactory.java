@@ -32,7 +32,13 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.*;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.JoinSessionRejectedHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.JoinSessionRequestHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.NegotiationHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.ServerPreferenceHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.SessionStatusRequestHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.UserStatusChangeHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.XMPPAuthorizationHandler;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
@@ -40,6 +46,8 @@ import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.ProjectAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
@@ -66,14 +74,15 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
 
             Component.create(ISarosSessionManager.class, SarosSessionManager.class),
-            //TODO: Not necessary
-            //Component.create(NotificationHandler.class),
-            // Core Managers
-            Component.create(ConsistencyWatchdogClient.class),
 
             Component.create(EditorAPI.class),
+            Component.create(ProjectAPI.class),
 
             Component.create(EditorManager.class),
+            Component.create(EditorManipulator.class),
+
+            // Core Managers
+            Component.create(ConsistencyWatchdogClient.class),
 
             // UI handlers
             Component.create(NegotiationHandler.class),

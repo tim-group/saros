@@ -38,11 +38,11 @@ import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * IntellJ editor API. An Editor is a window for editing source files.
- * <p/>
+ *
  * Performs IntelliJ editor related actions in the UI thread.
  */
 
@@ -53,31 +53,33 @@ public class EditorAPI {
     private Project project;
 
     /**
-     * Creates an EditorAPI with the current Project.
+     * Creates an EditorAPI with the current Project and initializes Fields.
      */
     public EditorAPI() {
-//
         this.project = Saros.getInstance().getProject();
         this.application = ApplicationManager.getApplication();
         this.commandProcessor = CommandProcessor.getInstance();
     }
 
     /**
-     * Sets the given Editor to the specified line range.
+     * Sets the given Editor to the specified line range in the UI thread.
      *
      * @param editor
      * @param lineStart
      * @param lineEnd
      */
-    public void setViewPort(final Editor editor, final int lineStart, final int lineEnd) {
+    public void setViewPort(final Editor editor, final int lineStart,
+                            final int lineEnd) {
 
         Runnable action = new Runnable() {
             @Override
             public void run() {
 
-                VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, 0);
+                VisualPosition posCenter = new VisualPosition(
+                        (lineStart + lineEnd) / 2, 0);
                 editor.getCaretModel().moveToVisualPosition(posCenter);
-                editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+                editor.getScrollingModel()
+                        .scrollToCaret(ScrollType.MAKE_VISIBLE);
 
             }
         };
@@ -86,13 +88,14 @@ public class EditorAPI {
     }
 
     /**
-     * Inserts test at the given position.
+     * Inserts text at the given position inside the UI thread.
      *
      * @param doc
      * @param position
      * @param text
      */
-    public void insertText(final Document doc, final int position, final String text) {
+    public void insertText(final Document doc, final int position,
+                           final String text) {
 
         Runnable action = new Runnable() {
             @Override
@@ -115,7 +118,7 @@ public class EditorAPI {
     }
 
     /**
-     * Overwrites the content of the document with text.
+     * Overwrites the content of the document with text inside the UI thread.
      *
      * @param doc
      * @param text
@@ -142,7 +145,7 @@ public class EditorAPI {
     }
 
     /**
-     * Adds text mark on the editor.
+     * Adds text mark on the editor for the specified line range.
      *
      * @param editor
      * @param start
@@ -150,7 +153,8 @@ public class EditorAPI {
      * @param color
      * @return
      */
-    public RangeHighlighter textMarkAdd(final Editor editor, final int start, final int end, Color color) {
+    public RangeHighlighter textMarkAdd(final Editor editor, final int start,
+                                        final int end, Color color) {
         if (color == null || editor == null) {
             return null;
         }
@@ -158,7 +162,9 @@ public class EditorAPI {
         TextAttributes textAttr = new TextAttributes();
         textAttr.setBackgroundColor(color);
 
-        RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.LAST, textAttr, HighlighterTargetArea.EXACT_RANGE);
+        RangeHighlighter highlighter = editor.getMarkupModel()
+                .addRangeHighlighter(start, end, HighlighterLayer.LAST, textAttr,
+                        HighlighterTargetArea.EXACT_RANGE);
         highlighter.setGreedyToLeft(false);
         highlighter.setGreedyToRight(false);
 
@@ -166,13 +172,15 @@ public class EditorAPI {
     }
 
     /**
-     * Removes text mark from editor.
-     * When highlighter is null, it removes all marks.
+     * Removes text mark of the <code>highlighter</code> from editor.
+     * When <code>highlighter</code> is <code>null</code>, it removes all marks.
      *
      * @param editor
-     * @param highlighter
+     * @param highlighter when <code>highlighter</code> is <code>null</code>,
+     *                    it removes all marks.
      */
-    public void textMarkRemove(final Editor editor, RangeHighlighter highlighter) {
+    public void textMarkRemove(final Editor editor,
+                               RangeHighlighter highlighter) {
         if (editor == null) {
             return;
         }
@@ -181,14 +189,15 @@ public class EditorAPI {
         if (highlighter != null) {
             editor.getMarkupModel().removeHighlighter(highlighter);
         } else {
-            for (RangeHighlighter myHighlighter : editor.getMarkupModel().getAllHighlighters()) {
+            for (RangeHighlighter myHighlighter : editor.getMarkupModel()
+                    .getAllHighlighters()) {
                 editor.getMarkupModel().removeHighlighter(myHighlighter);
             }
         }
     }
 
     /**
-     * Deletes text in document
+     * Deletes text in document in the specified range in the UI thread.
      *
      * @param doc
      * @param start
@@ -199,16 +208,18 @@ public class EditorAPI {
             @Override
             public void run() {
                 commandProcessor.executeCommand(project, new Runnable() {
-                    @Override
-                    public void run() {
-                        application.runWriteAction(new Runnable() {
                             @Override
                             public void run() {
-                                doc.deleteString(start, end);
+                                application.runWriteAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        doc.deleteString(start, end);
+                                    }
+                                });
                             }
-                        });
-                    }
-                }, "deleteText(" + start + "," + end + ")", commandProcessor.getCurrentCommandGroupId());
+                        }, "deleteText(" + start + "," + end + ")",
+                        commandProcessor.getCurrentCommandGroupId()
+                );
             }
         };
 
@@ -216,14 +227,15 @@ public class EditorAPI {
     }
 
     /**
-     * Sets text selection in editor
+     * Sets text selection in editor inside the UI thread.
      *
      * @param editor
      * @param start
      * @param end
      * @param colorMode
      */
-    public void setSelection(final Editor editor, final int start, final int end, ColorModel colorMode) {
+    public void setSelection(final Editor editor, final int start,
+                             final int end, ColorModel colorMode) {
 
         Runnable action = new Runnable() {
             @Override
@@ -235,15 +247,21 @@ public class EditorAPI {
                         editor.getSelectionModel().setSelection(start, end);
 
                         //move scroll
-                        int lineStart = editor.getSelectionModel().getSelectionStartPosition().getLine();
-                        int lineEnd = editor.getSelectionModel().getSelectionEndPosition().getLine();
+                        int lineStart = editor.getSelectionModel()
+                                .getSelectionStartPosition().getLine();
+                        int lineEnd = editor.getSelectionModel()
+                                .getSelectionEndPosition().getLine();
 
-                        int colStart = editor.getSelectionModel().getSelectionStartPosition().getColumn();
-                        int colEnd = editor.getSelectionModel().getSelectionEndPosition().getColumn();
+                        int colStart = editor.getSelectionModel()
+                                .getSelectionStartPosition().getColumn();
+                        int colEnd = editor.getSelectionModel()
+                                .getSelectionEndPosition().getColumn();
 
-                        VisualPosition posCenter = new VisualPosition((lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
+                        VisualPosition posCenter = new VisualPosition(
+                                (lineStart + lineEnd) / 2, (colStart + colEnd) / 2);
                         editor.getCaretModel().moveToVisualPosition(posCenter);
-                        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+                        editor.getScrollingModel()
+                                .scrollToCaret(ScrollType.CENTER);
 
                         //move cursor
                         editor.getCaretModel().moveToOffset(start, true);

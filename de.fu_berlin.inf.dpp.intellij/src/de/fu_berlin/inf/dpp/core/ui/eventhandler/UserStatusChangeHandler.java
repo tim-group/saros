@@ -26,7 +26,7 @@ import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -66,7 +66,7 @@ public class UserStatusChangeHandler {
         public void permissionChanged(User user) {
 
             if (user.isLocal()) {
-                NotificationHandler
+                NotificationPanel
                         .showNotification(
                                 Messages.UserStatusChangeHandler_permission_changed,
                                 MessageFormat
@@ -78,7 +78,7 @@ public class UserStatusChangeHandler {
                                         )
                         );
             } else {
-                NotificationHandler
+                NotificationPanel
                         .showNotification(
                                 Messages.UserStatusChangeHandler_permission_changed,
                                 MessageFormat.format(
@@ -95,7 +95,7 @@ public class UserStatusChangeHandler {
         @Override
         public void userJoined(User user) {
 
-            NotificationHandler.showNotification(
+            NotificationPanel.showNotification(
                     Messages.UserStatusChangeHandler_user_joined, MessageFormat
                             .format(Messages.UserStatusChangeHandler_user_joined_text,
                                     user.getNickname())
@@ -104,7 +104,7 @@ public class UserStatusChangeHandler {
 
         @Override
         public void userLeft(User user) {
-            NotificationHandler.showNotification(
+            NotificationPanel.showNotification(
                     Messages.UserStatusChangeHandler_user_left, MessageFormat
                             .format(Messages.UserStatusChangeHandler_user_left_text,
                                     user.getNickname())

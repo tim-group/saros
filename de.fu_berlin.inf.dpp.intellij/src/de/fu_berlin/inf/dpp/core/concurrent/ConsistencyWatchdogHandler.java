@@ -22,13 +22,18 @@
 
 package de.fu_berlin.inf.dpp.core.concurrent;
 
-import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
+import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.RecoveryFileActivity;
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -37,7 +42,7 @@ import de.fu_berlin.inf.dpp.synchronize.StartHandle;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
-import java.awt.*;
+import java.awt.Image;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -51,13 +56,13 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
 
-    protected final EditorManager editorManager;
+    private final EditorManipulator editorManipulator;
 
-    protected final ConsistencyWatchdogClient watchdogClient;
+    private final ConsistencyWatchdogClient watchdogClient;
 
-    protected final ISarosSession session;
+    private final ISarosSession session;
 
-    protected final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
+    private final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
         @Override
         public void receive(ChecksumErrorActivity checksumError) {
             startRecovery(checksumError);
@@ -75,9 +80,9 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-                                      EditorManager editorManager, ConsistencyWatchdogClient watchdogClient) {
+                                      EditorManipulator editorManipulator, ConsistencyWatchdogClient watchdogClient) {
         this.session = sarosSession;
-        this.editorManager = editorManager;
+        this.editorManipulator = editorManipulator;
         this.watchdogClient = watchdogClient;
     }
 
@@ -193,7 +198,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
         // Save document before sending to client
         if (file.exists()) {
-            editorManager.getActionManager().saveEditor(path);
+            editorManipulator.saveFile(path);
         }
         progress.worked(1);
 

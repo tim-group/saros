@@ -20,33 +20,37 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
-
-
-import com.intellij.openapi.editor.event.SelectionEvent;
-import com.intellij.openapi.editor.event.SelectionListener;
-import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
+package de.fu_berlin.inf.dpp.intellij.editor;
 
 /**
- * IntelliJ editor selection listener
+ * Created by holger on 16.07.14.
  */
-public class StoppableSelectionListener extends AbstractStoppableListener implements SelectionListener {
-
-
-    public StoppableSelectionListener(EditorManager manager) {
-        super(manager);
+public abstract class AbstractEditorActionHandler {
+/*
+    private VirtualFile toVirtualFile(SPath path) {
+        return toVirtualFile(path.getFile().getLocation().toFile());
     }
 
-    @Override
-    public void selectionChanged(SelectionEvent event) {
-        if (!enabled) {
-            return;
+    protected VirtualFile toVirtualFile(File path) {
+        return localFileSystem.refreshAndFindFileByIoFile(path);
+    }
+
+
+    protected SPath toPath(VirtualFile virtualFile) {
+        if (virtualFile == null || !virtualFile.exists() || !manager.hasSession()) {
+            return null;
         }
 
-        SPath path = editorManager.getEditorPool().getFile(event.getEditor().getDocument());
-        if (path != null) {
-            editorManager.generateSelection(path, event);
+        IResource resource = null;
+        String path = virtualFile.getPath();
+
+        for (IProject project : manager.getSession().getProjects()) {
+            resource = project.getFile(path);
+            if (resource != null) {
+                break;
+            }
+
         }
-    }
+        return resource == null ? null : new SPath(resource);
+    }*/
 }

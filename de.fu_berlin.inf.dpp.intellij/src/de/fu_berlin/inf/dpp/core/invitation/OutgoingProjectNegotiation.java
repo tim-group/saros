@@ -35,7 +35,12 @@ import org.picocontainer.annotations.Inject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CancellationException;
 
 //todo: copy from eclipse
@@ -102,7 +107,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
              * FIXME why do we unlock the editors here when we are going to
              * block ourself in the next call ?!
              */
-            editorManager.setAllLocalOpenedEditorsLocked(false);
+            editorManager.getEditorManipulator().unlockAllLocalOpenedEditors();
 
             List<StartHandle> stoppedUsers = null;
             try {
@@ -347,7 +352,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         // FIXME this throws a NPE if the session has already been stopped
         for (SPath path : editorManager.getRemoteOpenEditors()) {
-            editorManager.getActionManager().saveEditor(path);
+            editorManager.getEditorManipulator().saveFile(path);
         }
 
         checkCancellation(CancelOption.NOTIFY_PEER);

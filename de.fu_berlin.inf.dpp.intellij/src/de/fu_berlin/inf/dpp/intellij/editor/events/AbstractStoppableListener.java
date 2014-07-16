@@ -22,12 +22,20 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.events;
 
+import de.fu_berlin.inf.dpp.core.editor.EditorManager;
+
 /**
  * Abstract IntelliJ event listener
  */
 public abstract class AbstractStoppableListener
 {
+
+    protected EditorManager editorManager;
     protected boolean enabled = true;
+
+    public AbstractStoppableListener(EditorManager manager) {
+        this.editorManager = manager;
+    }
 
     /**
      * Enables or disables the forwarding of text changes. Default is enabled.

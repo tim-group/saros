@@ -22,7 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileCopyEvent;
+import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileListener;
+import com.intellij.openapi.vfs.VirtualFileMoveEvent;
+import com.intellij.openapi.vfs.VirtualFilePropertyEvent;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
@@ -30,7 +35,12 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.editor.events.AbstractStoppableListener;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
@@ -56,9 +66,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     private Workspace workspace;
     private List<File> incomingList = new ArrayList<File>();
 
-    private EditorManager editorManager;
+    private EditorManipulator editorManipulator;
 
-    public FileSystemChangeListener(SharedResourcesManager resourceManager) {
+    public FileSystemChangeListener(SharedResourcesManager resourceManager, EditorManager editorManager) {
+        super(editorManager);
+        this.editorManipulator = editorManager.getEditorManipulator();
         this.resourceManager = resourceManager;
     }
 
@@ -105,11 +117,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         if (before) {
 
             file = project.getFile(oldSPath.getFullPath());
-            editorManager.getActionManager().saveEditor(oldSPath);
+            editorManipulator.saveFile(oldSPath);
         } else {
 
             file = project.getFile(newSPath.getFullPath());
-            editorManager.getActionManager().saveEditor(newSPath);
+            editorManipulator.saveFile(newSPath);
         }
 
         if (file == null) {
@@ -128,7 +140,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
-        editorManager.getActionManager().getEditorPool().replaceAll(oldSPath, newSPath);
+        editorManager.getEditorPool().replaceAll(oldSPath, newSPath);
         project.addFile(newSPath.getFile().getLocation().toFile());
         project.removeFile(oldSPath.getFile().getLocation().toFile());
         resourceManager.internalFireActivity(activity);
@@ -189,7 +201,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
 
             activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
-            editorManager.getActionManager().registerNewFile(virtualFileEvent.getFile(), bytes);
+            editorManipulator.registerNewFile(virtualFileEvent.getFile(), bytes);
 
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
@@ -240,7 +252,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         ((ProjectImp) project).removeFile(file);
-        editorManager.getActionManager().getEditorPool().removeAll(spath);
+        editorManager.getEditorPool().removeAll(spath);
 
         resourceManager.internalFireActivity(activity);
     }
@@ -290,7 +302,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             }
 
             IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, FileActivity.Purpose.ACTIVITY);
-            editorManager.getActionManager().getEditorPool().removeAll(oldSPath);
+            editorManager.getEditorManipulator().getEditorPool().removeAll(oldSPath);
             resourceManager.fireActivity(activity);*/
             generateFileMove(oldSPath, newSPath, false);
 
@@ -300,7 +312,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
 //        ((ProjectImp) project).removeFile(oldPath.toFile());
 //        ((ProjectImp) project).addFile(newFile);
-//        editorManager.getActionManager().getEditorPool().removeAll(newSPath);
+//        editorManager.getEditorManipulator().getEditorPool().removeAll(newSPath);
 
     }
 
@@ -415,9 +427,5 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     public void addIncoming(File file) {
         incomingList.add(file);
-    }
-
-    public void setEditorManager(EditorManager editorManager) {
-        this.editorManager = editorManager;
     }
 }

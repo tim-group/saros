@@ -25,18 +25,29 @@ package de.fu_berlin.inf.dpp.core.editor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
+import de.fu_berlin.inf.dpp.activities.EditorActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.TextEditActivity;
+import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
+import de.fu_berlin.inf.dpp.activities.ViewportActivity;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorActionManager;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorPool;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
-import de.fu_berlin.inf.dpp.session.*;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
+import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
@@ -51,25 +62,25 @@ import java.util.Set;
  * This includes the functionality of listening for user inputs in an editor, listening for
  * remote inputs and locking the editors of the users with {@link Permission#READONLY_ACCESS}.
  *
- * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.EditorActionManagerctionManager}
- * for actually accessing the editors. It translates the Activities for the EditorActionManager.
+ * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator}
+ * for actually accessing the editors. It translates the Activities for the EditorManager.
  */
 public class EditorManager
         extends AbstractActivityProducer {
 
-    protected static final Logger LOG = Logger.getLogger(EditorManager.class);
+    private static final Logger LOG = Logger.getLogger(EditorManager.class);
 
-    protected SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
+    private SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
 
-    protected final EditorActionManager actionManager = new EditorActionManager(this);
+    private final EditorManipulator editorManipulator;
 
-    protected final IPreferenceStore preferenceStore;
+    private final EditorPool editorPool = new EditorPool();
 
-    protected RemoteEditorManager remoteEditorManager;
+    private RemoteEditorManager remoteEditorManager;
 
-    protected RemoteWriteAccessManager remoteWriteAccessManager;
+    private RemoteWriteAccessManager remoteWriteAccessManager;
 
-    protected ISarosSession session;
+    private ISarosSession session;
 
     /**
      * The user that is followed or <code>null</code> if no user is followed.
@@ -87,32 +98,6 @@ public class EditorManager
     protected LineRange localViewport;
 
     protected SPath activeEditor;
-
-    private IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
-
-        @Override
-        public void receive(EditorActivity editorActivity) {
-            execEditorActivity(editorActivity);
-        }
-
-
-        @Override
-        public void receive(TextEditActivity textEditActivity) {
-            execTextEdit(textEditActivity);
-        }
-
-
-        @Override
-        public void receive(TextSelectionActivity textSelectionActivity) {
-            execTextSelection(textSelectionActivity);
-        }
-
-
-        @Override
-        public void receive(ViewportActivity viewportActivity) {
-            execViewport(viewportActivity);
-        }
-    };
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
 
@@ -163,7 +148,7 @@ public class EditorManager
         public void sessionStarted(ISarosSession newSarosSession) {
             LOG.info("Session started");
 
-            assert actionManager.getEditorPool().getEditors().size() == 0 : "EditorPool was not correctly reset!";
+            assert editorPool.getEditors().size() == 0 : "EditorPool was not correctly reset!";
 
             session = newSarosSession;
             session.getStopManager().addBlockable(stopManagerListener);
@@ -195,7 +180,7 @@ public class EditorManager
 
                     setFollowing(null);
 
-                    actionManager.getEditorPool().clear();
+                    editorPool.clear();
 
                     session.removeListener(sharedProjectListener);
                     session.removeActivityProducer(EditorManager.this);
@@ -241,7 +226,7 @@ public class EditorManager
                         // (print a warning)
                         LOG.debug("Remote editor open " + remoteEditorPath);
                         if (!localOpenEditors.contains(remoteEditorPath)) {
-                            actionManager.openEditor(remoteEditorPath);
+                            editorManipulator.openEditorFromRemote(remoteEditorPath);
                         }
                     }
 
@@ -253,13 +238,13 @@ public class EditorManager
                             int position = remoteSelectedEditor.getSelection().getOffset();
                             int length = remoteSelectedEditor.getSelection().getLength();
                             ColorModel colorModel = ColorManager.getColorModel(getFollowedUser().getColorID());
-                            actionManager.selectText(remotePath, position, length, colorModel);
+                            editorManipulator.selectTextFromRemote(remotePath, position, length, colorModel);
                         }
 
                         if (remoteSelectedEditor.getViewport() != null) {
                             int startLine = remoteSelectedEditor.getViewport().getStartLine();
                             int endLine = remoteSelectedEditor.getViewport().getStartLine() + remoteSelectedEditor.getViewport().getNumberOfLines();
-                            actionManager.setViewPort(remotePath, startLine, endLine);
+                            editorManipulator.setViewPortFromRemote(remotePath, startLine, endLine);
                         }
 
                     }
@@ -281,7 +266,7 @@ public class EditorManager
 
             // Clear all viewport annotations of this user.
             for (SPath editorPath : getLocallyOpenEditors()) {
-                actionManager.clearSelection(editorPath);
+                editorManipulator.clearSelectionFromRemote(editorPath);
             }
         }
     };
@@ -291,10 +276,8 @@ public class EditorManager
         @Override
         public void unblock() {
             ThreadUtils.runSafeSync(LOG, new Runnable() {
-
-
                 public void run() {
-                    actionManager.lockAllEditors(false);
+                    editorManipulator.unlockAllEditors();
                 }
             });
         }
@@ -306,7 +289,7 @@ public class EditorManager
 
 
                 public void run() {
-                    actionManager.lockAllEditors(true);
+                    editorManipulator.lockAllEditors();
                 }
             });
         }
@@ -322,7 +305,11 @@ public class EditorManager
 
             // Lock / unlock editors
             if (user.isLocal()) {
-                actionManager.lockAllEditors(hasWriteAccess);
+                if (hasWriteAccess) {
+                    editorManipulator.lockAllEditors();
+                } else {
+                    editorManipulator.unlockAllEditors();
+                }
             }
 
             refreshAnnotations();
@@ -332,7 +319,7 @@ public class EditorManager
         @Override
         public void userFinishedProjectNegotiation(User user) {
 
-            // Send awareness-informations
+            // Send awareness-information
             User localUser = session.getLocalUser();
             for (SPath path : getLocallyOpenEditors()) {
                 fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
@@ -365,7 +352,6 @@ public class EditorManager
             }
         }
 
-
         @Override
         public void userLeft(final User user) {
 
@@ -374,23 +360,21 @@ public class EditorManager
                 setFollowing(null);
             }
 
-
             remoteEditorManager.removeUser(user);
         }
     };
 
-    public EditorManager(ISarosSessionManager sessionManager, IPreferenceStore preferenceStore) {
+    public EditorManager(ISarosSessionManager sessionManager, EditorManipulator editorManipulator) {
 
         remoteEditorManager = new RemoteEditorManager(session);
         sessionManager.addSarosSessionListener(this.sessionListener);
-        this.preferenceStore = preferenceStore;
-
         addSharedEditorListener(sharedEditorListener);
-
+        this.editorManipulator = editorManipulator;
+        editorManipulator.setEditorManager(this);
 
     }
 
-    protected void execEditorActivity(EditorActivity editorActivity) {
+    private void execEditorActivity(EditorActivity editorActivity) {
 
         SPath path = editorActivity.getPath();
         if (path == null) {
@@ -404,29 +388,27 @@ public class EditorManager
         switch (editorActivity.getType()) {
             case ACTIVATED:
                 if (isFollowing(user)) {
-                    actionManager.openEditor(path);
+                    editorManipulator.openEditorFromRemote(path);
                 }
                 editorListenerDispatch.activeEditorChanged(user, path);
                 break;
 
             case CLOSED:
                 if (isFollowing(user)) {
-                    actionManager.closeEditor(path);
+                    editorManipulator.closeEditorFromRemote(path);
                 }
                 editorListenerDispatch.editorRemoved(user, path);
                 break;
             case SAVED:
-                actionManager.saveEditor(path);
+                editorManipulator.saveFile(path);
                 editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
                 break;
             default:
                 LOG.warn("Unexpected type: " + editorActivity.getType());
         }
-
-
     }
 
-    protected void execTextEdit(TextEditActivity editorActivity) {
+    private void execTextEdit(TextEditActivity editorActivity) {
 
         SPath path = editorActivity.getPath();
 
@@ -435,15 +417,13 @@ public class EditorManager
         User user = editorActivity.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        actionManager.editText(path, editorActivity.toOperation(), colorModel.getEditColor());
+        editorManipulator.editTextFromRemote(path, editorActivity.toOperation(), colorModel.getEditColor());
 
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
                 editorActivity.getReplacedText(), editorActivity.getOffset());
-
-
     }
 
-    protected void execTextSelection(TextSelectionActivity selection) {
+    private void execTextSelection(TextSelectionActivity selection) {
 
         SPath path = selection.getPath();
 
@@ -456,14 +436,12 @@ public class EditorManager
         User user = selection.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        if (isFollowing(user)) {
-            actionManager.selectText(path, selection.getOffset(), selection.getLength(), colorModel);
-        }
+        editorManipulator.selectTextFromRemote(path, selection.getOffset(), selection.getLength(), colorModel);
 
         editorListenerDispatch.textSelectionMade(selection);
     }
 
-    protected void execViewport(ViewportActivity viewport) {
+    private void execViewport(ViewportActivity viewport) {
 
         SPath path = viewport.getPath();
         LOG.debug(path + " viewport activity received " + viewport);
@@ -473,28 +451,10 @@ public class EditorManager
 
         User user = viewport.getSource();
         if (isFollowing(user)) {
-            actionManager.setViewPort(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
+            editorManipulator.setViewPortFromRemote(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
         }
 
         editorListenerDispatch.viewportChanged(viewport);
-    }
-
-
-    public void exec(IActivity activity) {
-
-        User sender = activity.getSource();
-        if (!sender.isInSession()) {
-            LOG.warn("skipping execution of activity " + activity
-                    + " for user " + sender + " who is not in the current session");
-            return;
-        }
-
-        // First let the remote managers update itself based on the
-        // Activity
-        remoteEditorManager.exec(activity);
-        // remoteWriteAccessManager.exec(activity); //todo: add write protection
-
-        activity.dispatch(activityReceiver);
     }
 
     /**
@@ -522,6 +482,11 @@ public class EditorManager
 
     }
 
+    /**
+     * Fires an EditorActivity.Type.CLOSED event for the given path and leaves following, if closing the followed editor.
+     *
+     * @param path
+     */
     public void generateEditorClosed(@Nullable SPath path) {
         // if closing the followed editor, leave follow mode
         if (getFollowedUser() != null) {
@@ -532,7 +497,7 @@ public class EditorManager
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
-                NotificationHandler.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+                NotificationPanel.showNotification("Follow Mode stopped!", "You closed the followed editor.");
             }
         }
 
@@ -585,14 +550,14 @@ public class EditorManager
      * otherwise <code>false</code>.
      */
     public boolean isFollowing() {
-        return getFollowedUser() != null;
+        return followedUser != null;
     }
 
     /**
      * Returns <code>true</code> if it is currently following user, otherwise <code>false</code>.
      */
     public boolean isFollowing(User user) {
-        return getFollowedUser() != null && getFollowedUser().equals(user);
+        return followedUser != null && getFollowedUser().equals(user);
     }
 
     /**
@@ -624,9 +589,14 @@ public class EditorManager
         }
     }
 
+    /**
+     * Locally opens the editor that the User jumpTo has currently open.
+     *
+     * @param jumpTo
+     */
     public void jumpToUser(User jumpTo) {
 
-        RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(jumpTo)
+        RemoteEditorManager.RemoteEditor remoteActiveEditor = remoteEditorManager.getEditorState(jumpTo)
                 .getActiveEditor();
 
         // you can't follow yourself
@@ -634,47 +604,36 @@ public class EditorManager
             return;
         }
 
-        if (activeEditor == null) {
+        if (remoteActiveEditor == null) {
             LOG.info(jumpTo.getJID() + " has no editor open");
 
             return;
         }
 
-        Editor newEditor = actionManager.openEditor(activeEditor.getPath());
+        Editor newEditor = editorManipulator.openEditorFromRemote(remoteActiveEditor.getPath());
 
         if (newEditor == null) {
             return;
         }
 
-        LineRange viewport = activeEditor.getViewport();
+        LineRange viewport = remoteActiveEditor.getViewport();
 
         if (viewport == null) {
             LOG.warn(jumpTo.getJID() + " has no viewport in editor: "
-                    + activeEditor.getPath());
+                    + remoteActiveEditor.getPath());
             return;
         }
 
         // selection can be null
         TextSelection selection = remoteEditorManager.getSelection(followedUser);
         if (selection != null) {
-            actionManager.adjustViewport(newEditor, viewport, selection);
+            editorManipulator.adjustViewport(newEditor, viewport, selection);
         }
 
         editorListenerDispatch.jumpedToUser(jumpTo);
     }
 
-
-    public void setAllLocalOpenedEditorsLocked(boolean locked) {
-        for (Editor editor : actionManager.getEditorPool().getEditors()) {
-            if (locked) {
-                actionManager.stopEditor(editor);
-            } else {
-                actionManager.startEditor(editor);
-            }
-        }
-    }
-
-    //todo: needs implementation
+    //FIXME: needs implementation
     public void refreshAnnotations() {
 
     }
@@ -683,7 +642,6 @@ public class EditorManager
     public RemoteEditorManager getRemoteEditorManager() {
         return remoteEditorManager;
     }
-
 
     public boolean isActiveEditorShared() {
         if (activeEditor == null) {
@@ -699,7 +657,7 @@ public class EditorManager
             return false;
         }
 
-        if (!actionManager.isOpenEditor(editorFilePath)) {
+        if (!editorManipulator.isOpenEditor(editorFilePath)) {
             return false;
         }
 
@@ -716,19 +674,18 @@ public class EditorManager
 
 
     public Set<SPath> getLocallyOpenEditors() {
-        return actionManager.getEditorPool().getFiles();
+        return editorPool.getFiles();
     }
-
 
     public Set<SPath> getRemoteOpenEditors() {
         return remoteEditorManager.getRemoteOpenEditors();
     }
 
+
     //FIXME: not sure how to do it intelliJ
     public void sendEditorActivitySaved(SPath path) {
 
     }
-
 
     /**
      * Generates a TextEditActivity and fires it.
@@ -768,8 +725,12 @@ public class EditorManager
                 textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
     }
 
-    public EditorActionManager getActionManager() {
-        return actionManager;
+    public EditorManipulator getEditorManipulator() {
+        return editorManipulator;
+    }
+
+    public EditorPool getEditorPool() {
+        return editorPool;
     }
 
     public ISarosSession getSession() {

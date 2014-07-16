@@ -34,10 +34,9 @@ import java.awt.*;
  * Intellij editor ViewPort listener
  */
 public class StoppableViewPortListener extends AbstractStoppableListener implements VisibleAreaListener {
-    private EditorManager manager;
 
     public StoppableViewPortListener(EditorManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     @Override
@@ -46,15 +45,15 @@ public class StoppableViewPortListener extends AbstractStoppableListener impleme
             return;
 
         }
-        SPath path = manager.getActionManager().getEditorPool().getFile(event.getEditor().getDocument());
+        SPath path = editorManager.getEditorPool().getFile(event.getEditor().getDocument());
 
         if (path != null) {
-            manager.generateViewport(path, getLineRange(event));
+            editorManager.generateViewport(path, getLineRange(event));
         }
 
     }
 
-    protected LineRange getLineRange(VisibleAreaEvent event) {
+    private LineRange getLineRange(VisibleAreaEvent event) {
         Rectangle rec = event.getEditor().getScrollingModel().getVisibleAreaOnScrollingFinished();
         int lineHeight = event.getEditor().getLineHeight();
 

@@ -2,7 +2,7 @@ package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -146,7 +146,7 @@ public class LeaveAndKickHandler {
             @Override
             public void run() {
                 sessionManager.stopSarosSession();
-                NotificationHandler.showNotification(topic, reason);
+                NotificationPanel.showNotification(topic, reason);
             }
         });
     }

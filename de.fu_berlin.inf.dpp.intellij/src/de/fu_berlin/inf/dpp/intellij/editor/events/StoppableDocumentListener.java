@@ -32,20 +32,19 @@ import org.apache.log4j.Logger;
 
 
 /**
- * A document listener which informs the given EditorManagerEcl of changes before
+ * A document listener which informs the given EditorManager of changes before
  * they occur in a document (using documentAboutToBeChanged). </p> This listener
  * can be temporarily disabled which prevents the notification of text change
  * events.
  */
 public class StoppableDocumentListener extends AbstractStoppableListener implements DocumentListener {
 
-    private final EditorManager editorManager;
     private Document document;
 
     private Logger LOG = Logger.getLogger(StoppableDocumentListener.class);
 
     public StoppableDocumentListener(EditorManager editorManager) {
-        this.editorManager = editorManager;
+        super(editorManager);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
             return;
         }
 
-        SPath path = editorManager.getActionManager().getEditorPool().getFile(event.getDocument());
+        SPath path = editorManager.getEditorPool().getFile(event.getDocument());
         if (path == null) {
             LOG.warn("Could not find path for editor " + event.getDocument());
             return;
@@ -71,33 +70,32 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         // do nothing. We handled everything in documentAboutToBeChanged
     }
 
-    public EditorManager getEditorManager() {
-        return editorManager;
-    }
-
     public Document getDocument() {
         return document;
     }
 
     public void setDocument(Document document) {
-        if (document != null) {
-            if (this.document == null) {
-                this.document = document;
-                this.document.addDocumentListener(this);
-            } else if (this.document != document) {
-                this.document.removeDocumentListener(this);
-                this.document = document;
 
-                this.document.addDocumentListener(this);
-            } else {
-                //do nothing, as we listen that document
-            }
-        } else {
+        if (document == null) {
             if (this.document != null) {
                 this.document.removeDocumentListener(this);
                 this.document = null;
             }
+        }
 
+        if (document != null) {
+
+            if (this.document == null) {
+                this.document = document;
+                this.document.addDocumentListener(this);
+                //TODO: replace by equals?
+            } else if (this.document != document) {
+                this.document.removeDocumentListener(this);
+                this.document = document;
+                this.document.addDocumentListener(this);
+            } else {
+                //do nothing, as we listen that document
+            }
         }
     }
 }

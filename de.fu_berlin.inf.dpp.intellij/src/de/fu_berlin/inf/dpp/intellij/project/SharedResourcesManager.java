@@ -23,14 +23,23 @@
 package de.fu_berlin.inf.dpp.intellij.project;
 
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
-import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.FolderActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
@@ -93,13 +102,13 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
      * If the StopManager has paused the project, the SharedResourcesManager
      * doesn't react to resource changes.
      */
-    protected boolean pause = false;
+    private boolean pause = false;
 
-    protected final ISarosSession sarosSession;
+    private final ISarosSession sarosSession;
 
-    protected final StopManager stopManager;
+    private final StopManager stopManager;
 
-    protected FileSystemChangeListener fileSystemListener;
+    private FileSystemChangeListener fileSystemListener;
 
     private final Map<IProject, SharedProject> sharedProjects = Collections.synchronizedMap(new HashMap<IProject, SharedProject>());
     /**
@@ -107,18 +116,17 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
      * an infinite resource event loop.
      */
     @Inject
-    protected FileReplacementInProgressObservable fileReplacementInProgressObservable;
+    private FileReplacementInProgressObservable fileReplacementInProgressObservable;
+
+    private EditorManipulator editorManipulator;
 
     @Inject
-    protected EditorManager editorManager;
+    private Workspace workspace;
 
     @Inject
-    protected Workspace workspace;
+    private ConsistencyWatchdogClient consistencyWatchdogClient;
 
-    @Inject
-    protected ConsistencyWatchdogClient consistencyWatchdogClient;
-
-    protected Blockable stopManagerListener = new Blockable() {
+    private Blockable stopManagerListener = new Blockable() {
         @Override
         public void unblock() {
             SharedResourcesManager.this.pause = false;
@@ -148,11 +156,11 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
     }
 
     public SharedResourcesManager(ISarosSession sarosSession,
-                                  StopManager stopManager, EditorManager editorManager) {
+                                  StopManager stopManager, EditorManager editorManager, EditorManipulator editorManipulator) {
         this.sarosSession = sarosSession;
         this.stopManager = stopManager;
-        this.fileSystemListener = new FileSystemChangeListener(this);
-        this.fileSystemListener.setEditorManager(editorManager);
+        this.editorManipulator = editorManipulator;
+        this.fileSystemListener = new FileSystemChangeListener(this, editorManager);
     }
 
 
@@ -228,7 +236,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
             if (type == FileActivity.Type.CREATED) {
                 handleFileCreation(activity);
             } else if (type == FileActivity.Type.REMOVED) {
-                editorManager.getActionManager().closeEditor(path);
+                editorManipulator.closeEditorFromRemote(path);
                 handleFileDeletion(activity);
             } else {
                 LOG.warn("performing recovery for type " + type
@@ -280,10 +288,10 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         boolean replaced = false;
 
         String newText = new String(activity.getContent(), EncodingProjectManager.getInstance().getDefaultCharset());
-        replaced = editorManager.getActionManager().replaceText(activity.getPath(), newText);
+        replaced = editorManipulator.replaceText(activity.getPath(), newText);
 
         if (replaced) {
-            editorManager.getActionManager().saveEditor(activity.getPath());
+            editorManipulator.saveFile(activity.getPath());
 
         } else {
             IFile file = activity.getPath().getFile();

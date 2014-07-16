@@ -22,8 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.concurrent;
 
-import de.fu_berlin.inf.dpp.activities.*;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -31,14 +36,27 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.adapter.DocumentProvider;
 import de.fu_berlin.inf.dpp.intellij.editor.adapter.IDocument;
-import de.fu_berlin.inf.dpp.session.*;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
+import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -67,7 +85,7 @@ public class ConsistencyWatchdogClient extends
     protected IsInconsistentObservable inconsistencyToResolve;
 
     @Inject
-    protected EditorManager editorManager;
+    protected EditorManipulator editorManipulator;
 
     /**
      * @Inject Injected via Constructor Injection
@@ -339,7 +357,7 @@ public class ConsistencyWatchdogClient extends
                     return;
                 }
 
-                editorManager.getActionManager().saveEditor(path);
+                editorManipulator.saveFile(path);
 
             }
 
@@ -429,7 +447,7 @@ public class ConsistencyWatchdogClient extends
             return true;
         }
 
-        IDocument doc = editorManager.getActionManager().getAdapter().getDocument(file);
+        IDocument doc = DocumentProvider.getDocument(file);
 
         // if doc is still null give up
         if (doc == null) {

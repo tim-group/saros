@@ -31,7 +31,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationHandler;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.JoinSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.FileList;
@@ -97,7 +97,7 @@ public class NegotiationHandler implements INegotiationHandler {
                     case OK:
                         break;
                     case REMOTE_CANCEL:
-                        NotificationHandler
+                        NotificationPanel
                                 .showNotification(
                                         Messages.NegotiationHandler_canceled_invitation,
                                         MessageFormat
@@ -116,7 +116,7 @@ public class NegotiationHandler implements INegotiationHandler {
                         );
 
                     case REMOTE_ERROR:
-                        NotificationHandler
+                        NotificationPanel
                                 .showNotification(
                                         Messages.NegotiationHandler_error_during_invitation,
                                         MessageFormat
@@ -195,7 +195,7 @@ public class NegotiationHandler implements INegotiationHandler {
                                 .format(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely,
                                         peerName, process.getErrorMessage());
-                        NotificationHandler
+                        NotificationPanel
                                 .showNotification(
                                         Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
                                         message);
