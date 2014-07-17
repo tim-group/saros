@@ -40,7 +40,7 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.editor.events.AbstractStoppableListener;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
@@ -66,11 +66,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     private Workspace workspace;
     private List<File> incomingList = new ArrayList<File>();
 
-    private EditorManipulator editorManipulator;
+    private LocalEditorHandler localEditorHandler;
 
     public FileSystemChangeListener(SharedResourcesManager resourceManager, EditorManager editorManager) {
         super(editorManager);
-        this.editorManipulator = editorManager.getEditorManipulator();
+        this.localEditorHandler = editorManager.getLocalEditorHandler();
         this.resourceManager = resourceManager;
     }
 
@@ -117,11 +117,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         if (before) {
 
             file = project.getFile(oldSPath.getFullPath());
-            editorManipulator.saveFile(oldSPath);
+            localEditorHandler.saveFile(oldSPath);
         } else {
 
             file = project.getFile(newSPath.getFullPath());
-            editorManipulator.saveFile(newSPath);
+            localEditorHandler.saveFile(newSPath);
         }
 
         if (file == null) {
@@ -201,7 +201,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
 
             activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
-            editorManipulator.registerNewFile(virtualFileEvent.getFile(), bytes);
+            localEditorHandler.registerNewFile(virtualFileEvent.getFile(), bytes);
 
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);

@@ -28,7 +28,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
  * Intellij editor ViewPort listener
@@ -39,6 +39,11 @@ public class StoppableViewPortListener extends AbstractStoppableListener impleme
         super(manager);
     }
 
+    /**
+     * Calls {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#generateViewport(de.fu_berlin.inf.dpp.activities.SPath, de.fu_berlin.inf.dpp.intellij.editor.text.LineRange)}.
+     *
+     * @param event
+     */
     @Override
     public void visibleAreaChanged(VisibleAreaEvent event) {
         if (!enabled) {

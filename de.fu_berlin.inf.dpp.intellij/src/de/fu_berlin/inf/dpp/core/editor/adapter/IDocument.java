@@ -20,23 +20,22 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
-
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+package de.fu_berlin.inf.dpp.core.editor.adapter;
 
 /**
- * Saros Intellij caret listener.
+ * Copy of the org.eclipse.jface.textIDocument interface with relevant methods.
+ * If not specified otherwise, the methods behave like their Eclipse counterparts.
  */
-public class StoppableCaretListener implements CaretListener
-{
+public interface IDocument {
+
     /**
-     * Does nothing.
+     * Returns this document's complete text.
      *
-     * @param e
+     * @return the document's complete text
      */
-    @Override
-    public void caretUpdate(CaretEvent e) {
-        //TODO: implement this.
-    }
+    String get();
+
+    int getLength();
+
+    int getNumberOfLines();
 }

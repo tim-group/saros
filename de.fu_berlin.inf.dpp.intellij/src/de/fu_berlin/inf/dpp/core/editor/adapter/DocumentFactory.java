@@ -20,23 +20,24 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
+package de.fu_berlin.inf.dpp.core.editor.adapter;
 
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+
+import com.intellij.openapi.editor.Document;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
 
 /**
- * Saros Intellij caret listener.
+ * Class for creating IDocuments from IFiles using IntelliJ Document implementation.
  */
-public class StoppableCaretListener implements CaretListener
-{
+public class DocumentFactory {
+
     /**
-     * Does nothing.
-     *
-     * @param e
+     * @param file
+     * @return an IDocument created from the file.
      */
-    @Override
-    public void caretUpdate(CaretEvent e) {
-        //TODO: implement this.
+    public static IDocument getDocument(IFile file) {
+        Document nativeDocument = ResourceConverter.getDocument(file.getLocation().toFile());
+        return nativeDocument == null ? null : new DocumentAdapter(nativeDocument);
     }
 }

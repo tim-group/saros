@@ -38,6 +38,11 @@ public class StoppableSelectionListener extends AbstractStoppableListener implem
         super(manager);
     }
 
+    /**
+     * Calls {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#generateSelection(de.fu_berlin.inf.dpp.activities.SPath, com.intellij.openapi.editor.event.SelectionEvent)}.
+     *
+     * @param event
+     */
     @Override
     public void selectionChanged(SelectionEvent event) {
         if (!enabled) {

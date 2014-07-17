@@ -46,7 +46,8 @@ import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.editor.ProjectAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
@@ -65,7 +66,6 @@ import java.util.Arrays;
 //todo: adopted from eclipse
 public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
-
     private final ISarosContextFactory additionalContext;
 
     private final Saros saros;
@@ -79,7 +79,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
             Component.create(ProjectAPI.class),
 
             Component.create(EditorManager.class),
-            Component.create(EditorManipulator.class),
+            Component.create(LocalEditorHandler.class),
+            Component.create(LocalEditorManipulator.class),
 
             // Core Managers
             Component.create(ConsistencyWatchdogClient.class),

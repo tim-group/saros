@@ -26,13 +26,13 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
 import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 
-public class DummyVCSProviderFactoryImpl implements VCSProviderFactory {
+public class VCSProviderFactoryImpl implements VCSProviderFactory {
 
     /**
-     * Returns null.
+     * Returns <code>null</code>.
      *
      * @param project
-     * @return
+     * @return <code>null</code>
      */
     @Override
     public VCSProvider getProvider(IProject project) {

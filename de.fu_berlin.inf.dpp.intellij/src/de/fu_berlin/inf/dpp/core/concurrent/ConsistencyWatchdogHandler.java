@@ -33,7 +33,7 @@ import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -56,7 +56,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
 
-    private final EditorManipulator editorManipulator;
+    private final LocalEditorHandler localEditorHandler;
 
     private final ConsistencyWatchdogClient watchdogClient;
 
@@ -80,9 +80,9 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-                                      EditorManipulator editorManipulator, ConsistencyWatchdogClient watchdogClient) {
+                                      LocalEditorHandler localEditorHandler, ConsistencyWatchdogClient watchdogClient) {
         this.session = sarosSession;
-        this.editorManipulator = editorManipulator;
+        this.localEditorHandler = localEditorHandler;
         this.watchdogClient = watchdogClient;
     }
 
@@ -198,7 +198,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
         // Save document before sending to client
         if (file.exists()) {
-            editorManipulator.saveFile(path);
+            localEditorHandler.saveFile(path);
         }
         progress.worked(1);
 

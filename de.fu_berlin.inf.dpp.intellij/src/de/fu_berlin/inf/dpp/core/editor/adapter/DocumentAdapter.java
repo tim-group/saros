@@ -20,12 +20,11 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.adapter;
-
-import com.intellij.openapi.util.TextRange;
+package de.fu_berlin.inf.dpp.core.editor.adapter;
 
 /**
- * Wrapper class for IntelliJ native document
+ * Adapts the {@link com.intellij.openapi.editor.Document} to
+ * {@link de.fu_berlin.inf.dpp.core.editor.adapter.IDocument}.
  */
 public class DocumentAdapter implements IDocument
 {
@@ -36,24 +35,10 @@ public class DocumentAdapter implements IDocument
         this.doc = doc;
     }
 
-
-
-    @Override
-    public String get(int offset, int length)
-    {
-        return doc.getText(new TextRange(offset,offset+length));
-    }
-
     @Override
     public String get()
     {
        return doc.getText();
-    }
-
-    @Override
-    public void replace(int offset, int length, String text)
-    {
-        doc.replaceString(offset,offset+length,text);
     }
 
     @Override

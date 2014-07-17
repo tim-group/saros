@@ -38,31 +38,48 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
         super(manager);
     }
 
+    /**
+     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#openEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     *
+     * @param fileEditorManager
+     * @param virtualFile
+     */
     @Override
     public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
 
-        editorManager.getEditorManipulator().openEditorFromLocal(virtualFile);
+        editorManager.getLocalEditorHandler().openEditor(virtualFile);
     }
 
 
+    /**
+     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#closeEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     *
+     * @param fileEditorManager
+     * @param virtualFile
+     */
     @Override
     public void fileClosed(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
 
-        editorManager.getEditorManipulator().closeEditorFromLocal(virtualFile);
+        editorManager.getLocalEditorHandler().closeEditor(virtualFile);
     }
 
+    /**
+     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#activateEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     *
+     * @param event
+     */
     @Override
     public void selectionChanged(@NotNull FileEditorManagerEvent event) {
         if (!enabled) {
             return;
         }
 
-        editorManager.getEditorManipulator().activateEditorFromLocal(event.getNewFile());
+        editorManager.getLocalEditorHandler().activateEditor(event.getNewFile());
     }
 }

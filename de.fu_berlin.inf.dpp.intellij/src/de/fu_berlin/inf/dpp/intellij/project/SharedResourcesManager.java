@@ -39,7 +39,8 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
@@ -118,7 +119,9 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
     @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
 
-    private EditorManipulator editorManipulator;
+    private LocalEditorHandler localEditorHandler;
+
+    private LocalEditorManipulator localEditorManipulator;
 
     @Inject
     private Workspace workspace;
@@ -156,10 +159,13 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
     }
 
     public SharedResourcesManager(ISarosSession sarosSession,
-                                  StopManager stopManager, EditorManager editorManager, EditorManipulator editorManipulator) {
+                                  StopManager stopManager, EditorManager editorManager,
+                                  LocalEditorHandler localEditorHandler,
+                                  LocalEditorManipulator localEditorManipulator) {
         this.sarosSession = sarosSession;
         this.stopManager = stopManager;
-        this.editorManipulator = editorManipulator;
+        this.localEditorHandler = localEditorHandler;
+        this.localEditorManipulator = localEditorManipulator;
         this.fileSystemListener = new FileSystemChangeListener(this, editorManager);
     }
 
@@ -236,7 +242,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
             if (type == FileActivity.Type.CREATED) {
                 handleFileCreation(activity);
             } else if (type == FileActivity.Type.REMOVED) {
-                editorManipulator.closeEditorFromRemote(path);
+                localEditorManipulator.closeEditor(path);
                 handleFileDeletion(activity);
             } else {
                 LOG.warn("performing recovery for type " + type
@@ -288,10 +294,10 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         boolean replaced = false;
 
         String newText = new String(activity.getContent(), EncodingProjectManager.getInstance().getDefaultCharset());
-        replaced = editorManipulator.replaceText(activity.getPath(), newText);
+        replaced = localEditorManipulator.replaceText(activity.getPath(), newText);
 
         if (replaced) {
-            editorManipulator.saveFile(activity.getPath());
+            localEditorHandler.saveFile(activity.getPath());
 
         } else {
             IFile file = activity.getPath().getFile();

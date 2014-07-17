@@ -107,7 +107,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
              * FIXME why do we unlock the editors here when we are going to
              * block ourself in the next call ?!
              */
-            editorManager.getEditorManipulator().unlockAllLocalOpenedEditors();
+            editorManager.unlockAllLocalOpenedEditors();
 
             List<StartHandle> stoppedUsers = null;
             try {
@@ -352,7 +352,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         // FIXME this throws a NPE if the session has already been stopped
         for (SPath path : editorManager.getRemoteOpenEditors()) {
-            editorManager.getEditorManipulator().saveFile(path);
+            editorManager.getLocalEditorHandler().saveFile(path);
         }
 
         checkCancellation(CancelOption.NOTIFY_PEER);

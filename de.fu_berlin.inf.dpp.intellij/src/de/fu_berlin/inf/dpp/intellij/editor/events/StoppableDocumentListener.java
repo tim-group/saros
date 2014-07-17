@@ -47,6 +47,12 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         super(editorManager);
     }
 
+    /**
+     * Calls
+     * {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#generateTextEdit(int, String, String, de.fu_berlin.inf.dpp.activities.SPath)}
+     *
+     * @param event
+     */
     @Override
     public synchronized void beforeDocumentChange(DocumentEvent event) {
         if (!enabled) {
@@ -65,6 +71,11 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         editorManager.generateTextEdit(event.getOffset(), text, replacedText, path);
     }
 
+    /**
+     * Does nothing.
+     *
+     * @param event
+     */
     @Override
     public void documentChanged(DocumentEvent event) {
         // do nothing. We handled everything in documentAboutToBeChanged
@@ -74,28 +85,33 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         return document;
     }
 
-    public void setDocument(Document document) {
-
-        if (document == null) {
-            if (this.document != null) {
-                this.document.removeDocumentListener(this);
-                this.document = null;
-            }
-        }
-
-        if (document != null) {
-
-            if (this.document == null) {
-                this.document = document;
-                this.document.addDocumentListener(this);
-                //TODO: replace by equals?
-            } else if (this.document != document) {
-                this.document.removeDocumentListener(this);
-                this.document = document;
-                this.document.addDocumentListener(this);
-            } else {
-                //do nothing, as we listen that document
-            }
+    /**
+     * Removes this listener from the document.
+     */
+    public void stopListening() {
+        if (this.document != null) {
+            this.document.removeDocumentListener(this);
+            this.document = null;
         }
     }
+
+    /**
+     * Removes itself from previously listened documents and registers itself with the new document.
+     *
+     * @param document
+     */
+    public void startListening(Document document) {
+        if (this.document == null) {
+            this.document = document;
+            this.document.addDocumentListener(this);
+            //TODO: replace by equals?
+        } else if (this.document != document) {
+            this.document.removeDocumentListener(this);
+            this.document = document;
+            this.document.addDocumentListener(this);
+        } else {
+            //do nothing, as we already listen to that document
+        }
+    }
+
 }

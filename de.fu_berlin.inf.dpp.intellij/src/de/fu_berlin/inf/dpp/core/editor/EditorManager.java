@@ -34,10 +34,15 @@ import de.fu_berlin.inf.dpp.activities.ViewportActivity;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorPool;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
+import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableDocumentListener;
+import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
+import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableSelectionListener;
+import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableViewPortListener;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
 import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
@@ -62,7 +67,7 @@ import java.util.Set;
  * This includes the functionality of listening for user inputs in an editor, listening for
  * remote inputs and locking the editors of the users with {@link Permission#READONLY_ACCESS}.
  *
- * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator}
+ * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler}
  * for actually accessing the editors. It translates the Activities for the EditorManager.
  */
 public class EditorManager
@@ -72,7 +77,8 @@ public class EditorManager
 
     private SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
 
-    private final EditorManipulator editorManipulator;
+    private final LocalEditorHandler localEditorHandler;
+    private final LocalEditorManipulator localEditorManipulator;
 
     private final EditorPool editorPool = new EditorPool();
 
@@ -82,22 +88,27 @@ public class EditorManager
 
     private ISarosSession session;
 
+    private StoppableDocumentListener documentListener;
+    private StoppableEditorFileListener fileListener;
+    private StoppableSelectionListener selectionListener;
+    private StoppableViewPortListener viewportListener;
+
     /**
      * The user that is followed or <code>null</code> if no user is followed.
      */
-    protected User followedUser = null;
+    private User followedUser = null;
 
-    protected boolean hasWriteAccess;
+    private boolean hasWriteAccess;
 
-    protected boolean isLocked;
+    private boolean isLocked;
 
 
-    protected Set<SPath> locallyOpenEditors = new HashSet<SPath>();
+    private Set<SPath> locallyOpenEditors = new HashSet<SPath>();
 
-    protected SelectionEvent localSelection;
-    protected LineRange localViewport;
+    private SelectionEvent localSelection;
+    private LineRange localViewport;
 
-    protected SPath activeEditor;
+    private SPath activeEditor;
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
 
@@ -142,7 +153,6 @@ public class EditorManager
     };
 
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
-
 
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
@@ -226,7 +236,7 @@ public class EditorManager
                         // (print a warning)
                         LOG.debug("Remote editor open " + remoteEditorPath);
                         if (!localOpenEditors.contains(remoteEditorPath)) {
-                            editorManipulator.openEditorFromRemote(remoteEditorPath);
+                            localEditorManipulator.openEditor(remoteEditorPath);
                         }
                     }
 
@@ -238,13 +248,13 @@ public class EditorManager
                             int position = remoteSelectedEditor.getSelection().getOffset();
                             int length = remoteSelectedEditor.getSelection().getLength();
                             ColorModel colorModel = ColorManager.getColorModel(getFollowedUser().getColorID());
-                            editorManipulator.selectTextFromRemote(remotePath, position, length, colorModel);
+                            localEditorManipulator.selectText(remotePath, position, length, colorModel);
                         }
 
                         if (remoteSelectedEditor.getViewport() != null) {
                             int startLine = remoteSelectedEditor.getViewport().getStartLine();
                             int endLine = remoteSelectedEditor.getViewport().getStartLine() + remoteSelectedEditor.getViewport().getNumberOfLines();
-                            editorManipulator.setViewPortFromRemote(remotePath, startLine, endLine);
+                            localEditorManipulator.setViewPort(remotePath, startLine, endLine);
                         }
 
                     }
@@ -266,7 +276,7 @@ public class EditorManager
 
             // Clear all viewport annotations of this user.
             for (SPath editorPath : getLocallyOpenEditors()) {
-                editorManipulator.clearSelectionFromRemote(editorPath);
+                localEditorManipulator.clearSelection(editorPath);
             }
         }
     };
@@ -277,7 +287,7 @@ public class EditorManager
         public void unblock() {
             ThreadUtils.runSafeSync(LOG, new Runnable() {
                 public void run() {
-                    editorManipulator.unlockAllEditors();
+                    unlockAllEditors();
                 }
             });
         }
@@ -289,7 +299,7 @@ public class EditorManager
 
 
                 public void run() {
-                    editorManipulator.lockAllEditors();
+                    lockAllEditors();
                 }
             });
         }
@@ -306,9 +316,9 @@ public class EditorManager
             // Lock / unlock editors
             if (user.isLocal()) {
                 if (hasWriteAccess) {
-                    editorManipulator.lockAllEditors();
+                    lockAllEditors();
                 } else {
-                    editorManipulator.unlockAllEditors();
+                    unlockAllEditors();
                 }
             }
 
@@ -364,14 +374,54 @@ public class EditorManager
         }
     };
 
-    public EditorManager(ISarosSessionManager sessionManager, EditorManipulator editorManipulator) {
+    public EditorManager(ISarosSessionManager sessionManager, LocalEditorHandler localEditorHandler,
+                         LocalEditorManipulator localEditorManipulator) {
 
         remoteEditorManager = new RemoteEditorManager(session);
         sessionManager.addSarosSessionListener(this.sessionListener);
         addSharedEditorListener(sharedEditorListener);
-        this.editorManipulator = editorManipulator;
-        editorManipulator.setEditorManager(this);
+        this.localEditorHandler = localEditorHandler;
+        this.localEditorManipulator = localEditorManipulator;
 
+        this.documentListener = new StoppableDocumentListener(this);
+        this.fileListener = new StoppableEditorFileListener(this);
+        this.selectionListener = new StoppableSelectionListener(this);
+        this.viewportListener = new StoppableViewPortListener(this);
+
+        localEditorHandler.initialize(this);
+        localEditorManipulator.initialize(this);
+    }
+
+    public Set<SPath> getLocallyOpenEditors() {
+        return editorPool.getFiles();
+    }
+
+    public Set<SPath> getRemoteOpenEditors() {
+        return remoteEditorManager.getRemoteOpenEditors();
+    }
+
+    public LocalEditorHandler getLocalEditorHandler() {
+        return localEditorHandler;
+    }
+
+    public EditorPool getEditorPool() {
+        return editorPool;
+    }
+
+    public ISarosSession getSession() {
+        return session;
+    }
+
+    public boolean hasSession() {
+        return session != null;
+    }
+
+    public StoppableDocumentListener getDocumentListener() {
+        return documentListener;
+    }
+
+    public StoppableEditorFileListener getFileListener() {
+        return fileListener;
     }
 
     private void execEditorActivity(EditorActivity editorActivity) {
@@ -388,19 +438,19 @@ public class EditorManager
         switch (editorActivity.getType()) {
             case ACTIVATED:
                 if (isFollowing(user)) {
-                    editorManipulator.openEditorFromRemote(path);
+                    localEditorManipulator.openEditor(path);
                 }
                 editorListenerDispatch.activeEditorChanged(user, path);
                 break;
 
             case CLOSED:
                 if (isFollowing(user)) {
-                    editorManipulator.closeEditorFromRemote(path);
+                    localEditorManipulator.closeEditor(path);
                 }
                 editorListenerDispatch.editorRemoved(user, path);
                 break;
             case SAVED:
-                editorManipulator.saveFile(path);
+                localEditorHandler.saveFile(path);
                 editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
                 break;
             default:
@@ -417,7 +467,7 @@ public class EditorManager
         User user = editorActivity.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        editorManipulator.editTextFromRemote(path, editorActivity.toOperation(), colorModel.getEditColor());
+        localEditorManipulator.editText(path, editorActivity.toOperation(), colorModel.getEditColor());
 
         editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
                 editorActivity.getReplacedText(), editorActivity.getOffset());
@@ -436,7 +486,7 @@ public class EditorManager
         User user = selection.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        editorManipulator.selectTextFromRemote(path, selection.getOffset(), selection.getLength(), colorModel);
+        localEditorManipulator.selectText(path, selection.getOffset(), selection.getLength(), colorModel);
 
         editorListenerDispatch.textSelectionMade(selection);
     }
@@ -451,7 +501,7 @@ public class EditorManager
 
         User user = viewport.getSource();
         if (isFollowing(user)) {
-            editorManipulator.setViewPortFromRemote(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
+            localEditorManipulator.setViewPort(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
         }
 
         editorListenerDispatch.viewportChanged(viewport);
@@ -546,6 +596,44 @@ public class EditorManager
     }
 
     /**
+     * Generates a TextEditActivity and fires it.
+     *
+     * @param offset
+     * @param oldText
+     * @param newText
+     * @param path
+     */
+    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
+
+        if (session == null) {
+            return;
+        }
+
+        TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(), offset, oldText, newText, path);
+
+        if (!hasWriteAccess || isLocked) {
+           /*
+             * TODO If we don't have {@link User.Permission#WRITE_ACCESS}, then
+             * receiving this event might indicate that the user somehow
+             * achieved to change his document. We should run a consistency
+             * check.
+             *
+             * But watch out for changes because of a consistency check!
+             */
+
+            LOG.warn("local user caused text changes: " + textEdit
+                    + " | write access : " + hasWriteAccess + ", session locked : "
+                    + isLocked);
+            return;
+        }
+
+        fireActivity(textEdit);
+
+        editorListenerDispatch.textEditRecieved(session.getLocalUser(),
+                textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
+    }
+
+    /**
      * Returns <code>true</code> if there is currently a {@link User} followed,
      * otherwise <code>false</code>.
      */
@@ -610,7 +698,7 @@ public class EditorManager
             return;
         }
 
-        Editor newEditor = editorManipulator.openEditorFromRemote(remoteActiveEditor.getPath());
+        Editor newEditor = localEditorManipulator.openEditor(remoteActiveEditor.getPath());
 
         if (newEditor == null) {
             return;
@@ -627,7 +715,7 @@ public class EditorManager
         // selection can be null
         TextSelection selection = remoteEditorManager.getSelection(followedUser);
         if (selection != null) {
-            editorManipulator.adjustViewport(newEditor, viewport, selection);
+            localEditorManipulator.adjustViewport(newEditor, viewport, selection);
         }
 
         editorListenerDispatch.jumpedToUser(jumpTo);
@@ -657,7 +745,7 @@ public class EditorManager
             return false;
         }
 
-        if (!editorManipulator.isOpenEditor(editorFilePath)) {
+        if (!localEditorHandler.isOpenEditor(editorFilePath)) {
             return false;
         }
 
@@ -665,79 +753,92 @@ public class EditorManager
     }
 
     public void addSharedEditorListener(ISharedEditorListener listener) {
-        this.editorListenerDispatch.add(listener);
+        editorListenerDispatch.add(listener);
     }
 
     public void removeSharedEditorListener(ISharedEditorListener listener) {
-        this.editorListenerDispatch.remove(listener);
+        editorListenerDispatch.remove(listener);
     }
 
-
-    public Set<SPath> getLocallyOpenEditors() {
-        return editorPool.getFiles();
+    public void enableDocumentListener() {
+        documentListener.setEnabled(true);
     }
 
-    public Set<SPath> getRemoteOpenEditors() {
-        return remoteEditorManager.getRemoteOpenEditors();
-    }
-
-
-    //FIXME: not sure how to do it intelliJ
-    public void sendEditorActivitySaved(SPath path) {
-
+    public void disableDocumentListener() {
+        documentListener.setEnabled(false);
     }
 
     /**
-     * Generates a TextEditActivity and fires it.
+     * Enables the documentListener, the fileListener, the selectionListener and the viewportListener if the parameter
+     * is <code>true</code>, else disables them.
      *
-     * @param offset
-     * @param oldText
-     * @param newText
-     * @param path
+     * @param enable
      */
-    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
+    public void setListenerEnabled(boolean enable) {
 
-        if (session == null) {
-            return;
+        if (documentListener != null) {
+            documentListener.setEnabled(enable);
         }
 
-        TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(), offset, oldText, newText, path);
-
-        if (!hasWriteAccess || isLocked) {
-           /*
-             * TODO If we don't have {@link User.Permission#WRITE_ACCESS}, then
-             * receiving this event might indicate that the user somehow
-             * achieved to change his document. We should run a consistency
-             * check.
-             *
-             * But watch out for changes because of a consistency check!
-             */
-
-            LOG.warn("local user caused text changes: " + textEdit
-                    + " | write access : " + hasWriteAccess + ", session locked : "
-                    + isLocked);
-            return;
+        if (fileListener != null) {
+            fileListener.setEnabled(enable);
         }
 
-        fireActivity(textEdit);
+        if (selectionListener != null) {
+            selectionListener.setEnabled(enable);
+        }
 
-        editorListenerDispatch.textEditRecieved(session.getLocalUser(),
-                textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
+        if (viewportListener != null) {
+            viewportListener.setEnabled(enable);
+        }
     }
 
-    public EditorManipulator getEditorManipulator() {
-        return editorManipulator;
+    /**
+     * Sets the editor's document writable and adds StoppableSelectionListener, StoppableViewPortListener and the
+     * documentListener.
+     *
+     * @param editor
+     */
+    public void startEditor(Editor editor) {
+        editor.getDocument().setReadOnly(false);
+        editor.getSelectionModel().addSelectionListener(selectionListener);
+        editor.getScrollingModel().addVisibleAreaListener(viewportListener);
+        documentListener.startListening(editor.getDocument());
     }
 
-    public EditorPool getEditorPool() {
-        return editorPool;
+    /**
+     * Stops an editor by removing all listeners.
+     *
+     * @param editor
+     */
+    public void stopEditor(Editor editor) {
+        editor.getSelectionModel().removeSelectionListener(selectionListener);
+        editor.getScrollingModel().removeVisibleAreaListener(viewportListener);
+        documentListener.stopListening();
     }
 
-    public ISarosSession getSession() {
-        return session;
+    /**
+     * Unlocks all editors in the editorPool.
+     */
+    public void unlockAllEditors() {
+        setListenerEnabled(true);
+        editorPool.unlockAllDocuments();
     }
 
-    public boolean hasSession() {
-        return session != null;
+    /**
+     * Locks all open editors, by setting them to read-only.
+     */
+    public void lockAllEditors() {
+        setListenerEnabled(false);
+        editorPool.lockAllDocuments();
+    }
+
+    /**
+     * Unlocks all locally open editors by starting them.
+     */
+    public void unlockAllLocalOpenedEditors() {
+        for (Editor editor : editorPool.getEditors()) {
+            startEditor(editor);
+        }
     }
 }

@@ -29,6 +29,8 @@ import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextEditActivity;
+import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
+import de.fu_berlin.inf.dpp.core.editor.adapter.IDocument;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -36,9 +38,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManipulator;
-import de.fu_berlin.inf.dpp.intellij.editor.adapter.DocumentProvider;
-import de.fu_berlin.inf.dpp.intellij.editor.adapter.IDocument;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -85,7 +85,7 @@ public class ConsistencyWatchdogClient extends
     protected IsInconsistentObservable inconsistencyToResolve;
 
     @Inject
-    protected EditorManipulator editorManipulator;
+    protected LocalEditorHandler localEditorHandler;
 
     /**
      * @Inject Injected via Constructor Injection
@@ -357,7 +357,7 @@ public class ConsistencyWatchdogClient extends
                     return;
                 }
 
-                editorManipulator.saveFile(path);
+                localEditorHandler.saveFile(path);
 
             }
 
@@ -447,7 +447,7 @@ public class ConsistencyWatchdogClient extends
             return true;
         }
 
-        IDocument doc = DocumentProvider.getDocument(file);
+        IDocument doc = DocumentFactory.getDocument(file);
 
         // if doc is still null give up
         if (doc == null) {

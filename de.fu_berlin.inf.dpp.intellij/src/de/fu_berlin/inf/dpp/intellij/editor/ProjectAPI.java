@@ -208,8 +208,6 @@ public class ProjectAPI {
     }
 
     public void addFileEditorManagerListener(StoppableEditorFileListener listener) {
-        if (editorFileManager != null) {
-            editorFileManager.addFileEditorManagerListener(listener);
-        }
+        editorFileManager.addFileEditorManagerListener(listener);
     }
 }

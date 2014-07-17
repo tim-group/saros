@@ -35,6 +35,7 @@ import java.util.Set;
  * IntelliJ editor pool
  */
 //FIXME: Document instances should not be stored.
+// (see http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-Documents)
 // Maybe just store editors here, load all non-opened files on the fly?
 public class EditorPool {
     private Map<SPath, Editor> editors = new HashMap<SPath, Editor>();
@@ -88,8 +89,18 @@ public class EditorPool {
                 files.put(doc, newPath);
             }
         }
+    }
 
+    public void unlockAllDocuments() {
+        for (Document doc : documents.values()) {
+            doc.setReadOnly(false);
+        }
+    }
 
+    public void lockAllDocuments() {
+        for (Document doc : documents.values()) {
+            doc.setReadOnly(true);
+        }
     }
 
     public Collection<Document> getDocuments() {
