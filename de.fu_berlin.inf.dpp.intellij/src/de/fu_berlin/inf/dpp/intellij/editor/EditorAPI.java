@@ -42,7 +42,7 @@ import java.awt.Color;
 
 /**
  * IntellJ editor API. An Editor is a window for editing source files.
- *
+ * <p/>
  * Performs IntelliJ editor related actions in the UI thread.
  */
 
@@ -55,8 +55,8 @@ public class EditorAPI {
     /**
      * Creates an EditorAPI with the current Project and initializes Fields.
      */
-    public EditorAPI() {
-        this.project = Saros.getInstance().getProject();
+    public EditorAPI(Saros saros) {
+        this.project = saros.getProject();
         this.application = ApplicationManager.getApplication();
         this.commandProcessor = CommandProcessor.getInstance();
     }

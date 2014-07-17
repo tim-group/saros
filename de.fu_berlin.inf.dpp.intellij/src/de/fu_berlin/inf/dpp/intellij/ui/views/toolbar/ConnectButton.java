@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
@@ -33,7 +32,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -71,7 +72,6 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         connectAction.setGuiFrame(this);
 
         final JButton button = this;
-        final Saros saros = this.saros;
         this.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
 

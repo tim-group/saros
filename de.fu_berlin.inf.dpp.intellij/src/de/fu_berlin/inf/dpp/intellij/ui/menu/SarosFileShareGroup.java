@@ -29,6 +29,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
@@ -42,6 +44,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.picocontainer.annotations.Inject;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +59,13 @@ import java.util.List;
 public class SarosFileShareGroup extends ActionGroup {
     private static Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
 
+    @Inject
+    private Saros saros;
+
+    @Inject
+    private ISarosSessionManager sessionManager;
+
+
     public void actionPerformed(AnActionEvent e) {
 
     }
@@ -63,8 +73,12 @@ public class SarosFileShareGroup extends ActionGroup {
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
+        //the object has to be initialized here, because it is created before the
+        //{@link de.fu_berlin.inf.dpp.intellij.SarosComponent}.
+        SarosPluginContext.initComponent(this);
+
         if (e == null || !Saros.isInitialized()
-                || Saros.getInstance().getSessionManager().getSarosSession() != null) {
+                || sessionManager.getSarosSession() != null) {
             return new AnAction[0];
         } else {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -75,7 +89,7 @@ public class SarosFileShareGroup extends ActionGroup {
             }
 
             List<AnAction> list = new ArrayList<AnAction>();
-            for (JID user : Saros.getInstance().getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
+            for (JID user : saros.getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
                 list.add(new ShareWithUser(user));
             }
 
@@ -185,7 +199,7 @@ public class SarosFileShareGroup extends ActionGroup {
          * @return
          */
         private ProjectImp locateProject(File resource) {
-            Project p = Saros.getInstance().getProject();
+            Project p = saros.getProject();
             IPath basePath = new PathImp(p.getBasePath());
             IPath resourcePath = new PathImp(resource);
             String[] resourceSegments = resourcePath.segments();
@@ -196,7 +210,7 @@ public class SarosFileShareGroup extends ActionGroup {
 
             String moduleName = resourceSegments[nameIndex];
             basePath = basePath.append(moduleName);
-            return (ProjectImp) Saros.getInstance().getWorkspace().getRoot().addProject(moduleName, basePath.toFile());
+            return (ProjectImp) saros.getWorkspace().getRoot().addProject(moduleName, basePath.toFile());
         }
 
 

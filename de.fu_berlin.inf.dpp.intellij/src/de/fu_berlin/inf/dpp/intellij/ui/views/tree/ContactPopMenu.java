@@ -26,15 +26,18 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -46,11 +49,10 @@ import java.util.List;
  * Contact pop-up menu
  */
 class ContactPopMenu extends JPopupMenu {
-    protected Saros saros = Saros.getInstance();
+    @Inject
+    protected Saros saros;
 
     private ContactTree.ContactInfo contactInfo;
-
-    private EditorAPI editorApi;
 
     private ModuleManager moduleManager;
 
@@ -59,9 +61,8 @@ class ContactPopMenu extends JPopupMenu {
      */
     public ContactPopMenu(ContactTree.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
-
-        this.editorApi = new EditorAPI();
-        this.moduleManager = ModuleManager.getInstance(Saros.getInstance().getProject());
+        SarosPluginContext.initComponent(this);
+        this.moduleManager = ModuleManager.getInstance(saros.getProject());
 
         JMenu menuShareProject = new JMenu("Work together on...");
         menuShareProject.setIcon(IconManager.SESSIONS_ICON);

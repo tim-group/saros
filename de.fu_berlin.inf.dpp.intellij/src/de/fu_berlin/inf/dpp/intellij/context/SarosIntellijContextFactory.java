@@ -151,7 +151,7 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
                     component.getImplementation());
         }
 
-        container.addComponent(saros);
+        container.addComponent(Saros.class, saros);
 
         container.addComponent(BindKey.bindKey(String.class,
                 ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL");  //todo

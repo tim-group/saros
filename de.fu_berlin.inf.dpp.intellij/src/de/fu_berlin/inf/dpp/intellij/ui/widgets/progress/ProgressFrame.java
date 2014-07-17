@@ -22,10 +22,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 
+import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -40,8 +46,9 @@ public class ProgressFrame extends MonitorProgressBar
     public static final String TITLE = "Progress monitor";
     public static final String BUTTON_CANCEL = "Cancel";
 
-    //todo: uncomment when Saros class will be in repository
-    private Container parent; // = Saros.instance().getMainPanel();
+    @Inject
+    private Saros saros;
+
     private JFrame frmMain;
     private JButton btnCancel;
 
@@ -60,6 +67,9 @@ public class ProgressFrame extends MonitorProgressBar
      */
     public ProgressFrame(String title)
     {
+        SarosPluginContext.initComponent(this);
+        Container parent = saros.getMainPanel();
+
         frmMain = new JFrame(title);
         frmMain.setSize(300, 160);
         frmMain.setLocationRelativeTo(parent);

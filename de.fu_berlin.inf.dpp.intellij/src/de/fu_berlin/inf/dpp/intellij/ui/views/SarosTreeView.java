@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
@@ -33,12 +32,12 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.tree.TreeClickListener;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import java.awt.*;
+import java.awt.Container;
 
 /**
  * Saros core panel tree list
@@ -46,8 +45,6 @@ import java.awt.*;
 public class SarosTreeView {
 
     private Container parent;
-
-    private Saros saros = Saros.getInstance();
 
     private RootTree rootTree;
     private SessionTree sessionTree;

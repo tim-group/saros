@@ -23,15 +23,27 @@
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import java.awt.Component;
+import java.awt.Container;
 
 /**
  * Dialog message helper
  */
 public class DialogUtils {
-    private static final Container container = Saros.getInstance().getMainPanel();
+
+    @Inject
+    private static Saros saros;
+
+    private static final Container container;
+
+    static {
+        SarosPluginContext.initComponent(new DialogUtils());
+        container = saros.getMainPanel();
+    }
 
     public static void showError(Component parent, String title, String msg) {
         JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);

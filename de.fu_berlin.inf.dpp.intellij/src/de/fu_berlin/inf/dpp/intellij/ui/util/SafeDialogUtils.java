@@ -25,14 +25,22 @@ package de.fu_berlin.inf.dpp.intellij.ui.util;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  * Dialog helper used to show messages in save manner starting it in UI thread
  */
 public class SafeDialogUtils {
-    private static Saros saros = Saros.getInstance();
+    @Inject
+    private static Saros saros;
+
+    static {
+        SarosPluginContext.initComponent(new SafeDialogUtils());
+    }
 
     /**
      * @param message

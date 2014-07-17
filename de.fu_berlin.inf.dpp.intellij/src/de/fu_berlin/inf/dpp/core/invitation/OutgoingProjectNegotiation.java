@@ -487,8 +487,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
                 VCSProvider vcs = null;
                 if (sarosSession.useVersionControl()) {
-                    //FIXME: There is no VCS implementation anyways, alwasy pass null?
-                    //vcs = VCSAdapter.getAdapter(project);
+
                     // TODO how to handle this if no adapter is available ?
                     // if(vcs == null)
                 }

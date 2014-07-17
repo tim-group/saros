@@ -22,11 +22,10 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -37,23 +36,18 @@ public abstract class AbstractTree extends DefaultMutableTreeNode {
 
 
     protected final DefaultMutableTreeNode parent;
-    protected final Saros saros;
     protected IconManager iconManager;
 
     protected AbstractTree() {
-        this.saros = Saros.getInstance();
         this.parent = this;
         this.iconManager = new IconManager();
 
     }
 
     protected AbstractTree(DefaultMutableTreeNode parent) {
-        this.parent = parent;
-        this.saros = Saros.getInstance();
-        this.iconManager = new IconManager();
+        this();
         parent.add(this);
     }
-
 
     /**
      * Class to keep category information

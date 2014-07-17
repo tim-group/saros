@@ -23,9 +23,12 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.IConnectionAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
@@ -36,9 +39,12 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,8 +57,6 @@ public class SarosToolbar {
     public static final String LEAVE_SESSION_ICON_PATH = "icons/elcl16/project_share_leave_tsk.png";
 
     private Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
-
-    private Saros saros = Saros.getInstance();
 
     private SarosMainPanelView sarosMainView;
     private JToolBar jToolBar;

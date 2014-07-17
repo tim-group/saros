@@ -23,20 +23,29 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import java.net.URL;
 
 /**
  * Common class for Toolbar button implementations
  */
 public abstract class ToolbarButton extends JButton {
-    protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
-    protected Saros saros = Saros.getInstance();
 
+    protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
+
+    @Inject
+    protected Saros saros;
+
+    protected ToolbarButton() {
+        SarosPluginContext.initComponent(this);
+    }
 
     /**
      * @param path

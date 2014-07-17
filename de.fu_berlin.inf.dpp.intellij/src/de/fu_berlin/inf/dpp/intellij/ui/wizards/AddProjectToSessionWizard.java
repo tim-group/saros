@@ -56,7 +56,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -100,6 +100,9 @@ public class AddProjectToSessionWizard {
 
     @Inject
     private EditorManager editorManager;
+
+    @Inject
+    private Saros saros;
 
     private Wizard wizard;
     private SelectProjectPage infoPage;
@@ -289,7 +292,7 @@ public class AddProjectToSessionWizard {
     }
 
     protected Component getShell() {
-        return Saros.getInstance().getMainPanel();
+        return saros.getMainPanel();
     }
 
 

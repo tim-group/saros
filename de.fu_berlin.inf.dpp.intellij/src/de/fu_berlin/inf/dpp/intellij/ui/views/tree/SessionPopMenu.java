@@ -45,19 +45,23 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 /**
  * Session pop-up menu
  */
 class SessionPopMenu extends JPopupMenu {
-    protected Saros saros = Saros.getInstance();
+    @Inject
+    protected Saros saros;
     private SessionTree.SessionInfo sessionInfo;
 
     public SessionPopMenu(SessionTree.SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
-
+        SarosPluginContext.initComponent(this);
         JMenuItem menuItemFollowParticipant = new JMenuItem("Follow participant");
         add(menuItemFollowParticipant);
     }

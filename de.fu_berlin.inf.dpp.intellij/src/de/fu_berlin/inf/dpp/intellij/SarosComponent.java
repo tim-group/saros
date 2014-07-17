@@ -38,7 +38,6 @@ public class SarosComponent implements com.intellij.openapi.components.ProjectCo
         PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/src/log4j.properties");  //todo
 
         Saros.create(project);
-        System.out.println(Saros.getInstance());
     }
 
     @Override

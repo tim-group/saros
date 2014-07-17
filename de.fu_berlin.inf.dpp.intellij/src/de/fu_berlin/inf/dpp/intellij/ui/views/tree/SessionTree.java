@@ -24,8 +24,10 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
@@ -33,8 +35,9 @@ import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.HashMap;
@@ -52,6 +55,12 @@ public class SessionTree extends AbstractTree {
     private Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
     private Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
     private DefaultTreeModel treeModel;
+
+    @Inject
+    private Saros saros;
+
+    @Inject
+    private ISarosSessionManager sessionManager;
 
     private ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
@@ -122,16 +131,15 @@ public class SessionTree extends AbstractTree {
      */
     public SessionTree(RootTree parent) {
         super(parent);
-
+        SarosPluginContext.initComponent(this);
         this.rootTree = parent;
-
         this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
         setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
 
         create();
 
         //register listener
-        Saros.getInstance().getSessionManager().addSarosSessionListener(sessionListener);
+        sessionManager.addSarosSessionListener(sessionListener);
     }
 
     protected void create() {

@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
@@ -55,13 +54,13 @@ public class Saros {
     /**
      * Default server name
      */
-    public static final String SAROS_SERVER = "saros-con.imp.fu-berlin.de";
+    public static final String SAROS_SERVER = "localhost";
 
     /**
      * The name of the XMPP namespace used by SarosEclipse. At the moment it is only
      * used to advertise the SarosEclipse feature in the Service Discovery.
      * <p/>
-     * TODO Add version information, so that only compatible versions of SarosEclipse
+     * TODO Add version information, so that only compatible versions of Saros
      * can use each other.
      */
     public final static String NAMESPACE = SAROS;
@@ -91,8 +90,7 @@ public class Saros {
     private ToolWindow toolWindow;
 
     private XMPPConnectionService connectionService;
-    private ISarosSessionManager sessionManager;
-    protected PreferenceUtils preferenceUtils;
+    private PreferenceUtils preferenceUtils;
 
     private SarosMainPanelView mainPanel;
     private IWorkspace workspace;
@@ -134,19 +132,6 @@ public class Saros {
         return instance;
     }
 
-    /**
-     * Instance of Saros. Throws an IllegalStateException if it was not
-     * initialized yet.
-     *
-     * @return
-     */
-    public static Saros getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("Saros not initialized");
-        }
-        return instance;
-    }
-
     private Saros(Project project) {
         this.project = project;
         this.workspace = new Workspace(project);
@@ -171,7 +156,6 @@ public class Saros {
 
         connectionService = sarosContext
                 .getComponent(XMPPConnectionService.class);
-        sessionManager = sarosContext.getComponent(ISarosSessionManager.class);
         preferenceUtils = sarosContext.getComponent(PreferenceUtils.class);
 
         //todo: set parameters from config
@@ -190,21 +174,12 @@ public class Saros {
         isInitialized = false;
     }
 
-    //TODO: Check if this can be replaced by injection
-    public ISarosSessionManager getSessionManager() {
-        return sessionManager;
-    }
-
     public Project getProject() {
         return project;
     }
 
     public ToolWindow getToolWindow() {
         return toolWindow;
-    }
-
-    public SarosContext getSarosContext() {
-        return sarosContext;
     }
 
     public IWorkspace getWorkspace() {

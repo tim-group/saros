@@ -23,9 +23,17 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.OpenChartAction;
 import org.apache.log4j.Logger;
-import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.annotations.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,16 +48,23 @@ public class SarosActionFactory {
 
     private static ConnectServerAction connectServerAction;
 
-    private static Saros saros = Saros.getInstance();
+    @Inject
+    private static Saros saros;
+
+    @Inject
+    private static FollowModeAction followModeAction;
+
+    @Inject
+    private static LeaveSessionAction leaveSessionAction;
 
     static {
-        MutablePicoContainer pico = saros.getSarosContext().createSimpleChildContainer();
+        SarosPluginContext.initComponent(new SarosActionFactory());
         //register all actions
         connectServerAction = new ConnectServerAction();
         registerAction(connectServerAction);
         registerAction(new DisconnectServerAction());
-        registerAction(pico.getComponent(FollowModeAction.class));
-        registerAction(pico.getComponent(LeaveSessionAction.class));
+        registerAction(followModeAction);
+        registerAction(leaveSessionAction);
         registerAction(new ConsistencyAction());
         registerAction(new NewContactAction());
         registerAction(new OpenChartAction());

@@ -77,8 +77,8 @@ public class ProjectAPI {
     /**
      * Creates an ProjectAPI with the current Project and initializes Fields.
      */
-    public ProjectAPI() {
-        this.project = Saros.getInstance().getProject();
+    public ProjectAPI(Saros saros) {
+        this.project = saros.getProject();
         this.editorFileManager = FileEditorManager.getInstance(project);
 
         this.application = ApplicationManager.getApplication();

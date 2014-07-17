@@ -34,13 +34,17 @@ import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.project.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.vcs.DummyVCSProvider;
-import de.fu_berlin.inf.dpp.core.vcs.DummyVCSProviderFactoryImpl;
+import de.fu_berlin.inf.dpp.core.vcs.VCSProviderFactoryImpl;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.DispatchThreadContext;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-import de.fu_berlin.inf.dpp.net.internal.*;
+import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
+import de.fu_berlin.inf.dpp.net.internal.IBBTransport;
+import de.fu_berlin.inf.dpp.net.internal.ITransport;
+import de.fu_berlin.inf.dpp.net.internal.Socks5Transport;
+import de.fu_berlin.inf.dpp.net.internal.XMPPReceiver;
+import de.fu_berlin.inf.dpp.net.internal.XMPPTransmitter;
 import de.fu_berlin.inf.dpp.net.stun.IStunService;
 import de.fu_berlin.inf.dpp.net.stun.internal.StunServiceImpl;
 import de.fu_berlin.inf.dpp.net.upnp.IUPnPAccess;
@@ -51,8 +55,11 @@ import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.xmpp.discovery.DiscoveryManager;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.RosterTracker;
 import de.fu_berlin.inf.dpp.net.xmpp.subscription.SubscriptionHandler;
-import de.fu_berlin.inf.dpp.observables.*;
-import de.fu_berlin.inf.dpp.vcs.VCSProvider;
+import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
+import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
+import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
+import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
+import de.fu_berlin.inf.dpp.observables.SessionNegotiationObservable;
 import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 import de.fu_berlin.inf.dpp.versioning.VersionManager;
 import org.picocontainer.BindKey;
@@ -88,8 +95,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory {
             Component.create(SessionNegotiationHookManager.class),
 
             // VCS (only dummy to satisfy dependencies)
-            Component.create(VCSProviderFactory.class, DummyVCSProviderFactoryImpl.class),
-            Component.create(VCSProvider.class, DummyVCSProvider.class),
+            Component.create(VCSProviderFactory.class, VCSProviderFactoryImpl.class),
 
 
             // Network

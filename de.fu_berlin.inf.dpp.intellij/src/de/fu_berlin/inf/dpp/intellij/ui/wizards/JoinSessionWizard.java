@@ -30,6 +30,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
  */
 
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
@@ -45,8 +46,9 @@ import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Container;
 import java.text.MessageFormat;
 
 
@@ -60,7 +62,10 @@ public class JoinSessionWizard {
     public static final String PAGE_INFO_ID = "JoinSessionInfo";
     public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
 
-    private static Container parent = Saros.getInstance().getMainPanel();
+    private Container parent;
+
+    @Inject
+    private static Saros saros;
 
     private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
 
@@ -98,6 +103,8 @@ public class JoinSessionWizard {
      */
     public JoinSessionWizard(IncomingSessionNegotiation process) {
         this.process = process;
+        SarosPluginContext.initComponent(this);
+        parent = saros.getMainPanel();
 
         wizard = new Wizard(Messages.JoinSessionWizard_title);
         wizard.getNavigationPanel().setBackButton(null);

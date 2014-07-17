@@ -23,10 +23,12 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
 
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
 import org.apache.log4j.Logger;
+import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,14 +39,15 @@ import java.util.List;
 public abstract class AbstractSarosAction implements ISarosAction {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
-    protected Saros saros = Saros.getInstance();
+    @Inject
+    protected Saros saros;
     protected Container guiFrame;
 
     private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
     private List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
     protected AbstractSarosAction() {
-
+        SarosPluginContext.initComponent(this);
     }
 
     protected void actionStarted() {
