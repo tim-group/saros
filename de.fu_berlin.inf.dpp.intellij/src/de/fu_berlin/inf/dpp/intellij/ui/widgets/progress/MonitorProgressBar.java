@@ -25,14 +25,15 @@ package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 /**
  * Progress bar with autoincrement to use as COMPONENT in UI
  */
 
-public class MonitorProgressBar implements IProgressMonitor
-{
+public class MonitorProgressBar implements IProgressMonitor {
     public static final int MIN_VALUE = 0;
     public static final int MAX_VALUE = 100;
     protected String info;
@@ -41,14 +42,13 @@ public class MonitorProgressBar implements IProgressMonitor
 
     private FinishListener finishListener;
 
-    protected MonitorProgressBar(DisplayContainer display)
-    {
+    protected MonitorProgressBar(DisplayContainer display) {
         this.display = display;
     }
 
-    protected MonitorProgressBar()
-    {
-        this.display = new DisplayContainer(new JProgressBar(MIN_VALUE, MAX_VALUE), new JLabel());
+    protected MonitorProgressBar() {
+        this.display = new DisplayContainer(
+                new JProgressBar(MIN_VALUE, MAX_VALUE), new JLabel());
     }
 
     /**
@@ -56,8 +56,7 @@ public class MonitorProgressBar implements IProgressMonitor
      *
      * @param progressBar
      */
-    public MonitorProgressBar(JProgressBar progressBar)
-    {
+    public MonitorProgressBar(JProgressBar progressBar) {
         this(progressBar, null);
     }
 
@@ -67,8 +66,7 @@ public class MonitorProgressBar implements IProgressMonitor
      * @param progressBar JProgressBar - progress information
      * @param infoLabel   JLabel - additional information
      */
-    public MonitorProgressBar(JProgressBar progressBar, JLabel infoLabel)
-    {
+    public MonitorProgressBar(JProgressBar progressBar, JLabel infoLabel) {
         this.display = new DisplayContainer(progressBar, infoLabel);
     }
 
@@ -77,89 +75,75 @@ public class MonitorProgressBar implements IProgressMonitor
      *
      * @param progress progress
      */
-    public void setProgress(int progress)
-    {
+    public void setProgress(int progress) {
         this.display.setProgress(progress);
     }
 
     @Override
-    public boolean isCanceled()
-    {
+    public boolean isCanceled() {
         return isCanceled;
     }
 
     @Override
-    public void setCanceled(boolean cancel)
-    {
+    public void setCanceled(boolean cancel) {
         this.isCanceled = cancel;
         done();
     }
 
     @Override
-    public void worked(int delta)
-    {
+    public void worked(int delta) {
         setProgress(this.display.getProgressBar().getValue() + delta);
     }
 
     @Override
-    public void subTask(String subTaskName)
-    {
+    public void subTask(String subTaskName) {
         setTaskName(subTaskName);
     }
 
     @Override
-    public void setTaskName(String name)
-    {
+    public void setTaskName(String name) {
         this.display.setInfo(name);
         this.info = name;
     }
 
     @Override
-    public void done()
-    {
-        if (finishListener != null)
-        {
+    public void done() {
+        if (finishListener != null) {
             finishListener.finished();
         }
     }
 
     @Override
-    public void beginTask(String taskName, String type)
-    {
+    public void beginTask(String taskName, String type) {
         this.display.setInfo(taskName);
         this.info = taskName;
 
     }
 
     @Override
-    public void beginTask(String taskName, int progress)
-    {
+    public void beginTask(String taskName, int progress) {
         setProgress(progress);
         this.display.setInfo(taskName);
         this.info = taskName;
 
-        if (progress == IProgressMonitor.UNKNOWN)
-        {
+        if (progress == IProgressMonitor.UNKNOWN) {
             display.setIndeterminate(true);
         }
 
     }
 
     @Override
-    public void internalWorked(double work)
-    {
+    public void internalWorked(double work) {
         worked((int) work);
     }
 
     @Override
-    public ISubMonitor convert()
-    {
+    public ISubMonitor convert() {
         return new SubProgressBar(this);
     }
 
     @Override
-    public ISubMonitor convert(String title, int progress)
-    {
+    public ISubMonitor convert(String title, int progress) {
         setProgress(progress);
         this.display.setInfo(title);
         this.info = title;
@@ -170,30 +154,37 @@ public class MonitorProgressBar implements IProgressMonitor
     /**
      * @param finishListener FinishListener
      */
-    public void setFinishListener(FinishListener finishListener)
-    {
+    public void setFinishListener(FinishListener finishListener) {
         this.finishListener = finishListener;
     }
-
 
     /**
      * Interface creates structure to listen progress bar events
      */
-    public interface FinishListener
-    {
+    public interface FinishListener {
         /**
          * Fires when progress monitor is finished
          */
         void finished();
     }
 
-    protected static class DisplayContainer
-    {
+    /**
+     * Creates a DisplayContainer that contains a progressBar and an
+     * infoLabel. {#setProgress}, {#setInfo} and {#setIndeterminate} update
+     * the elements UI-thread-safe with {#SwingUtilities.invokeLater}.
+     */
+    protected static class DisplayContainer {
         private JProgressBar progressBar;
         private JLabel infoLabel;
 
-        public DisplayContainer(JProgressBar progressBar, JLabel infoLabel)
-        {
+        /**
+         * Creates a DisplayContainer that contains a progressBar and an
+         * infoLabel.
+         *
+         * @param progressBar
+         * @param infoLabel
+         */
+        public DisplayContainer(JProgressBar progressBar, JLabel infoLabel) {
             this.progressBar = progressBar;
             this.infoLabel = infoLabel;
 
@@ -202,66 +193,51 @@ public class MonitorProgressBar implements IProgressMonitor
             this.progressBar.setMaximum(MAX_VALUE);
             this.progressBar.setVisible(true);
 
-            if (infoLabel == null)
-            {
+            if (infoLabel == null) {
                 this.progressBar.setStringPainted(true);
-            }
-            else
-            {
+            } else {
                 this.infoLabel.setVisible(true);
             }
         }
 
-        public JProgressBar getProgressBar()
-        {
+        public JProgressBar getProgressBar() {
             return progressBar;
         }
 
-        public JLabel getInfoLabel()
-        {
+        public JLabel getInfoLabel() {
             return infoLabel;
         }
 
         /**
-         * Sets value to UI
+         * Sets progress value with SwingUtilities.invokeLater
          *
          * @param progress
          */
-        protected void setProgress(final int progress)
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
+        protected void setProgress(final int progress) {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     progressBar.setValue(progress);
                 }
             });
         }
 
         /**
-         * Sets info to UI
+         * Sets info to UI with SwingUtilities.invokeLater
          *
          * @param info additional progress information
          */
-        protected void setInfo(final String info)
-        {
-            if (info == null)
-            {
+        protected void setInfo(final String info) {
+            if (info == null) {
                 return;
             }
 
-            SwingUtilities.invokeLater(new Runnable()
-            {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
-                public void run()
-                {
-                    if (infoLabel == null)
-                    {
+                public void run() {
+                    if (infoLabel == null) {
                         progressBar.setString(info);
-                    }
-                    else
-                    {
+                    } else {
                         infoLabel.setText(info);
                     }
                 }
@@ -269,21 +245,16 @@ public class MonitorProgressBar implements IProgressMonitor
 
         }
 
-        protected void setIndeterminate(final boolean isIndeterminate)
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
+        protected void setIndeterminate(final boolean isIndeterminate) {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     progressBar.setIndeterminate(isIndeterminate);
                 }
             });
         }
 
-
-        protected void reset()
-        {
+        protected void reset() {
             setProgress(0);
             setInfo("");
         }

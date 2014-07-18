@@ -27,8 +27,7 @@ package de.fu_berlin.inf.dpp.core.zip;
  *
  * @author Stefan Rossbach
  */
-public interface ZipListener
-{
+public interface ZipListener {
 
     /**
      * Gets called when a new Zip entry is created.
@@ -36,7 +35,7 @@ public interface ZipListener
      * @param filename the name of the file including its path that will be
      *                 compressed now
      * @return <code>true</true> if the Zip progress should be aborted, <code>false</code>
-     *         otherwise
+     * otherwise
      */
     public boolean update(String filename);
 
@@ -48,7 +47,7 @@ public interface ZipListener
      * @param totalSize the total size in bytes that will be read when the operation
      *                  has finished or <code>-1</code> if the size is unknown
      * @return <code>true</true> if the Zip progress should be aborted, <code>false</code>
-     *         otherwise
+     * otherwise
      */
     public boolean update(long totalRead, long totalSize);
 }

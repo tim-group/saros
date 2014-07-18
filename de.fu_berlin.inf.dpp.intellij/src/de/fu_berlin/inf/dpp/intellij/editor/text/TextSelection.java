@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.editor.text;
 
 /**
- * Placeholder to store text selection
+ * Container to hold text selection values
  */
 public class TextSelection {
     int offset;
@@ -34,21 +34,17 @@ public class TextSelection {
         this.length = length;
     }
 
-
     public int getOffset() {
         return offset;
     }
-
 
     public int getLength() {
         return length;
     }
 
-
     public int getEndLine() {
         return offset + length;
     }
-
 
     public boolean isEmpty() {
         return length == 0;

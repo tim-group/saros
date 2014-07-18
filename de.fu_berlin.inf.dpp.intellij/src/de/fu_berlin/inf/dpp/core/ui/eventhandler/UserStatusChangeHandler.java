@@ -42,19 +42,6 @@ import java.text.MessageFormat;
  */
 public class UserStatusChangeHandler {
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
-        @Override
-        public void sessionStarting(ISarosSession session) {
-            session.addListener(userStatusListener);
-        }
-
-        @Override
-        public void sessionEnded(ISarosSession session) {
-            session.removeListener(userStatusListener);
-        }
-
-    };
-
     private ISharedProjectListener userStatusListener = new AbstractSharedProjectListener() {
 
         /*
@@ -110,6 +97,18 @@ public class UserStatusChangeHandler {
                                     user.getNickname())
             );
         }
+    };
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+        @Override
+        public void sessionStarting(ISarosSession session) {
+            session.addListener(userStatusListener);
+        }
+
+        @Override
+        public void sessionEnded(ISarosSession session) {
+            session.removeListener(userStatusListener);
+        }
+
     };
 
     public UserStatusChangeHandler(ISarosSessionManager sessionManager) {

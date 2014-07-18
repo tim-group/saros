@@ -23,118 +23,91 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
+ * This is a dummy implementation to ease the copy-paste-adapt process of
+ * creating Saros/I out of Saros/E.
  * <p/>
- * Date: 2014-04-09
- * Time: 18:22
+ * TODO Check whether this actually necessary
  */
-
-public class NullProgressSubMonitor implements ISubMonitor
-{
+public class NullProgressSubMonitor implements ISubMonitor {
     IProgressMonitor mainMonitor;
 
-    private NullProgressSubMonitor()
-    {
+    private NullProgressSubMonitor() {
     }
 
-    public NullProgressSubMonitor(IProgressMonitor mainMonitor)
-    {
+    public NullProgressSubMonitor(IProgressMonitor mainMonitor) {
         this.mainMonitor = mainMonitor;
     }
 
     @Override
-    public void subTask(String name)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void subTask(String name) {
     }
 
     @Override
-    public void done()
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void done() {
     }
 
     @Override
-    public void beginTask(String taskName, String type)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void beginTask(String taskName, String type) {
     }
 
     @Override
-    public ISubMonitor newChild(int id)
-    {
+    public ISubMonitor newChild(int id) {
         return this; //todo
     }
 
     @Override
-    public IProgressMonitor getMain()
-    {
+    public IProgressMonitor getMain() {
         return mainMonitor;
     }
 
     @Override
-    public IProgressMonitor newChildMain(int progress)
-    {
+    public IProgressMonitor newChildMain(int progress) {
         return this;
     }
 
     @Override
-    public IProgressMonitor newChildMain(int progress, int mode)
-    {
+    public IProgressMonitor newChildMain(int progress, int mode) {
         return this;
     }
 
     @Override
-    public ISubMonitor newChild(int progress, int mode)
-    {
+    public ISubMonitor newChild(int progress, int mode) {
         return this; //todo
     }
 
     @Override
-    public boolean isCanceled()
-    {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean isCanceled() {
+        return false;
     }
 
     @Override
-    public void setTaskName(String name)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void setCanceled(boolean cancel) {
     }
 
     @Override
-    public void beginTask(String taskName, int workTotal)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void setTaskName(String name) {
     }
 
     @Override
-    public void internalWorked(double work)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void beginTask(String taskName, int workTotal) {
     }
 
     @Override
-    public void worked(int worked)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void internalWorked(double work) {
     }
 
     @Override
-    public void setCanceled(boolean cancel)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void worked(int worked) {
     }
 
     @Override
-    public ISubMonitor convert()
-    {
+    public ISubMonitor convert() {
         return this;
     }
 
     @Override
-    public ISubMonitor convert(String title, int progress)
-    {
+    public ISubMonitor convert(String title,
+                               int progress) {
         return this;
     }
 }

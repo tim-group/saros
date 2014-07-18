@@ -192,7 +192,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             try {
                 bytes = virtualFileEvent.getFile().contentsToByteArray();
             } catch (IOException e) {
-                workspace.log.error(e.getMessage(), e);
+                workspace.LOG.error(e.getMessage(), e);
             }
 
             String charset = null;
@@ -391,7 +391,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         try {
             bytes = virtualFileCopyEvent.getOriginalFile().contentsToByteArray();
         } catch (IOException e) {
-            workspace.log.error(e.getMessage(), e);
+            workspace.LOG.error(e.getMessage(), e);
         }
 
         activity = FileActivity.created(user, spath, bytes, virtualFile.getCharset().name(), FileActivity.Purpose.ACTIVITY);

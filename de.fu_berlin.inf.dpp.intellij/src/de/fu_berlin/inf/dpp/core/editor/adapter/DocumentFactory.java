@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.editor.adapter;
 
-
 import com.intellij.openapi.editor.Document;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
@@ -37,7 +36,10 @@ public class DocumentFactory {
      * @return an IDocument created from the file.
      */
     public static IDocument getDocument(IFile file) {
-        Document nativeDocument = ResourceConverter.getDocument(file.getLocation().toFile());
-        return nativeDocument == null ? null : new DocumentAdapter(nativeDocument);
+        Document nativeDocument = ResourceConverter
+                .getDocument(file.getLocation().toFile());
+        return nativeDocument == null ?
+                null :
+                new DocumentAdapter(nativeDocument);
     }
 }

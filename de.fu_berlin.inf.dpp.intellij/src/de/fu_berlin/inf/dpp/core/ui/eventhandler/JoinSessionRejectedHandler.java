@@ -36,19 +36,14 @@ public final class JoinSessionRejectedHandler {
 
     private static final Logger LOG = Logger
             .getLogger(JoinSessionRejectedHandler.class);
-
-    private final IReceiver receiver;
-
     private final PacketListener joinSessionRejectedListener = new PacketListener() {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
-                public void run()
-                {
+                public void run() {
                     handleRejection(new JID(packet.getFrom()),
                             JoinSessionRejectedExtension.PROVIDER
                                     .getPayload(packet)
@@ -57,6 +52,7 @@ public final class JoinSessionRejectedHandler {
             });
         }
     };
+    private final IReceiver receiver;
 
     public JoinSessionRejectedHandler(IReceiver receiver) {
         this.receiver = receiver;
@@ -66,7 +62,7 @@ public final class JoinSessionRejectedHandler {
     }
 
     private void handleRejection(JID from,
-            JoinSessionRejectedExtension extension) {
+                                 JoinSessionRejectedExtension extension) {
 
         String name = XMPPUtils.getNickname(null, from);
 

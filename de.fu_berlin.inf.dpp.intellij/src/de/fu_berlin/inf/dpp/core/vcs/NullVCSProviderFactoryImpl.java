@@ -26,13 +26,17 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
 import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 
+/**
+ * An VCSProviderFactory implementation that always returns null. It just
+ * satisfies dependencies.
+ */
 public class NullVCSProviderFactoryImpl implements VCSProviderFactory {
 
     /**
-     * Returns <code>null</code>.
+     * Returns null.
      *
      * @param project
-     * @return <code>null</code>
+     * @return always <code>null</code>
      */
     @Override
     public VCSProvider getProvider(IProject project) {

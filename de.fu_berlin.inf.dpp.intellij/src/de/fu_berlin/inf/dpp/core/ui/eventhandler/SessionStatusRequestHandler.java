@@ -43,34 +43,27 @@ public final class SessionStatusRequestHandler {
 
     private static final Logger LOG = Logger
             .getLogger(SessionStatusRequestHandler.class);
-
-    private final ISarosSessionManager sessionManager;
-
-    private final IReceiver receiver;
-
-    private final ITransmitter transmitter;
-
-    private final IPreferenceStore preferenceStore;
-
     private final PacketListener statusRequestListener = new PacketListener() {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
-                public void run()
-                {
+                public void run() {
                     handleStatusRequest(new JID(packet.getFrom()));
                 }
             });
         }
     };
+    private final ISarosSessionManager sessionManager;
+    private final IReceiver receiver;
+    private final ITransmitter transmitter;
+    private final IPreferenceStore preferenceStore;
 
     public SessionStatusRequestHandler(ISarosSessionManager sessionManager,
-            ITransmitter transmitter, IReceiver receiver,
-            IPreferenceStore preferenceStore) {
+                                       ITransmitter transmitter, IReceiver receiver,
+                                       IPreferenceStore preferenceStore) {
         this.sessionManager = sessionManager;
         this.transmitter = transmitter;
         this.receiver = receiver;

@@ -40,78 +40,16 @@ import static java.text.MessageFormat.format;
  * responsible for updating the local project upon receiving resource
  * activities, possibly even reverting changes.
  */
-    //todo: copy from eclipse
+//todo: copy from eclipse
 public class SharedProject {
-    /**
-     * A value of type E with a convenient update method to check if the value
-     * was changed.
-     */
-    static class UpdatableValue<E> {
-        private E value;
-
-        UpdatableValue(E value) {
-            this.value = value;
-        }
-
-        /**
-         * Updates the value, and returns true if the value changed.
-         */
-        public boolean update(E newValue) {
-            if (newValue == null) {
-                if (value == null)
-                    return false;
-                value = null;
-                return true;
-            }
-            if (newValue.equals(value)) {
-                return false;
-            }
-            value = newValue;
-            return true;
-        }
-
-        public E getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return value == null ? "null" : value.toString(); //$NON-NLS-1$
-        }
-    }
-
     private static final Logger log = Logger.getLogger(SharedProject.class);
-
     protected final ISarosSession sarosSession;
-
     protected final IProject project;
-
     /* Stored state values: */
     protected UpdatableValue<Boolean> projectIsOpen = new UpdatableValue<Boolean>(
             false);
-
     protected UpdatableValue<VCSProvider> vcs = new UpdatableValue<VCSProvider>(
             null);
-
-    static class ResourceInfo {
-        public ResourceInfo(String vcsUrl, String vcsRevision) {
-            this.vcsUrl.update(vcsUrl);
-            this.vcsRevision.update(vcsRevision);
-        }
-
-        protected UpdatableValue<String> vcsUrl = new UpdatableValue<String>(
-                null);
-
-        protected UpdatableValue<String> vcsRevision = new UpdatableValue<String>(
-                null);
-
-        @Override
-        public String toString() {
-            return format("R[{0}@{1}]", vcsUrl.toString(), //$NON-NLS-1$
-                    vcsRevision.toString());
-        }
-    }
-
     /**
      * Maps the project relative path of a resource.
      */
@@ -141,10 +79,8 @@ public class SharedProject {
             return result.toString();
         }
     };
-
     protected UpdatableValue<Boolean> hasWriteAccess = new UpdatableValue<Boolean>(
             false);
-
     /**
      * Note that this listener is only registered if VCS support is enabled for
      * the session.
@@ -161,7 +97,6 @@ public class SharedProject {
             }
         }
     };
-
 
     public SharedProject(IProject project, ISarosSession sarosSession) {
 
@@ -364,7 +299,6 @@ public class SharedProject {
         return resourceMap.containsKey(path);
     }
 
-
     public String getName() {
         return this.project.getName();
     }
@@ -372,5 +306,61 @@ public class SharedProject {
     public void delete() {
         if (sarosSession.useVersionControl())
             sarosSession.removeListener(sharedProjectListener);
+    }
+
+    /**
+     * A value of type E with a convenient update method to check if the value
+     * was changed.
+     */
+    static class UpdatableValue<E> {
+        private E value;
+
+        UpdatableValue(E value) {
+            this.value = value;
+        }
+
+        /**
+         * Updates the value, and returns true if the value changed.
+         */
+        public boolean update(E newValue) {
+            if (newValue == null) {
+                if (value == null)
+                    return false;
+                value = null;
+                return true;
+            }
+            if (newValue.equals(value)) {
+                return false;
+            }
+            value = newValue;
+            return true;
+        }
+
+        public E getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value == null ? "null" : value.toString(); //$NON-NLS-1$
+        }
+    }
+
+    static class ResourceInfo {
+        protected UpdatableValue<String> vcsUrl = new UpdatableValue<String>(
+                null);
+        protected UpdatableValue<String> vcsRevision = new UpdatableValue<String>(
+                null);
+
+        public ResourceInfo(String vcsUrl, String vcsRevision) {
+            this.vcsUrl.update(vcsUrl);
+            this.vcsRevision.update(vcsRevision);
+        }
+
+        @Override
+        public String toString() {
+            return format("R[{0}@{1}]", vcsUrl.toString(), //$NON-NLS-1$
+                    vcsRevision.toString());
+        }
     }
 }

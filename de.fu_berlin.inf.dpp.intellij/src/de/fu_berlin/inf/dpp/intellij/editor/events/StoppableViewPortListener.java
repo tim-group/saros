@@ -33,7 +33,8 @@ import java.awt.Rectangle;
 /**
  * Intellij editor ViewPort listener
  */
-public class StoppableViewPortListener extends AbstractStoppableListener implements VisibleAreaListener {
+public class StoppableViewPortListener extends AbstractStoppableListener
+        implements VisibleAreaListener {
 
     public StoppableViewPortListener(EditorManager manager) {
         super(manager);
@@ -50,7 +51,8 @@ public class StoppableViewPortListener extends AbstractStoppableListener impleme
             return;
 
         }
-        SPath path = editorManager.getEditorPool().getFile(event.getEditor().getDocument());
+        SPath path = editorManager.getEditorPool()
+                .getFile(event.getEditor().getDocument());
 
         if (path != null) {
             editorManager.generateViewport(path, getLineRange(event));
@@ -59,9 +61,11 @@ public class StoppableViewPortListener extends AbstractStoppableListener impleme
     }
 
     private LineRange getLineRange(VisibleAreaEvent event) {
-        Rectangle rec = event.getEditor().getScrollingModel().getVisibleAreaOnScrollingFinished();
+        Rectangle rec = event.getEditor().getScrollingModel()
+                .getVisibleAreaOnScrollingFinished();
         int lineHeight = event.getEditor().getLineHeight();
 
-        return new LineRange((int) (rec.getMinY() / lineHeight), (int) (rec.getMaxY() / lineHeight));
+        return new LineRange((int) (rec.getMinY() / lineHeight),
+                (int) (rec.getMaxY() / lineHeight));
     }
 }

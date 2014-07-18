@@ -26,12 +26,12 @@ import de.fu_berlin.inf.dpp.core.Saros;
 
 /**
  * Provides the possibility to initialize a component with the components hold
- * in the given {@link de.fu_berlin.inf.dpp.SarosContext}. You can set the
+ * in the given {@link SarosContext}. You can set the
  * context via
- * {@link de.fu_berlin.inf.dpp.SarosPluginContext#setSarosContext(de.fu_berlin.inf.dpp.core.context.SarosContext)}
+ * {@link SarosPluginContext#setSarosContext(SarosContext)}
  * .
  * <p/>
- * Typically this is the context created by {@link de.fu_berlin.inf.dpp.Saros}
+ * Typically this is the context created by {@link de.fu_berlin.inf.dpp.core.Saros}
  * while it's initialization.
  *
  * @author philipp.cordes
@@ -48,7 +48,7 @@ public class SarosPluginContext {
      * Use this only in eclipse-specific components like actions or views. If
      * you want to initialize a saros-specific component which is located in our
      * 'business-logic' you should use
-     * {@link de.fu_berlin.inf.dpp.SarosContext#initComponent(Object)} directly
+     * {@link SarosContext#initComponent(Object)} directly
      * from context of the current Saros.
      *
      * @param toInjectInto component which should to be initialized.
@@ -62,7 +62,7 @@ public class SarosPluginContext {
      * Use this only in eclipse-specific components like actions or views. If
      * you want to reinject a saros-specific component which is located in our
      * 'business-logic' you should use
-     * {@link de.fu_berlin.inf.dpp.SarosContext#reinject(Object)} directly from
+     * {@link SarosContext#reinject(Object)} directly from
      * context of the current Saros.
      *
      * @param toReinject component which should to be reinjected.

@@ -23,7 +23,11 @@
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
-import de.fu_berlin.inf.dpp.core.invitation.*;
+import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
+import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
@@ -59,7 +63,101 @@ public class NegotiationHandler implements INegotiationHandler {
 
     public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;
     private static final Logger LOG = Logger.getLogger(NegotiationHandler.class);
+    private final ISarosSessionManager sessionManager;
 
+    public NegotiationHandler(ISarosSessionManager sessionManager,
+                              XMPPConnectionService connectionService) {
+        this.sessionManager = sessionManager;
+        this.sessionManager.setNegotiationHandler(this);
+    }
+
+    private static String getNickname(JID jid) {
+        String nickname = XMPPUtils.getNickname(null, jid);
+
+        if (nickname == null) {
+            nickname = jid.getBareJID().toString();
+        }
+
+        return nickname;
+    }
+
+    @Override
+    public void handleOutgoingSessionNegotiation(
+            OutgoingSessionNegotiation negotiation) {
+
+        OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
+                negotiation);
+
+        outgoingInvitationJob.setPriority(Thread.NORM_PRIORITY);
+        outgoingInvitationJob.schedule();
+    }
+
+    @Override
+    public void handleIncomingSessionNegotiation(
+            IncomingSessionNegotiation negotiation) {
+        showIncomingInvitationUI(negotiation);
+    }
+
+    @Override
+    public void handleOutgoingProjectNegotiation(
+            OutgoingProjectNegotiation negotiation) {
+
+        OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
+        job.setPriority(Thread.NORM_PRIORITY);
+        job.schedule();
+    }
+
+    @Override
+    public void handleIncomingProjectNegotiation(
+            IncomingProjectNegotiation negotiation) {
+        showIncomingProjectUI(negotiation);
+    }
+
+    private void showIncomingInvitationUI(
+            final IncomingSessionNegotiation process) {
+
+        // Fixes #2727848: InvitationDialog is opened in the
+        // background
+        ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            @Override
+            public void run() {
+
+                /**
+                 * @JTourBusStop 8, Invitation Process:
+                 *
+                 *               (4a) The SessionManager then hands over the
+                 *               control to the NegotiationHandler (this class)
+                 *               which works on a newly started
+                 *               IncomingSessionNegotiation. This handler opens
+                 *               the JoinSessionWizard, a dialog for the user to
+                 *               decide whether to next the invitation.
+                 */
+
+
+                JoinSessionWizard sessionWizard = new JoinSessionWizard(process);
+            }
+        });
+
+    }
+
+    private void showIncomingProjectUI(final IncomingProjectNegotiation process) {
+
+        List<ProjectNegotiationData> pInfos = process.getProjectInfos();
+        final List<FileList> fileLists = new ArrayList<FileList>(pInfos.size());
+
+        for (ProjectNegotiationData pInfo : pInfos) {
+            fileLists.add(pInfo.getFileList());
+        }
+
+        ThreadUtils.runSafeSync(LOG, new Runnable() {
+            @Override
+            public void run() {
+                // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
+                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
+                        .getProjectNames());
+            }
+        });
+    }
 
     /**
      * OutgoingInvitationJob wraps the instance of
@@ -210,101 +308,5 @@ public class NegotiationHandler implements INegotiationHandler {
 
             return Status.OK_STATUS;
         }
-    }
-
-    private final ISarosSessionManager sessionManager;
-
-    public NegotiationHandler(ISarosSessionManager sessionManager,
-                              XMPPConnectionService connectionService) {
-        this.sessionManager = sessionManager;
-        this.sessionManager.setNegotiationHandler(this);
-    }
-
-    @Override
-    public void handleOutgoingSessionNegotiation(
-            OutgoingSessionNegotiation negotiation) {
-
-        OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
-                negotiation);
-
-        outgoingInvitationJob.setPriority(Thread.NORM_PRIORITY);
-        outgoingInvitationJob.schedule();
-    }
-
-    @Override
-    public void handleIncomingSessionNegotiation(
-            IncomingSessionNegotiation negotiation) {
-        showIncomingInvitationUI(negotiation);
-    }
-
-    @Override
-    public void handleOutgoingProjectNegotiation(
-            OutgoingProjectNegotiation negotiation) {
-
-        OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
-        job.setPriority(Thread.NORM_PRIORITY);
-        job.schedule();
-    }
-
-    @Override
-    public void handleIncomingProjectNegotiation(
-            IncomingProjectNegotiation negotiation) {
-        showIncomingProjectUI(negotiation);
-    }
-
-    private void showIncomingInvitationUI(
-            final IncomingSessionNegotiation process) {
-
-        // Fixes #2727848: InvitationDialog is opened in the
-        // background
-        ThreadUtils.runSafeAsync(LOG, new Runnable() {
-            @Override
-            public void run() {
-
-                /**
-                 * @JTourBusStop 8, Invitation Process:
-                 *
-                 *               (4a) The SessionManager then hands over the
-                 *               control to the NegotiationHandler (this class)
-                 *               which works on a newly started
-                 *               IncomingSessionNegotiation. This handler opens
-                 *               the JoinSessionWizard, a dialog for the user to
-                 *               decide whether to next the invitation.
-                 */
-
-
-                JoinSessionWizard sessionWizard = new JoinSessionWizard(process);
-            }
-        });
-
-    }
-
-    private void showIncomingProjectUI(final IncomingProjectNegotiation process) {
-
-        List<ProjectNegotiationData> pInfos = process.getProjectInfos();
-        final List<FileList> fileLists = new ArrayList<FileList>(pInfos.size());
-
-        for (ProjectNegotiationData pInfo : pInfos) {
-            fileLists.add(pInfo.getFileList());
-        }
-
-        ThreadUtils.runSafeSync(LOG, new Runnable() {
-            @Override
-            public void run() {
-                // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
-                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
-                        .getProjectNames());
-            }
-        });
-    }
-
-    private static String getNickname(JID jid) {
-        String nickname = XMPPUtils.getNickname(null, jid);
-
-        if (nickname == null) {
-            nickname = jid.getBareJID().toString();
-        }
-
-        return nickname;
     }
 }

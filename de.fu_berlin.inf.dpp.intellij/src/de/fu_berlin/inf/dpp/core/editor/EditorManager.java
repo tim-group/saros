@@ -63,11 +63,11 @@ import java.util.Set;
 
 /**
  * The EditorManager is responsible for handling all editors in a DPP-session.
- *
+ * <p/>
  * This includes the functionality of listening for user inputs in an editor, listening for
  * remote inputs and locking the editors of the users with
  * {@link de.fu_berlin.inf.dpp.session.User.Permission#READONLY_ACCESS}.
- *
+ * <p/>
  * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler}
  * for actually accessing the editors. It translates the Activities for the EditorManager.
  */
@@ -75,42 +75,32 @@ public class EditorManager
         extends AbstractActivityProducer {
 
     private static final Logger LOG = Logger.getLogger(EditorManager.class);
+    private Blockable stopManagerListener = new Blockable() {
 
-    private SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
+        @Override
+        public void unblock() {
+            ThreadUtils.runSafeSync(LOG, new Runnable() {
+                public void run() {
+                    unlockAllEditors();
+                }
+            });
+        }
 
+
+        @Override
+        public void block() {
+            ThreadUtils.runSafeSync(LOG, new Runnable() {
+
+                public void run() {
+                    lockAllEditors();
+                }
+            });
+        }
+    };
     private final LocalEditorHandler localEditorHandler;
     private final LocalEditorManipulator localEditorManipulator;
 
     private final EditorPool editorPool = new EditorPool();
-
-    private RemoteEditorManager remoteEditorManager;
-
-    private RemoteWriteAccessManager remoteWriteAccessManager;
-
-    private ISarosSession session;
-
-    private StoppableDocumentListener documentListener;
-    private StoppableEditorFileListener fileListener;
-    private StoppableSelectionListener selectionListener;
-    private StoppableViewPortListener viewportListener;
-
-    /**
-     * The user that is followed or <code>null</code> if no user is followed.
-     */
-    private User followedUser = null;
-
-    private boolean hasWriteAccess;
-
-    private boolean isLocked;
-
-
-    private Set<SPath> locallyOpenEditors = new HashSet<SPath>();
-
-    private SelectionEvent localSelection;
-    private LineRange localViewport;
-
-    private SPath activeEditor;
-
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
 
         @Override
@@ -152,7 +142,92 @@ public class EditorManager
             execViewport(viewportActivity);
         }
     };
+    private SharedEditorListenerDispatch editorListenerDispatch = new SharedEditorListenerDispatch();
+    private RemoteEditorManager remoteEditorManager;
+    private RemoteWriteAccessManager remoteWriteAccessManager;
+    private ISarosSession session;
+    private StoppableDocumentListener documentListener;
+    private StoppableEditorFileListener fileListener;
+    private StoppableSelectionListener selectionListener;
+    private StoppableViewPortListener viewportListener;
+    /**
+     * The user that is followed or <code>null</code> if no user is followed.
+     */
+    private User followedUser = null;
+    private boolean hasWriteAccess;
+    private boolean isLocked;
+    private Set<SPath> locallyOpenEditors = new HashSet<SPath>();
+    private SelectionEvent localSelection;
+    private LineRange localViewport;
+    private SPath activeEditor;
+    private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
+
+        @Override
+        public void permissionChanged(final User user) {
+
+            hasWriteAccess = session.hasWriteAccess();
+
+            // Lock / unlock editors
+            if (user.isLocal()) {
+                if (hasWriteAccess) {
+                    lockAllEditors();
+                } else {
+                    unlockAllEditors();
+                }
+            }
+
+            refreshAnnotations();
+        }
+
+
+        @Override
+        public void userFinishedProjectNegotiation(User user) {
+
+            // Send awareness-information
+            User localUser = session.getLocalUser();
+            for (SPath path : getLocallyOpenEditors()) {
+                fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
+            }
+
+            fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
+                    activeEditor));
+
+            if (activeEditor == null) {
+                return;
+            }
+            if (localViewport != null) {
+                fireActivity(new ViewportActivity(localUser,
+                        localViewport.getStartLine(),
+                        localViewport.getNumberOfLines(), activeEditor));
+            } else {
+                LOG.warn("No viewport for locallyActivateEditor: "
+                        + activeEditor);
+            }
+
+            if (localSelection != null) {
+                int offset = localSelection.getNewRange().getStartOffset();
+                int length = localSelection.getNewRange().getEndOffset() - localSelection.getNewRange().getStartOffset();
+
+                fireActivity(new TextSelectionActivity(localUser, offset,
+                        length, activeEditor));
+            } else {
+                LOG.warn("No selection for locallyActivateEditor: "
+                        + activeEditor);
+            }
+        }
+
+        @Override
+        public void userLeft(final User user) {
+
+            // If the user left which I am following, then stop following...
+            if (user.equals(followedUser)) {
+                setFollowing(null);
+            }
+
+            remoteEditorManager.removeUser(user);
+        }
+    };
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
         @Override
@@ -274,7 +349,6 @@ public class EditorManager
             });
         }
     };
-
     private ISharedEditorListener sharedEditorListener = new AbstractSharedEditorListener() {
 
         @Override
@@ -289,98 +363,6 @@ public class EditorManager
             for (SPath editorPath : getLocallyOpenEditors()) {
                 localEditorManipulator.clearSelection(editorPath);
             }
-        }
-    };
-
-    private Blockable stopManagerListener = new Blockable() {
-
-        @Override
-        public void unblock() {
-            ThreadUtils.runSafeSync(LOG, new Runnable() {
-                public void run() {
-                    unlockAllEditors();
-                }
-            });
-        }
-
-
-        @Override
-        public void block() {
-            ThreadUtils.runSafeSync(LOG, new Runnable() {
-
-                public void run() {
-                    lockAllEditors();
-                }
-            });
-        }
-    };
-
-    private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
-
-
-        @Override
-        public void permissionChanged(final User user) {
-
-            hasWriteAccess = session.hasWriteAccess();
-
-            // Lock / unlock editors
-            if (user.isLocal()) {
-                if (hasWriteAccess) {
-                    lockAllEditors();
-                } else {
-                    unlockAllEditors();
-                }
-            }
-
-            refreshAnnotations();
-        }
-
-
-        @Override
-        public void userFinishedProjectNegotiation(User user) {
-
-            // Send awareness-information
-            User localUser = session.getLocalUser();
-            for (SPath path : getLocallyOpenEditors()) {
-                fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
-            }
-
-            fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
-                    activeEditor));
-
-            if (activeEditor == null) {
-                return;
-            }
-            if (localViewport != null) {
-                fireActivity(new ViewportActivity(localUser,
-                        localViewport.getStartLine(),
-                        localViewport.getNumberOfLines(), activeEditor));
-            } else {
-                LOG.warn("No viewport for locallyActivateEditor: "
-                        + activeEditor);
-            }
-
-            if (localSelection != null) {
-                int offset = localSelection.getNewRange().getStartOffset();
-                int length = localSelection.getNewRange().getEndOffset() - localSelection.getNewRange().getStartOffset();
-
-                fireActivity(new TextSelectionActivity(localUser, offset,
-                        length, activeEditor));
-            } else {
-                LOG.warn("No selection for locallyActivateEditor: "
-                        + activeEditor);
-            }
-        }
-
-        @Override
-        public void userLeft(final User user) {
-
-            // If the user left which I am following, then stop following...
-            if (user.equals(followedUser)) {
-                setFollowing(null);
-            }
-
-            remoteEditorManager.removeUser(user);
         }
     };
 
@@ -645,21 +627,6 @@ public class EditorManager
     }
 
     /**
-     * Returns <code>true</code> if it is currently following user, otherwise <code>false</code>.
-     */
-    public boolean isFollowing(User user) {
-        return followedUser != null && getFollowedUser().equals(user);
-    }
-
-    /**
-     * Returns the followed {@link de.fu_berlin.inf.dpp.session.User} or <code>null</code> if currently no
-     * user is followed.
-     */
-    public User getFollowedUser() {
-        return followedUser;
-    }
-
-    /**
      * Sets the {@link de.fu_berlin.inf.dpp.session.User} to follow or <code>null</code> if no user should be
      * followed.
      */
@@ -678,6 +645,21 @@ public class EditorManager
             editorListenerDispatch.followModeChanged(newFollowedUser, true);
             this.jumpToUser(newFollowedUser);
         }
+    }
+
+    /**
+     * Returns <code>true</code> if it is currently following user, otherwise <code>false</code>.
+     */
+    public boolean isFollowing(User user) {
+        return followedUser != null && getFollowedUser().equals(user);
+    }
+
+    /**
+     * Returns the followed {@link de.fu_berlin.inf.dpp.session.User} or <code>null</code> if currently no
+     * user is followed.
+     */
+    public User getFollowedUser() {
+        return followedUser;
     }
 
     /**

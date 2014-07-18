@@ -22,7 +22,13 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
+import de.fu_berlin.inf.dpp.activities.ITargetedActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
+import de.fu_berlin.inf.dpp.activities.QueueItem;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentClient;
 import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.concurrent.management.TransformationResult;
@@ -47,8 +53,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  * @author Stefan Rossbach
  */
-public final class ActivityHandler implements Startable
-{
+public final class ActivityHandler implements Startable {
 
     private static final Logger LOG = Logger.getLogger(ActivityHandler.class);
 
@@ -63,32 +68,39 @@ public final class ActivityHandler implements Startable
 
     private static final int DISPATCH_MODE;
 
-    static
-    {
+    static {
         int dispatchModeToUse = Integer.getInteger(
                 "de.fu_berlin.inf.dpp.session.ACTIVITY_DISPATCH_MODE",
                 DISPATCH_MODE_SYNC);
 
-        if (dispatchModeToUse != DISPATCH_MODE_ASYNC)
-        {
+        if (dispatchModeToUse != DISPATCH_MODE_ASYNC) {
             dispatchModeToUse = DISPATCH_MODE_SYNC;
         }
 
         DISPATCH_MODE = dispatchModeToUse;
     }
 
-    private final LinkedBlockingQueue<List<IActivity>> dispatchQueue = new LinkedBlockingQueue<List<IActivity>>();
-
-    private final IActivityHandlerCallback callback;
-
-    private final ISarosSession session;
-
-    private final ConcurrentDocumentServer documentServer;
-
     private static ConcurrentDocumentClient documentClient;
-
+    private final LinkedBlockingQueue<List<IActivity>> dispatchQueue = new LinkedBlockingQueue<List<IActivity>>();
+    private final IActivityHandlerCallback callback;
+    private final ISarosSession session;
+    private final ConcurrentDocumentServer documentServer;
     private final UISynchronizer synchronizer;
+    private final Runnable dispatchThreadRunnable = new Runnable() {
 
+        @Override
+        public void run() {
+            LOG.debug("activity dispatcher started");
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    dispatchAndExecuteActivities(dispatchQueue.take());
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+            LOG.debug("activity dispatcher stopped");
+        }
+    };
     /*
      * We must use a thread for synchronous execution otherwise we would block
      * the DispatchThreadContext which handles the dispatching of all network
@@ -96,33 +108,10 @@ public final class ActivityHandler implements Startable
      */
     private Thread dispatchThread;
 
-    private final Runnable dispatchThreadRunnable = new Runnable()
-    {
-
-        @Override
-        public void run()
-        {
-            LOG.debug("activity dispatcher started");
-            while (!Thread.currentThread().isInterrupted())
-            {
-                try
-                {
-                    dispatchAndExecuteActivities(dispatchQueue.take());
-                }
-                catch (InterruptedException e)
-                {
-                    break;
-                }
-            }
-            LOG.debug("activity dispatcher stopped");
-        }
-    };
-
     public ActivityHandler(ISarosSession session,
-            IActivityHandlerCallback callback,
-            ConcurrentDocumentServer documentServer,
-            ConcurrentDocumentClient documentClient, UISynchronizer synchronizer)
-    {
+                           IActivityHandlerCallback callback,
+                           ConcurrentDocumentServer documentServer,
+                           ConcurrentDocumentClient documentClient, UISynchronizer synchronizer) {
 
         this.session = session;
         this.callback = callback;
@@ -140,11 +129,9 @@ public final class ActivityHandler implements Startable
      * @param activities an <b>immutable</b> list containing the activities
      */
 
-    public synchronized void handleIncomingActivities(List<IActivity> activities)
-    {
+    public synchronized void handleIncomingActivities(List<IActivity> activities) {
 
-        if (session.isHost())
-        {
+        if (session.isHost()) {
 
             /**
              * @JTourBusStop 8, Activity sending, Activity Server:
@@ -156,8 +143,7 @@ public final class ActivityHandler implements Startable
 
             TransformationResult result = directServerActivities(activities);
             activities = result.getLocalActivities();
-            for (QueueItem item : result.getSendToPeers())
-            {
+            for (QueueItem item : result.getSendToPeers()) {
 
                 List<User> recipients = getRecipientsForQueueItem(item);
                 callback.send(recipients, item.activity);
@@ -175,17 +161,13 @@ public final class ActivityHandler implements Startable
          *
          */
 
-        if (activities.isEmpty())
-        {
+        if (activities.isEmpty()) {
             return;
         }
 
-        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC)
-        {
+        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC) {
             dispatchAndExecuteActivities(activities);
-        }
-        else
-        {
+        } else {
             dispatchQueue.add(activities);
         }
     }
@@ -196,16 +178,14 @@ public final class ActivityHandler implements Startable
      * @param item the QueueItem for which the participants should be determined
      * @return a list of participants this activity should be sent to
      */
-    private List<User> getRecipientsForQueueItem(QueueItem item)
-    {
+    private List<User> getRecipientsForQueueItem(QueueItem item) {
 
         /*
          * If the Activity is a IResourceActivity check that the user can
          * actually process them
          */
         List<User> recipients = new ArrayList<User>();
-        if (item.activity instanceof IResourceActivity)
-        {
+        if (item.activity instanceof IResourceActivity) {
             IResourceActivity activity = (IResourceActivity) item.activity;
             /*
              * HACK: IRessourceActivities with null as path will be treated as
@@ -214,24 +194,17 @@ public final class ActivityHandler implements Startable
              * as the EditorActivity currently break this and uses null paths
              * for non-shared-files we have to make this distinction for now.
              */
-            if (activity.getPath() == null)
-            {
+            if (activity.getPath() == null) {
                 recipients = item.recipients;
-            }
-            else
-            {
-                for (User user : item.recipients)
-                {
+            } else {
+                for (User user : item.recipients) {
                     if (session.userHasProject(user, activity.getPath()
-                            .getProject()))
-                    {
+                            .getProject())) {
                         recipients.add(user);
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             recipients = item.recipients;
         }
         return recipients;
@@ -263,16 +236,12 @@ public final class ActivityHandler implements Startable
      * between transformation and application of remote operations. In other
      * words, the transformation would be applied to an out-dated state.
      */
-    public void handleOutgoingActivities(final List<IActivity> activities)
-    {
-        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable()
-        {
+    public void handleOutgoingActivities(final List<IActivity> activities) {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
 
             @Override
-            public void run()
-            {
-                for (IActivity activity : activities)
-                {
+            public void run() {
+                for (IActivity activity : activities) {
 
                     IActivity transformationResult = documentClient
                             .transformToJupiter(activity);
@@ -286,10 +255,8 @@ public final class ActivityHandler implements Startable
     }
 
     @Override
-    public void start()
-    {
-        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC)
-        {
+    public void start() {
+        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC) {
             return;
         }
 
@@ -298,28 +265,22 @@ public final class ActivityHandler implements Startable
     }
 
     @Override
-    public void stop()
-    {
-        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC)
-        {
+    public void stop() {
+        if (DISPATCH_MODE == DISPATCH_MODE_ASYNC) {
             return;
         }
 
         dispatchThread.interrupt();
-        try
-        {
+        try {
             dispatchThread.join(TIMEOUT);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             LOG.warn("interrupted while waiting for "
                     + dispatchThread.getName() + " thread to terminate");
 
             Thread.currentThread().interrupt();
         }
 
-        if (dispatchThread.isAlive())
-        {
+        if (dispatchThread.isAlive()) {
             LOG.error(dispatchThread.getName() + " thread is still running");
         }
     }
@@ -362,7 +323,7 @@ public final class ActivityHandler implements Startable
      * @see ModalContext
      * @see Window#setBlockOnOpen(boolean shouldBlock)
      * @see IRunnableContext#run(boolean fork, boolean cancelable,
-     *      IRunnableWithProgress runnable)
+     * IRunnableWithProgress runnable)
      */
     /*
      * Note: transformation and executing has to be performed together in the
@@ -370,18 +331,14 @@ public final class ActivityHandler implements Startable
      * between transformation and application of remote operations. In other
      * words, the transformation would be applied to an out-dated state.
      */
-    private void dispatchAndExecuteActivities(final List<IActivity> activities)
-    {
-        Runnable transformingRunnable = new Runnable()
-        {
+    private void dispatchAndExecuteActivities(final List<IActivity> activities) {
+        Runnable transformingRunnable = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
-                for (IActivity activity : activities)
-                {
+                for (IActivity activity : activities) {
 
-                     User source = activity.getSource();
+                    User source = activity.getSource();
 
                     /*
                      * Ensure that we do not execute activities after all
@@ -396,8 +353,7 @@ public final class ActivityHandler implements Startable
                      * unwanted inconsistencies if that activity was a resource
                      * activity.
                      */
-                    if (source == null || !source.isInSession())
-                    {
+                    if (source == null || !source.isInSession()) {
                         LOG.warn("dropping activity for user that is no longer in session: "
                                 + activity);
                         continue;
@@ -406,14 +362,10 @@ public final class ActivityHandler implements Startable
                     List<IActivity> transformedActivities = documentClient
                             .transformFromJupiter(activity);
 
-                    for (IActivity transformedActivity : transformedActivities)
-                    {
-                        try
-                        {
+                    for (IActivity transformedActivity : transformedActivities) {
+                        try {
                             callback.execute(transformedActivity);
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             e.printStackTrace();
                             LOG.error(
                                     "failed to execute activity: " + activity, e);
@@ -424,19 +376,15 @@ public final class ActivityHandler implements Startable
             }
         };
 
-        if (LOG.isTraceEnabled())
-        {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("dispatching " + activities.size()
                     + " activities [mode = " + DISPATCH_MODE + "] : " + activities);
         }
 
-        if (DISPATCH_MODE == DISPATCH_MODE_SYNC)
-        {
+        if (DISPATCH_MODE == DISPATCH_MODE_SYNC) {
             synchronizer.syncExec(ThreadUtils.wrapSafe(LOG,
                     transformingRunnable));
-        }
-        else
-        {
+        } else {
             synchronizer.asyncExec(ThreadUtils.wrapSafe(LOG,
                     transformingRunnable));
         }
@@ -450,8 +398,7 @@ public final class ActivityHandler implements Startable
      * @return A number of targeted activities.
      */
     private TransformationResult directServerActivities(
-            List<IActivity> activities)
-    {
+            List<IActivity> activities) {
 
         TransformationResult result = new TransformationResult(
                 session.getLocalUser());
@@ -459,35 +406,26 @@ public final class ActivityHandler implements Startable
         final List<User> remoteUsers = session.getRemoteUsers();
         final List<User> allUsers = session.getUsers();
 
-        for (IActivity activity : activities)
-        {
+        for (IActivity activity : activities) {
 
-            if (activity instanceof FileActivity)
-            {
+            if (activity instanceof FileActivity) {
                 documentServer.checkFileDeleted(activity);
             }
 
             if (activity instanceof JupiterActivity
-                    || activity instanceof ChecksumActivity)
-            {
+                    || activity instanceof ChecksumActivity) {
 
                 result.addAll(documentServer.transformIncoming(activity));
-            }
-            else if (activity instanceof ITargetedActivity)
-            {
+            } else if (activity instanceof ITargetedActivity) {
                 ITargetedActivity target = (ITargetedActivity) activity;
                 result.add(new QueueItem(target.getTarget(), activity));
 
-            }
-            else if (remoteUsers.size() > 0)
-            {
+            } else if (remoteUsers.size() > 0) {
 
                 // We must not send the activity back to the sender
                 List<User> receivers = new ArrayList<User>();
-                for (User user : allUsers)
-                {
-                    if (!user.equals(activity.getSource()))
-                    {
+                for (User user : allUsers) {
+                    if (!user.equals(activity.getSource())) {
                         receivers.add(user);
                     }
                 }
@@ -497,9 +435,7 @@ public final class ActivityHandler implements Startable
                  * should we really execute an activity from a user that is
                  * about to or has left the session ?
                  */
-            }
-            else if (!(session.getLocalUser().equals(activity.getSource())))
-            {
+            } else if (!(session.getLocalUser().equals(activity.getSource()))) {
                 result.executeLocally.add(activity);
             }
         }

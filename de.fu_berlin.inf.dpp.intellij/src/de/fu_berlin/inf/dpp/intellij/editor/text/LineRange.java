@@ -23,28 +23,22 @@
 package de.fu_berlin.inf.dpp.intellij.editor.text;
 
 /**
- * Placeholder too store line range
+ * Container to hold line range info
  */
-public class LineRange
-{
-    int lineRange;
-    int numberLines;
+public class LineRange {
+    int startLine;
+    int numberOfLines;
 
-    public LineRange(int lineRange, int numberLines)
-    {
-        this.lineRange = lineRange;
-        this.numberLines = numberLines;
+    public LineRange(int startLine, int numberOfLines) {
+        this.startLine = startLine;
+        this.numberOfLines = numberOfLines;
     }
 
-
-    public int getStartLine()
-    {
-        return lineRange;
+    public int getStartLine() {
+        return startLine;
     }
 
-
-    public int getNumberOfLines()
-    {
-        return numberLines;
+    public int getNumberOfLines() {
+        return numberOfLines;
     }
 }

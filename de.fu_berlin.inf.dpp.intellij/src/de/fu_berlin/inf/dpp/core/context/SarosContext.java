@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.core.context;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.ISarosContextFactory;
+import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.communication.extensions.ActivitiesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.CancelInviteExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.CancelProjectNegotiationExtension;
@@ -54,6 +55,7 @@ import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.misc.xstream.XStreamExtensionProvider;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
+import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
@@ -68,8 +70,8 @@ import org.picocontainer.injectors.ConstructorInjection;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.picocontainer.injectors.Reinjector;
 
+import java.io.File;
 import java.util.List;
-
 
 /**
  * Encapsulates a {@link org.picocontainer.PicoContainer} and its Saros-specific
@@ -91,6 +93,10 @@ import java.util.List;
 public class SarosContext implements ISarosContext {
 
     private static final Logger log = Logger.getLogger(SarosContext.class);
+
+    private static final String SAROS_DATA_DIRECTORY = ".saros";
+
+    private static final String SAROS_XMPP_ACCOUNT_FILE = "config.dat";
 
     private final DotGraphMonitor dotMonitor;
 
@@ -139,16 +145,18 @@ public class SarosContext implements ISarosContext {
             Class.forName(InvitationAcceptedExtension.class.getName());
             Class.forName(InvitationCompletedExtension.class.getName());
             Class.forName(CancelProjectNegotiationExtension.class.getName());
-            Class.forName(ProjectNegotiationMissingFilesExtension.class.getName());
+            Class.forName(ProjectNegotiationOfferingExtension.class.getName());
+            Class.forName(
+                    ProjectNegotiationMissingFilesExtension.class.getName());
             Class.forName(KickUserExtension.class.getName());
             Class.forName(UserListExtension.class.getName());
             Class.forName(LeaveSessionExtension.class.getName());
             Class.forName(UserListReceivedExtension.class.getName());
             Class.forName(PingExtension.class.getName());
             Class.forName(PongExtension.class.getName());
-            Class.forName(ProjectNegotiationOfferingExtension.class.getName());
 
-            Class.forName(UserFinishedProjectNegotiationExtension.class.getName());
+            Class.forName(
+                    UserFinishedProjectNegotiationExtension.class.getName());
 
             Class.forName(StartActivityQueuingRequest.class.getName());
             Class.forName(StartActivityQueuingResponse.class.getName());
@@ -173,9 +181,10 @@ public class SarosContext implements ISarosContext {
          * managed by PicoContainer for us.
          */
 
-        PicoBuilder picoBuilder = new PicoBuilder(new CompositeInjection(
-                new ConstructorInjection(), new AnnotatedFieldInjection()))
-                .withCaching().withLifecycle();
+        PicoBuilder picoBuilder = new PicoBuilder(
+                new CompositeInjection(new ConstructorInjection(),
+                        new AnnotatedFieldInjection())
+        ).withCaching().withLifecycle();
 
         /*
          * If given, the dotMonitor is used to capture an architecture diagram
@@ -202,17 +211,48 @@ public class SarosContext implements ISarosContext {
          */
         reinjector = new Reinjector(container);
 
+        initAccountStore(container.getComponent(XMPPAccountStore.class));
+
         installPacketExtensionProviders();
 
-        XMPPUtils.setDefaultConnectionService(container
-                .getComponent(XMPPConnectionService.class));
-
-        // additional initialization
-
-//        FeedbackPreferences.setPreferences(container
-//                .getComponent(Preferences.class));
-
+        XMPPUtils.setDefaultConnectionService(
+                container.getComponent(XMPPConnectionService.class));
         log.info("successfully created Saros runtime context");
+    }
+
+    private void initAccountStore(XMPPAccountStore store) {
+        // see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4787931
+
+        String os = System.getProperty("os.name");
+
+        boolean isWindows = os != null && os.toLowerCase().contains("windows");
+
+        String homeDirectory = null;
+
+        if (isWindows) {
+            String userHome = System.getenv("USERPROFILE");
+
+            if (userHome != null) {
+                File directory = new File(userHome);
+
+                if (directory.exists() && directory.isDirectory())
+                    homeDirectory = userHome;
+            }
+        }
+
+        if (homeDirectory == null)
+            homeDirectory = System.getProperty("user.home");
+
+        if (homeDirectory == null) {
+            log.warn(
+                    "home directory not set, cannot save and load account data");
+            return;
+        }
+
+        File sarosDataDir = new File(homeDirectory, SAROS_DATA_DIRECTORY);
+        File accountFile = new File(sarosDataDir, SAROS_XMPP_ACCOUNT_FILE);
+
+        store.setAccountFile(accountFile, System.getProperty("user.name"));
     }
 
     /**
@@ -226,14 +266,13 @@ public class SarosContext implements ISarosContext {
             // Remove the component if an instance of it was already registered
             Class<?> clazz = toInjectInto.getClass();
             ComponentAdapter<?> removed = container.removeComponent(clazz);
-//            if (removed != null && clazz != Saros.class) {
-//                LOG.warn(clazz.getName() + " added more than once!",
-//                        new StackTrace());
-//            }
+            if (removed != null) {
+                log.warn(clazz.getName() + " added more than once!",
+                        new StackTrace());
+            }
 
             // Add the given instance to the container
             container.addComponent(clazz, toInjectInto);
-
             /*
              * Ask PicoContainer to inject into the component via fields
              * annotated with @Inject

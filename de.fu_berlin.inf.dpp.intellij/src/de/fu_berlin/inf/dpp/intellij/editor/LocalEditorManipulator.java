@@ -158,12 +158,14 @@ public class LocalEditorManipulator {
         manager.disableDocumentListener();
         for (ITextOperation op : operations.getTextOperations()) {
             if (op instanceof DeleteOperation) {
-                editorAPI.deleteText(doc, op.getPosition(), op.getPosition() + op.getTextLength());
+                editorAPI.deleteText(doc, op.getPosition(),
+                        op.getPosition() + op.getTextLength());
             } else {
                 editorAPI.insertText(doc, op.getPosition(), op.getText());
                 Editor editor = editorPool.getEditor(path);
                 if (editor != null) {
-                    editorAPI.textMarkAdd(editor, op.getPosition(), op.getPosition() + op.getTextLength(), color);
+                    editorAPI.textMarkAdd(editor, op.getPosition(),
+                            op.getPosition() + op.getTextLength(), color);
                 }
             }
         }
@@ -179,11 +181,14 @@ public class LocalEditorManipulator {
      * @param length
      * @param colorModel
      */
-    public void selectText(SPath path, int position, int length, ColorModel colorModel) {
+    public void selectText(SPath path, int position, int length,
+                           ColorModel colorModel) {
         Editor editor = editorPool.getEditor(path);
         if (editor != null) {
             editorAPI.textMarkRemove(editor, colorModel.getSelect());
-            RangeHighlighter highlighter = editorAPI.textMarkAdd(editor, position, position + length, colorModel.getSelectColor());
+            RangeHighlighter highlighter = editorAPI
+                    .textMarkAdd(editor, position, position + length,
+                            colorModel.getSelectColor());
             colorModel.setSelect(highlighter);
             //editorAPI.setSelection(editor, position, position + length,color); //todo: calculate new line char win and unix differences
         }
@@ -196,7 +201,8 @@ public class LocalEditorManipulator {
      * @param lineStart
      * @param lineEnd
      */
-    public void setViewPort(final SPath path, final int lineStart, final int lineEnd) {
+    public void setViewPort(final SPath path, final int lineStart,
+                            final int lineEnd) {
         Editor editor = editorPool.getEditor(path);
         if (editor != null) {
             editorAPI.setViewPort(editor, lineStart, lineEnd);
@@ -223,13 +229,16 @@ public class LocalEditorManipulator {
      * @param range     viewport of the followed user. Must not be <code>null</code>.
      * @param selection text selection of the followed user. Must not be <code>null</code>.
      */
-    public void adjustViewport(Editor editor, LineRange range, TextSelection selection) {
+    public void adjustViewport(Editor editor, LineRange range,
+                               TextSelection selection) {
         if (editor == null || selection == null || range == null) {
             return;
         }
 
-        editorAPI.setSelection(editor, selection.getOffset(), selection.getOffset() + selection.getLength(), null);
-        editorAPI.setViewPort(editor, range.getStartLine(), range.getStartLine() + range.getNumberOfLines());
+        editorAPI.setSelection(editor, selection.getOffset(),
+                selection.getOffset() + selection.getLength(), null);
+        editorAPI.setViewPort(editor, range.getStartLine(),
+                range.getStartLine() + range.getNumberOfLines());
 
         //todo: implement actual viewport adjustment logic
     }

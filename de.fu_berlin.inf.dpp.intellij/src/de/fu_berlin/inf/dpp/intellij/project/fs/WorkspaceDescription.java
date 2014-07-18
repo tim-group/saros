@@ -24,124 +24,93 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 15.21
- */
+public class WorkspaceDescription implements IWorkspaceDescription {
+    private boolean autoBuilding;
+    private String[] buildOrder;
+    private long fileStateLongevity = 10000;
+    private int maxBuildIterations = 10;
+    private int maxFileStates = 100;
+    private long maxFileStateSize = 100000000L;
+    private boolean applyFileStatePolicy = false;
+    private long snapshotInterval = 10000;
 
-public class WorkspaceDescription implements IWorkspaceDescription
-{
     @Override
-    public String[] getBuildOrder()
-    {
+    public String[] getBuildOrder() {
         return buildOrder;
     }
 
     @Override
-    public long getFileStateLongevity()
-    {
+    public void setBuildOrder(String[] arg0) {
+        this.buildOrder = arg0;
+    }
+
+    @Override
+    public long getFileStateLongevity() {
         return fileStateLongevity;
     }
 
     @Override
-    public int getMaxBuildIterations()
-    {
+    public void setFileStateLongevity(long arg0) {
+        this.fileStateLongevity = arg0;
+    }
+
+    @Override
+    public int getMaxBuildIterations() {
         return maxBuildIterations;
     }
 
     @Override
-    public int getMaxFileStates()
-    {
+    public void setMaxBuildIterations(int arg0) {
+        this.maxBuildIterations = arg0;
+    }
+
+    @Override
+    public int getMaxFileStates() {
         return maxFileStates;
     }
 
     @Override
-    public long getMaxFileStateSize()
-    {
+    public void setMaxFileStates(int arg0) {
+        this.maxFileStateSize = arg0;
+    }
+
+    @Override
+    public long getMaxFileStateSize() {
         return maxFileStateSize;
     }
 
     @Override
-    public boolean isApplyFileStatePolicy()
-    {
+    public void setMaxFileStateSize(long arg0) {
+        this.maxFileStateSize = arg0;
+    }
+
+    @Override
+    public boolean isApplyFileStatePolicy() {
         return applyFileStatePolicy;
     }
 
     @Override
-    public long getSnapshotInterval()
-    {
+    public void setApplyFileStatePolicy(boolean arg0) {
+        this.applyFileStatePolicy = arg0;
+    }
+
+    @Override
+    public long getSnapshotInterval() {
         return snapshotInterval;
     }
 
     @Override
-    public boolean isAutoBuilding()
-    {
+    public void setSnapshotInterval(long arg0) {
+        this.snapshotInterval = arg0;
+    }
+
+    @Override
+    public boolean isAutoBuilding() {
         return autoBuilding;
     }
 
-    private boolean autoBuilding;
-
     @Override
-    public void setAutoBuilding(boolean arg0)
-    {
+    public void setAutoBuilding(boolean arg0) {
         this.autoBuilding = arg0;
-    }
-
-    private String[] buildOrder;
-
-    @Override
-    public void setBuildOrder(String[] arg0)
-    {
-        this.buildOrder = arg0;
-    }
-
-    private long fileStateLongevity = 10000;
-
-    @Override
-    public void setFileStateLongevity(long arg0)
-    {
-        this.fileStateLongevity = arg0;
-    }
-
-    private int maxBuildIterations = 10;
-
-    @Override
-    public void setMaxBuildIterations(int arg0)
-    {
-        this.maxBuildIterations = arg0;
-    }
-
-    private int maxFileStates = 100;
-
-    @Override
-    public void setMaxFileStates(int arg0)
-    {
-        this.maxFileStateSize = arg0;
-    }
-
-    private long maxFileStateSize = 100000000L;
-
-    @Override
-    public void setMaxFileStateSize(long arg0)
-    {
-        this.maxFileStateSize = arg0;
-    }
-
-    private boolean applyFileStatePolicy = false;
-
-    @Override
-    public void setApplyFileStatePolicy(boolean arg0)
-    {
-        this.applyFileStatePolicy = arg0;
-    }
-
-    private long snapshotInterval = 10000;
-
-    @Override
-    public void setSnapshotInterval(long arg0)
-    {
-        this.snapshotInterval = arg0;
     }
 }

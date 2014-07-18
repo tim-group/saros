@@ -32,7 +32,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Deflater;
@@ -76,8 +83,8 @@ public class FileZipper {
      * @cancelable This operation can be canceled via the given listener.
      */
     public static void createProjectZipArchive(IProject project,
-        List<IPath> paths, File archive, ZipListener listener)
-        throws IOException, OperationCanceledException {
+                                               List<IPath> paths, File archive, ZipListener listener)
+            throws IOException, OperationCanceledException {
 
         long totalFileSizes = 0;
 
@@ -93,7 +100,7 @@ public class FileZipper {
         }
 
         internalZipFiles(filesToZip, archive, true, true, totalFileSizes,
-            listener);
+                listener);
     }
 
     /**
@@ -114,8 +121,8 @@ public class FileZipper {
      * @cancelable This operation can be canceled via the given listener.
      */
     public static void zipFiles(List<File> files, File archive,
-        boolean compress, ZipListener listener)
-        throws IOException, OperationCanceledException {
+                                boolean compress, ZipListener listener)
+            throws IOException, OperationCanceledException {
         List<FileWrapper> filesToZip = new ArrayList<FileWrapper>(files.size());
 
         for (File file : files) {
@@ -128,18 +135,18 @@ public class FileZipper {
     }
 
     private static void internalZipFiles(List<FileWrapper> files, File archive,
-        boolean compress, boolean includeDirectories, long totalSize,
-        ZipListener listener) throws IOException, OperationCanceledException {
+                                         boolean compress, boolean includeDirectories, long totalSize,
+                                         ZipListener listener) throws IOException, OperationCanceledException {
 
         byte[] buffer = new byte[BUFFER_SIZE];
 
         OutputStream outputStream = new BufferedOutputStream(
-            new FileOutputStream(archive), BUFFER_SIZE);
+                new FileOutputStream(archive), BUFFER_SIZE);
 
         ZipOutputStream zipStream = new ZipOutputStream(outputStream);
 
         zipStream.setLevel(
-            compress ? Deflater.DEFAULT_COMPRESSION : Deflater.NO_COMPRESSION);
+                compress ? Deflater.DEFAULT_COMPRESSION : Deflater.NO_COMPRESSION);
 
         boolean cleanup = true;
         boolean isCanceled = false;
@@ -152,8 +159,8 @@ public class FileZipper {
         try {
             for (FileWrapper file : files) {
                 String entryName = includeDirectories ?
-                    file.getPath() :
-                    file.getName();
+                        file.getPath() :
+                        file.getName();
 
                 if (listener != null) {
                     isCanceled = listener.update(file.getPath());
@@ -172,8 +179,9 @@ public class FileZipper {
 
                         if (isCanceled) {
                             throw new OperationCanceledException(
-                                "compressing of file '" + entryName
-                                    + "' was canceled");
+                                    "compressing of file '" + entryName
+                                            + "' was canceled"
+                            );
                         }
 
                         zipStream.write(buffer, 0, read);
@@ -194,7 +202,7 @@ public class FileZipper {
         } finally {
             IOUtils.closeQuietly(zipStream);
             if (cleanup && archive != null && archive.exists() && !archive
-                .delete()) {
+                    .delete()) {
                 log.warn("could not delete archive file: " + archive);
             }
         }
@@ -202,8 +210,8 @@ public class FileZipper {
         stopWatch.stop();
 
         log.debug(String
-            .format("created archive %s I/O: [%s]", archive.getAbsolutePath(),
-                    CoreUtils.throughput(archive.length(), stopWatch.getTime())));
+                .format("created archive %s I/O: [%s]", archive.getAbsolutePath(),
+                        CoreUtils.throughput(archive.length(), stopWatch.getTime())));
 
     }
 

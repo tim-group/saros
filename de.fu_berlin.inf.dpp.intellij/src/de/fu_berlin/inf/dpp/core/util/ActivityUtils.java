@@ -23,9 +23,17 @@
 package de.fu_berlin.inf.dpp.core.util;
 
 
-import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
+import de.fu_berlin.inf.dpp.activities.ViewportActivity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class contains static helper methods for {@link IActivity ADOs}.
@@ -35,14 +43,13 @@ public class ActivityUtils {
     /**
      * Checks if the give collections contains only
      * {@linkplain ChecksumActivityDataObject checksum ADOs}.
-     * 
-     * @param activities
-     *            collection containing {@linkplain IActivity ADOs}
+     *
+     * @param activities collection containing {@linkplain IActivity ADOs}
      * @return <code>true</code> if the collection contains only checksum ADOs,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public static boolean containsChecksumsOnly(
-        Collection<IActivity> activities) {
+            Collection<IActivity> activities) {
 
         if (activities.isEmpty())
             return false;
@@ -58,27 +65,26 @@ public class ActivityUtils {
      * Tries to reduce the number of {@link IActivity ADOs} so that:
      * <p/>
      * <p/>
-     * 
+     * <p/>
      * <pre>
      * for (activity : optimize(activities))
      *         exec(activity)
-     * 
+     *
      * will produce the same result as
-     * 
+     *
      * for (activity : activities)
      *         exec(activity)
      * </pre>
-     * 
-     * @param activities
-     *            a collection containing the ADOs to optimize
+     *
+     * @param activities a collection containing the ADOs to optimize
      * @return a list which may contains a reduced amount of ADOs
      */
 
     public static List<IActivity> optimize(
-        Collection<IActivity> activities) {
+            Collection<IActivity> activities) {
 
         List<IActivity> result = new ArrayList<IActivity>(
-            activities.size());
+                activities.size());
 
         boolean[] dropDAOIdx = new boolean[activities.size()];
 
@@ -97,7 +103,7 @@ public class ActivityUtils {
             if (dao instanceof TextSelectionActivity) {
 
                 SPath daoPath = ((TextSelectionActivity) dao)
-                    .getPath();
+                        .getPath();
 
                 Integer idx = selections.get(daoPath);
 
@@ -107,7 +113,7 @@ public class ActivityUtils {
                 selections.put(daoPath, daoIdx);
             } else if (dao instanceof ViewportActivity) {
                 SPath daoPath = ((ViewportActivity) dao)
-                    .getPath();
+                        .getPath();
 
                 Integer idx = viewports.get(daoPath);
 

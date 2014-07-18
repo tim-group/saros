@@ -22,54 +22,37 @@
 
 package de.fu_berlin.inf.dpp.core.workspace;
 
-public abstract interface IWorkspaceDescription
-{
+public interface IWorkspaceDescription {
 
-    // Method descriptor #6 ()[Ljava/lang/String;
-    public abstract java.lang.String[] getBuildOrder();
+    public String[] getBuildOrder();
 
-    // Method descriptor #8 ()J
-    public abstract long getFileStateLongevity();
+    public void setBuildOrder(String[] arg0);
 
-    // Method descriptor #10 ()I
-    public abstract int getMaxBuildIterations();
+    public long getFileStateLongevity();
 
-    // Method descriptor #10 ()I
-    public abstract int getMaxFileStates();
+    public void setFileStateLongevity(long arg0);
 
-    // Method descriptor #8 ()J
-    public abstract long getMaxFileStateSize();
+    public int getMaxBuildIterations();
 
-    // Method descriptor #14 ()Z
-    public abstract boolean isApplyFileStatePolicy();
+    public void setMaxBuildIterations(int arg0);
 
-    // Method descriptor #8 ()J
-    public abstract long getSnapshotInterval();
+    public int getMaxFileStates();
 
-    // Method descriptor #14 ()Z
-    public abstract boolean isAutoBuilding();
+    public void setMaxFileStates(int arg0);
 
-    // Method descriptor #18 (Z)V
-    public abstract void setAutoBuilding(boolean arg0);
+    public long getMaxFileStateSize();
 
-    // Method descriptor #20 ([Ljava/lang/String;)V
-    public abstract void setBuildOrder(java.lang.String[] arg0);
+    public void setMaxFileStateSize(long arg0);
 
-    // Method descriptor #22 (J)V
-    public abstract void setFileStateLongevity(long arg0);
+    public boolean isApplyFileStatePolicy();
 
-    // Method descriptor #24 (I)V
-    public abstract void setMaxBuildIterations(int arg0);
+    public void setApplyFileStatePolicy(boolean arg0);
 
-    // Method descriptor #24 (I)V
-    public abstract void setMaxFileStates(int arg0);
+    public long getSnapshotInterval();
 
-    // Method descriptor #22 (J)V
-    public abstract void setMaxFileStateSize(long arg0);
+    public void setSnapshotInterval(long arg0);
 
-    // Method descriptor #18 (Z)V
-    public abstract void setApplyFileStatePolicy(boolean arg0);
+    public boolean isAutoBuilding();
 
-    // Method descriptor #22 (J)V
-    public abstract void setSnapshotInterval(long arg0);
+    public void setAutoBuilding(boolean arg0);
 }

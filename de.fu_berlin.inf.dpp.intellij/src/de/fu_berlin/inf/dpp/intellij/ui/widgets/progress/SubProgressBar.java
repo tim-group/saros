@@ -26,18 +26,29 @@ import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 
 /**
- *
+ * A dummy SubProgressBar implementation
  */
 //todo: remove it and use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
+//TODO: Add SubMonitor class to the core
 public class SubProgressBar extends MonitorProgressBar implements ISubMonitor {
     private MonitorProgressBar main;
     private int subProgress = 0;
 
+    /**
+     * Creates a dummy sub progress-bar inside the MonitorProgressBar
+     *
+     * @param main the main progress bar this dummy resides in
+     */
     public SubProgressBar(MonitorProgressBar main) {
         super(main.display);
         this.main = main;
     }
 
+    /**
+     * Creates a dummy sub progress-bar inside the DisplayContainer
+     *
+     * @param display
+     */
     public SubProgressBar(DisplayContainer display) {
         super(display);
     }
@@ -70,10 +81,14 @@ public class SubProgressBar extends MonitorProgressBar implements ISubMonitor {
         return this;
     }
 
+    /**
+     * Checks whether the progress the main progress bar or this progress bar
+     * was cancelled.
+     */
     public boolean isCanceled() {
         return getMain() != null ?
-            getMain().isCanceled() || isCanceled :
-            isCanceled;
+                getMain().isCanceled() || isCanceled :
+                isCanceled;
     }
 
     @Override

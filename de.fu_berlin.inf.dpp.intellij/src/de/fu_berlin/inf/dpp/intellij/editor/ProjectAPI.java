@@ -207,7 +207,8 @@ public class ProjectAPI {
 
     }
 
-    public void addFileEditorManagerListener(StoppableEditorFileListener listener) {
+    public void addFileEditorManagerListener(
+            StoppableEditorFileListener listener) {
         editorFileManager.addFileEditorManagerListener(listener);
     }
 }

@@ -40,7 +40,14 @@ public class DocumentChecksum {
      * Constant used for representing a missing file
      */
     public static final int NON_EXISTING_DOC = -1;
-
+    // the path to the concurrent document
+    protected final SPath path;
+    // the length of the document
+    protected int length;
+    // the hash code of the document
+    protected int hash;
+    protected Document document;
+    protected boolean dirty;
     protected DocumentListener dirtyListener = new DocumentListener() {
 
         @Override
@@ -53,19 +60,6 @@ public class DocumentChecksum {
             dirty = true;
         }
     };
-
-    // the path to the concurrent document
-    protected final SPath path;
-
-    // the length of the document
-    protected int length;
-
-    // the hash code of the document
-    protected int hash;
-
-    protected Document document;
-
-    protected boolean dirty;
 
     /**
      * Creates a new Checksum for the document represented in the given path.

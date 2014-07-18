@@ -22,20 +22,18 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import java.io.IOException;
-
 import de.fu_berlin.inf.dpp.communication.extensions.PingExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.PongExtension;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.net.IReceiver;
+import de.fu_berlin.inf.dpp.net.ITransmitter;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-import de.fu_berlin.inf.dpp.net.IReceiver;
-import de.fu_berlin.inf.dpp.net.ITransmitter;
-
-import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import java.io.IOException;
 
 /**
  * Component for detecting network errors on the client side of a session.
@@ -53,9 +51,6 @@ public final class ClientSessionTimeoutHandler extends SessionTimeoutHandler {
     private boolean pingReceived;
 
     private long lastPingReceived;
-
-    private Thread workerThread;
-
     private final PacketListener pingPacketListener = new PacketListener() {
 
         @Override
@@ -67,7 +62,6 @@ public final class ClientSessionTimeoutHandler extends SessionTimeoutHandler {
             }
         }
     };
-
     private final Runnable clientSessionTimeoutWatchdog = new Runnable() {
 
         @Override
@@ -121,10 +115,11 @@ public final class ClientSessionTimeoutHandler extends SessionTimeoutHandler {
             }
         }
     };
+    private Thread workerThread;
 
     public ClientSessionTimeoutHandler(ISarosSession session,
-            ISarosSessionManager sessionManager, ActivitySequencer sequencer,
-            ITransmitter transmitter, IReceiver receiver) {
+                                       ISarosSessionManager sessionManager, ActivitySequencer sequencer,
+                                       ITransmitter transmitter, IReceiver receiver) {
         super(session, sessionManager, sequencer, transmitter, receiver);
     }
 

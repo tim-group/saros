@@ -27,14 +27,11 @@ public class InvitationHandler {
 
     private static final Logger log = Logger.getLogger(InvitationHandler.class
             .getName());
-
+    private final SessionIDObservable sessionIDObservable;
     @Inject
     private ITransmitter transmitter;
-
     @Inject
     private ISarosSessionManager sessionManager;
-
-    private final SessionIDObservable sessionIDObservable;
 
     public InvitationHandler(IReceiver receiver,
                              SessionIDObservable sessionIDObservablePar) {

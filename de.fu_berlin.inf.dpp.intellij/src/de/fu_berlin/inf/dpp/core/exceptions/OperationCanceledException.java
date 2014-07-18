@@ -22,16 +22,12 @@
 
 package de.fu_berlin.inf.dpp.core.exceptions;
 
-//todo: created from Eclipse
-public class OperationCanceledException extends RuntimeException
-{
+public class OperationCanceledException extends RuntimeException {
 
-    public OperationCanceledException()
-    {
+    public OperationCanceledException() {
     }
 
-    public OperationCanceledException(String message)
-    {
+    public OperationCanceledException(String message) {
         super(message);
     }
 }

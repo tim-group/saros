@@ -45,16 +45,33 @@ public class EditorPool {
     public EditorPool() {
     }
 
+    /**
+     * Adds editor and its documents.
+     *
+     * @param file
+     * @param editor
+     */
     public void add(SPath file, Editor editor) {
         editors.put(file, editor);
         add(file, editor.getDocument());
     }
 
+    /**
+     * Adds this to files and documents.
+     *
+     * @param file
+     * @param document
+     */
     public void add(SPath file, Document document) {
         documents.put(file, document);
         files.put(document, file);
     }
 
+    /**
+     * Removes the editor for this file, all documents and the file.
+     *
+     * @param file
+     */
     public void removeAll(SPath file) {
 
         removeEditor(file);
@@ -69,12 +86,24 @@ public class EditorPool {
         }
     }
 
+    /**
+     * Removes the editor.
+     *
+     * @param file
+     */
     public void removeEditor(SPath file) {
         if (editors.containsKey(file)) {
             editors.remove(file);
         }
     }
 
+    /**
+     * Replaces all occurences of editors and documents with key oldPath with
+     * newPath.
+     *
+     * @param oldPath
+     * @param newPath
+     */
     public void replaceAll(SPath oldPath, SPath newPath) {
         if (editors.containsKey(oldPath)) {
             Editor editor = editors.remove(oldPath);
@@ -123,12 +152,13 @@ public class EditorPool {
         return editors.values();
     }
 
-
     public Set<SPath> getFiles() {
         return documents.keySet();
-
     }
 
+    /**
+     * Clears all state.
+     */
     public void clear() {
         documents.clear();
         editors.clear();

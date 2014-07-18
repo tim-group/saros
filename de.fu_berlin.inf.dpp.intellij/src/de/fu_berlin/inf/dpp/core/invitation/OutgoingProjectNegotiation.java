@@ -46,15 +46,11 @@ import java.util.concurrent.CancellationException;
 //todo: copy from eclipse
 public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
+    private final static Random PROCESS_ID_GENERATOR = new Random();
     private static Logger log = Logger
             .getLogger(OutgoingProjectNegotiation.class);
-
     private List<IProject> projects;
-
     private ISarosSession sarosSession;
-
-    private final static Random PROCESS_ID_GENERATOR = new Random();
-
     @Inject
     private EditorManager editorManager;
 

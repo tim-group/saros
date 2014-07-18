@@ -28,8 +28,7 @@ import javax.swing.event.CaretListener;
 /**
  * Saros Intellij caret listener.
  */
-public class StoppableCaretListener implements CaretListener
-{
+public class StoppableCaretListener implements CaretListener {
     /**
      * Does nothing.
      *

@@ -22,7 +22,11 @@
 
 package de.fu_berlin.inf.dpp.core.editor;
 
-import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.EditorActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
+import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.util.AutoHashMap;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -48,10 +52,9 @@ import java.util.Set;
  * Disconnect happens, when last user with {@link Permission#WRITE_ACCESS}
  * closes the editor.
  */
-//todo: copy from eclipse
 public class RemoteWriteAccessManager {
 
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(RemoteWriteAccessManager.class);
 
     /**
@@ -67,6 +70,12 @@ public class RemoteWriteAccessManager {
 
     protected ISarosSession sarosSession;
 
+    /**
+     * Creates a new RemoteWriteAccessManager and adds the sharedProjectListener
+     * to the session.
+     *
+     * @param sarosSession
+     */
     public RemoteWriteAccessManager(final ISarosSession sarosSession) {
         this.sarosSession = sarosSession;
         this.sarosSession.addListener(sharedProjectListener);
@@ -124,7 +133,7 @@ public class RemoteWriteAccessManager {
                     editorStates.get(path).remove(sender);
                     break;
                 default:
-                    log.warn(".receive() Unknown Activity type");
+                    LOG.warn(".receive() Unknown Activity type");
             }
             updateConnectionState(path);
         }
@@ -133,11 +142,16 @@ public class RemoteWriteAccessManager {
 
     /**
      * This method is called from the shared project when a new Activity arrives
+     *
+     * @param activity activity to dispatch
      */
     public void exec(final IActivity activity) {
         activity.dispatch(activityReceiver);
     }
 
+    /**
+     * Removes all listener and clears all editorStates.
+     */
     public void dispose() {
         sarosSession.removeListener(sharedProjectListener);
 
@@ -149,12 +163,11 @@ public class RemoteWriteAccessManager {
         editorStates.clear();
 
         if (!connectedUserWithWriteAccessFiles.isEmpty()) {
-            log.warn("RemoteWriteAccessManager could not"
+            LOG.warn("RemoteWriteAccessManager could not"
                     + " be dispose correctly. Still connect to: "
                     + connectedUserWithWriteAccessFiles.toString());
         }
     }
-
 
     /**
      * Updates the state of the document provider of a document under the given
@@ -163,7 +176,7 @@ public class RemoteWriteAccessManager {
      */
     protected void updateConnectionState(final SPath path) {
 
-        log.trace(".updateConnectionState(" + path.toString() + ")");
+        LOG.trace(".updateConnectionState(" + path.toString() + ")");
 
         boolean hadUserWithWriteAccess = connectedUserWithWriteAccessFiles
                 .contains(path);
@@ -175,7 +188,7 @@ public class RemoteWriteAccessManager {
                 break;
             }
         }
-
+        //FIXME: Test if this works without this commentS
        /* if (!hadUserWithWriteAccess && hasUserWithWriteAccess) {
             LOG.trace(".updateConnectionState File " + path.toString()
                     + " will be connected ");

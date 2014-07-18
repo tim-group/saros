@@ -33,8 +33,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.JID;
  *
  * @author srossbach
  */
-public interface IActivitySequencerCallback
-{
+public interface IActivitySequencerCallback {
 
     /**
      * Gets called when a transmission failure occurs during activity sending.

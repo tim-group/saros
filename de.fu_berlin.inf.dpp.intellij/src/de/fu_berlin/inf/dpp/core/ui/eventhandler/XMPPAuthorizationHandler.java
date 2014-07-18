@@ -35,42 +35,33 @@ import java.text.MessageFormat;
 /**
  * Handler for accepting or rejecting incoming XMPP subscription requests
  */
-public class XMPPAuthorizationHandler
-{
+public class XMPPAuthorizationHandler {
 
     private static final Logger LOG = Logger
             .getLogger(XMPPAuthorizationHandler.class);
-
-    private final SubscriptionHandler subscriptionHandler;
-
-    private final SubscriptionListener subscriptionListener = new SubscriptionListener()
-    {
+    private final SubscriptionListener subscriptionListener = new SubscriptionListener() {
 
         @Override
-        public void subscriptionRequestReceived(final JID jid)
-        {
+        public void subscriptionRequestReceived(final JID jid) {
 
-            ThreadUtils.runSafeAsync(LOG, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     handleAuthorizationRequest(jid);
                 }
             });
         }
     };
+    private final SubscriptionHandler subscriptionHandler;
 
     public XMPPAuthorizationHandler(
-            final SubscriptionHandler subscriptionHandler)
-    {
+            final SubscriptionHandler subscriptionHandler) {
         this.subscriptionHandler = subscriptionHandler;
         this.subscriptionHandler
                 .addSubscriptionListener(subscriptionListener);
     }
 
-    private void handleAuthorizationRequest(final JID jid)
-    {
+    private void handleAuthorizationRequest(final JID jid) {
 
         boolean accept = DialogUtils
                 .showConfirm(
@@ -79,12 +70,9 @@ public class XMPPAuthorizationHandler
                         MessageFormat.format(Messages.SubscriptionManager_incoming_subscription_request_message,
                                 jid.getBareJID())
                 );
-        if (accept)
-        {
+        if (accept) {
             subscriptionHandler.addSubscription(jid, true);
-        }
-        else
-        {
+        } else {
             subscriptionHandler.removeSubscription(jid);
         }
     }

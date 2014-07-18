@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor.events;
 
-
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -30,14 +29,14 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import org.apache.log4j.Logger;
 
-
 /**
  * A document listener which informs the given EditorManager of changes before
  * they occur in a document (using documentAboutToBeChanged). </p> This listener
  * can be temporarily disabled which prevents the notification of text change
  * events.
  */
-public class StoppableDocumentListener extends AbstractStoppableListener implements DocumentListener {
+public class StoppableDocumentListener extends AbstractStoppableListener
+        implements DocumentListener {
 
     private Document document;
 
@@ -68,7 +67,8 @@ public class StoppableDocumentListener extends AbstractStoppableListener impleme
         String text = event.getNewFragment().toString();
         String replacedText = event.getOldFragment().toString();
 
-        editorManager.generateTextEdit(event.getOffset(), text, replacedText, path);
+        editorManager
+                .generateTextEdit(event.getOffset(), text, replacedText, path);
     }
 
     /**

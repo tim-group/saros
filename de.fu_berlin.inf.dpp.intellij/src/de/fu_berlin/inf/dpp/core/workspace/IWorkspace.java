@@ -29,13 +29,15 @@ import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import java.io.File;
 import java.io.IOException;
 
-public interface IWorkspace
-{
+public interface IWorkspace {
     public static final int AVOID_UPDATE = 1;
 
-    void run(IWorkspaceRunnable procedure, IProgressMonitor monitor) throws OperationCanceledException, IOException;
+    void run(IWorkspaceRunnable procedure, IProgressMonitor monitor)
+            throws OperationCanceledException, IOException;
 
-    void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode, IProgressMonitor monitor) throws OperationCanceledException, IOException;
+    void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode,
+             IProgressMonitor monitor)
+            throws OperationCanceledException, IOException;
 
     IWorkspaceRoot getRoot();
 
@@ -46,6 +48,5 @@ public interface IWorkspace
     File getPath();
 
     IPathFactory getPathFactory();
-
 
 }

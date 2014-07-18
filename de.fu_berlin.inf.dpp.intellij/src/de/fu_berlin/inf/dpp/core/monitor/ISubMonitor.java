@@ -23,12 +23,12 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 10.40
+ * This interface is under development. It currently equals its Eclipse
+ * counterpart. If not mentioned otherwise all offered methods are equivalent to
+ * their Eclipse counterpart.
+ * </p>
+ * TODO This should either be a Saros/Core interface or more adapted to IntelliJ
  */
-
 public interface ISubMonitor extends IProgressMonitor {
 
     public static final int SUPPRESS_NONE = 1;
@@ -44,18 +44,17 @@ public interface ISubMonitor extends IProgressMonitor {
 
     IProgressMonitor newChildMain(int progress);
 
-     IProgressMonitor newChildMain(int progress, int mode);
+    IProgressMonitor newChildMain(int progress, int mode);
 
     ISubMonitor newChild(int progress, int mode);
 
-
     boolean isCanceled();
+
+    void setCanceled(boolean cancel);
 
     void setTaskName(String name);
 
     void beginTask(String taskName, int workTotal);
 
     void worked(int worked);
-
-    void setCanceled(boolean cancel);
 }

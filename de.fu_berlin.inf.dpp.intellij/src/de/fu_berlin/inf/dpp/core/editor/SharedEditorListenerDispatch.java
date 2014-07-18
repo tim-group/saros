@@ -34,15 +34,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener} which can dispatch to a changing set of
  * {@link de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener}s.
  */
-//todo: copy from eclipse
 public class SharedEditorListenerDispatch implements ISharedEditorListener {
 
     private CopyOnWriteArrayList<ISharedEditorListener> editorListeners = new CopyOnWriteArrayList<ISharedEditorListener>();
 
+    /**
+     * Adds the listener if it was not added before.
+     *
+     * @param editorListener
+     */
     public void add(ISharedEditorListener editorListener) {
         editorListeners.addIfAbsent(editorListener);
     }
 
+    /**
+     * Removes the listener.
+     *
+     * @param editorListener
+     */
     public void remove(ISharedEditorListener editorListener) {
         editorListeners.remove(editorListener);
     }
@@ -96,7 +105,6 @@ public class SharedEditorListenerDispatch implements ISharedEditorListener {
         for (ISharedEditorListener listener : editorListeners)
             listener.jumpedToUser(jumpedTo);
     }
-
 
     @Override
     public void colorChanged() {

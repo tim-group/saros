@@ -37,7 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Map which will automatically insert a value for a given key if the Map does
  * not already contain one.
- *
+ * <p/>
  * This Map is backed by a HashMap and inherits all characteristics by it.
  */
 public class AutoHashMap<K, V> implements Map<K, V> {
@@ -52,6 +52,10 @@ public class AutoHashMap<K, V> implements Map<K, V> {
      * (this happens if get(k) is called but containsKey(k) returns false)
      */
     protected Function<K, V> provider;
+
+    public AutoHashMap(Function<K, V> provider) {
+        this.provider = provider;
+    }
 
     /**
      * Returns an AutoHashMap which automatically will initialize an
@@ -78,7 +82,8 @@ public class AutoHashMap<K, V> implements Map<K, V> {
                     public BlockingQueue<V> apply(K u) {
                         return new LinkedBlockingQueue<V>();
                     }
-                });
+                }
+        );
     }
 
     /**
@@ -92,10 +97,6 @@ public class AutoHashMap<K, V> implements Map<K, V> {
                 return new HashSet<V>();
             }
         });
-    }
-
-    public AutoHashMap(Function<K, V> provider) {
-        this.provider = provider;
     }
 
     @Override

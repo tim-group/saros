@@ -24,35 +24,23 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.4
- * Time: 16.03
- */
+public class ResourceAttributes implements IResourceAttributes {
+    private boolean readOnly = false;
 
-public class ResourceAttributes implements IResourceAttributes
-{
-    private boolean readOnly=false;
-
-    public ResourceAttributes()
-    {
+    public ResourceAttributes() {
     }
 
-    public ResourceAttributes(boolean readOnly)
-    {
+    public ResourceAttributes(boolean readOnly) {
         this.readOnly = readOnly;
     }
 
     @Override
-    public boolean isReadOnly()
-    {
+    public boolean isReadOnly() {
         return readOnly;
     }
 
     @Override
-    public void setReadOnly(boolean readOnly)
-    {
+    public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
 }

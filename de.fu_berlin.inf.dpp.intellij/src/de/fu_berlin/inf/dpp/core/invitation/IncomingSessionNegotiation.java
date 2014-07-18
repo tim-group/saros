@@ -4,7 +4,6 @@ import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcceptedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcknowledgedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationCompletedExtension;
-import de.fu_berlin.inf.dpp.communication.extensions.InvitationCompletedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationParameterExchangeExtension;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.editor.colorstorage.UserColorID;
@@ -26,7 +25,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /*
- * IMPORTANT: All messages in the cancellation exceptions are SHOWN to the end user !
+ * IMPORTANT: All messages in the cancellation exception are SHOWN to the end user !
  */
 public class IncomingSessionNegotiation extends SessionNegotiation {
 
@@ -47,8 +46,8 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
     private IConnectionManager connectionManager;
 
     public IncomingSessionNegotiation(ISarosSessionManager sessionManager,
-                                      JID from, String remoteVersion, String invitationID,
-                                      String description, ISarosContext sarosContext) {
+                                      JID from, String remoteVersion, String invitationID, String description,
+                                      ISarosContext sarosContext) {
 
         super(invitationID, from, description, sarosContext);
 
@@ -62,11 +61,13 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
      */
     @Override
     public synchronized boolean remoteCancel(String errorMsg) {
-        if (!super.remoteCancel(errorMsg))
+        if (!super.remoteCancel(errorMsg)) {
             return false;
+        }
 
-        if (!running)
+        if (!running) {
             terminateProcess(null);
+        }
 
         return true;
     }
@@ -78,11 +79,13 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
     @Override
     public synchronized boolean localCancel(String errorMsg,
                                             CancelOption cancelOption) {
-        if (!super.localCancel(errorMsg, cancelOption))
+        if (!super.localCancel(errorMsg, cancelOption)) {
             return false;
+        }
 
-        if (!running)
+        if (!running) {
             terminateProcess(null);
+        }
 
         return true;
     }
@@ -237,19 +240,20 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
         Packet packet = collectPacket(invitationDataExchangeCollector,
                 PACKET_TIMEOUT);
 
-        if (packet == null)
-            throw new LocalCancellationException(peerNickname
-                    + " does not respond. (Timeout)",
-                    CancelOption.DO_NOT_NOTIFY_PEER
-            );
+        if (packet == null) {
+            throw new LocalCancellationException(
+                    peerNickname + " does not respond. (Timeout)",
+                    CancelOption.DO_NOT_NOTIFY_PEER);
+        }
 
         InvitationParameterExchangeExtension parameters;
         parameters = InvitationParameterExchangeExtension.PROVIDER
                 .getPayload(packet);
 
-        if (parameters == null)
+        if (parameters == null) {
             throw new LocalCancellationException(peer + " sent malformed data",
                     CancelOption.DO_NOT_NOTIFY_PEER);
+        }
 
         LOG.debug(this + " : received host's session parameters");
 
@@ -268,26 +272,18 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
 
         monitor.setTaskName("Initializing session...");
 
-        // HACK (Part 1/4)
-        int clientColor = UserColorID.UNKNOWN;
-        int hostFavoriteColor = UserColorID.UNKNOWN;
-
-        // HACK (Part 2/4)
-
-        String clientNickname = null;
-        String hostNickname = null;
-
         for (ISessionNegotiationHook hook : hookManager.getHooks()) {
             Map<String, String> settings = parameters.getHookSettings(hook);
-            if (settings == null)
+            if (settings == null) {
                 continue;
+            }
 
             hook.applyActualParameters(settings);
-
         }
 
-        sarosSession = sessionManager.joinSession(parameters.getSessionHost(),
-                clientNickname, hostNickname, clientColor, hostFavoriteColor);
+        sarosSession = sessionManager
+                .joinSession(parameters.getSessionHost(), null, null,
+                        UserColorID.UNKNOWN, UserColorID.UNKNOWN);
     }
 
     /**
@@ -336,21 +332,24 @@ public class IncomingSessionNegotiation extends SessionNegotiation {
         monitor.setTaskName("Waiting for " + peerNickname
                 + " to perform final initialization...");
 
-        if (collectPacket(invitationAcknowledgedCollector, PACKET_TIMEOUT) == null)
-            throw new LocalCancellationException(peerNickname
-                    + " does not respond. (Timeout)",
-                    CancelOption.DO_NOT_NOTIFY_PEER
-            );
+        if (collectPacket(invitationAcknowledgedCollector, PACKET_TIMEOUT)
+                == null) {
+            throw new LocalCancellationException(
+                    peerNickname + " does not respond. (Timeout)",
+                    CancelOption.DO_NOT_NOTIFY_PEER);
+        }
     }
 
     private void createCollectors() {
-        invitationAcknowledgedCollector = receiver
-                .createCollector(InvitationAcknowledgedExtension.PROVIDER
-                        .getPacketFilter(invitationID));
+        invitationAcknowledgedCollector = receiver.createCollector(
+                InvitationAcknowledgedExtension.PROVIDER
+                        .getPacketFilter(invitationID)
+        );
 
-        invitationDataExchangeCollector = receiver
-                .createCollector(InvitationParameterExchangeExtension.PROVIDER
-                        .getPacketFilter(invitationID));
+        invitationDataExchangeCollector = receiver.createCollector(
+                InvitationParameterExchangeExtension.PROVIDER
+                        .getPacketFilter(invitationID)
+        );
     }
 
     private void deleteCollectors() {

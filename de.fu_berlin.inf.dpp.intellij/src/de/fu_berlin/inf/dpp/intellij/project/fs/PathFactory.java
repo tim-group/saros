@@ -25,24 +25,14 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.4
- * Time: 17.31
- */
-
-public class PathFactory implements IPathFactory
-{
+public class PathFactory implements IPathFactory {
     @Override
-    public String fromPath(IPath path)
-    {
+    public String fromPath(IPath path) {
         return path.toPortableString();
     }
 
     @Override
-    public IPath fromString(String name)
-    {
+    public IPath fromString(String name) {
         return new PathImp(name);
     }
 

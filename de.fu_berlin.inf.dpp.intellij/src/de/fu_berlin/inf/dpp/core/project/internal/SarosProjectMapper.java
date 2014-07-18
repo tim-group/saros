@@ -29,7 +29,14 @@ import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is responsible for mapping global project IDs to local
@@ -44,9 +51,8 @@ import java.util.*;
  * FIXME: the partial sharing stuff should not be handled here but in the
  * SharedProject class
  */
- //todo: copy from eclipse
-public class SarosProjectMapper
-{
+//todo: copy from eclipse
+public class SarosProjectMapper {
 
     private static final Logger LOG = Logger
             .getLogger(SarosProjectMapper.class);
@@ -99,8 +105,7 @@ public class SarosProjectMapper
      */
     private Set<IProject> partiallySharedProjects = new HashSet<IProject>();
 
-    public SarosProjectMapper()
-    {
+    public SarosProjectMapper() {
         // NOP
     }
 
@@ -121,77 +126,65 @@ public class SarosProjectMapper
      * @throws IllegalStateException if the id is already in use or the project was already added
      */
     public synchronized void addProject(String id, IProject project,
-            boolean isPartially)
-    {
+                                        boolean isPartially) {
         boolean upgrade = false;
 
-        if (id == null)
-        {
+        if (id == null) {
             throw new NullPointerException("id is null");
         }
 
-        if (project == null)
-        {
+        if (project == null) {
             throw new NullPointerException("project is null");
         }
 
         String currentProjectID = projectToIDMapping.get(project);
         IProject currentProject = idToProjectMapping.get(id);
 
-        if (currentProjectID != null && !id.equals(currentProjectID))
-        {
+        if (currentProjectID != null && !id.equals(currentProjectID)) {
             throw new IllegalStateException("cannot assign ID " + id
                     + " to project " + project
                     + " because it is already registered with ID "
                     + currentProjectID);
         }
 
-        if (currentProject != null && !project.equals(currentProject))
-        {
+        if (currentProject != null && !project.equals(currentProject)) {
             throw new IllegalStateException("ID " + id + " for project "
                     + project + " is already used by project " + currentProject);
         }
 
-        if (isPartially && partiallySharedProjects.contains(project))
-        {
+        if (isPartially && partiallySharedProjects.contains(project)) {
             throw new IllegalStateException("project " + project
                     + " is already partially shared");
         }
 
-        if (!isPartially && completelySharedProjects.contains(project))
-        {
+        if (!isPartially && completelySharedProjects.contains(project)) {
             throw new IllegalStateException("project " + project
                     + " is already completely shared");
         }
 
-        if (isPartially && completelySharedProjects.contains(project))
-        {
+        if (isPartially && completelySharedProjects.contains(project)) {
             throw new IllegalStateException(
                     "project "
                             + project
-                            + " is already completely shared (cannot downgrade a completely shared project)");
+                            + " is already completely shared (cannot downgrade a completely shared project)"
+            );
         }
 
-        if (!isPartially && partiallySharedProjects.contains(project))
-        {
+        if (!isPartially && partiallySharedProjects.contains(project)) {
             partiallySharedProjects.remove(project);
             upgrade = true;
         }
 
-        if (isPartially)
-        {
+        if (isPartially) {
             partiallySharedProjects.add(project);
-        }
-        else
-        {
+        } else {
             completelySharedProjects.add(project);
         }
 
         assert Collections.disjoint(completelySharedProjects,
                 partiallySharedProjects);
 
-        if (upgrade)
-        {
+        if (upgrade) {
             // release resources
             partiallySharedResourceMapping.put(project, null);
 
@@ -203,13 +196,10 @@ public class SarosProjectMapper
         idToProjectMapping.put(id, project);
         projectToIDMapping.put(project, id);
 
-        if (isPartially)
-        {
+        if (isPartially) {
             partiallySharedResourceMapping.put(project,
                     new HashSet<IResource>());
-        }
-        else
-        {
+        } else {
             partiallySharedResourceMapping.put(project, null);
         }
 
@@ -223,23 +213,18 @@ public class SarosProjectMapper
      *
      * @param id the id of the project to removeAll
      */
-    public synchronized void removeProject(String id)
-    {
+    public synchronized void removeProject(String id) {
         IProject project = idToProjectMapping.get(id);
 
-        if (project == null)
-        {
+        if (project == null) {
             LOG.warn("could not removeAll project, no project is registerid with ID: "
                     + id);
             return;
         }
 
-        if (partiallySharedProjects.contains(project))
-        {
+        if (partiallySharedProjects.contains(project)) {
             partiallySharedProjects.remove(project);
-        }
-        else
-        {
+        } else {
             completelySharedProjects.remove(project);
         }
 
@@ -251,36 +236,30 @@ public class SarosProjectMapper
 
     }
 
-    public synchronized void addOwnership(JID senderJID, IProject project)
-    {
+    public synchronized void addOwnership(JID senderJID, IProject project) {
 
         List<IProject> ownedProjects = projectOwnershipMapping.get(senderJID);
 
-        if (ownedProjects == null)
-        {
+        if (ownedProjects == null) {
             ownedProjects = new ArrayList<IProject>();
         }
 
-        if (!ownedProjects.contains(project))
-        {
+        if (!ownedProjects.contains(project)) {
             ownedProjects.add(project);
         }
 
         projectOwnershipMapping.put(senderJID, ownedProjects);
     }
 
-    public synchronized void removeOwnership(JID senderJID, IProject project)
-    {
+    public synchronized void removeOwnership(JID senderJID, IProject project) {
 
         List<IProject> ownedProjects = projectOwnershipMapping.get(senderJID);
 
-        if (ownedProjects == null)
-        {
+        if (ownedProjects == null) {
             return;
         }
 
-        if (!ownedProjects.contains(project))
-        {
+        if (!ownedProjects.contains(project)) {
             return;
         }
 
@@ -289,15 +268,13 @@ public class SarosProjectMapper
         projectOwnershipMapping.put(senderJID, ownedProjects);
     }
 
-    public synchronized List<IProject> getOwnedProjects(JID jid)
-    {
+    public synchronized List<IProject> getOwnedProjects(JID jid) {
 
         List<IProject> result = new ArrayList<IProject>();
 
         List<IProject> ownedProjects = projectOwnershipMapping.get(jid);
 
-        if (ownedProjects != null)
-        {
+        if (ownedProjects != null) {
             result.addAll(ownedProjects);
         }
 
@@ -318,11 +295,9 @@ public class SarosProjectMapper
      * at all
      */
     public synchronized void addResources(IProject project,
-            Collection<? extends IResource> resources)
-    {
+                                          Collection<? extends IResource> resources) {
 
-        if (projectToIDMapping.get(project) == null)
-        {
+        if (projectToIDMapping.get(project) == null) {
             LOG.warn("could not add resources to project " + project
                     + " because it is not shared");
             // throw new IllegalStateException(
@@ -331,8 +306,7 @@ public class SarosProjectMapper
             return;
         }
 
-        if (completelySharedProjects.contains(project))
-        {
+        if (completelySharedProjects.contains(project)) {
             LOG.warn("cannot add resources to completely shared project: "
                     + project);
             // throw new IllegalStateException(
@@ -343,8 +317,7 @@ public class SarosProjectMapper
         Set<IResource> partiallySharedResources = partiallySharedResourceMapping
                 .get(project);
 
-        if (partiallySharedResources.isEmpty())
-        {
+        if (partiallySharedResources.isEmpty()) {
             partiallySharedResources = new HashSet<IResource>(Math.max(1024,
                     (resources.size() * 3) / 2));
 
@@ -368,11 +341,9 @@ public class SarosProjectMapper
      * at all
      */
     public synchronized void removeResources(IProject project,
-            Collection<? extends IResource> resources)
-    {
+                                             Collection<? extends IResource> resources) {
 
-        if (projectToIDMapping.get(project) == null)
-        {
+        if (projectToIDMapping.get(project) == null) {
             LOG.warn("could not removeAll resources from project " + project
                     + " because it is not shared");
             // throw new IllegalStateException(
@@ -381,8 +352,7 @@ public class SarosProjectMapper
             return;
         }
 
-        if (completelySharedProjects.contains(project))
-        {
+        if (completelySharedProjects.contains(project)) {
             LOG.warn("cannot removeAll resources from completely shared project: "
                     + project);
             // throw new IllegalStateException(
@@ -412,9 +382,8 @@ public class SarosProjectMapper
      * at all
      */
     public synchronized void removeAndAddResources(IProject project,
-            Collection<? extends IResource> resourcesToRemove,
-            Collection<? extends IResource> resourcesToAdd)
-    {
+                                                   Collection<? extends IResource> resourcesToRemove,
+                                                   Collection<? extends IResource> resourcesToAdd) {
 
         removeResources(project, resourcesToRemove);
         addResources(project, resourcesToAdd);
@@ -425,10 +394,9 @@ public class SarosProjectMapper
      *
      * @param project the project to lookup the ID for
      * @return the ID for the shared project or <code>null</code> if the project
-     *         is not shared
+     * is not shared
      */
-    public synchronized String getID(IProject project)
-    {
+    public synchronized String getID(IProject project) {
         return projectToIDMapping.get(project);
     }
 
@@ -437,10 +405,9 @@ public class SarosProjectMapper
      *
      * @param id
      * @return the shared project for the given ID or <code>null</code> if no
-     *         shared project is registered with this ID
+     * shared project is registered with this ID
      */
-    public synchronized IProject getProject(String id)
-    {
+    public synchronized IProject getProject(String id) {
         return idToProjectMapping.get(id);
     }
 
@@ -451,22 +418,18 @@ public class SarosProjectMapper
      * @param resource
      * @return
      */
-    public synchronized boolean isShared(IResource resource)
-    {
-        if (resource == null)
-        {
+    public synchronized boolean isShared(IResource resource) {
+        if (resource == null) {
             return false;
         }
 
-        if (resource.getType() == IResource.PROJECT)
-        {
+        if (resource.getType() == IResource.PROJECT) {
             return idToProjectMapping.containsValue(resource);
         }
 
         IProject project = resource.getProject();
 
-        if (!idToProjectMapping.containsValue(project))
-        {
+        if (!idToProjectMapping.containsValue(project)) {
             return false;
         }
 
@@ -474,9 +437,7 @@ public class SarosProjectMapper
         // TODO how should partial sharing handle this case ?
         {
             return !resource.isDerived(true);
-        }
-        else
-        {
+        } else {
             return partiallySharedResourceMapping.get(project).contains(
                     resource);
         }
@@ -487,8 +448,7 @@ public class SarosProjectMapper
      *
      * @return
      */
-    public synchronized Set<IProject> getProjects()
-    {
+    public synchronized Set<IProject> getProjects() {
         return new HashSet<IProject>(idToProjectMapping.values());
     }
 
@@ -497,15 +457,12 @@ public class SarosProjectMapper
      *
      * @return
      */
-    public synchronized List<IResource> getPartiallySharedResources()
-    {
+    public synchronized List<IResource> getPartiallySharedResources() {
 
         int size = 0;
 
-        for (Set<IResource> resources : partiallySharedResourceMapping.values())
-        {
-            if (resources != null)
-            {
+        for (Set<IResource> resources : partiallySharedResourceMapping.values()) {
+            if (resources != null) {
                 size += resources.size();
             }
         }
@@ -513,10 +470,8 @@ public class SarosProjectMapper
         List<IResource> partiallySharedResources = new ArrayList<IResource>(
                 size);
 
-        for (Set<IResource> resources : partiallySharedResourceMapping.values())
-        {
-            if (resources != null)
-            {
+        for (Set<IResource> resources : partiallySharedResourceMapping.values()) {
+            if (resources != null) {
                 partiallySharedResources.addAll(resources);
             }
         }
@@ -529,8 +484,7 @@ public class SarosProjectMapper
      *
      * @return
      */
-    public synchronized int size()
-    {
+    public synchronized int size() {
         return idToProjectMapping.size();
     }
 
@@ -541,19 +495,16 @@ public class SarosProjectMapper
      *
      * @return
      */
-    public synchronized Map<IProject, List<IResource>> getProjectResourceMapping()
-    {
+    public synchronized Map<IProject, List<IResource>> getProjectResourceMapping() {
 
         Map<IProject, List<IResource>> result = new HashMap<IProject, List<IResource>>();
 
         for (Map.Entry<IProject, Set<IResource>> entry : partiallySharedResourceMapping
-                .entrySet())
-        {
+                .entrySet()) {
 
             List<IResource> partiallySharedResources = null;
 
-            if (entry.getValue() != null)
-            {
+            if (entry.getValue() != null) {
                 partiallySharedResources = new ArrayList<IResource>(
                         entry.getValue());
             }
@@ -569,10 +520,9 @@ public class SarosProjectMapper
      *
      * @param project the project to check
      * @return <code>true</code> if the project is completely shared,
-     *         <code>false</code> if the project is not or partially shared
+     * <code>false</code> if the project is not or partially shared
      */
-    public synchronized boolean isCompletelyShared(IProject project)
-    {
+    public synchronized boolean isCompletelyShared(IProject project) {
         return completelySharedProjects.contains(project);
     }
 
@@ -581,10 +531,9 @@ public class SarosProjectMapper
      *
      * @param project the project to check
      * @return <code>true</code> if the project is partially shared,
-     *         <code>false</code> if the project is not or completely shared
+     * <code>false</code> if the project is not or completely shared
      */
-    public synchronized boolean isPartiallyShared(IProject project)
-    {
+    public synchronized boolean isPartiallyShared(IProject project) {
         return partiallySharedProjects.contains(project);
     }
 
@@ -594,10 +543,8 @@ public class SarosProjectMapper
      * @param user    The user to be checked
      * @param project The project to be checked
      */
-    public synchronized boolean userHasProject(User user, IProject project)
-    {
-        if (projectsOfUsers.containsKey(user))
-        {
+    public synchronized boolean userHasProject(User user, IProject project) {
+        if (projectsOfUsers.containsKey(user)) {
             return projectsOfUsers.get(user).contains(getID(project));
         }
         return false;
@@ -609,11 +556,9 @@ public class SarosProjectMapper
      *
      * @param user
      */
-    public synchronized void addMissingProjectsToUser(User user)
-    {
+    public synchronized void addMissingProjectsToUser(User user) {
         List<String> projects = new ArrayList<String>();
-        for (String project : idToProjectMapping.keySet())
-        {
+        for (String project : idToProjectMapping.keySet()) {
             projects.add(project);
         }
 
@@ -623,8 +568,7 @@ public class SarosProjectMapper
     /**
      * Removes the user-project mapping of the user that left the session.
      */
-    public void userLeft(User user)
-    {
+    public void userLeft(User user) {
         projectsOfUsers.remove(user);
     }
 }

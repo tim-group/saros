@@ -27,8 +27,7 @@ import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 /**
  * Abstract IntelliJ event listener
  */
-public abstract class AbstractStoppableListener
-{
+public abstract class AbstractStoppableListener {
 
     protected EditorManager editorManager;
     protected boolean enabled = true;
@@ -43,8 +42,7 @@ public abstract class AbstractStoppableListener
      * @param enabled <code>true</code> to forward text changes, <code>false</code>
      *                otherwise
      */
-    public void setEnabled(boolean enabled)
-    {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 }

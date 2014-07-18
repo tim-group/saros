@@ -43,19 +43,11 @@ import org.apache.log4j.helpers.LogLog;
  */
 public class Saros {
 
-    private static final Logger LOG = Logger.getLogger(Saros.class);
-
     /**
      * This is the Bundle-SymbolicName (a.k.a the pluginID)
      */
 
     public static final String SAROS = "de.fu_berlin.inf.dpp";
-
-    /**
-     * Default server name
-     */
-    public static final String SAROS_SERVER = "localhost";
-
     /**
      * The name of the XMPP namespace used by SarosEclipse. At the moment it is only
      * used to advertise the SarosEclipse feature in the Service Discovery.
@@ -64,7 +56,16 @@ public class Saros {
      * can use each other.
      */
     public final static String NAMESPACE = SAROS;
-
+    /**
+     * Sub-namespace for the server. It is used advertise when a server is
+     * active.
+     */
+    public static final String NAMESPACE_SERVER =
+            NAMESPACE + ".server";
+    /**
+     * Default server name
+     */
+    public static final String SAROS_SERVER = "localhost";
     /**
      * The name of the resource identifier used by SarosEclipse when connecting to the
      * XMPP server (for instance when logging in as john@doe.com, SarosEclipse will
@@ -73,14 +74,7 @@ public class Saros {
      * //todo
      */
     public final static String RESOURCE = "Saros";
-
-    /**
-     * Sub-namespace for the server. It is used advertise when a server is
-     * active.
-     */
-    public static final String NAMESPACE_SERVER =
-            NAMESPACE + ".server";
-
+    private static final Logger LOG = Logger.getLogger(Saros.class);
     private static Saros instance;
 
     private static boolean isInitialized;
@@ -96,6 +90,11 @@ public class Saros {
     private IWorkspace workspace;
 
     private SarosContext sarosContext;
+
+    private Saros(Project project) {
+        this.project = project;
+        this.workspace = new Workspace(project);
+    }
 
     /**
      * Returns true if the Saros instance has been initialized so that calling
@@ -130,11 +129,6 @@ public class Saros {
             instance.start();
         }
         return instance;
-    }
-
-    private Saros(Project project) {
-        this.project = project;
-        this.workspace = new Workspace(project);
     }
 
     /**
@@ -182,12 +176,12 @@ public class Saros {
         return toolWindow;
     }
 
-    public IWorkspace getWorkspace() {
-        return workspace;
-    }
-
     public void setToolWindow(ToolWindow toolWindow) {
         this.toolWindow = toolWindow;
+    }
+
+    public IWorkspace getWorkspace() {
+        return workspace;
     }
 
     public SarosMainPanelView getMainPanel() {

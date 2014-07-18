@@ -30,6 +30,8 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
  */
 public class PreferenceStore implements IPreferenceStore {
 
+    private static final String PROPERTY_PREFIX = "de.fu_berlin.inf.dpp.config.";
+
     private PropertiesComponent properties;
 
     /**
@@ -41,7 +43,7 @@ public class PreferenceStore implements IPreferenceStore {
 
     @Override
     public int getInt(String key) {
-        String value = properties.getValue(key);
+        String value = properties.getValue(PROPERTY_PREFIX + key);
         if (value == null) {
             return DEFAULT_INT;
         }
@@ -54,13 +56,13 @@ public class PreferenceStore implements IPreferenceStore {
 
     @Override
     public boolean getBoolean(String key) {
-        String value = properties.getValue(key);
+        String value = properties.getValue(PROPERTY_PREFIX + key);
         return value == null ? DEFAULT_BOOLEAN : Boolean.valueOf(value);
     }
 
     @Override
     public String getString(String key) {
-        return properties.getValue(key, DEFAULT_STRING);
+        return properties.getValue(PROPERTY_PREFIX + key, DEFAULT_STRING);
     }
 
     @Override
@@ -75,6 +77,6 @@ public class PreferenceStore implements IPreferenceStore {
 
     @Override
     public void setValue(String key, String value) {
-        properties.setValue(key, value);
+        properties.setValue(PROPERTY_PREFIX + key, value);
     }
 }

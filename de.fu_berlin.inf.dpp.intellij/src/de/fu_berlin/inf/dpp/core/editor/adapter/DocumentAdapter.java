@@ -26,30 +26,25 @@ package de.fu_berlin.inf.dpp.core.editor.adapter;
  * Adapts the {@link com.intellij.openapi.editor.Document} to
  * {@link de.fu_berlin.inf.dpp.core.editor.adapter.IDocument}.
  */
-public class DocumentAdapter implements IDocument
-{
+public class DocumentAdapter implements IDocument {
     private com.intellij.openapi.editor.Document doc;
 
-    public DocumentAdapter(com.intellij.openapi.editor.Document doc)
-    {
+    public DocumentAdapter(com.intellij.openapi.editor.Document doc) {
         this.doc = doc;
     }
 
     @Override
-    public String get()
-    {
-       return doc.getText();
+    public String get() {
+        return doc.getText();
     }
 
     @Override
-    public int getLength()
-    {
+    public int getLength() {
         return doc.getTextLength();
     }
 
     @Override
-    public int getNumberOfLines()
-    {
+    public int getNumberOfLines() {
         return doc.getLineCount();
     }
 

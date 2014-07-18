@@ -72,27 +72,14 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             .getLogger(ConsistencyWatchdogServer.class);
 
     private static final long INTERVAL = 10000;
-
-    private ScheduledThreadPoolExecutor executor;
-
-    private ScheduledFuture<?> triggerChecksumFuture;
-
     private final HashMap<SPath, DocumentChecksum> docsChecksums = new HashMap<SPath, DocumentChecksum>();
-
     private final EditorManager editorManager;
-
     private final ISarosSession session;
-
     private final StopManager stopManager;
-
     private final UISynchronizer synchronizer;
-
+    private ScheduledThreadPoolExecutor executor;
+    private ScheduledFuture<?> triggerChecksumFuture;
     private boolean locked;
-
-    @Inject
-    private EditorAPI editorAPI;
-
-
     private final Runnable checksumCalculationTrigger = new Runnable() {
 
         @Override
@@ -109,6 +96,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             }));
         }
     };
+    @Inject
+    private EditorAPI editorAPI;
 
     public ConsistencyWatchdogServer(ISarosSession session,
                                      EditorManager editorManager, StopManager stopManager,

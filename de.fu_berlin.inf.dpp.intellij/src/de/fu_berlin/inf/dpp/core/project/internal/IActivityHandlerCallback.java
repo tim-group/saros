@@ -35,8 +35,7 @@ import java.util.List;
  *
  * @author Stefan Rossbach
  */
-public interface IActivityHandlerCallback
-{
+public interface IActivityHandlerCallback {
 
     /**
      * Gets called when an activity should be send to several session users.

@@ -57,37 +57,53 @@ public class PreferenceConstants {
      * the configuration).
      */
 
-    /** Can be set and read by the FeedbackManager */
+    /**
+     * Can be set and read by the FeedbackManager
+     */
     public static final String FEEDBACK_SURVEY_DISABLED = "feedback.survey.disabled";
 
-    /** Can be set and read by the FeedbackManager */
+    /**
+     * Can be set and read by the FeedbackManager
+     */
     public static final String FEEDBACK_SURVEY_INTERVAL = "feedback.survey.interval";
 
-    /** Can be set and read by the StatisticManager */
+    /**
+     * Can be set and read by the StatisticManager
+     */
     public static final String STATISTIC_ALLOW_SUBMISSION = "statistic.allow.submission";
 
-    /** Can be set and read by the ErrorLogManager */
+    /**
+     * Can be set and read by the ErrorLogManager
+     */
     public static final String ERROR_LOG_ALLOW_SUBMISSION = "error.LOG.allow.submission";
 
-    /** Can be set and read by the ErrorLogManager */
+    /**
+     * Can be set and read by the ErrorLogManager
+     */
     public static final String ERROR_LOG_ALLOW_SUBMISSION_FULL = "error.LOG.allow.submission.full";
 
     /*
      * Global preferences, not initialized i.e. no default values
      */
 
-    /** Can be set and read by the StatisticManager */
+    /**
+     * Can be set and read by the StatisticManager
+     */
     public static final String SESSION_COUNT = "session.count";
 
-    /** Can be set and read by the FeedbackManager */
+    /**
+     * Can be set and read by the FeedbackManager
+     */
     public static final String SESSIONS_UNTIL_NEXT = "sessions.until.next.survey";
 
-    /** Can be read by the StatisticManager */
+    /**
+     * Can be read by the StatisticManager
+     */
     public static final String RANDOM_USER_ID = "user.id";
 
     /**
      * Preference used for a way to let the user identify himself.
-     *
+     * <p/>
      * For instance, this might get a value such as "coezbek" or "rdjemili".
      */
     public static final String STATISTICS_PSEUDONYM_ID = "STATISTICS_PSEUDONYM_ID";
@@ -102,7 +118,9 @@ public class PreferenceConstants {
      * Preferences for Communication
      */
 
-    /** Custom multiuser-chat service name **/
+    /**
+     * Custom multiuser-chat service name *
+     */
     public static final String CUSTOM_MUC_SERVICE = "custom_muc_service";
 
     public static final String FORCE_CUSTOM_MUC_SERVICE = "force_custom_muc_service";

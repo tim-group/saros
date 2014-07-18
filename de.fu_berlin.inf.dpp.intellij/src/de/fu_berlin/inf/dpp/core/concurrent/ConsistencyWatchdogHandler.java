@@ -69,6 +69,13 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         }
     };
 
+    public ConsistencyWatchdogHandler(ISarosSession sarosSession,
+                                      LocalEditorHandler localEditorHandler, ConsistencyWatchdogClient watchdogClient) {
+        this.session = sarosSession;
+        this.localEditorHandler = localEditorHandler;
+        this.watchdogClient = watchdogClient;
+    }
+
     @Override
     public void start() {
         session.addActivityProducer(this);
@@ -77,13 +84,6 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     @Override
     public void stop() {
         session.addActivityProducer(this);
-    }
-
-    public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-                                      LocalEditorHandler localEditorHandler, ConsistencyWatchdogClient watchdogClient) {
-        this.session = sarosSession;
-        this.localEditorHandler = localEditorHandler;
-        this.watchdogClient = watchdogClient;
     }
 
     /**

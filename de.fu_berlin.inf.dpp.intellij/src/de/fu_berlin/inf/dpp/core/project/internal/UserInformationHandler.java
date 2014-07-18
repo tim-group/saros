@@ -39,7 +39,11 @@ import org.jivesoftware.smack.packet.PacketExtension;
 import org.picocontainer.Startable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Business Logic for receiving and sending updates of the invitation state of
@@ -48,8 +52,7 @@ import java.util.*;
  */
 //todo: copy from eclipse
 @Component(module = "core")
-public class UserInformationHandler implements Startable
-{
+public class UserInformationHandler implements Startable {
 
     private static final Logger log = Logger
             .getLogger(UserInformationHandler.class.getName());
@@ -61,32 +64,24 @@ public class UserInformationHandler implements Startable
     private final IReceiver receiver;
 
     private final ISarosSession session;
-
-    private String currentSessionID;
-
-    private final PacketListener userListListener = new PacketListener()
-    {
+    private final PacketListener userListListener = new PacketListener() {
 
         @Override
-        public void processPacket(Packet packet)
-        {
+        public void processPacket(Packet packet) {
             handleUserListUpdate(packet);
         }
     };
-
-    private final PacketListener userFinishedProjectNegotiations = new PacketListener()
-    {
+    private final PacketListener userFinishedProjectNegotiations = new PacketListener() {
 
         @Override
-        public void processPacket(Packet packet)
-        {
+        public void processPacket(Packet packet) {
             handleUserFinishedProjectNegotiationPacket(packet);
         }
     };
+    private String currentSessionID;
 
     public UserInformationHandler(ISarosSession session,
-            ITransmitter transmitter, IReceiver receiver)
-    {
+                                  ITransmitter transmitter, IReceiver receiver) {
         this.session = session;
         this.currentSessionID = session.getID();
         this.transmitter = transmitter;
@@ -94,20 +89,19 @@ public class UserInformationHandler implements Startable
     }
 
     @Override
-    public void start()
-    {
+    public void start() {
 
         receiver.addPacketListener(userListListener,
                 UserListExtension.PROVIDER.getPacketFilter(currentSessionID));
 
         receiver.addPacketListener(userFinishedProjectNegotiations,
                 UserFinishedProjectNegotiationExtension.PROVIDER
-                        .getPacketFilter(currentSessionID));
+                        .getPacketFilter(currentSessionID)
+        );
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
         receiver.removePacketListener(userListListener);
         receiver.removePacketListener(userFinishedProjectNegotiations);
     }
@@ -122,7 +116,7 @@ public class UserInformationHandler implements Startable
      * @param remoteUsers  collection containing the users that will receive the user
      *                     list
      * @return a list of users that did not reply when synchronizing the user
-     *         list
+     * list
      * @throws IllegalStateException    if the local user of the session is not the host
      * @throws IllegalArgumentException if remoteUsers collection is empty<br/>
      *                                  if usersAdded and usersRemoved are either both empty or
@@ -130,17 +124,14 @@ public class UserInformationHandler implements Startable
      */
     public synchronized List<User> synchronizeUserList(
             Collection<User> usersAdded, Collection<User> usersRemoved,
-            Collection<User> remoteUsers)
-    {
+            Collection<User> remoteUsers) {
 
-        if (!session.isHost())
-        {
+        if (!session.isHost()) {
             throw new IllegalStateException(
                     "only the host can synchronize the user list");
         }
 
-        if (remoteUsers.isEmpty())
-        {
+        if (remoteUsers.isEmpty()) {
             throw new IllegalArgumentException("remoteUser collection is empty");
         }
 
@@ -150,29 +141,24 @@ public class UserInformationHandler implements Startable
         final UserListExtension extension = new UserListExtension(
                 currentSessionID);
 
-        if (usersAdded == null)
-        {
+        if (usersAdded == null) {
             usersAdded = Collections.emptyList();
         }
 
-        if (usersRemoved == null)
-        {
+        if (usersRemoved == null) {
             usersRemoved = Collections.emptyList();
         }
 
-        if (usersAdded.isEmpty() && usersRemoved.isEmpty())
-        {
+        if (usersAdded.isEmpty() && usersRemoved.isEmpty()) {
             throw new IllegalArgumentException(
                     "usersAdded and usersRemoved collections are empty");
         }
 
-        for (User user : usersAdded)
-        {
+        for (User user : usersAdded) {
             extension.addUser(user, UserListExtension.UserListEntry.USER_ADDED);
         }
 
-        for (User user : usersRemoved)
-        {
+        for (User user : usersRemoved) {
             extension.addUser(user, UserListExtension.UserListEntry.USER_REMOVED);
         }
 
@@ -183,18 +169,13 @@ public class UserInformationHandler implements Startable
                 .createCollector(UserListReceivedExtension.PROVIDER
                         .getPacketFilter(currentSessionID));
 
-        try
-        {
-            for (User user : remoteUsers)
-            {
-                try
-                {
+        try {
+            for (User user : remoteUsers) {
+                try {
                     transmitter.send(
                             ISarosSession.SESSION_CONNECTION_ID, user.getJID(),
                             UserListExtension.PROVIDER.create(extension));
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     log.error("failed to send user list to user: " + user, e);
                     notReplied.add(user);
                     awaitReply.remove(user);
@@ -205,65 +186,52 @@ public class UserInformationHandler implements Startable
 
             // see BUG #3544930 , the confirmation is useless
 
-            while ((System.currentTimeMillis() - synchronizeStart) < USER_LIST_SYNCHRONIZE_TIMEOUT)
-            {
+            while ((System.currentTimeMillis() - synchronizeStart) < USER_LIST_SYNCHRONIZE_TIMEOUT) {
 
                 // removeAll users that left the session in the meantime
                 List<User> currentRemoteUsers = session.getRemoteUsers();
 
-                for (Iterator<User> it = awaitReply.iterator(); it.hasNext(); )
-                {
+                for (Iterator<User> it = awaitReply.iterator(); it.hasNext(); ) {
                     User user = it.next();
-                    if (!currentRemoteUsers.contains(user))
-                    {
+                    if (!currentRemoteUsers.contains(user)) {
                         log.debug("no longer waiting for user list confirmation of user "
                                 + user + " [left session]");
                         it.remove();
                     }
                 }
 
-                if (awaitReply.isEmpty())
-                {
+                if (awaitReply.isEmpty()) {
                     break;
                 }
 
                 Packet result = collector.nextResult(100);
 
-                if (result == null)
-                {
+                if (result == null) {
                     continue;
                 }
 
                 JID jid = new JID(result.getFrom());
 
-                if (!remove(awaitReply, jid))
-                {
+                if (!remove(awaitReply, jid)) {
                     log.warn("received user list confirmation from unknown user: "
                             + jid);
-                }
-                else
-                {
+                } else {
                     log.debug("received user list confirmation from: " + jid);
                 }
             }
 
             notReplied.addAll(awaitReply);
 
-            if (notReplied.isEmpty())
-            {
+            if (notReplied.isEmpty()) {
                 log.debug("synchronized user list with user(s) " + remoteUsers);
-            }
-            else
-            {
+            } else {
                 log.warn("failed to synchronize user list with user(s) "
                         + notReplied);
             }
 
             return notReplied;
 
-        }
-        finally
-        {
+        } finally {
             collector.cancel();
         }
     }
@@ -276,25 +244,21 @@ public class UserInformationHandler implements Startable
      * @param jid         The JID of the user this message is about
      */
     public void sendUserFinishedProjectNegotiation(
-            Collection<User> remoteUsers, JID jid)
-    {
+            Collection<User> remoteUsers, JID jid) {
 
         PacketExtension packet = UserFinishedProjectNegotiationExtension.PROVIDER
                 .create(new UserFinishedProjectNegotiationExtension(
                         currentSessionID, jid));
 
-        for (User user : remoteUsers)
-        {
-            try
-            {
+        for (User user : remoteUsers) {
+            try {
                 transmitter.send(
                         ISarosSession.SESSION_CONNECTION_ID, user.getJID(), packet);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 log.error(
                         "failed to send userFinishedProjectNegotiation-message: "
-                                + user, e);
+                                + user, e
+                );
                 // TODO removeAll user from session
             }
         }
@@ -306,24 +270,21 @@ public class UserInformationHandler implements Startable
      *
      * @param packet
      */
-    private void handleUserFinishedProjectNegotiationPacket(Packet packet)
-    {
+    private void handleUserFinishedProjectNegotiationPacket(Packet packet) {
 
         JID fromJID = new JID(packet.getFrom());
 
         UserFinishedProjectNegotiationExtension payload = UserFinishedProjectNegotiationExtension.PROVIDER
                 .getPayload(packet);
 
-        if (payload == null)
-        {
+        if (payload == null) {
             log.warn("UserFinishedProjectNegotiation-payload is corrupted");
             return;
         }
 
         User fromUser = session.getUser(fromJID);
 
-        if (fromUser == null)
-        {
+        if (fromUser == null) {
             log.warn("received UserFinishedProjectNegotiationPacket from "
                     + fromJID + " who is not part of the current session");
             return;
@@ -337,8 +298,7 @@ public class UserInformationHandler implements Startable
         session.userFinishedProjectNegotiation(fromUser);
     }
 
-    private void handleUserListUpdate(Packet packet)
-    {
+    private void handleUserListUpdate(Packet packet) {
         /*
          * maybe it is better to execute all the code in a new thread to prevent
          * blocking the listener callback thread
@@ -350,30 +310,25 @@ public class UserInformationHandler implements Startable
         UserListExtension userListExtension = UserListExtension.PROVIDER
                 .getPayload(packet);
 
-        if (userListExtension == null)
-        {
+        if (userListExtension == null) {
             log.warn("user list payload is corrupted");
             return;
         }
 
         User fromUser = session.getUser(fromJID);
 
-        if (fromUser == null)
-        {
+        if (fromUser == null) {
             log.warn("received user list from " + fromJID
                     + " who is not part of the current session");
             return;
         }
 
-        for (UserListExtension.UserListEntry userEntry : userListExtension.getEntries())
-        {
+        for (UserListExtension.UserListEntry userEntry : userListExtension.getEntries()) {
             User user = null;
-            if ((userEntry.flags & UserListExtension.UserListEntry.USER_ADDED) != 0)
-            {
+            if ((userEntry.flags & UserListExtension.UserListEntry.USER_ADDED) != 0) {
                 user = session.getUser(userEntry.jid);
 
-                if (user != null)
-                {
+                if (user != null) {
                     log.debug("updating permissions for user: " + user + " ["
                             + userEntry.permission + "]");
                     // FIXME this should be properly synchronized
@@ -387,13 +342,10 @@ public class UserInformationHandler implements Startable
                 user.setPermission(userEntry.permission);
                 session.addUser(user);
 
-            }
-            else if ((userEntry.flags & UserListExtension.UserListEntry.USER_REMOVED) != 0)
-            {
+            } else if ((userEntry.flags & UserListExtension.UserListEntry.USER_REMOVED) != 0) {
                 user = session.getUser(userEntry.jid);
 
-                if (user == null)
-                {
+                if (user == null) {
                     log.warn("cannot removeAll user " + userEntry.jid
                             + ", user is not in the session");
                     continue;
@@ -406,30 +358,24 @@ public class UserInformationHandler implements Startable
         sendUserListConfirmation(fromJID);
     }
 
-    private void sendUserListConfirmation(JID to)
-    {
+    private void sendUserListConfirmation(JID to) {
         log.debug("sending user list received confirmation to " + to);
-        try
-        {
+        try {
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID,
                     to, UserListReceivedExtension.PROVIDER
-                    .create(new UserListReceivedExtension(currentSessionID)));
-        }
-        catch (IOException e)
-        {
+                            .create(new UserListReceivedExtension(currentSessionID))
+            );
+        } catch (IOException e) {
             log.error("failed to send user list received confirmation to: "
                     + to, e);
         }
     }
 
-    private boolean remove(Collection<User> users, JID jid)
-    {
-        for (Iterator<User> it = users.iterator(); it.hasNext(); )
-        {
+    private boolean remove(Collection<User> users, JID jid) {
+        for (Iterator<User> it = users.iterator(); it.hasNext(); ) {
             User user = it.next();
 
-            if (user.getJID().strictlyEquals(jid))
-            {
+            if (user.getJID().strictlyEquals(jid)) {
                 it.remove();
                 return true;
             }

@@ -22,7 +22,5 @@
 
 package de.fu_berlin.inf.dpp.core.exceptions;
 
-//todo: created from Eclipse
-public class TeamException extends Exception
-{
+public class TeamException extends Exception {
 }

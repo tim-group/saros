@@ -45,35 +45,28 @@ public final class JoinSessionRequestHandler {
 
     private static final Logger LOG = Logger
             .getLogger(JoinSessionRequestHandler.class);
-
-    private final ISarosSessionManager sessionManager;
-
-    private final ITransmitter transmitter;
-
-    private final IReceiver receiver;
-
-    private final IPreferenceStore preferenceStore;
-
     private final PacketListener joinSessionRequestListener = new PacketListener() {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable()
-            {
+            ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
-                public void run()
-                {
+                public void run() {
                     handleInvitationRequest(new JID(packet.getFrom()),
                             JoinSessionRequestExtension.PROVIDER.getPayload(packet));
                 }
             });
         }
     };
+    private final ISarosSessionManager sessionManager;
+    private final ITransmitter transmitter;
+    private final IReceiver receiver;
+    private final IPreferenceStore preferenceStore;
 
     public JoinSessionRequestHandler(ISarosSessionManager sessionManager,
-            ITransmitter transmitter, IReceiver receiver,
-            IPreferenceStore preferenceStore) {
+                                     ITransmitter transmitter, IReceiver receiver,
+                                     IPreferenceStore preferenceStore) {
         this.sessionManager = sessionManager;
         this.transmitter = transmitter;
         this.receiver = receiver;
@@ -86,7 +79,7 @@ public final class JoinSessionRequestHandler {
     }
 
     private void handleInvitationRequest(JID from,
-            JoinSessionRequestExtension extension) {
+                                         JoinSessionRequestExtension extension) {
 
         ISarosSession session = sessionManager.getSarosSession();
 

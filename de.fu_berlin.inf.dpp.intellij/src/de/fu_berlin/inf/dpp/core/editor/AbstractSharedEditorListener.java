@@ -29,10 +29,10 @@ import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.session.User;
 
 /**
- * Empty abstract implementation of the ISharedEditorListener interface
+ * Empty abstract implementation of the ISharedEditorListener interface.
  */
-public abstract class AbstractSharedEditorListener implements
-        ISharedEditorListener {
+public abstract class AbstractSharedEditorListener
+        implements ISharedEditorListener {
 
     @Override
     public void activeEditorChanged(User user, SPath path) {
@@ -77,7 +77,7 @@ public abstract class AbstractSharedEditorListener implements
 
     @Override
     public void viewportGenerated(LineRange viewport, SPath path) {
-
+        //does nothing
     }
 
     @Override

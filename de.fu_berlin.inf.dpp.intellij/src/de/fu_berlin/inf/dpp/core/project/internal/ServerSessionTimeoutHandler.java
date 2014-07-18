@@ -22,29 +22,27 @@
 
 package de.fu_berlin.inf.dpp.core.project.internal;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import de.fu_berlin.inf.dpp.communication.extensions.PingExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.PongExtension;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.net.xmpp.JID;
-import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
-import org.apache.log4j.Logger;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.packet.Packet;
-
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
-
+import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Packet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Component for detecting network errors on the server side of a session.
@@ -56,29 +54,11 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
 
     private static final Logger LOG = Logger
             .getLogger(ServerSessionTimeoutHandler.class);
-
-    private Thread workerThread;
-
-    private boolean shutdown;
-
     /**
      * List containing the current users of the session including their last
      * pong response time.
      */
     private final List<UserPongStatus> currentUsers = new ArrayList<UserPongStatus>();
-
-    private static class UserPongStatus {
-
-        private final User user;
-        private volatile long lastPongReceivedTime;
-
-        private UserPongStatus(User user) {
-            this.user = user;
-            this.lastPongReceivedTime = System.currentTimeMillis();
-        }
-
-    }
-
     private final PacketListener pongPacketListener = new PacketListener() {
 
         @Override
@@ -93,7 +73,6 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
             }
         }
     };
-
     private final ISharedProjectListener sessionEventListener = new AbstractSharedProjectListener() {
         @Override
         public void userJoined(User user) {
@@ -103,7 +82,8 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
             }
         }
     };
-
+    private Thread workerThread;
+    private boolean shutdown;
     private final Runnable serverSessionTimeoutWatchdog = new Runnable() {
 
         @Override
@@ -180,9 +160,9 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
     };
 
     public ServerSessionTimeoutHandler(ISarosSession session,
-            ISarosSessionManager sessionManager, ActivitySequencer sequencer,
-            ITransmitter transmitter, IReceiver receiver,
-            SessionIDObservable sessionID) {
+                                       ISarosSessionManager sessionManager, ActivitySequencer sequencer,
+                                       ITransmitter transmitter, IReceiver receiver,
+                                       SessionIDObservable sessionID) {
         super(session, sessionManager, sequencer, transmitter, receiver);
     }
 
@@ -231,11 +211,11 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
     }
 
     private synchronized List<User> getTimedOutUsers(final long currentTime,
-            final long timeout) {
+                                                     final long timeout) {
         List<User> users = new ArrayList<User>();
 
         for (Iterator<UserPongStatus> it = currentUsers.iterator(); it
-                .hasNext();) {
+                .hasNext(); ) {
 
             UserPongStatus status = it.next();
 
@@ -257,7 +237,7 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
         List<User> users = new ArrayList<User>();
 
         for (Iterator<UserPongStatus> it = currentUsers.iterator(); it
-                .hasNext();) {
+                .hasNext(); ) {
 
             UserPongStatus status = it.next();
 
@@ -274,7 +254,7 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
      */
     private synchronized void removeInactiveUsers() {
         for (Iterator<UserPongStatus> it = currentUsers.iterator(); it
-                .hasNext();) {
+                .hasNext(); ) {
 
             UserPongStatus status = it.next();
 
@@ -289,7 +269,7 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
     private synchronized void removeUsers(final Collection<User> users) {
         for (User user : users) {
             for (Iterator<UserPongStatus> it = currentUsers.iterator(); it
-                    .hasNext();) {
+                    .hasNext(); ) {
                 UserPongStatus status = it.next();
 
                 if (status.user == user) {
@@ -298,5 +278,17 @@ public final class ServerSessionTimeoutHandler extends SessionTimeoutHandler {
                 }
             }
         }
+    }
+
+    private static class UserPongStatus {
+
+        private final User user;
+        private volatile long lastPongReceivedTime;
+
+        private UserPongStatus(User user) {
+            this.user = user;
+            this.lastPongReceivedTime = System.currentTimeMillis();
+        }
+
     }
 }

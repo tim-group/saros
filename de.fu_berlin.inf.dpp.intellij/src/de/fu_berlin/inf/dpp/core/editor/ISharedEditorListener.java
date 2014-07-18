@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.core.editor;
 
-
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
 import de.fu_berlin.inf.dpp.activities.ViewportActivity;
@@ -120,10 +119,13 @@ public interface ISharedEditorListener {
     /**
      * Is fired when the viewport for the local user gets changed
      *
-     * @param part     The part of the editor as {@link IEditorPart}
-     * @param viewport The generated viewport as {@link LineRange}
+     * @param viewport
+     * @param path
      */
     public void viewportGenerated(LineRange viewport, SPath path);
 
+    /**
+     * Is called when the color is changed.
+     */
     public void colorChanged();
 }

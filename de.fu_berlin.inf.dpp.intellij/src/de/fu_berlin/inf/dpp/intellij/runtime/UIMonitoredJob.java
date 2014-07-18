@@ -29,13 +29,16 @@ import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.ProgressFrame;
 /**
  * Class designed to start long lasting job with progress indicator
  */
-public abstract class UIMonitoredJob extends Thread
-{
+public abstract class UIMonitoredJob extends Thread {
 
     private IProgressMonitor monitor;
 
+    /**
+     * Creates a new UIMonitoredJob with the given name monitored by monitor.
+     *
+     * @param name progress window name
+     */
     public UIMonitoredJob(String name, IProgressMonitor monitor) {
-
         super(name);
         if (monitor == null) {
             this.monitor = new ProgressFrame();
@@ -45,20 +48,21 @@ public abstract class UIMonitoredJob extends Thread
         this.monitor.setTaskName(name);
     }
 
+    /**
+     * Creates job with named progress window
+     *
+     * @param name progress window name
+     */
     public UIMonitoredJob(final String name) {
         this(name, null);
     }
 
-    public void schedule()
-    {
+    public void schedule() {
         start();
     }
 
-
     @Override
-    public final void run()
-    {
-
+    public final void run() {
         run(monitor);
     }
 

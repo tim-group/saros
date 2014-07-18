@@ -35,8 +35,10 @@ import java.io.File;
  */
 public class ResourceConverter {
 
-    private static LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-    private static FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+    private static LocalFileSystem localFileSystem = LocalFileSystem
+            .getInstance();
+    private static FileDocumentManager fileDocumentManager = FileDocumentManager
+            .getInstance();
 
     public static Document getDocument(final File file) {
         return fileDocumentManager.getDocument(toVirtualFile(file));

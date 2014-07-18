@@ -23,7 +23,16 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
-import de.fu_berlin.inf.dpp.activities.*;
+import de.fu_berlin.inf.dpp.activities.EditorActivity;
+import de.fu_berlin.inf.dpp.activities.FileActivity;
+import de.fu_berlin.inf.dpp.activities.FolderActivity;
+import de.fu_berlin.inf.dpp.activities.IActivity;
+import de.fu_berlin.inf.dpp.activities.IResourceActivity;
+import de.fu_berlin.inf.dpp.activities.JupiterActivity;
+import de.fu_berlin.inf.dpp.activities.NOPActivity;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.activities.TextSelectionActivity;
+import de.fu_berlin.inf.dpp.activities.ViewportActivity;
 import de.fu_berlin.inf.dpp.communication.extensions.ActivitiesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
@@ -32,8 +41,22 @@ import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogHandler;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogServer;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.internal.*;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.core.project.internal.ActivityHandler;
+import de.fu_berlin.inf.dpp.core.project.internal.ActivityQueuer;
+import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
+import de.fu_berlin.inf.dpp.core.project.internal.ClientSessionTimeoutHandler;
+import de.fu_berlin.inf.dpp.core.project.internal.IActivityHandlerCallback;
+import de.fu_berlin.inf.dpp.core.project.internal.PermissionManager;
+import de.fu_berlin.inf.dpp.core.project.internal.SarosProjectMapper;
+import de.fu_berlin.inf.dpp.core.project.internal.ServerSessionTimeoutHandler;
+import de.fu_berlin.inf.dpp.core.project.internal.SharedProjectListenerDispatch;
+import de.fu_berlin.inf.dpp.core.project.internal.UserInformationHandler;
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.misc.xstream.SPathConverter;
@@ -43,7 +66,12 @@ import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.observables.SessionIDObservable;
-import de.fu_berlin.inf.dpp.session.*;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
+import de.fu_berlin.inf.dpp.session.IActivityListener;
+import de.fu_berlin.inf.dpp.session.IActivityProducer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
+import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.session.User.Permission;
 import de.fu_berlin.inf.dpp.synchronize.StopManager;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
@@ -55,7 +83,13 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.annotations.Inject;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -67,97 +101,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class SarosSession implements ISarosSession {
 
     private static final Logger log = Logger.getLogger(SarosSession.class);
-
-    @Inject
-    private UISynchronizer synchronizer;
-
-    /* Dependencies */
-
-    @Inject
-    private ITransmitter transmitter;
-
-    @Inject
-    private XMPPConnectionService connectionService;
-
-    @Inject
-    private PreferenceUtils preferenceUtils;
-
-    @Inject
-    private IConnectionManager connectionManager;
-
     private final IPathFactory pathFactory;
 
+    /* Dependencies */
     private final ISarosContext sarosContext;
-
     private final ConcurrentDocumentClient concurrentDocumentClient;
-
     private final ConcurrentDocumentServer concurrentDocumentServer;
-
     private final ActivityHandler activityHandler;
-
     private final CopyOnWriteArrayList<IActivityProducer> activityProducers = new CopyOnWriteArrayList<IActivityProducer>();
-
     private final CopyOnWriteArrayList<IActivityConsumer> activityConsumers = new CopyOnWriteArrayList<IActivityConsumer>();
-
-    /* Instance fields */
-    private final User localUser;
-
-    private final ConcurrentHashMap<JID, User> participants = new ConcurrentHashMap<JID, User>();
-
-    private final SharedProjectListenerDispatch listenerDispatch = new SharedProjectListenerDispatch();
-
-    private final User hostUser;
-
-    private final SarosProjectMapper projectMapper;
-
-    private boolean useVersionControl = true;
-
-    // KARL HELD YOU ARE MY WTF GUY !!!
-    private List<IResource> selectedResources = new ArrayList<IResource>();
-
-    private final MutablePicoContainer sessionContainer;
-
-    private final StopManager stopManager;
-
-    //private final ChangeColorManager changeColorManager;
-
-    private final PermissionManager permissionManager;
-
-    private final ActivitySequencer activitySequencer;
-
-    private final UserInformationHandler userListHandler;
-
-    private final String sessionID;
-
-    private boolean started = false;
-    private boolean stopped = false;
-
-    private final ActivityQueuer activityQueuer;
-
-    private final Object componentAccessLock = new Object();
-
-    // HACK to be able to move most parts to core
-    private final SharedResourcesManager resourceManager;
-
-    private final IActivityListener activityListener = new IActivityListener() {
-
-        /**
-         * @JTourBusStop 5, Activity sending, Forwarding the IActivity:
-         *
-         *               This is where the SarosSession will receive the
-         *               activity. This listener it is not part of the
-         *               ISarosSession interface to avoid misuse.
-         */
-        @Override
-        public void created(final IActivity activity) {
-            if (activity == null)
-                throw new NullPointerException("activity is null");
-
-            activityHandler.handleOutgoingActivities(Collections
-                    .singletonList(activity));
-        }
-    };
-
     private final IActivityHandlerCallback activityCallback = new IActivityHandlerCallback() {
 
         @Override
@@ -180,7 +132,57 @@ public final class SarosSession implements ISarosSession {
             }
         }
     };
+    /* Instance fields */
+    private final User localUser;
+    private final ConcurrentHashMap<JID, User> participants = new ConcurrentHashMap<JID, User>();
+    private final SharedProjectListenerDispatch listenerDispatch = new SharedProjectListenerDispatch();
+    private final User hostUser;
+    private final SarosProjectMapper projectMapper;
+    private final MutablePicoContainer sessionContainer;
+    private final StopManager stopManager;
+    private final PermissionManager permissionManager;
+    private final ActivitySequencer activitySequencer;
+    private final UserInformationHandler userListHandler;
+    private final String sessionID;
+    private final ActivityQueuer activityQueuer;
+    private final Object componentAccessLock = new Object();
 
+    //private final ChangeColorManager changeColorManager;
+    // HACK to be able to move most parts to core
+    private final SharedResourcesManager resourceManager;
+    private final IActivityListener activityListener = new IActivityListener() {
+
+        /**
+         * @JTourBusStop 5, Activity sending, Forwarding the IActivity:
+         *
+         *               This is where the SarosSession will receive the
+         *               activity. This listener it is not part of the
+         *               ISarosSession interface to avoid misuse.
+         */
+        @Override
+        public void created(final IActivity activity) {
+            if (activity == null)
+                throw new NullPointerException("activity is null");
+
+            activityHandler.handleOutgoingActivities(Collections
+                    .singletonList(activity));
+        }
+    };
+    @Inject
+    private UISynchronizer synchronizer;
+    @Inject
+    private ITransmitter transmitter;
+    @Inject
+    private XMPPConnectionService connectionService;
+    @Inject
+    private PreferenceUtils preferenceUtils;
+    @Inject
+    private IConnectionManager connectionManager;
+    private boolean useVersionControl = true;
+    // KARL HELD YOU ARE MY WTF GUY !!!
+    private List<IResource> selectedResources = new ArrayList<IResource>();
+    private boolean started = false;
+    private boolean stopped = false;
     private SPathConverter pathConverter;
     private UserConverter userConverter;
 
@@ -204,6 +206,106 @@ public final class SarosSession implements ISarosSession {
 
         this(sarosContext, hostJID, clientColorID, hostColorID, clientNickname,
                 hostNickname);
+    }
+
+    private SarosSession(ISarosContext context, JID host, int localColorID,
+                         int hostColorID, String localNickname, String hostNickname) {
+
+        context.initComponent(this);
+
+        this.pathFactory = context.getComponent(IPathFactory.class);
+
+        this.sessionID = context.getComponent(SessionIDObservable.class).getValue();
+        this.projectMapper = new SarosProjectMapper();
+        this.activityQueuer = new ActivityQueuer();
+        this.sarosContext = context;
+
+        // FIXME that should be passed in !
+        JID localUserJID = connectionService.getJID();
+
+        assert localUserJID != null;
+
+        localUser = new User(localUserJID, localNickname, host == null, true,
+                localColorID, localColorID);
+
+        localUser.setInSession(true);
+
+        if (host == null) {
+            hostUser = localUser;
+            participants.put(hostUser.getJID(), hostUser);
+        } else {
+            hostUser = new User(host, hostNickname, true, false, hostColorID,
+                    hostColorID);
+            hostUser.setInSession(true);
+            participants.put(hostUser.getJID(), hostUser);
+            participants.put(localUser.getJID(), localUser);
+        }
+
+        sessionContainer = context.createSimpleChildContainer();
+        sessionContainer.addComponent(ISarosSession.class, this);
+        sessionContainer.addComponent(StopManager.class);
+        sessionContainer.addComponent(ActivitySequencer.class);
+
+        // Concurrent Editing
+
+        sessionContainer.addComponent(ConcurrentDocumentClient.class);
+        /*
+         * as Pico Container complains about null, just add the server even in
+         * client mode as it will not matter because it is not accessed
+         */
+        sessionContainer.addComponent(ConcurrentDocumentServer.class);
+
+        // Classes belonging to a session
+
+        // Core Managers
+        sessionContainer.addComponent(SharedResourcesManager.class);
+        sessionContainer.addComponent(PermissionManager.class);
+        sessionContainer.addComponent(FollowingActivitiesManager.class);
+
+        // Handlers
+        sessionContainer.addComponent(ConsistencyWatchdogHandler.class);
+        // transforming - thread access
+        sessionContainer.addComponent(ActivityHandler.class);
+        sessionContainer.addComponent(IActivityHandlerCallback.class,
+                activityCallback);
+        sessionContainer.addComponent(UserInformationHandler.class);
+        // Timeout
+        if (isHost()) {
+            sessionContainer.addComponent(ConsistencyWatchdogServer.class);
+            sessionContainer.addComponent(ServerSessionTimeoutHandler.class);
+        } else {
+            sessionContainer.addComponent(ClientSessionTimeoutHandler.class);
+        }
+
+        // Force the creation of the above components.
+        sessionContainer.getComponents();
+
+        // HACK
+        resourceManager = sessionContainer
+                .getComponent(SharedResourcesManager.class);
+
+        concurrentDocumentServer = sessionContainer
+                .getComponent(ConcurrentDocumentServer.class);
+
+        concurrentDocumentClient = sessionContainer
+                .getComponent(ConcurrentDocumentClient.class);
+
+        activityHandler = sessionContainer.getComponent(ActivityHandler.class);
+
+        stopManager = sessionContainer.getComponent(StopManager.class);
+
+        permissionManager = sessionContainer
+                .getComponent(PermissionManager.class);
+
+        activitySequencer = sessionContainer
+                .getComponent(ActivitySequencer.class);
+
+        userListHandler = sessionContainer
+                .getComponent(UserInformationHandler.class);
+
+        // ensure that the container uses caching
+        assert sessionContainer.getComponent(ActivityHandler.class) == sessionContainer
+                .getComponent(ActivityHandler.class) : "container is wrongly configurated - no cache support";
     }
 
     @Override
@@ -1001,106 +1103,6 @@ public final class SarosSession implements ISarosSession {
         // send us a dummy activity to ensure the queues get flushed
         sendActivity(Collections.singletonList(localUser), new NOPActivity(
                 localUser, localUser, 0));
-    }
-
-    private SarosSession(ISarosContext context, JID host, int localColorID,
-                         int hostColorID, String localNickname, String hostNickname) {
-
-        context.initComponent(this);
-
-        this.pathFactory = context.getComponent(IPathFactory.class);
-
-        this.sessionID = context.getComponent(SessionIDObservable.class).getValue();
-        this.projectMapper = new SarosProjectMapper();
-        this.activityQueuer = new ActivityQueuer();
-        this.sarosContext = context;
-
-        // FIXME that should be passed in !
-        JID localUserJID = connectionService.getJID();
-
-        assert localUserJID != null;
-
-        localUser = new User(localUserJID, localNickname, host == null, true,
-                localColorID, localColorID);
-
-        localUser.setInSession(true);
-
-        if (host == null) {
-            hostUser = localUser;
-            participants.put(hostUser.getJID(), hostUser);
-        } else {
-            hostUser = new User(host, hostNickname, true, false, hostColorID,
-                    hostColorID);
-            hostUser.setInSession(true);
-            participants.put(hostUser.getJID(), hostUser);
-            participants.put(localUser.getJID(), localUser);
-        }
-
-        sessionContainer = context.createSimpleChildContainer();
-        sessionContainer.addComponent(ISarosSession.class, this);
-        sessionContainer.addComponent(StopManager.class);
-        sessionContainer.addComponent(ActivitySequencer.class);
-
-        // Concurrent Editing
-
-        sessionContainer.addComponent(ConcurrentDocumentClient.class);
-        /*
-         * as Pico Container complains about null, just add the server even in
-         * client mode as it will not matter because it is not accessed
-         */
-        sessionContainer.addComponent(ConcurrentDocumentServer.class);
-
-        // Classes belonging to a session
-
-        // Core Managers
-        sessionContainer.addComponent(SharedResourcesManager.class);
-        sessionContainer.addComponent(PermissionManager.class);
-        sessionContainer.addComponent(FollowingActivitiesManager.class);
-
-        // Handlers
-        sessionContainer.addComponent(ConsistencyWatchdogHandler.class);
-        // transforming - thread access
-        sessionContainer.addComponent(ActivityHandler.class);
-        sessionContainer.addComponent(IActivityHandlerCallback.class,
-                activityCallback);
-        sessionContainer.addComponent(UserInformationHandler.class);
-        // Timeout
-        if (isHost()) {
-            sessionContainer.addComponent(ConsistencyWatchdogServer.class);
-            sessionContainer.addComponent(ServerSessionTimeoutHandler.class);
-        } else {
-            sessionContainer.addComponent(ClientSessionTimeoutHandler.class);
-        }
-
-        // Force the creation of the above components.
-        sessionContainer.getComponents();
-
-        // HACK
-        resourceManager = sessionContainer
-                .getComponent(SharedResourcesManager.class);
-
-        concurrentDocumentServer = sessionContainer
-                .getComponent(ConcurrentDocumentServer.class);
-
-        concurrentDocumentClient = sessionContainer
-                .getComponent(ConcurrentDocumentClient.class);
-
-        activityHandler = sessionContainer.getComponent(ActivityHandler.class);
-
-        stopManager = sessionContainer.getComponent(StopManager.class);
-
-        permissionManager = sessionContainer
-                .getComponent(PermissionManager.class);
-
-        activitySequencer = sessionContainer
-                .getComponent(ActivitySequencer.class);
-
-        userListHandler = sessionContainer
-                .getComponent(UserInformationHandler.class);
-
-        // ensure that the container uses caching
-        assert sessionContainer.getComponent(ActivityHandler.class) == sessionContainer
-                .getComponent(ActivityHandler.class) : "container is wrongly configurated - no cache support";
     }
 
     /**

@@ -24,34 +24,33 @@ package de.fu_berlin.inf.dpp.core.zip;
 
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 
-public class ZipProgressMonitor implements
-        ZipListener
-{
+/*
+ * TODO Which of the public methods actually need to be public? Should this
+ * class implement IProgressMonitor?
+ */
+public class ZipProgressMonitor implements ZipListener {
+
+    private final IProgressMonitor monitor;
 
     private int lastWorked = 0;
     private int workRemaining = 0;
     private boolean useFilesSize = true;
 
-    private boolean isCanceled;
-
     private int align = 1;
 
     public ZipProgressMonitor(IProgressMonitor monitor, int fileCount,
-            boolean useFilesSize)
-    {
-        //  super(monitor == null ? new NullProgressMonitor() : monitor);
+                              boolean useFilesSize) {
 
+        this.monitor = monitor;
         this.useFilesSize = useFilesSize;
 
         workRemaining = fileCount;
 
-        if (workRemaining <= 0)
-        {
+        if (workRemaining <= 0) {
             workRemaining = IProgressMonitor.UNKNOWN;
         }
 
-        if (useFilesSize)
-        {
+        if (useFilesSize) {
             workRemaining = 100;
         }
 
@@ -59,12 +58,10 @@ public class ZipProgressMonitor implements
     }
 
     @Override
-    public boolean update(String filename)
-    {
+    public boolean update(String filename) {
         subTask("compressing file: " + filename);
 
-        if (!useFilesSize && workRemaining != IProgressMonitor.UNKNOWN)
-        {
+        if (!useFilesSize && workRemaining != IProgressMonitor.UNKNOWN) {
             worked(1 - align);
             align = 0;
         }
@@ -73,46 +70,38 @@ public class ZipProgressMonitor implements
     }
 
     @Override
-    public boolean update(long totalRead, long totalSize)
-    {
-        if (!useFilesSize || totalSize <= 0)
-        {
+    public boolean update(long totalRead, long totalSize) {
+        if (!useFilesSize || totalSize <= 0) {
             return isCanceled();
         }
 
         int worked = (int) ((totalRead * 100L) / totalSize);
         int workedDelta = worked - lastWorked;
 
-        if (workedDelta > 0)
-        {
+        if (workedDelta > 0) {
             worked(workedDelta);
             lastWorked = worked;
         }
         return isCanceled();
     }
 
-    public boolean isCanceled()
-    {
-        return isCanceled;
+    public boolean isCanceled() {
+        return monitor.isCanceled();
     }
 
-    public void setCanceled(boolean canceled)
-    {
-        isCanceled = canceled;
+    public void setCanceled(boolean canceled) {
+        monitor.setCanceled(canceled);
     }
 
-    public void worked(int workedDelta)
-    {
-        //todo
+    public void worked(int workedDelta) {
+        monitor.worked(workedDelta);
     }
 
-    public void beginTask(String title, int workRemaining)
-    {
-        //todo
+    public void beginTask(String title, int workRemaining) {
+        monitor.beginTask(title, workRemaining);
     }
 
-    public void subTask(String title)
-    {
-        //todo
+    public void subTask(String title) {
+        monitor.subTask(title);
     }
 }

@@ -17,11 +17,19 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
-import de.fu_berlin.inf.dpp.invitation.*;
+import de.fu_berlin.inf.dpp.invitation.FileList;
+import de.fu_berlin.inf.dpp.invitation.FileListDiff;
+import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
+import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
@@ -39,7 +47,11 @@ import org.picocontainer.annotations.Inject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -48,38 +60,26 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private static final Logger LOG = Logger
             .getLogger(IncomingProjectNegotiation.class);
-
+    private final ISarosSession sarosSession;
     private ISubMonitor monitor;
     private AddProjectToSessionWizard addIncomingProjectUI;
-
     private List<ProjectNegotiationData> projectInfos;
-
     @Inject
     private PreferenceUtils preferenceUtils;
-
     @Inject
     private SarosSessionObservable sarosSessionObservable;
-
     @Inject
     private RemoteProgressManager rpm;
-
     @Inject
     private IChecksumCache checksumCache;
-
     @Inject
     private IWorkspace workspace;
-
-
     @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
-
     /**
      * maps the projectID to the project in workspace
      */
     private Map<String, IProject> localProjects;
-
-    private final ISarosSession sarosSession;
-
     private boolean running;
 
     private PacketCollector startActivityQueuingRequestCollector;
@@ -893,6 +893,11 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         return archiveFile;
     }
 
+    @Override
+    public String toString() {
+        return "IPN [remote side: " + peer + "]";
+    }
+
     private static class ArchiveTransferListener implements
             FileTransferListener {
         private String description;
@@ -916,10 +921,5 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         public FileTransferRequest getRequest() {
             return this.request;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "IPN [remote side: " + peer + "]";
     }
 }

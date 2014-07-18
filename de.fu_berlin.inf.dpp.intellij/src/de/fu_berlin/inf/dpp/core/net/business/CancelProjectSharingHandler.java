@@ -1,40 +1,46 @@
 package de.fu_berlin.inf.dpp.core.net.business;
 
+import de.fu_berlin.inf.dpp.communication.extensions.CancelProjectNegotiationExtension;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import org.apache.log4j.Logger;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.packet.Packet;
-
-import de.fu_berlin.inf.dpp.communication.extensions.CancelProjectNegotiationExtension;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
-
-
-
 import de.fu_berlin.inf.dpp.session.ISarosSession;
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Packet;
 
 public class CancelProjectSharingHandler {
 
     private static final Logger log = Logger
-        .getLogger(CancelProjectSharingHandler.class.getName());
+            .getLogger(CancelProjectSharingHandler.class.getName());
 
     private final ISarosSessionManager sessionManager;
 
     private final ProjectNegotiationObservable projectExchangeProcesses;
 
     private final IReceiver receiver;
+    private final PacketListener cancelProjectNegotiationListener = new PacketListener() {
 
+        @Override
+        public void processPacket(Packet packet) {
+            CancelProjectNegotiationExtension extension = CancelProjectNegotiationExtension.PROVIDER
+                    .getPayload(packet);
+            projectSharingCanceled(new JID(packet.getFrom()),
+                    extension.getErrorMessage());
+        }
+    };
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
         @Override
         public void sessionStarted(ISarosSession session) {
             receiver.addPacketListener(cancelProjectNegotiationListener,
-                CancelProjectNegotiationExtension.PROVIDER
-                    .getPacketFilter(session.getID()));
+                    CancelProjectNegotiationExtension.PROVIDER
+                            .getPacketFilter(session.getID())
+            );
         }
 
         @Override
@@ -43,20 +49,9 @@ public class CancelProjectSharingHandler {
         }
     };
 
-    private final PacketListener cancelProjectNegotiationListener = new PacketListener() {
-
-        @Override
-        public void processPacket(Packet packet) {
-            CancelProjectNegotiationExtension extension = CancelProjectNegotiationExtension.PROVIDER
-                .getPayload(packet);
-            projectSharingCanceled(new JID(packet.getFrom()),
-                extension.getErrorMessage());
-        }
-    };
-
     public CancelProjectSharingHandler(IReceiver receiver,
-        ISarosSessionManager sessionManager,
-        ProjectNegotiationObservable projectNegotiationObservable) {
+                                       ISarosSessionManager sessionManager,
+                                       ProjectNegotiationObservable projectNegotiationObservable) {
 
         this.receiver = receiver;
 
@@ -69,7 +64,7 @@ public class CancelProjectSharingHandler {
     public void projectSharingCanceled(JID sender, String errorMsg) {
 
         ProjectNegotiation process = projectExchangeProcesses
-            .getProjectExchangeProcess(sender);
+                .getProjectExchangeProcess(sender);
         if (process != null) {
             log.debug("Inv" + sender + " : Received invitation cancel message");
             process.remoteCancel(errorMsg);

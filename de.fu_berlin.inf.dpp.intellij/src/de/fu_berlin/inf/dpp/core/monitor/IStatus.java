@@ -23,27 +23,21 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 /**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.28
- * Time: 11.01
+ * This interface is under development. It currently equals its Eclipse
+ * counterpart. If not mentioned otherwise all offered methods are equivalent to
+ * their Eclipse counterpart.
+ * </p>
+ * TODO This should either be a Saros/Core interface or more adapted to IntelliJ
  */
+public interface IStatus {
 
-public interface IStatus
-{
-
-    // Field descriptor #6 I
     public static final int OK = 0;
 
-    // Field descriptor #6 I
     public static final int INFO = 1;
 
-    // Field descriptor #6 I
     public static final int WARNING = 2;
 
-    // Field descriptor #6 I
     public static final int ERROR = 4;
 
-    // Field descriptor #6 I
     public static final int CANCEL = 8;
 }

@@ -27,9 +27,7 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 import java.io.File;
 
-
-public interface IWorkspaceRoot
-{
+public interface IWorkspaceRoot {
 
     IProject getProject(String project);
 

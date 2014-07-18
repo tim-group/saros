@@ -26,7 +26,13 @@ import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 import de.fu_berlin.inf.dpp.util.Pair;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.commons.io.IOUtils;
@@ -43,11 +49,10 @@ import java.util.zip.Adler32;
 
 public class FileUtils {
 
-    private static Logger log = Logger.getLogger(FileUtils.class);
-
     private static final int BUFFER_SIZE = 32 * 1024;
     @Inject
     public static IWorkspace workspace;
+    private static Logger log = Logger.getLogger(FileUtils.class);
 
     private FileUtils() {
         // no instantiation allowed

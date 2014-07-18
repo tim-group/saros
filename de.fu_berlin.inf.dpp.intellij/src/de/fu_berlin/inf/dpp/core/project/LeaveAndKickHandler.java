@@ -23,8 +23,20 @@ public class LeaveAndKickHandler {
     private final ISarosSessionManager sessionManager;
 
     private final IReceiver receiver;
+    private final PacketListener leaveExtensionListener = new PacketListener() {
 
+        @Override
+        public void processPacket(Packet packet) {
+            leaveReceived(new JID(packet.getFrom()));
+        }
+    };
+    private final PacketListener kickExtensionListener = new PacketListener() {
 
+        @Override
+        public void processPacket(Packet packet) {
+            kickReceived(new JID(packet.getFrom()));
+        }
+    };
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
 
         @Override
@@ -43,22 +55,6 @@ public class LeaveAndKickHandler {
         public void sessionEnded(ISarosSession session) {
             receiver.removePacketListener(leaveExtensionListener);
             receiver.removePacketListener(kickExtensionListener);
-        }
-    };
-
-    private final PacketListener leaveExtensionListener = new PacketListener() {
-
-        @Override
-        public void processPacket(Packet packet) {
-            leaveReceived(new JID(packet.getFrom()));
-        }
-    };
-
-    private final PacketListener kickExtensionListener = new PacketListener() {
-
-        @Override
-        public void processPacket(Packet packet) {
-            kickReceived(new JID(packet.getFrom()));
         }
     };
 

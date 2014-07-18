@@ -32,7 +32,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * IntelliJ editor file listener
  */
-public class StoppableEditorFileListener extends AbstractStoppableListener implements FileEditorManagerListener {
+public class StoppableEditorFileListener extends AbstractStoppableListener
+        implements FileEditorManagerListener {
 
     public StoppableEditorFileListener(EditorManager manager) {
         super(manager);
@@ -45,14 +46,14 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
      * @param virtualFile
      */
     @Override
-    public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
+    public void fileOpened(@NotNull FileEditorManager fileEditorManager,
+                           @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
 
         editorManager.getLocalEditorHandler().openEditor(virtualFile);
     }
-
 
     /**
      * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#closeEditor(com.intellij.openapi.vfs.VirtualFile)}.
@@ -61,7 +62,8 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
      * @param virtualFile
      */
     @Override
-    public void fileClosed(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
+    public void fileClosed(@NotNull FileEditorManager fileEditorManager,
+                           @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
@@ -80,6 +82,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener imple
             return;
         }
 
-        editorManager.getLocalEditorHandler().activateEditor(event.getNewFile());
+        editorManager.getLocalEditorHandler()
+                .activateEditor(event.getNewFile());
     }
 }

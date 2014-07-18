@@ -76,11 +76,9 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConsistencyWatchdogClient extends
         AbstractActivityProducer {
 
+    private static final Random RANDOM = new Random();
     private static Logger LOG = Logger
             .getLogger(ConsistencyWatchdogClient.class);
-
-    private static final Random RANDOM = new Random();
-
     @Inject
     protected IsInconsistentObservable inconsistencyToResolve;
 
@@ -100,53 +98,14 @@ public class ConsistencyWatchdogClient extends
     protected Set<SPath> pathsWithWrongChecksums = new CopyOnWriteArraySet<SPath>();
 
     protected Map<SPath, ChecksumActivity> latestChecksums = new HashMap<SPath, ChecksumActivity>();
-
-    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
-        private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
-
-            @Override
-            public void permissionChanged(User user) {
-
-                if (user.isRemote()) {
-                    return;
-                }
-
-                // Clear our checksums
-                latestChecksums.clear();
-            }
-        };
-
-        @Override
-        public void sessionStarted(ISarosSession newSarosSession) {
-            synchronized (this) {
-                sarosSession = newSarosSession;
-            }
-
-            pathsWithWrongChecksums.clear();
-            inconsistencyToResolve.setValue(false);
-
-            newSarosSession.addActivityConsumer(consumer);
-            newSarosSession.addActivityProducer(ConsistencyWatchdogClient.this);
-            newSarosSession.addListener(sharedProjectListener);
-        }
-
-        @Override
-        public void sessionEnded(ISarosSession oldSarosSession) {
-            oldSarosSession.removeActivityConsumer(consumer);
-            oldSarosSession
-                    .removeActivityProducer(ConsistencyWatchdogClient.this);
-
-            oldSarosSession.removeListener(sharedProjectListener);
-
-            latestChecksums.clear();
-            pathsWithWrongChecksums.clear();
-
-            synchronized (this) {
-                sarosSession = null;
-            }
-        }
-    };
-
+    /**
+     * The number of files remaining in the current recovery session.
+     */
+    protected AtomicInteger filesRemaining = new AtomicInteger();
+    /**
+     * The id of the currently running recovery
+     */
+    protected volatile String recoveryID;
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(ChecksumActivity checksumActivity) {
@@ -204,16 +163,51 @@ public class ConsistencyWatchdogClient extends
             }
         }
     };
+    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+        private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
-    public ConsistencyWatchdogClient(ISarosSessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-        this.sessionManager.addSarosSessionListener(sessionListener);
-    }
+            @Override
+            public void permissionChanged(User user) {
 
-    public void dispose() {
-        this.sessionManager.removeSarosSessionListener(sessionListener);
-    }
+                if (user.isRemote()) {
+                    return;
+                }
 
+                // Clear our checksums
+                latestChecksums.clear();
+            }
+        };
+
+        @Override
+        public void sessionStarted(ISarosSession newSarosSession) {
+            synchronized (this) {
+                sarosSession = newSarosSession;
+            }
+
+            pathsWithWrongChecksums.clear();
+            inconsistencyToResolve.setValue(false);
+
+            newSarosSession.addActivityConsumer(consumer);
+            newSarosSession.addActivityProducer(ConsistencyWatchdogClient.this);
+            newSarosSession.addListener(sharedProjectListener);
+        }
+
+        @Override
+        public void sessionEnded(ISarosSession oldSarosSession) {
+            oldSarosSession.removeActivityConsumer(consumer);
+            oldSarosSession
+                    .removeActivityProducer(ConsistencyWatchdogClient.this);
+
+            oldSarosSession.removeListener(sharedProjectListener);
+
+            latestChecksums.clear();
+            pathsWithWrongChecksums.clear();
+
+            synchronized (this) {
+                sarosSession = null;
+            }
+        }
+    };
     protected IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
 
         @Override
@@ -273,6 +267,26 @@ public class ConsistencyWatchdogClient extends
             }
         }
     };
+    protected SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
+    /**
+     * boolean condition variable used to interrupt another thread from
+     * performing a recovery in {@link #runRecovery(SubMonitor)}
+     */
+    private AtomicBoolean cancelRecovery = new AtomicBoolean();
+    /**
+     * Lock used exclusively in {@link #runRecovery(SubMonitor)} to prevent two
+     * recovery operations running concurrently.
+     */
+    private Lock lock = new ReentrantLock();
+
+    public ConsistencyWatchdogClient(ISarosSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        this.sessionManager.addSarosSessionListener(sessionListener);
+    }
+
+    public void dispose() {
+        this.sessionManager.removeSarosSessionListener(sessionListener);
+    }
 
     /**
      * Returns the set of files for which the ConsistencyWatchdog has identified
@@ -281,28 +295,6 @@ public class ConsistencyWatchdogClient extends
     public Set<SPath> getPathsWithWrongChecksums() {
         return this.pathsWithWrongChecksums;
     }
-
-    /**
-     * boolean condition variable used to interrupt another thread from
-     * performing a recovery in {@link #runRecovery(SubMonitor)}
-     */
-    private AtomicBoolean cancelRecovery = new AtomicBoolean();
-
-    /**
-     * The number of files remaining in the current recovery session.
-     */
-    protected AtomicInteger filesRemaining = new AtomicInteger();
-
-    /**
-     * The id of the currently running recovery
-     */
-    protected volatile String recoveryID;
-
-    /**
-     * Lock used exclusively in {@link #runRecovery(SubMonitor)} to prevent two
-     * recovery operations running concurrently.
-     */
-    private Lock lock = new ReentrantLock();
 
     /**
      * Start a consistency recovery by sending a checksum error to the host and
@@ -418,8 +410,6 @@ public class ConsistencyWatchdogClient extends
             lock.unlock();
         }
     }
-
-    protected SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
 
     protected String getNextRecoveryID() {
         return format.format(new Date()) + RANDOM.nextLong();

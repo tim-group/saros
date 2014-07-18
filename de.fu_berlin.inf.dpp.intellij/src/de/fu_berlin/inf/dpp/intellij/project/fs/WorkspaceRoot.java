@@ -31,15 +31,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.2
- * Time: 15.36
- */
-
 public class WorkspaceRoot implements IWorkspaceRoot {
-    public static final Logger log = Logger.getLogger(WorkspaceRoot.class);
+    public static final Logger LOG = Logger.getLogger(WorkspaceRoot.class);
 
     private File workspacePath;
     private Map<String, IProject> projects = new HashMap<String, IProject>();
@@ -51,13 +44,15 @@ public class WorkspaceRoot implements IWorkspaceRoot {
     protected WorkspaceRoot() {
     }
 
-
     @Override
     public IProject getProject(String project) {
 
         IProject prj = projects.get(project);
         if (prj == null) {
-            File fPrj = new File(this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR + project);
+            File fPrj = new File(
+                    this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR
+                            + project
+            );
             ProjectImp myPrj = new ProjectImp(project, fPrj);
 
             addProject(myPrj);
@@ -74,7 +69,7 @@ public class WorkspaceRoot implements IWorkspaceRoot {
 
     public ProjectImp addProject(String name, File path) {
 
-        log.info("Add project [" + name + "] path=" + path.getAbsolutePath());
+        LOG.info("Add project [" + name + "] path=" + path.getAbsolutePath());
 
         ProjectImp prj = (ProjectImp) this.projects.get(name);
         if (prj == null) {
@@ -103,7 +98,6 @@ public class WorkspaceRoot implements IWorkspaceRoot {
             sPathRelative = sPathRelative.substring(1);
         }
 
-
         for (String projectName : projects.keySet()) {
             if (sPathRelative.startsWith(projectName.toLowerCase())) {
                 return projects.get(projectName);
@@ -112,6 +106,5 @@ public class WorkspaceRoot implements IWorkspaceRoot {
 
         return null;
     }
-
 
 }

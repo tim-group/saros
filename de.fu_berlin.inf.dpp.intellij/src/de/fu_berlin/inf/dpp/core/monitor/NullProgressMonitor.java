@@ -23,63 +23,47 @@
 package de.fu_berlin.inf.dpp.core.monitor;
 
 /**
- * Created by: r.kvietkauskas@uniplicity.com
+ * This is a dummy implementation to ease the copy-paste-adapt process of
+ * creating Saros/I out of Saros/E.
  * <p/>
- * Date: 14.3.19 Time: 12.08
+ * TODO Check whether this actually necessary
  */
-
 public class NullProgressMonitor implements IProgressMonitor {
     @Override
     public boolean isCanceled() {
-        return false; // To change body of implemented methods use File |
-        // Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setCanceled(boolean cancel) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void worked(int delta) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void subTask(String remaingTime) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void setTaskName(String name) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void done() {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void beginTask(String taskName, String type) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void beginTask(String taskNam, int size) {
-        // To change body of implemented methods use File | Settings | File
-        // Templates.
     }
 
     @Override
     public void internalWorked(double work) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -88,7 +72,8 @@ public class NullProgressMonitor implements IProgressMonitor {
     }
 
     @Override
-    public ISubMonitor convert(String title, int progress) {
+    public ISubMonitor convert(String title,
+                               int progress) {
         return new NullProgressSubMonitor(this);
     }
 }

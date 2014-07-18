@@ -23,7 +23,11 @@
 package de.fu_berlin.inf.dpp.core.project;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
-import de.fu_berlin.inf.dpp.core.invitation.*;
+import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
+import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -49,8 +53,12 @@ import org.jivesoftware.smack.Connection;
 import org.picocontainer.annotations.Inject;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -99,26 +107,10 @@ public class SarosSessionManager implements ISarosSessionManager {
     private final SessionIDObservable sessionIDObservable;
 
     private final PreferenceUtils preferenceUtils;
-
-    @Inject
-    private ISarosContext sarosContext;
-
     private final SessionNegotiationObservable currentSessionNegotiations;
-
     private final ProjectNegotiationObservable currentProjectNegotiations;
-
-    private XMPPConnectionService connectionService;
-
     private final List<ISarosSessionListener> sarosSessionListeners = new CopyOnWriteArrayList<ISarosSessionListener>();
-
     private final Lock startStopSessionLock = new ReentrantLock();
-
-    private volatile boolean sessionStartup = false;
-
-    private volatile boolean sessionShutdown = false;
-
-    private volatile INegotiationHandler negotiationHandler;
-
     private final ProcessListener processListener = new ProcessListener() {
         @Override
         public void processTerminated(SessionNegotiation process) {
@@ -130,7 +122,6 @@ public class SarosSessionManager implements ISarosSessionManager {
             currentProjectNegotiations.removeProjectExchangeProcess(process);
         }
     };
-
     private final IConnectionListener listener = new IConnectionListener() {
         @Override
         public void connectionStateChanged(Connection connection,
@@ -141,6 +132,12 @@ public class SarosSessionManager implements ISarosSessionManager {
             }
         }
     };
+    @Inject
+    private ISarosContext sarosContext;
+    private XMPPConnectionService connectionService;
+    private volatile boolean sessionStartup = false;
+    private volatile boolean sessionShutdown = false;
+    private volatile INegotiationHandler negotiationHandler;
 
     public SarosSessionManager(XMPPConnectionService connectionService,
                                SarosSessionObservable sarosSessionObservable,

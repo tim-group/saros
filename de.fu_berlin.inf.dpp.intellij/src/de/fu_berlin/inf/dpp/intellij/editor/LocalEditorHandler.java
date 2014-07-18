@@ -71,8 +71,9 @@ public class LocalEditorHandler {
     }
 
     /**
-     * Adds the opened file to the editorPool and calls {@link #startEditor(com.intellij.openapi.editor.Editor)} on the
-     * opened Editor. Additionally it sends the file's content via
+     * Adds the opened file to the editorPool and calls
+     * {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#startEditor(com.intellij.openapi.editor.Editor)}
+     * on the opened Editor. Additionally it sends the file's content via
      * {@link EditorManager#generateTextEdit(int, String, String, de.fu_berlin.inf.dpp.activities.SPath)},
      * when it is newly created local file.
      *
@@ -95,8 +96,14 @@ public class LocalEditorHandler {
 
                 if (!Arrays.equals(bytes, bytesRemote)) {
 
-                    String replacedText = new String(bytes, EncodingProjectManager.getInstance().getDefaultCharset());
-                    String text = new String(bytesRemote, EncodingProjectManager.getInstance().getDefaultCharset());
+                    String replacedText = new String(bytes,
+                            EncodingProjectManager.getInstance()
+                                    .getDefaultCharset()
+                    );
+                    String text = new String(bytesRemote,
+                            EncodingProjectManager.getInstance()
+                                    .getDefaultCharset()
+                    );
 
                     manager.generateTextEdit(0, replacedText, text, path);
                 }
@@ -164,6 +171,10 @@ public class LocalEditorHandler {
         newFiles.put(virtualFile, content);
     }
 
+    /**
+     * @param path
+     * @return <code>true</code>, if the path is opened in an editor.
+     */
     public boolean isOpenEditor(SPath path) {
         Document doc = editorPool.getDocument(path);
         if (doc == null) {
@@ -174,7 +185,8 @@ public class LocalEditorHandler {
     }
 
     private SPath toPath(VirtualFile virtualFile) {
-        if (virtualFile == null || !virtualFile.exists() || !manager.hasSession()) {
+        if (virtualFile == null || !virtualFile.exists() || !manager
+                .hasSession()) {
             return null;
         }
 
