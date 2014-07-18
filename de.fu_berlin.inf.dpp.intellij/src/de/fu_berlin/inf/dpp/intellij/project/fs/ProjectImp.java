@@ -159,24 +159,18 @@ public class ProjectImp implements IProject {
         if (fileMap.containsKey(name)) {
             return fileMap.get(name);
         } else {
-            return new FileImp(this, new File(name));
+            if (path.isAbsolute()) {
+                return new FileImp(this, new File(name));
+            } else {
+                return new FileImp(this,
+                        new File(this.path + "/" + name));
+            }
         }
     }
 
     @Override
     public IFile getFile(IPath path) {
-        IFile f = getFile(path.toPortableString());
-
-        if (f == null) {
-            if (path.isAbsolute()) {
-                f = new FileImp(this, new File(path.toPortableString()));
-            } else {
-                f = new FileImp(this,
-                        new File(this.path + "/" + path.toPortableString()));
-            }
-        }
-
-        return f;
+        return getFile(path.toPortableString());
     }
 
     @Override
@@ -190,13 +184,7 @@ public class ProjectImp implements IProject {
 
     @Override
     public IFolder getFolder(IPath path) {
-        IFolder folder = getFolder(path.toPortableString());
-
-        if (folder == null) {
-            folder = new FolderImp(this, path.toFile());
-        }
-
-        return folder;
+        return getFolder(path.toPortableString());
     }
 
     @Override
