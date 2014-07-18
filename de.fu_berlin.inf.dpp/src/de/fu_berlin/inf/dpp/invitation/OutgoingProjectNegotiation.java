@@ -330,15 +330,10 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
      *            a list of file lists containing the files to archive
      * @return List of project archives
      */
-<<<<<<< HEAD
-    private List<File> createProjectArchives(List<FileList> fileLists,
-        IProgressMonitor monitor) throws IOException,
-=======
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private File createProjectArchive(final List<FileList> fileLists,
         final IProgressMonitor monitor) throws IOException,
->>>>>>> ccc9449... [INTERNAL] changed implementing interface of CreateArchiveTask class
         SarosCancellationException {
 
         log.debug(this + " : creating archive(s)");
