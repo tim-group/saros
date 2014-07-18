@@ -65,7 +65,8 @@ import java.util.Set;
  * The EditorManager is responsible for handling all editors in a DPP-session.
  *
  * This includes the functionality of listening for user inputs in an editor, listening for
- * remote inputs and locking the editors of the users with {@link Permission#READONLY_ACCESS}.
+ * remote inputs and locking the editors of the users with
+ * {@link de.fu_berlin.inf.dpp.session.User.Permission#READONLY_ACCESS}.
  *
  * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler}
  * for actually accessing the editors. It translates the Activities for the EditorManager.
@@ -225,8 +226,10 @@ public class EditorManager
                   */
                 public void run() {
 
-                    Set<SPath> remoteOpenEditors = getRemoteEditorManager().getRemoteOpenEditors(getFollowedUser());
-                    RemoteEditorManager.RemoteEditor remoteSelectedEditor = getRemoteEditorManager().getRemoteActiveEditor(getFollowedUser());
+                    Set<SPath> remoteOpenEditors = getRemoteEditorManager()
+                            .getRemoteOpenEditors(getFollowedUser());
+                    RemoteEditorManager.RemoteEditor remoteSelectedEditor = getRemoteEditorManager()
+                            .getRemoteActiveEditor(getFollowedUser());
                     Set<SPath> localOpenEditors = getLocallyOpenEditors();
 
                     // for every open file we act as if we just
@@ -240,21 +243,29 @@ public class EditorManager
                         }
                     }
 
-
                     if (remoteSelectedEditor != null) {
                         //activate editor
                         SPath remotePath = remoteSelectedEditor.getPath();
                         if (remoteSelectedEditor.getSelection() != null) {
-                            int position = remoteSelectedEditor.getSelection().getOffset();
-                            int length = remoteSelectedEditor.getSelection().getLength();
-                            ColorModel colorModel = ColorManager.getColorModel(getFollowedUser().getColorID());
-                            localEditorManipulator.selectText(remotePath, position, length, colorModel);
+                            int position = remoteSelectedEditor.getSelection()
+                                    .getOffset();
+                            int length = remoteSelectedEditor.getSelection()
+                                    .getLength();
+                            ColorModel colorModel = ColorManager
+                                    .getColorModel(getFollowedUser().getColorID());
+                            localEditorManipulator
+                                    .selectText(remotePath, position, length,
+                                            colorModel);
                         }
 
                         if (remoteSelectedEditor.getViewport() != null) {
-                            int startLine = remoteSelectedEditor.getViewport().getStartLine();
-                            int endLine = remoteSelectedEditor.getViewport().getStartLine() + remoteSelectedEditor.getViewport().getNumberOfLines();
-                            localEditorManipulator.setViewPort(remotePath, startLine, endLine);
+                            int startLine = remoteSelectedEditor.getViewport()
+                                    .getStartLine();
+                            int endLine = remoteSelectedEditor.getViewport()
+                                    .getStartLine() + remoteSelectedEditor
+                                    .getViewport().getNumberOfLines();
+                            localEditorManipulator
+                                    .setViewPort(remotePath, startLine, endLine);
                         }
 
                     }
@@ -296,7 +307,6 @@ public class EditorManager
         @Override
         public void block() {
             ThreadUtils.runSafeSync(LOG, new Runnable() {
-
 
                 public void run() {
                     lockAllEditors();
@@ -374,7 +384,8 @@ public class EditorManager
         }
     };
 
-    public EditorManager(ISarosSessionManager sessionManager, LocalEditorHandler localEditorHandler,
+    public EditorManager(ISarosSessionManager sessionManager,
+                         LocalEditorHandler localEditorHandler,
                          LocalEditorManipulator localEditorManipulator) {
 
         remoteEditorManager = new RemoteEditorManager(session);
@@ -508,8 +519,8 @@ public class EditorManager
     }
 
     /**
-     * Sets the local editor 'opened' and fires an {@link EditorActivity} of
-     * type {@link de.fu_berlin.inf.dpp.activities.business.EditorActivity.Type#ACTIVATED}.
+     * Sets the local editor 'opened' and fires an {@link de.fu_berlin.inf.dpp.activities.EditorActivity} of
+     * type {@link de.fu_berlin.inf.dpp.activities.EditorActivity.Type#ACTIVATED}.
      *
      * @param path the project-relative path to the resource that the editor is
      *             currently editing or <code>null</code> if the local user has
@@ -534,8 +545,6 @@ public class EditorManager
 
     /**
      * Fires an EditorActivity.Type.CLOSED event for the given path and leaves following, if closing the followed editor.
-     *
-     * @param path
      */
     public void generateEditorClosed(@Nullable SPath path) {
         // if closing the followed editor, leave follow mode
@@ -547,7 +556,8 @@ public class EditorManager
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
-                NotificationPanel.showNotification("Follow Mode stopped!", "You closed the followed editor.");
+                NotificationPanel.showNotification("Follow Mode stopped!",
+                        "You closed the followed editor.");
             }
         }
 
@@ -556,13 +566,8 @@ public class EditorManager
     }
 
     /**
-     * Fires an update of the given {@link ITextSelection} for the given
-     * {@link IEditorPart} so that all remote parties know that the user
-     * selected some text in the given part.
-     *
-     * @param path         The IEditorPart for which to generate a TextSelectionActivity
-     * @param newSelection The ITextSelection in the given part which represents the
-     *                     currently selected text in editor.
+     * Generates a  {@link de.fu_berlin.inf.dpp.activities.TextSelectionActivity}
+     * and fires it.
      */
     public void generateSelection(SPath path, SelectionEvent newSelection) {
 
@@ -577,7 +582,10 @@ public class EditorManager
                 offset, length, path));
     }
 
-
+    /**
+     * Generates a  {@link de.fu_berlin.inf.dpp.activities.ViewportActivity}
+     * and fires it.
+     */
     public void generateViewport(SPath path, LineRange viewport) {
 
         if (this.session == null) {
@@ -597,11 +605,6 @@ public class EditorManager
 
     /**
      * Generates a TextEditActivity and fires it.
-     *
-     * @param offset
-     * @param oldText
-     * @param newText
-     * @param path
      */
     public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
 
@@ -634,7 +637,7 @@ public class EditorManager
     }
 
     /**
-     * Returns <code>true</code> if there is currently a {@link User} followed,
+     * Returns <code>true</code> if there is currently a {@link de.fu_berlin.inf.dpp.session.User} followed,
      * otherwise <code>false</code>.
      */
     public boolean isFollowing() {
@@ -649,7 +652,7 @@ public class EditorManager
     }
 
     /**
-     * Returns the followed {@link User} or <code>null</code> if currently no
+     * Returns the followed {@link de.fu_berlin.inf.dpp.session.User} or <code>null</code> if currently no
      * user is followed.
      */
     public User getFollowedUser() {
@@ -657,7 +660,7 @@ public class EditorManager
     }
 
     /**
-     * Sets the {@link User} to follow or <code>null</code> if no user should be
+     * Sets the {@link de.fu_berlin.inf.dpp.session.User} to follow or <code>null</code> if no user should be
      * followed.
      */
     public void setFollowing(User newFollowedUser) {
@@ -679,8 +682,6 @@ public class EditorManager
 
     /**
      * Locally opens the editor that the User jumpTo has currently open.
-     *
-     * @param jumpTo
      */
     public void jumpToUser(User jumpTo) {
 
@@ -771,8 +772,6 @@ public class EditorManager
     /**
      * Enables the documentListener, the fileListener, the selectionListener and the viewportListener if the parameter
      * is <code>true</code>, else disables them.
-     *
-     * @param enable
      */
     public void setListenerEnabled(boolean enable) {
 
@@ -796,8 +795,6 @@ public class EditorManager
     /**
      * Sets the editor's document writable and adds StoppableSelectionListener, StoppableViewPortListener and the
      * documentListener.
-     *
-     * @param editor
      */
     public void startEditor(Editor editor) {
         editor.getDocument().setReadOnly(false);
@@ -808,8 +805,6 @@ public class EditorManager
 
     /**
      * Stops an editor by removing all listeners.
-     *
-     * @param editor
      */
     public void stopEditor(Editor editor) {
         editor.getSelectionModel().removeSelectionListener(selectionListener);

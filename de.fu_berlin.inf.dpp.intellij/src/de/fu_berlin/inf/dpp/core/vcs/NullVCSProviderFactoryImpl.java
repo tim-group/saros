@@ -26,7 +26,7 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
 import de.fu_berlin.inf.dpp.vcs.VCSProviderFactory;
 
-public class VCSProviderFactoryImpl implements VCSProviderFactory {
+public class NullVCSProviderFactoryImpl implements VCSProviderFactory {
 
     /**
      * Returns <code>null</code>.

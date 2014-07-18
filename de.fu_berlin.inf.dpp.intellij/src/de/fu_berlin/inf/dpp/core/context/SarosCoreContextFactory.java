@@ -34,7 +34,7 @@ import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
 import de.fu_berlin.inf.dpp.core.project.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.vcs.VCSProviderFactoryImpl;
+import de.fu_berlin.inf.dpp.core.vcs.NullVCSProviderFactoryImpl;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.DispatchThreadContext;
 import de.fu_berlin.inf.dpp.net.IReceiver;
@@ -95,7 +95,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory {
             Component.create(SessionNegotiationHookManager.class),
 
             // VCS (only dummy to satisfy dependencies)
-            Component.create(VCSProviderFactory.class, VCSProviderFactoryImpl.class),
+            Component.create(VCSProviderFactory.class, NullVCSProviderFactoryImpl.class),
 
 
             // Network
