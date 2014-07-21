@@ -46,7 +46,7 @@ public class ProjectAPI {
     private FileDocumentManager fileDocumentManager;
 
     private Project project;
-    protected FileEditorManager editorFileManager;
+    private FileEditorManager editorFileManager;
 
     private class WriteAction implements Runnable {
         Runnable action;
@@ -208,7 +208,7 @@ public class ProjectAPI {
     }
 
     public void addFileEditorManagerListener(
-            StoppableEditorFileListener listener) {
+        StoppableEditorFileListener listener) {
         editorFileManager.addFileEditorManagerListener(listener);
     }
 }

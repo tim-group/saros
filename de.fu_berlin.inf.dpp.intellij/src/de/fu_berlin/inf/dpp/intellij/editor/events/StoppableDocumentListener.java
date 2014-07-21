@@ -36,11 +36,12 @@ import org.apache.log4j.Logger;
  * events.
  */
 public class StoppableDocumentListener extends AbstractStoppableListener
-        implements DocumentListener {
+    implements DocumentListener {
 
     private Document document;
 
-    private Logger LOG = Logger.getLogger(StoppableDocumentListener.class);
+    private static final Logger LOG = Logger
+        .getLogger(StoppableDocumentListener.class);
 
     public StoppableDocumentListener(EditorManager editorManager) {
         super(editorManager);
@@ -48,7 +49,7 @@ public class StoppableDocumentListener extends AbstractStoppableListener
 
     /**
      * Calls
-     * {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#generateTextEdit(int, String, String, de.fu_berlin.inf.dpp.activities.SPath)}
+     * {@link EditorManager#generateTextEdit(int, String, String, SPath)}
      *
      * @param event
      */
@@ -68,7 +69,7 @@ public class StoppableDocumentListener extends AbstractStoppableListener
         String replacedText = event.getOldFragment().toString();
 
         editorManager
-                .generateTextEdit(event.getOffset(), text, replacedText, path);
+            .generateTextEdit(event.getOffset(), text, replacedText, path);
     }
 
     /**

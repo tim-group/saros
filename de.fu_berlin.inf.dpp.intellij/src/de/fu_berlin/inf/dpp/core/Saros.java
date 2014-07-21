@@ -35,7 +35,6 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
 import de.fu_berlin.inf.dpp.misc.pico.DotGraphMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.util.StackTrace;
-import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
 /**
@@ -46,7 +45,6 @@ public class Saros {
     /**
      * This is the Bundle-SymbolicName (a.k.a the pluginID)
      */
-
     public static final String SAROS = "de.fu_berlin.inf.dpp";
     /**
      * The name of the XMPP namespace used by SarosEclipse. At the moment it is only
@@ -55,26 +53,25 @@ public class Saros {
      * TODO Add version information, so that only compatible versions of Saros
      * can use each other.
      */
-    public final static String NAMESPACE = SAROS;
+    public static final String NAMESPACE = SAROS;
     /**
      * Sub-namespace for the server. It is used advertise when a server is
      * active.
      */
-    public static final String NAMESPACE_SERVER =
-            NAMESPACE + ".server";
+    public static final String NAMESPACE_SERVER = NAMESPACE + ".server";
     /**
      * Default server name
      */
     public static final String SAROS_SERVER = "localhost";
     /**
-     * The name of the resource identifier used by SarosEclipse when connecting to the
-     * XMPP server (for instance when logging in as john@doe.com, SarosEclipse will
-     * connect using john@doe.com/SarosEclipse)
+     * The name of the resource identifier used by Saros when connecting to the
+     * XMPP server (for instance when logging in as john@doe.com, Saros will
+     * connect using john@doe.com/Saros)
      * <p/>
      * //todo
      */
     public final static String RESOURCE = "Saros";
-    private static final Logger LOG = Logger.getLogger(Saros.class);
+
     private static Saros instance;
 
     private static boolean isInitialized;
@@ -98,7 +95,7 @@ public class Saros {
 
     /**
      * Returns true if the Saros instance has been initialized so that calling
-     * {@link de.fu_berlin.inf.dpp.core.context.SarosContext#reinject(Object)} will be well defined.
+     * {@link SarosContext#reinject(Object)} will be well defined.
      */
     public static boolean isInitialized() {
         return isInitialized;
@@ -108,7 +105,7 @@ public class Saros {
      * Checks if Saros was already initialized by create(). Throws an
      * IllegalStateException if not initialized.
      *
-     * @throws java.lang.IllegalStateException
+     * @throws IllegalStateException
      */
     public static void checkInitialized() {
         if (!isInitialized()) {
@@ -141,21 +138,20 @@ public class Saros {
         }
 
         //CONTEXT
-        sarosContext = new SarosContext(
-                new SarosIntellijContextFactory(this,
-                        new SarosCoreContextFactory()), new DotGraphMonitor()
+        sarosContext = new SarosContext(new SarosIntellijContextFactory(this,
+            new SarosCoreContextFactory()), new DotGraphMonitor()
         );
 
         SarosPluginContext.setSarosContext(sarosContext);
 
         connectionService = sarosContext
-                .getComponent(XMPPConnectionService.class);
+            .getComponent(XMPPConnectionService.class);
         preferenceUtils = sarosContext.getComponent(PreferenceUtils.class);
 
         //todo: set parameters from config
         connectionService
-                .configure(Saros.NAMESPACE, Saros.RESOURCE, false, false, 8888,
-                        null, null, true, null, 80, true);
+            .configure(Saros.NAMESPACE, Saros.RESOURCE, false, false, 8888,
+                null, null, true, null, 80, true);
 
         isInitialized = true;
         // Make sure that all components in the container are

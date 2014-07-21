@@ -26,11 +26,8 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
-import org.apache.log4j.Logger;
 
 public class IntelliJSynchronizer implements UISynchronizer {
-
-    private static final Logger LOG = Logger.getLogger(IntelliJSynchronizer.class);
 
     @Override
     public void asyncExec(Runnable runnable) {
@@ -55,7 +52,6 @@ public class IntelliJSynchronizer implements UISynchronizer {
         } else {
             application.invokeAndWait(runnable, ModalityState.NON_MODAL);
         }
-
 
     }
 }

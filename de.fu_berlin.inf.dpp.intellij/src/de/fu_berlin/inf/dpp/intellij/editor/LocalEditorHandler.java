@@ -42,7 +42,8 @@ import java.util.Map;
  */
 public class LocalEditorHandler {
 
-    private Logger LOG = Logger.getLogger(LocalEditorHandler.class);
+    private static final Logger LOG = Logger
+        .getLogger(LocalEditorHandler.class);
 
     private final ProjectAPI projectAPI;
     /**

@@ -96,7 +96,8 @@ public class SarosContext implements ISarosContext {
 
     private static final String SAROS_DATA_DIRECTORY = ".saros";
 
-    private static final String SAROS_XMPP_ACCOUNT_FILE = "config.dat";
+    //TODO: Prefix is for now just for Testing
+    private static final String SAROS_XMPP_ACCOUNT_FILE = "idea_config.dat";
 
     private final DotGraphMonitor dotMonitor;
 
@@ -113,7 +114,7 @@ public class SarosContext implements ISarosContext {
     private Reinjector reinjector;
 
     public SarosContext(ISarosContextFactory factory,
-                        DotGraphMonitor dotGraphMonitor) {
+        DotGraphMonitor dotGraphMonitor) {
         this.factory = factory;
         this.dotMonitor = dotGraphMonitor;
         init();
@@ -147,7 +148,7 @@ public class SarosContext implements ISarosContext {
             Class.forName(CancelProjectNegotiationExtension.class.getName());
             Class.forName(ProjectNegotiationOfferingExtension.class.getName());
             Class.forName(
-                    ProjectNegotiationMissingFilesExtension.class.getName());
+                ProjectNegotiationMissingFilesExtension.class.getName());
             Class.forName(KickUserExtension.class.getName());
             Class.forName(UserListExtension.class.getName());
             Class.forName(LeaveSessionExtension.class.getName());
@@ -156,7 +157,7 @@ public class SarosContext implements ISarosContext {
             Class.forName(PongExtension.class.getName());
 
             Class.forName(
-                    UserFinishedProjectNegotiationExtension.class.getName());
+                UserFinishedProjectNegotiationExtension.class.getName());
 
             Class.forName(StartActivityQueuingRequest.class.getName());
             Class.forName(StartActivityQueuingResponse.class.getName());
@@ -182,8 +183,8 @@ public class SarosContext implements ISarosContext {
          */
 
         PicoBuilder picoBuilder = new PicoBuilder(
-                new CompositeInjection(new ConstructorInjection(),
-                        new AnnotatedFieldInjection())
+            new CompositeInjection(new ConstructorInjection(),
+                new AnnotatedFieldInjection())
         ).withCaching().withLifecycle();
 
         /*
@@ -199,7 +200,7 @@ public class SarosContext implements ISarosContext {
 
         // Add Adapter which creates ChildContainers
         container.as(Characteristics.NO_CACHE).addAdapter(
-                new ProviderAdapter(new ChildContainerProvider(this.container)));
+            new ProviderAdapter(new ChildContainerProvider(this.container)));
 
         factory.createComponents(container);
 
@@ -216,7 +217,7 @@ public class SarosContext implements ISarosContext {
         installPacketExtensionProviders();
 
         XMPPUtils.setDefaultConnectionService(
-                container.getComponent(XMPPConnectionService.class));
+            container.getComponent(XMPPConnectionService.class));
         log.info("successfully created Saros runtime context");
     }
 
@@ -245,7 +246,7 @@ public class SarosContext implements ISarosContext {
 
         if (homeDirectory == null) {
             log.warn(
-                    "home directory not set, cannot save and load account data");
+                "home directory not set, cannot save and load account data");
             return;
         }
 
@@ -268,7 +269,7 @@ public class SarosContext implements ISarosContext {
             ComponentAdapter<?> removed = container.removeComponent(clazz);
             if (removed != null) {
                 log.warn(clazz.getName() + " added more than once!",
-                        new StackTrace());
+                    new StackTrace());
             }
 
             // Add the given instance to the container
@@ -291,7 +292,7 @@ public class SarosContext implements ISarosContext {
     @Override
     public synchronized void initComponent(Object toInjectInto) {
         ChildContainer dummyContainer = container
-                .getComponent(ChildContainer.class);
+            .getComponent(ChildContainer.class);
         dummyContainer.reinject(toInjectInto);
         container.removeChildContainer(dummyContainer);
     }

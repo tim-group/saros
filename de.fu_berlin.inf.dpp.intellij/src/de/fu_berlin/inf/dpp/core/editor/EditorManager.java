@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.editor;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -54,7 +56,6 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.Blockable;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Nullable;
 
@@ -71,25 +72,24 @@ import java.util.Set;
  * This implementation uses the {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler}
  * for actually accessing the editors. It translates the Activities for the EditorManager.
  */
-public class EditorManager
-        extends AbstractActivityProducer {
+public class EditorManager extends AbstractActivityProducer {
 
     private static final Logger LOG = Logger.getLogger(EditorManager.class);
+
     private Blockable stopManagerListener = new Blockable() {
 
         @Override
         public void unblock() {
-            ThreadUtils.runSafeSync(LOG, new Runnable() {
+            executeInUIThreadSynchronous(new Runnable() {
                 public void run() {
                     unlockAllEditors();
                 }
             });
         }
 
-
         @Override
         public void block() {
-            ThreadUtils.runSafeSync(LOG, new Runnable() {
+            executeInUIThreadSynchronous(new Runnable() {
 
                 public void run() {
                     lockAllEditors();
@@ -108,9 +108,10 @@ public class EditorManager
 
             User sender = activity.getSource();
             if (!sender.isInSession()) {
-                LOG.warn("skipping execution of activity " + activity
-                        + " for user " + sender
-                        + " who is not in the current session");
+                LOG.warn(
+                    "skipping execution of activity " + activity + " for user "
+                        + sender + " who is not in the current session"
+                );
                 return;
             }
 
@@ -162,7 +163,6 @@ public class EditorManager
     private SPath activeEditor;
     private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
-
         @Override
         public void permissionChanged(final User user) {
 
@@ -180,40 +180,48 @@ public class EditorManager
             refreshAnnotations();
         }
 
-
         @Override
         public void userFinishedProjectNegotiation(User user) {
 
             // Send awareness-information
             User localUser = session.getLocalUser();
             for (SPath path : getLocallyOpenEditors()) {
-                fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED, path));
+                fireActivity(
+                    new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
+                        path)
+                );
             }
 
-            fireActivity(new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
-                    activeEditor));
+            fireActivity(
+                new EditorActivity(localUser, EditorActivity.Type.ACTIVATED,
+                    activeEditor)
+            );
 
             if (activeEditor == null) {
                 return;
             }
             if (localViewport != null) {
                 fireActivity(new ViewportActivity(localUser,
-                        localViewport.getStartLine(),
-                        localViewport.getNumberOfLines(), activeEditor));
+                    localViewport.getStartLine(),
+                    localViewport.getNumberOfLines(), activeEditor));
             } else {
-                LOG.warn("No viewport for locallyActivateEditor: "
-                        + activeEditor);
+                LOG.warn(
+                    "No viewport for locallyActivateEditor: " + activeEditor);
             }
 
             if (localSelection != null) {
                 int offset = localSelection.getNewRange().getStartOffset();
-                int length = localSelection.getNewRange().getEndOffset() - localSelection.getNewRange().getStartOffset();
+                int length =
+                    localSelection.getNewRange().getEndOffset() - localSelection
+                        .getNewRange().getStartOffset();
 
-                fireActivity(new TextSelectionActivity(localUser, offset,
-                        length, activeEditor));
+                fireActivity(
+                    new TextSelectionActivity(localUser, offset, length,
+                        activeEditor)
+                );
             } else {
-                LOG.warn("No selection for locallyActivateEditor: "
-                        + activeEditor);
+                LOG.warn(
+                    "No selection for locallyActivateEditor: " + activeEditor);
             }
         }
 
@@ -234,7 +242,8 @@ public class EditorManager
         public void sessionStarted(ISarosSession newSarosSession) {
             LOG.info("Session started");
 
-            assert editorPool.getEditors().size() == 0 : "EditorPool was not correctly reset!";
+            assert editorPool.getEditors().size()
+                == 0 : "EditorPool was not correctly reset!";
 
             session = newSarosSession;
             session.getStopManager().addBlockable(stopManagerListener);
@@ -251,16 +260,16 @@ public class EditorManager
             LocalFileSystem.getInstance().refresh(true);
         }
 
-
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
 
             LOG.info("Session ended");
 
             assert session == oldSarosSession;
-            session.getStopManager().removeBlockable(stopManagerListener); //todo
+            session.getStopManager()
+                .removeBlockable(stopManagerListener); //todo
 
-            ThreadUtils.runSafeSync(LOG, new Runnable() {
+            executeInUIThreadSynchronous(new Runnable() {
 
                 public void run() {
 
@@ -283,14 +292,12 @@ public class EditorManager
             });
         }
 
-
         @Override
         public void projectAdded(String projectID) {
             if (!isFollowing()) {
                 return;
             }
-
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            executeInUIThreadSynchronous(new Runnable() {
                 /*
                   * When Alice invites Bob to a session with a project and Alice
                   * has some Files of the shared project already open, Bob will
@@ -302,9 +309,9 @@ public class EditorManager
                 public void run() {
 
                     Set<SPath> remoteOpenEditors = getRemoteEditorManager()
-                            .getRemoteOpenEditors(getFollowedUser());
+                        .getRemoteOpenEditors(getFollowedUser());
                     RemoteEditorManager.RemoteEditor remoteSelectedEditor = getRemoteEditorManager()
-                            .getRemoteActiveEditor(getFollowedUser());
+                        .getRemoteActiveEditor(getFollowedUser());
                     Set<SPath> localOpenEditors = getLocallyOpenEditors();
 
                     // for every open file we act as if we just
@@ -323,24 +330,24 @@ public class EditorManager
                         SPath remotePath = remoteSelectedEditor.getPath();
                         if (remoteSelectedEditor.getSelection() != null) {
                             int position = remoteSelectedEditor.getSelection()
-                                    .getOffset();
+                                .getOffset();
                             int length = remoteSelectedEditor.getSelection()
-                                    .getLength();
+                                .getLength();
                             ColorModel colorModel = ColorManager
-                                    .getColorModel(getFollowedUser().getColorID());
+                                .getColorModel(getFollowedUser().getColorID());
                             localEditorManipulator
-                                    .selectText(remotePath, position, length,
-                                            colorModel);
+                                .selectText(remotePath, position, length,
+                                    colorModel);
                         }
 
                         if (remoteSelectedEditor.getViewport() != null) {
                             int startLine = remoteSelectedEditor.getViewport()
-                                    .getStartLine();
+                                .getStartLine();
                             int endLine = remoteSelectedEditor.getViewport()
-                                    .getStartLine() + remoteSelectedEditor
-                                    .getViewport().getNumberOfLines();
+                                .getStartLine() + remoteSelectedEditor
+                                .getViewport().getNumberOfLines();
                             localEditorManipulator
-                                    .setViewPort(remotePath, startLine, endLine);
+                                .setViewPort(remotePath, startLine, endLine);
                         }
 
                     }
@@ -367,8 +374,8 @@ public class EditorManager
     };
 
     public EditorManager(ISarosSessionManager sessionManager,
-                         LocalEditorHandler localEditorHandler,
-                         LocalEditorManipulator localEditorManipulator) {
+        LocalEditorHandler localEditorHandler,
+        LocalEditorManipulator localEditorManipulator) {
 
         remoteEditorManager = new RemoteEditorManager(session);
         sessionManager.addSarosSessionListener(this.sessionListener);
@@ -429,25 +436,25 @@ public class EditorManager
         final User user = editorActivity.getSource();
 
         switch (editorActivity.getType()) {
-            case ACTIVATED:
-                if (isFollowing(user)) {
-                    localEditorManipulator.openEditor(path);
-                }
-                editorListenerDispatch.activeEditorChanged(user, path);
-                break;
+        case ACTIVATED:
+            if (isFollowing(user)) {
+                localEditorManipulator.openEditor(path);
+            }
+            editorListenerDispatch.activeEditorChanged(user, path);
+            break;
 
-            case CLOSED:
-                if (isFollowing(user)) {
-                    localEditorManipulator.closeEditor(path);
-                }
-                editorListenerDispatch.editorRemoved(user, path);
-                break;
-            case SAVED:
-                localEditorHandler.saveFile(path);
-                editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
-                break;
-            default:
-                LOG.warn("Unexpected type: " + editorActivity.getType());
+        case CLOSED:
+            if (isFollowing(user)) {
+                localEditorManipulator.closeEditor(path);
+            }
+            editorListenerDispatch.editorRemoved(user, path);
+            break;
+        case SAVED:
+            localEditorHandler.saveFile(path);
+            editorListenerDispatch.userWithWriteAccessEditorSaved(path, true);
+            break;
+        default:
+            LOG.warn("Unexpected type: " + editorActivity.getType());
         }
     }
 
@@ -460,9 +467,11 @@ public class EditorManager
         User user = editorActivity.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        localEditorManipulator.editText(path, editorActivity.toOperation(), colorModel.getEditColor());
+        localEditorManipulator.editText(path, editorActivity.toOperation(),
+            colorModel.getEditColor());
 
-        editorListenerDispatch.textEditRecieved(user, path, editorActivity.getText(),
+        editorListenerDispatch
+            .textEditRecieved(user, path, editorActivity.getText(),
                 editorActivity.getReplacedText(), editorActivity.getOffset());
     }
 
@@ -479,7 +488,9 @@ public class EditorManager
         User user = selection.getSource();
         ColorModel colorModel = ColorManager.getColorModel(user.getColorID());
 
-        localEditorManipulator.selectText(path, selection.getOffset(), selection.getLength(), colorModel);
+        localEditorManipulator
+            .selectText(path, selection.getOffset(), selection.getLength(),
+                colorModel);
 
         editorListenerDispatch.textSelectionMade(selection);
     }
@@ -494,7 +505,8 @@ public class EditorManager
 
         User user = viewport.getSource();
         if (isFollowing(user)) {
-            localEditorManipulator.setViewPort(path, viewport.getStartLine(), viewport.getStartLine() + viewport.getNumberOfLines());
+            localEditorManipulator.setViewPort(path, viewport.getStartLine(),
+                viewport.getStartLine() + viewport.getNumberOfLines());
         }
 
         editorListenerDispatch.viewportChanged(viewport);
@@ -516,9 +528,10 @@ public class EditorManager
             this.locallyOpenEditors.add(path);
         }
 
-        editorListenerDispatch.activeEditorChanged(session.getLocalUser(), path);
+        editorListenerDispatch
+            .activeEditorChanged(session.getLocalUser(), path);
         fireActivity(new EditorActivity(session.getLocalUser(),
-                EditorActivity.Type.ACTIVATED, path));
+            EditorActivity.Type.ACTIVATED, path));
 
         //  generateSelection(path, selection);  //FIXME: add this feature
         //  generateViewport(path, viewport);    //FIXME:s add this feature
@@ -531,20 +544,20 @@ public class EditorManager
     public void generateEditorClosed(@Nullable SPath path) {
         // if closing the followed editor, leave follow mode
         if (getFollowedUser() != null) {
-            RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager.getEditorState(
-                    getFollowedUser()).getActiveEditor();
+            RemoteEditorManager.RemoteEditor activeEditor = remoteEditorManager
+                .getEditorState(getFollowedUser()).getActiveEditor();
 
             if (activeEditor != null && activeEditor.getPath().equals(path)) {
                 // follower closed the followed editor (no other editor gets
                 // activated)
                 setFollowing(null);
                 NotificationPanel.showNotification("Follow Mode stopped!",
-                        "You closed the followed editor.");
+                    "You closed the followed editor.");
             }
         }
 
         fireActivity(new EditorActivity(session.getLocalUser(),
-                EditorActivity.Type.CLOSED, path));
+            EditorActivity.Type.CLOSED, path));
     }
 
     /**
@@ -560,8 +573,10 @@ public class EditorManager
         int offset = newSelection.getNewRange().getStartOffset();
         int length = newSelection.getNewRange().getLength();
 
-        fireActivity(new TextSelectionActivity(session.getLocalUser(),
-                offset, length, path));
+        fireActivity(
+            new TextSelectionActivity(session.getLocalUser(), offset, length,
+                path)
+        );
     }
 
     /**
@@ -580,7 +595,7 @@ public class EditorManager
         }
 
         fireActivity(new ViewportActivity(session.getLocalUser(),
-                viewport.getStartLine(), viewport.getNumberOfLines(), path));
+            viewport.getStartLine(), viewport.getNumberOfLines(), path));
 
         //  editorListenerDispatch.viewportGenerated(part, viewport, path);  //FIXME: add this feature
     }
@@ -588,13 +603,15 @@ public class EditorManager
     /**
      * Generates a TextEditActivity and fires it.
      */
-    public synchronized void generateTextEdit(int offset, String oldText, String newText, SPath path) {
+    public synchronized void generateTextEdit(int offset, String oldText,
+        String newText, SPath path) {
 
         if (session == null) {
             return;
         }
 
-        TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(), offset, oldText, newText, path);
+        TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(),
+            offset, oldText, newText, path);
 
         if (!hasWriteAccess || isLocked) {
            /*
@@ -607,15 +624,17 @@ public class EditorManager
              */
 
             LOG.warn("local user caused text changes: " + textEdit
-                    + " | write access : " + hasWriteAccess + ", session locked : "
-                    + isLocked);
+                + " | write access : " + hasWriteAccess + ", session locked : "
+                + isLocked);
             return;
         }
 
         fireActivity(textEdit);
 
-        editorListenerDispatch.textEditRecieved(session.getLocalUser(),
-                textEdit.getPath(), textEdit.getText(), textEdit.getReplacedText(), textEdit.getOffset());
+        editorListenerDispatch
+            .textEditRecieved(session.getLocalUser(), textEdit.getPath(),
+                textEdit.getText(), textEdit.getReplacedText(),
+                textEdit.getOffset());
     }
 
     /**
@@ -631,13 +650,14 @@ public class EditorManager
      * followed.
      */
     public void setFollowing(User newFollowedUser) {
-        assert newFollowedUser == null
-                || !newFollowedUser.equals(session.getLocalUser()) : "local user cannot follow himself!";
+        assert newFollowedUser == null || !newFollowedUser.equals(
+            session.getLocalUser()) : "local user cannot follow himself!";
 
         User oldFollowedUser = this.followedUser;
         this.followedUser = newFollowedUser;
 
-        if (oldFollowedUser != null && !oldFollowedUser.equals(newFollowedUser)) {
+        if (oldFollowedUser != null && !oldFollowedUser
+            .equals(newFollowedUser)) {
             editorListenerDispatch.followModeChanged(oldFollowedUser, false);
         }
 
@@ -667,8 +687,8 @@ public class EditorManager
      */
     public void jumpToUser(User jumpTo) {
 
-        RemoteEditorManager.RemoteEditor remoteActiveEditor = remoteEditorManager.getEditorState(jumpTo)
-                .getActiveEditor();
+        RemoteEditorManager.RemoteEditor remoteActiveEditor = remoteEditorManager
+            .getEditorState(jumpTo).getActiveEditor();
 
         // you can't follow yourself
         if (session.getLocalUser().equals(jumpTo)) {
@@ -681,7 +701,8 @@ public class EditorManager
             return;
         }
 
-        Editor newEditor = localEditorManipulator.openEditor(remoteActiveEditor.getPath());
+        Editor newEditor = localEditorManipulator
+            .openEditor(remoteActiveEditor.getPath());
 
         if (newEditor == null) {
             return;
@@ -691,14 +712,16 @@ public class EditorManager
 
         if (viewport == null) {
             LOG.warn(jumpTo.getJID() + " has no viewport in editor: "
-                    + remoteActiveEditor.getPath());
+                + remoteActiveEditor.getPath());
             return;
         }
 
         // selection can be null
-        TextSelection selection = remoteEditorManager.getSelection(followedUser);
+        TextSelection selection = remoteEditorManager
+            .getSelection(followedUser);
         if (selection != null) {
-            localEditorManipulator.adjustViewport(newEditor, viewport, selection);
+            localEditorManipulator
+                .adjustViewport(newEditor, viewport, selection);
         }
 
         editorListenerDispatch.jumpedToUser(jumpTo);
@@ -708,7 +731,6 @@ public class EditorManager
     public void refreshAnnotations() {
 
     }
-
 
     public RemoteEditorManager getRemoteEditorManager() {
         return remoteEditorManager;
@@ -721,7 +743,6 @@ public class EditorManager
 
         return isSharedEditor(activeEditor);
     }
-
 
     protected boolean isSharedEditor(SPath editorFilePath) {
         if (session == null) {
@@ -817,5 +838,10 @@ public class EditorManager
         for (Editor editor : editorPool.getEditors()) {
             startEditor(editor);
         }
+    }
+
+    private static void executeInUIThreadSynchronous(Runnable runnable) {
+        ApplicationManager.getApplication()
+            .invokeAndWait(runnable, ModalityState.NON_MODAL);
     }
 }

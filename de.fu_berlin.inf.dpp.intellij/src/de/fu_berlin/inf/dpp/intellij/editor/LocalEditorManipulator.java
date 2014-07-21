@@ -44,7 +44,8 @@ import java.awt.Color;
  */
 public class LocalEditorManipulator {
 
-    private Logger LOG = Logger.getLogger(LocalEditorManipulator.class);
+    private static final Logger LOG = Logger
+        .getLogger(LocalEditorManipulator.class);
 
     private final ProjectAPI projectAPI;
     private final EditorAPI editorAPI;
@@ -159,13 +160,13 @@ public class LocalEditorManipulator {
         for (ITextOperation op : operations.getTextOperations()) {
             if (op instanceof DeleteOperation) {
                 editorAPI.deleteText(doc, op.getPosition(),
-                        op.getPosition() + op.getTextLength());
+                    op.getPosition() + op.getTextLength());
             } else {
                 editorAPI.insertText(doc, op.getPosition(), op.getText());
                 Editor editor = editorPool.getEditor(path);
                 if (editor != null) {
                     editorAPI.textMarkAdd(editor, op.getPosition(),
-                            op.getPosition() + op.getTextLength(), color);
+                        op.getPosition() + op.getTextLength(), color);
                 }
             }
         }
@@ -182,13 +183,13 @@ public class LocalEditorManipulator {
      * @param colorModel
      */
     public void selectText(SPath path, int position, int length,
-                           ColorModel colorModel) {
+        ColorModel colorModel) {
         Editor editor = editorPool.getEditor(path);
         if (editor != null) {
             editorAPI.textMarkRemove(editor, colorModel.getSelect());
             RangeHighlighter highlighter = editorAPI
-                    .textMarkAdd(editor, position, position + length,
-                            colorModel.getSelectColor());
+                .textMarkAdd(editor, position, position + length,
+                    colorModel.getSelectColor());
             colorModel.setSelect(highlighter);
             //editorAPI.setSelection(editor, position, position + length,color); //todo: calculate new line char win and unix differences
         }
@@ -202,7 +203,7 @@ public class LocalEditorManipulator {
      * @param lineEnd
      */
     public void setViewPort(final SPath path, final int lineStart,
-                            final int lineEnd) {
+        final int lineEnd) {
         Editor editor = editorPool.getEditor(path);
         if (editor != null) {
             editorAPI.setViewPort(editor, lineStart, lineEnd);
@@ -230,15 +231,15 @@ public class LocalEditorManipulator {
      * @param selection text selection of the followed user. Must not be <code>null</code>.
      */
     public void adjustViewport(Editor editor, LineRange range,
-                               TextSelection selection) {
+        TextSelection selection) {
         if (editor == null || selection == null || range == null) {
             return;
         }
 
         editorAPI.setSelection(editor, selection.getOffset(),
-                selection.getOffset() + selection.getLength(), null);
+            selection.getOffset() + selection.getLength(), null);
         editorAPI.setViewPort(editor, range.getStartLine(),
-                range.getStartLine() + range.getNumberOfLines());
+            range.getStartLine() + range.getNumberOfLines());
 
         //todo: implement actual viewport adjustment logic
     }

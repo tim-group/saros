@@ -77,8 +77,9 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="jmdns-3.4.1" level="project" />
-    <orderEntry type="library" exported="" name="smack-3.4.1-0cec571" level="project" />
-    <orderEntry type="library" exported="" name="smackx-3.4.1-0cec571" level="project" />
+    <orderEntry type="library" exported="" name="smack" level="project" />
+    <orderEntry type="library" exported="" name="smackx" level="project" />
+    <orderEntry type="library" exported="" name="smackx-debug" level="project" />
   </component>
 </module>
 
