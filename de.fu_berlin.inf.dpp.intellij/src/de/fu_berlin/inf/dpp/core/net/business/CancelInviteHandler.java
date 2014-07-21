@@ -3,7 +3,6 @@
  */
 package de.fu_berlin.inf.dpp.core.net.business;
 
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.communication.extensions.CancelInviteExtension;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.IReceiver;
@@ -13,10 +12,13 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
-@Component(module = "net")
+/**
+ * Listens for {@link CancelInviteExtension}-packets that cancel the invitation
+ * process and cancels it locally.
+ */
 public class CancelInviteHandler {
 
-    private static final Logger log = Logger
+    private static final Logger LOG = Logger
             .getLogger(CancelInviteHandler.class.getName());
 
     private SessionNegotiationObservable invitationProcesses;
@@ -49,11 +51,12 @@ public class CancelInviteHandler {
                 .get(sender, invitationID);
 
         if (invitationProcess == null) {
-            log.warn("Inv[unkown user]: Received invitation cancel message for unknown invitation process. Ignoring...");
+            LOG.warn(
+                "Inv[unkown user]: Received invitation cancel message for unknown invitation process. Ignoring...");
             return;
         }
 
-        log.debug("Inv" + sender + " : Received invitation cancel message");
+        LOG.debug("Inv" + sender + " : Received invitation cancel message");
 
         invitationProcess.remoteCancel(errorMsg);
     }

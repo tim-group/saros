@@ -1,6 +1,5 @@
 package de.fu_berlin.inf.dpp.core.net.business;
 
-import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.communication.extensions.CancelInviteExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationAcknowledgedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.InvitationOfferingExtension;
@@ -22,10 +21,9 @@ import java.util.List;
 /**
  * Business Logic for handling incoming Session- and ProjectNegotiation requests
  */
-@Component(module = "net")
 public class InvitationHandler {
 
-    private static final Logger log = Logger.getLogger(InvitationHandler.class
+    private static final Logger LOG = Logger.getLogger(InvitationHandler.class
             .getName());
     private final SessionIDObservable sessionIDObservable;
     @Inject
@@ -51,8 +49,8 @@ public class InvitationHandler {
                         .getPayload(packet);
 
                 if (invitation == null) {
-                    log.warn("received invitation from " + fromJID
-                            + " that contains malformed payload");
+                    LOG.warn("received invitation from " + fromJID
+                        + " that contains malformed payload");
                     return;
                 }
 
@@ -61,10 +59,11 @@ public class InvitationHandler {
                 String version = invitation.getVersion();
                 String description = invitation.getDescription();
 
-                log.info("received invitation from " + fromJID
-                        + " [invitation id: " + invitationID + ", "
-                        + "session id: " + sessionID + ", " + "version: " + version
-                        + "]");
+                LOG.info(
+                    "received invitation from " + fromJID + " [invitation id: "
+                        + invitationID + ", " + "session id: " + sessionID
+                        + ", " + "version: " + version + "]"
+                );
 
                 /**
                  * @JTourBusStop 7, Invitation Process:
@@ -109,8 +108,8 @@ public class InvitationHandler {
                         .getPayload(packet);
 
                 if (projectNegotiation == null) {
-                    log.warn("received project negotiation from " + fromJID
-                            + " that contains malformed payload");
+                    LOG.warn("received project negotiation from " + fromJID
+                        + " that contains malformed payload");
                     return;
                 }
 
@@ -120,14 +119,14 @@ public class InvitationHandler {
                         .getProjectNegotiationData();
 
                 if (!sessionIDObservable.getValue().equals(sessionID)) {
-                    log.warn("received project negotiation from " + fromJID
-                            + " that is not in the same session");
+                    LOG.warn("received project negotiation from " + fromJID
+                        + " that is not in the same session");
                     return;
                 }
 
-                log.info("received project negotiation from " + fromJID
-                        + " with session id: " + sessionID
-                        + " and negotiation id: " + negotiationID);
+                LOG.info("received project negotiation from " + fromJID
+                    + " with session id: " + sessionID + " and negotiation id: "
+                    + negotiationID);
 
                 sessionManager.incomingProjectReceived(fromJID, projectInfos,
                         negotiationID);

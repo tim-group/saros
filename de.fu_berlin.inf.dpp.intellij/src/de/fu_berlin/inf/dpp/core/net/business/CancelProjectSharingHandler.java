@@ -13,10 +13,14 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
+/**
+ * Listens for {@link CancelProjectNegotiationExtension} packets that signal a
+ * cancelled project negotation and cancels it locally.
+ */
 public class CancelProjectSharingHandler {
 
     private static final Logger log = Logger
-            .getLogger(CancelProjectSharingHandler.class.getName());
+        .getLogger(CancelProjectSharingHandler.class.getName());
 
     private final ISarosSessionManager sessionManager;
 
@@ -28,9 +32,9 @@ public class CancelProjectSharingHandler {
         @Override
         public void processPacket(Packet packet) {
             CancelProjectNegotiationExtension extension = CancelProjectNegotiationExtension.PROVIDER
-                    .getPayload(packet);
+                .getPayload(packet);
             projectSharingCanceled(new JID(packet.getFrom()),
-                    extension.getErrorMessage());
+                extension.getErrorMessage());
         }
     };
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
@@ -38,8 +42,8 @@ public class CancelProjectSharingHandler {
         @Override
         public void sessionStarted(ISarosSession session) {
             receiver.addPacketListener(cancelProjectNegotiationListener,
-                    CancelProjectNegotiationExtension.PROVIDER
-                            .getPacketFilter(session.getID())
+                CancelProjectNegotiationExtension.PROVIDER
+                    .getPacketFilter(session.getID())
             );
         }
 
@@ -50,8 +54,8 @@ public class CancelProjectSharingHandler {
     };
 
     public CancelProjectSharingHandler(IReceiver receiver,
-                                       ISarosSessionManager sessionManager,
-                                       ProjectNegotiationObservable projectNegotiationObservable) {
+        ISarosSessionManager sessionManager,
+        ProjectNegotiationObservable projectNegotiationObservable) {
 
         this.receiver = receiver;
 
@@ -64,7 +68,7 @@ public class CancelProjectSharingHandler {
     public void projectSharingCanceled(JID sender, String errorMsg) {
 
         ProjectNegotiation process = projectExchangeProcesses
-                .getProjectExchangeProcess(sender);
+            .getProjectExchangeProcess(sender);
         if (process != null) {
             log.debug("Inv" + sender + " : Received invitation cancel message");
             process.remoteCancel(errorMsg);

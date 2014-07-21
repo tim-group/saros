@@ -54,8 +54,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-//todo: adopted from eclipse
+/**
+ *
+ */
 public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private static final Logger LOG = Logger
@@ -110,9 +111,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     /**
      * @param projectID
-     * @return The {@link de.fu_berlin.inf.dpp.invitation.FileList fileList} which belongs to the project with
+     * @return The {@link FileList fileList} which belongs to the project with
      * the ID <code>projectID</code> from inviter <br />
-     * <code><b>null<b></code> if there isn't such a {@link de.fu_berlin.inf.dpp.core.invitation.FileList
+     * <code><b>null<b></code> if there isn't such a {@link FileList
      * fileList}
      */
     public FileList getRemoteFileList(String projectID) {

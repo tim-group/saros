@@ -84,7 +84,7 @@ public class ConsistencyWatchdogClient extends
     private LocalEditorHandler localEditorHandler;
 
     @Inject
-    private ISarosSessionManager sessionManager;
+    private final ISarosSessionManager sessionManager;
 
     @Inject
     private RemoteProgressManager remoteProgressManager;
