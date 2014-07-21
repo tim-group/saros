@@ -22,11 +22,9 @@
 
 package de.fu_berlin.inf.dpp.core.concurrent;
 
-import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
-import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
@@ -68,7 +66,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * This class is responsible for two things: 1.) Process checksums sent to us
  * from the server by checking our locally existing files against them. See
  * {@link #performCheck(ChecksumActivity)} If an inconsistency is detected the
- * inconsistency state is set via the {@link de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable}. This
+ * inconsistency state is set via the {@link IsInconsistentObservable}. This
  * enables the {@link ConsistencyAction} (a.k.a. the yellow triangle) in the
  * {@link SarosView}. 2.) Send a ChecksumError to the host, if the user wants to
  * recover from an inconsistency. See {@link #runRecovery(SubMonitor)}
@@ -77,35 +75,34 @@ public class ConsistencyWatchdogClient extends
         AbstractActivityProducer {
 
     private static final Random RANDOM = new Random();
-    private static Logger LOG = Logger
+    private static final Logger LOG = Logger
             .getLogger(ConsistencyWatchdogClient.class);
     @Inject
-    protected IsInconsistentObservable inconsistencyToResolve;
+    private IsInconsistentObservable inconsistencyToResolve;
 
     @Inject
-    protected LocalEditorHandler localEditorHandler;
-
-    /**
-     * @Inject Injected via Constructor Injection
-     */
-    protected ISarosSessionManager sessionManager;
+    private LocalEditorHandler localEditorHandler;
 
     @Inject
-    protected RemoteProgressManager remoteProgressManager;
+    private ISarosSessionManager sessionManager;
 
-    protected ISarosSession sarosSession;
+    @Inject
+    private RemoteProgressManager remoteProgressManager;
 
-    protected Set<SPath> pathsWithWrongChecksums = new CopyOnWriteArraySet<SPath>();
+    private ISarosSession sarosSession;
 
-    protected Map<SPath, ChecksumActivity> latestChecksums = new HashMap<SPath, ChecksumActivity>();
+    private Set<SPath> pathsWithWrongChecksums = new CopyOnWriteArraySet<SPath>();
+
+    private Map<SPath, ChecksumActivity> latestChecksums = new HashMap<SPath, ChecksumActivity>();
     /**
      * The number of files remaining in the current recovery session.
      */
-    protected AtomicInteger filesRemaining = new AtomicInteger();
+    private AtomicInteger filesRemaining = new AtomicInteger();
     /**
      * The id of the currently running recovery
      */
-    protected volatile String recoveryID;
+    private volatile String recoveryID;
+
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(ChecksumActivity checksumActivity) {
@@ -163,7 +160,8 @@ public class ConsistencyWatchdogClient extends
             }
         }
     };
-    protected ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+
+    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         private ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
             @Override
@@ -208,66 +206,8 @@ public class ConsistencyWatchdogClient extends
             }
         }
     };
-    protected IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
 
-        @Override
-        public void receive(ChecksumActivity checksumActivity) {
-            latestChecksums.put(checksumActivity.getPath(), checksumActivity);
-
-            performCheck(checksumActivity);
-        }
-
-        @Override
-        public void receive(TextEditActivity text) {
-            latestChecksums.remove(text.getPath());
-        }
-
-        @Override
-        public void receive(ChecksumErrorActivity error) {
-            if (error.getSource().isHost()) {
-                String myRecoveryID = recoveryID;
-                if (myRecoveryID != null
-                        && myRecoveryID.equals(error.getRecoveryID())) {
-                    filesRemaining.set(0); // Host tell us he is done
-                }
-            }
-        }
-
-        @Override
-        public void receive(FileActivity fileActivity) {
-
-            if (fileActivity.isRecovery()) {
-                int currentValue;
-                while ((currentValue = filesRemaining.get()) > 0) {
-                    if (filesRemaining.compareAndSet(currentValue,
-                            currentValue - 1)) {
-                        break;
-                    }
-                }
-                // Recoveries do not invalidate checksums :-)
-                return;
-            }
-
-            /*
-             * (we do not need to handle FolderActivities because all files are
-             * created/deleted via FileActivity)
-             */
-
-            switch (fileActivity.getType()) {
-                case CREATED:
-                case REMOVED:
-                    latestChecksums.remove(fileActivity.getPath());
-                    break;
-                case MOVED:
-                    latestChecksums.remove(fileActivity.getPath());
-                    latestChecksums.remove(fileActivity.getOldPath());
-                    break;
-                default:
-                    LOG.error("Unhandled FileActivity.Type: " + fileActivity);
-            }
-        }
-    };
-    protected SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
+    private SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
     /**
      * boolean condition variable used to interrupt another thread from
      * performing a recovery in {@link #runRecovery(SubMonitor)}
@@ -285,7 +225,7 @@ public class ConsistencyWatchdogClient extends
     }
 
     public void dispose() {
-        this.sessionManager.removeSarosSessionListener(sessionListener);
+        sessionManager.removeSarosSessionListener(sessionListener);
     }
 
     /**
@@ -293,7 +233,7 @@ public class ConsistencyWatchdogClient extends
      * an inconsistency
      */
     public Set<SPath> getPathsWithWrongChecksums() {
-        return this.pathsWithWrongChecksums;
+        return pathsWithWrongChecksums;
     }
 
     /**
@@ -411,11 +351,11 @@ public class ConsistencyWatchdogClient extends
         }
     }
 
-    protected String getNextRecoveryID() {
+    private String getNextRecoveryID() {
         return format.format(new Date()) + RANDOM.nextLong();
     }
 
-    protected boolean isInconsistent(ChecksumActivity checksum) {
+    private boolean isInconsistent(ChecksumActivity checksum) {
 
         SPath path = checksum.getPath();
         IFile file = path.getFile();
@@ -441,7 +381,7 @@ public class ConsistencyWatchdogClient extends
 
         // if doc is still null give up
         if (doc == null) {
-            LOG.warn("Could not check checksum of file " + path.toString());
+            LOG.warn("Could not check checksum of file " + path);
             return false;
         }
 

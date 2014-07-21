@@ -41,18 +41,18 @@ public class DocumentChecksum {
      */
     public static final int NON_EXISTING_DOC = -1;
     // the path to the concurrent document
-    protected final SPath path;
+    private final SPath path;
     // the length of the document
-    protected int length;
+    private int length;
     // the hash code of the document
-    protected int hash;
-    protected Document document;
-    protected boolean dirty;
-    protected DocumentListener dirtyListener = new DocumentListener() {
+    private int hash;
+    private Document document;
+    private boolean dirty;
+    private final DocumentListener dirtyListener = new DocumentListener() {
 
         @Override
         public void beforeDocumentChange(DocumentEvent documentEvent) {
-
+            // we are only interested in events after the change
         }
 
         @Override
@@ -68,7 +68,7 @@ public class DocumentChecksum {
      */
     public DocumentChecksum(SPath path) {
         this.path = path;
-        this.dirty = true;
+        dirty = true;
     }
 
     public SPath getPath() {
@@ -92,7 +92,7 @@ public class DocumentChecksum {
     }
 
     public void setDirty(boolean b) {
-        this.dirty = b;
+        dirty = b;
     }
 
     public void dispose() {
@@ -105,17 +105,17 @@ public class DocumentChecksum {
         }
     }
 
-    public void bind(Document doc) {
+    public void bind(Document document) {
 
-        if (this.document == doc)
+        if (this.document == document)
             return;
 
         unbind();
 
-        this.document = doc;
+        this.document = document;
 
-        if (document != null)
-            doc.addDocumentListener(dirtyListener);
+        if (this.document != null)
+            document.addDocumentListener(dirtyListener);
 
         dirty = true;
     }
@@ -127,10 +127,10 @@ public class DocumentChecksum {
             return;
 
         if (document == null) {
-            this.length = this.hash = NON_EXISTING_DOC;
+            length = hash = NON_EXISTING_DOC;
         } else {
-            this.length = document.getTextLength();
-            this.hash = document.getText().hashCode();
+            length = document.getTextLength();
+            hash = document.getText().hashCode();
         }
 
         dirty = false;
@@ -143,11 +143,11 @@ public class DocumentChecksum {
      * file under the given path.
      */
     public boolean existsFile() {
-        return !(this.length == NON_EXISTING_DOC && this.hash == NON_EXISTING_DOC);
+        return !(length == NON_EXISTING_DOC && hash == NON_EXISTING_DOC);
     }
 
     @Override
     public String toString() {
-        return path.toString() + " [" + this.length + "," + this.hash + "]";
+        return path + " [" + length + "," + hash + "]";
     }
 }

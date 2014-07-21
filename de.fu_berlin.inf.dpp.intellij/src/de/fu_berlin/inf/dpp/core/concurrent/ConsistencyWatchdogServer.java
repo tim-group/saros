@@ -27,7 +27,6 @@ import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -38,7 +37,6 @@ import de.fu_berlin.inf.dpp.util.NamedThreadFactory;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
-import org.picocontainer.annotations.Inject;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +48,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class is an eclipse job run on the host side ONLY.
+ * This class is a job run on the host side ONLY.
  * <p/>
  * The job computes checksums for all files currently managed by Jupiter (the
  * ConcurrentDocumentManager) and sends them to all guests.
@@ -80,6 +78,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
     private ScheduledThreadPoolExecutor executor;
     private ScheduledFuture<?> triggerChecksumFuture;
     private boolean locked;
+
     private final Runnable checksumCalculationTrigger = new Runnable() {
 
         @Override
@@ -96,8 +95,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             }));
         }
     };
-    @Inject
-    private EditorAPI editorAPI;
+    ;
 
     public ConsistencyWatchdogServer(ISarosSession session,
                                      EditorManager editorManager, StopManager stopManager,

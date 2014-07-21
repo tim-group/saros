@@ -22,10 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.concurrent;
 
-import de.fu_berlin.inf.dpp.activities.AbstractActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
-import de.fu_berlin.inf.dpp.activities.IActivityReceiver;
 import de.fu_berlin.inf.dpp.activities.RecoveryFileActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
@@ -49,31 +47,22 @@ import java.util.concurrent.CancellationException;
 
 
 /**
- * This component is responsible for handling Consistency Errors on the host
+ * This component is responsible for handling Consistency Errors on the host.
  */
 public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         implements Startable {
 
-    private static Logger LOG = Logger.getLogger(ConsistencyWatchdogHandler.class);
+    private static final Logger LOG = Logger
+        .getLogger(ConsistencyWatchdogHandler.class);
 
     private final LocalEditorHandler localEditorHandler;
 
-    private final ConsistencyWatchdogClient watchdogClient;
-
     private final ISarosSession session;
 
-    private final IActivityReceiver activityReceiver = new AbstractActivityReceiver() {
-        @Override
-        public void receive(ChecksumErrorActivity checksumError) {
-            startRecovery(checksumError);
-        }
-    };
-
-    public ConsistencyWatchdogHandler(ISarosSession sarosSession,
-                                      LocalEditorHandler localEditorHandler, ConsistencyWatchdogClient watchdogClient) {
-        this.session = sarosSession;
+    public ConsistencyWatchdogHandler(ISarosSession session,
+        LocalEditorHandler localEditorHandler) {
+        this.session = session;
         this.localEditorHandler = localEditorHandler;
-        this.watchdogClient = watchdogClient;
     }
 
     @Override
@@ -83,16 +72,11 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     @Override
     public void stop() {
-        session.addActivityProducer(this);
+        session.removeActivityProducer(this);
     }
 
     /**
-     * This method creates and opens an error message which informs the user
-     * that inconsistencies are handled and he should wait until the
-     * inconsistencies are resolved. The Message are saved in a HashMap with a
-     * pair of JID of the user and a string representation of the paths of the
-     * handled files as key. You can use <code>closeChecksumErrorMessage</code>
-     * with the same arguments to close this message again.
+     * This method starts the recovery as a {@link UIMonitoredJob}.
      */
     protected void startRecovery(final ChecksumErrorActivity checksumError) {
 
@@ -192,7 +176,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     protected void recoverFile(User from, final ISarosSession sarosSession,
                                final SPath path, IProgressMonitor progress) {
 
-        progress.beginTask("Handling file: " + path.toString(), 10);
+        progress.beginTask("Handling file: " + path, 10);
 
         IFile file = path.getFile();
 
@@ -254,6 +238,5 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     protected Image getWarningImage() {
         return null;
-
     }
 }
