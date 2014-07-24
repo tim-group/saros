@@ -117,6 +117,8 @@ public class CreateArchiveTask implements IWorkspaceRunnable {
 
                         updateMonitor(monitor, totalRead, totalSize);
                     }
+                } catch (Exception e) {
+                    LOG.error("Failed to read file:" + file, e);
                 } finally {
                     IOUtils.closeQuietly(in);
                 }

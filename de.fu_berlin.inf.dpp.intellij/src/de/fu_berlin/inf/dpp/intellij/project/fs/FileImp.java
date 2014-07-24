@@ -48,18 +48,28 @@ public class FileImp extends ResourceImp implements IFile {
 
     @Override
     public InputStream getContents() throws IOException {
-        if (file.exists()) {
+        if (file.isAbsolute() && file.exists()) {
             return new FileInputStream(file);
-        } else {
-            return null;
         }
+
+        if (!file.isAbsolute() & getFullPath().toFile().exists()) {
+            return new FileInputStream(getFullPath().toFile());
+        }
+
+        return null;
     }
 
     @Override
     public void setContents(InputStream input, boolean force,
                             boolean keepHistory) throws IOException {
 
-        FileOutputStream fos = new FileOutputStream(file);
+        FileOutputStream fos = null;
+        if (!file.isAbsolute()) {
+            fos = new FileOutputStream(getFullPath().toFile());
+        } else {
+            fos = new FileOutputStream(file);
+        }
+
         try {
             int read = -1;
             byte[] buffer = new byte[1024];
