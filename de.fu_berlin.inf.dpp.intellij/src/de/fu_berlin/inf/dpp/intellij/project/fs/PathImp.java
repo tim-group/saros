@@ -46,10 +46,8 @@ public class PathImp implements IPath {
         if (path.startsWith("file:/") || path.startsWith("file:\\"))
             path = path.substring("file:/".length());
 
-        String os = System.getProperty("os.name");
-        boolean isWindows = os != null && os.toLowerCase().contains("windows");
         //Linux: Removing the first slash makes the file inaccessible, so we only do it for windows
-        if (isWindows) {
+        if (isWindows()) {
             if (path.startsWith("\\") || path.startsWith("/"))
                 path = path.substring(1);
         }
@@ -64,8 +62,9 @@ public class PathImp implements IPath {
 
     @Override
     public IPath append(IPath path) {
-        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path + path.toPortableString())
-                : new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
+        return _path.endsWith(FILE_SEPARATOR) ?
+            new PathImp(_path + path.toPortableString()) :
+            new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
     }
 
     @Override
@@ -100,6 +99,9 @@ public class PathImp implements IPath {
     @Override
     public IPath removeFirstSegments(int count) {
         String[] segments = _path.split(FILE_SEPARATOR);
+        if (!isWindows()) {
+            count += 1;
+        }
         segments = Arrays.copyOfRange(segments, count, segments.length);
 
         return new PathImp(join(segments));
@@ -122,17 +124,21 @@ public class PathImp implements IPath {
             }
         }
 
-        return list.toArray(new String[]{});
+        return list.toArray(new String[] { });
     }
 
     @Override
     public IPath append(String path) {
-        return new PathImp(_path.endsWith(FILE_SEPARATOR) ? _path + path : _path + FILE_SEPARATOR + path);
+        return new PathImp(_path.endsWith(FILE_SEPARATOR) ?
+            _path + path :
+            _path + FILE_SEPARATOR + path);
     }
 
     @Override
     public IPath addTrailingSeparator() {
-        return _path.endsWith(FILE_SEPARATOR) ? new PathImp(_path) : new PathImp(_path + FILE_SEPARATOR);
+        return _path.endsWith(FILE_SEPARATOR) ?
+            new PathImp(_path) :
+            new PathImp(_path + FILE_SEPARATOR);
 
     }
 
@@ -202,11 +208,9 @@ public class PathImp implements IPath {
         return sb.toString();
     }
 
-
     public String toString() {
         return _path;
     }
-
 
     @Override
     public int hashCode() {
@@ -221,5 +225,10 @@ public class PathImp implements IPath {
         PathImp other = (PathImp) obj;
 
         return this._path.equalsIgnoreCase(other._path);
+    }
+
+    private boolean isWindows() {
+        String os = System.getProperty("os.name");
+        return os != null && os.toLowerCase().contains("windows");
     }
 }
