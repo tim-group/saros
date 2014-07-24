@@ -8,7 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/testData" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/test/junit" isTestSource="true" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA SDK" jdkType="IDEA JDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="de.fu_berlin.inf.dpp.core" exported="" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
