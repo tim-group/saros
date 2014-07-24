@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubMonitor;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
@@ -31,7 +30,8 @@ import de.fu_berlin.inf.dpp.filesystem.EclipseProjectImpl;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.ResourceAdapterFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
-import de.fu_berlin.inf.dpp.monitoring.ProgressMonitorAdapterFactory;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.project.ISarosSessionManager;
@@ -460,17 +460,17 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
      *            List of projects to share
      */
     private List<ProjectNegotiationData> createProjectExchangeInfoList(
-        List<IProject> projectsToShare, IProgressMonitor monitor)
+        final List<IProject> projectsToShare, final IProgressMonitor monitor)
         throws IOException, LocalCancellationException {
 
-        /*
-         * FIXME must be calculated while the session is blocked !
-         */
-        SubMonitor progress = SubMonitor
-            .convert(
-                monitor,
+
+        // *stretch* progress bar so it will increment smoothly
+        final int scale = 1000;
+
+        monitor
+            .beginTask(
                 "Creating file list and calculating file checksums. This may take a while...",
-                projectsToShare.size());
+                projectsToShare.size() * scale);
 
         List<ProjectNegotiationData> negData = new ArrayList<ProjectNegotiationData>(
             projectsToShare.size());
@@ -492,8 +492,9 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
                 FileList projectFileList = FileListFactory.createFileList(
                     project, sarosSession.getSharedResources(project),
-                    checksumCache, vcs, ProgressMonitorAdapterFactory
-                        .convertTo(progress.newChild(1)));
+                    checksumCache, vcs, new SubProgressMonitor(monitor,
+                        1 * scale, SubProgressMonitor.SUPPRESS_BEGINTASK
+                            | SubProgressMonitor.SUPPRESS_SETTASKNAME));
 
                 projectFileList.setProjectID(projectID);
                 boolean partial = !sarosSession.isCompletelyShared(project);
@@ -515,7 +516,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
             }
         }
 
-        progress.done();
+        monitor.done();
 
         return negData;
     }
