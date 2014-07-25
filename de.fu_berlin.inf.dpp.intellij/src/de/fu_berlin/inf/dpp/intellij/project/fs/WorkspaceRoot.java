@@ -99,7 +99,7 @@ public class WorkspaceRoot implements IWorkspaceRoot {
         }
 
         for (String projectName : projects.keySet()) {
-            if (sPathRelative.startsWith(projectName.toLowerCase())) {
+            if (sPathRelative.equalsIgnoreCase(projectName)) {
                 return projects.get(projectName);
             }
         }
