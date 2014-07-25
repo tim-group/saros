@@ -55,7 +55,7 @@ public class FolderImp extends ResourceImp implements IFolder {
 
     @Override
     public void create(boolean force, boolean local) throws IOException {
-        file.mkdirs();
+        getFullPath().toFile().mkdirs();
     }
 
     @Override

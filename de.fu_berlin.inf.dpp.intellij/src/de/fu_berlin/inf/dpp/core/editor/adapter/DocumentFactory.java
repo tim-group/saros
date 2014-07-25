@@ -37,9 +37,9 @@ public class DocumentFactory {
      */
     public static IDocument getDocument(IFile file) {
         Document nativeDocument = ResourceConverter
-                .getDocument(file.getLocation().toFile());
+            .getDocument(file.getFullPath().toFile());
         return nativeDocument == null ?
-                null :
-                new DocumentAdapter(nativeDocument);
+            null :
+            new DocumentAdapter(nativeDocument);
     }
 }
