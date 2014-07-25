@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
+import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
@@ -232,7 +233,11 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         if (file.exists()) {
             fileSystemListener.setEnabled(false);
-            fileSystemListener.addIncoming(file.getLocation().toFile());
+            //HACK: It does not work to disable the fileSystemListener temporarly,
+            //because a fileCreated event will be fired asynchronously,
+            //so we have to add this file to the filter list
+            fileSystemListener
+                .addIncomingFileToFilterFor(file.getFullPath().toFile());
             FileUtils.delete(file);
             fileSystemListener.setEnabled(true);
         } else {
@@ -246,7 +251,10 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
         //We need to try replaceAll directly in document if it is open
         boolean replaced = false;
 
-        String encodingString = activity.getEncoding();
+        String encodingString = activity.getEncoding() == null ?
+            EncodingProjectManager.getInstance().getDefaultCharset()
+                .toString() :
+            activity.getEncoding();
 
         //FIXME: Test if updateEncoding method will be necessary
         String newText = new String(activity.getContent(), encodingString);
@@ -262,7 +270,11 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
             if (!Arrays.equals(newContent, actualContent)) {
                 fileSystemListener.setEnabled(false);
-                fileSystemListener.addIncoming(file.getLocation().toFile());
+                //HACK: It does not work to disable the fileSystemListener temporarly,
+                //because a fileCreated event will be fired asynchronously,
+                //so we have to add this file to the filter list
+                fileSystemListener
+                    .addIncomingFileToFilterFor(file.getFullPath().toFile());
                 FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
                         new NullProgressMonitor());
                 fileSystemListener.setEnabled(true);
@@ -279,7 +291,11 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         IFolder folder = path.getProject().getFolder(path.getProjectRelativePath());
         fileSystemListener.setEnabled(false);
-        fileSystemListener.addIncoming(folder.getFullPath().toFile());
+        //HACK: It does not work to disable the fileSystemListener temporarly,
+        //because a fileCreated event will be fired asynchronously,
+        //so we have to add this file to the filter list
+        fileSystemListener
+            .addIncomingFileToFilterFor(folder.getFullPath().toFile());
 
         if (activity.getType() == FolderActivity.Type.CREATED) {
             FileUtils.create(folder);

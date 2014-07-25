@@ -31,9 +31,11 @@ import org.apache.log4j.Logger;
 
 /**
  * A document listener which informs the given EditorManager of changes before
- * they occur in a document (using documentAboutToBeChanged). </p> This listener
- * can be temporarily disabled which prevents the notification of text change
- * events.
+ * they occur in a document (using documentAboutToBeChanged). The DocumentListener
+ * is only added to the document that is currently being edited.
+ * </p>
+ * This listener can be temporarily disabled which prevents the notification of
+ * text change events.
  */
 public class StoppableDocumentListener extends AbstractStoppableListener
     implements DocumentListener {

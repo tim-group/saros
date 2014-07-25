@@ -64,7 +64,9 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     private static Logger LOG = Logger.getLogger(FileSystemChangeListener.class);
     private SharedResourcesChangeListener resourceManager;
     private Workspace workspace;
-    private List<File> incomingList = new ArrayList<File>();
+    //HACK: This file is used to filter events for files that were created from
+    //remote, because we can not disable the listener for them
+    private List<File> incomingFilesToFilterFor = new ArrayList<File>();
 
     private LocalEditorHandler localEditorHandler;
 
@@ -176,16 +178,21 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             return;
         }
 
-        if (incomingList.contains(file)) {
-            incomingList.remove(file);
-
-            ((ProjectImp) project).addFile(file);
-
+        //This is true, when a new folder for an incoming project was created.
+        //If this is the case, we do not want to send an FolderActivity back.
+        if (path.equals(project.getFullPath())) {
             return;
         }
 
+        if (incomingFilesToFilterFor.contains(file)) {
+            incomingFilesToFilterFor.remove(file);
+            ((ProjectImp) project).addFile(file);
+            return;
+        }
 
-        if (!resourceManager.getSession().isCompletelyShared(project)) {
+        if (path.equals(project.getFullPath()))
+
+            if (!resourceManager.getSession().isCompletelyShared(project)) {
             return;
         }
 
@@ -198,6 +205,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         if (file.isFile()) {
             byte[] bytes = new byte[0];
             try {
+                //If the file was created with a template, bytes is empty at this
+                //point
                 bytes = virtualFileEvent.getFile().contentsToByteArray();
             } catch (IOException e) {
                 workspace.LOG.error(e.getMessage(), e);
@@ -209,6 +218,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
 
             activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
+            //HACK: If the file was created with a template, the file content is
+            //not present here, but we can access it in the openEditor event
+            //the localEditorHandler has to know, which files are created, to know
+            //where to send the content with it
             localEditorHandler.registerNewFile(virtualFileEvent.getFile(), bytes);
 
         } else {
@@ -229,8 +242,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         File file = new File(virtualFileEvent.getFile().getPath());
-        if (incomingList.contains(file)) {
-            incomingList.remove(file);
+        if (incomingFilesToFilterFor.contains(file)) {
+            incomingFilesToFilterFor.remove(file);
             return;
         }
 
@@ -272,8 +285,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         File newFile = new File(virtualFileMoveEvent.getFile().getPath());
-        if (incomingList.contains(newFile)) {
-            incomingList.remove(newFile);
+        if (incomingFilesToFilterFor.contains(newFile)) {
+            incomingFilesToFilterFor.remove(newFile);
             return;
         }
 
@@ -333,8 +346,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         File oldFile = new File(filePropertyEvent.getFile().getParent().getPath() + File.separator + filePropertyEvent.getOldValue());
         File newFile = new File(filePropertyEvent.getFile().getPath());
 
-        if (incomingList.contains(newFile)) {
-            incomingList.remove(newFile);
+        if (incomingFilesToFilterFor.contains(newFile)) {
+            incomingFilesToFilterFor.remove(newFile);
             return;
         }
 
@@ -370,8 +383,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         VirtualFile virtualFile = virtualFileCopyEvent.getFile();
         File newFile = new File(virtualFile.getPath());
-        if (incomingList.contains(newFile)) {
-            incomingList.remove(newFile);
+        if (incomingFilesToFilterFor.contains(newFile)) {
+            incomingFilesToFilterFor.remove(newFile);
             return;
         }
 
@@ -416,7 +429,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     @Override
     public void beforeContentsChange(@NotNull VirtualFileEvent virtualFileEvent) {
-
+        return;
     }
 
     @Override
@@ -433,7 +446,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         this.workspace = workspace;
     }
 
-    public void addIncoming(File file) {
-        incomingList.add(file);
+    public void addIncomingFileToFilterFor(File file) {
+        incomingFilesToFilterFor.add(file);
     }
 }
