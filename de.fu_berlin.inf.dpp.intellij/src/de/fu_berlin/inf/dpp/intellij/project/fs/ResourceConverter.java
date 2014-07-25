@@ -45,7 +45,7 @@ public class ResourceConverter {
     }
 
     public static VirtualFile toVirtualFile(SPath path) {
-        return toVirtualFile(path.getFile().getLocation().toFile());
+        return toVirtualFile(path.getFile().getFullPath().toFile());
     }
 
     public static VirtualFile toVirtualFile(File path) {

@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
-import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
@@ -30,7 +29,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
@@ -47,11 +45,8 @@ import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.synchronize.Blockable;
-import de.fu_berlin.inf.dpp.synchronize.StopManager;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
-import org.picocontainer.annotations.Inject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,91 +56,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This manager is responsible for handling all resource changes that aren't
- * handled by the EditorManagerEcl, that is for changes that aren't done by
- * entering text in a text editor. It creates and executes file, folder, and VCS
- * activities.<br>
- * TODO Extract AbstractActivityProvider functionality in another class
- * ResourceActivityProvider, rename to SharedResourceChangeListener.
+ * The SharedResourcesManager creates and handles file and folder activities.
+
  */
-/*
- * For a good introduction to Eclipse's resource change notification mechanisms
- * see
- * http://www.eclipse.org/articles/Article-Resource-deltas/resource-deltas.html
- */
-//todo: copy from eclipse
-public class SharedResourcesManager extends AbstractActivityProducer implements
+public class SharedResourcesChangeListener extends AbstractActivityProducer
+    implements
         Startable {
-    /**
-     * The {@link de.fu_berlin.inf.dpp.core.project.events.ResourceChangeEvent}s we're going to register for.
-     */
-    /*
-     * haferburg: We're really only interested in
-     * ResourceChangeEvent.POST_CHANGE events. I don't know why other events
-     * were tracked, so I removed them.
-     *
-     * We're definitely not interested in PRE_REFRESH, refreshes are only
-     * interesting when they result in an actual change, in which case we will
-     * receive a POST_CHANGE event anyways.
-     *
-     * We also don't need PRE_CLOSE, since we'll also get a POST_CHANGE and
-     * still have to test project.isOpen().
-     *
-     * We might want to add PRE_DELETE if the user deletes our shared project
-     * though.
-     */
-    static final int INTERESTING_EVENTS = -1;//ResourceChangeEvent.POST_CHANGE;
 
     private static final Logger LOG = Logger
-            .getLogger(SharedResourcesManager.class);
-
-    /**
-     * If the StopManager has paused the project, the SharedResourcesManager
-     * doesn't react to resource changes.
-     */
-    private boolean pause = false;
+        .getLogger(SharedResourcesChangeListener.class);
 
     private final ISarosSession sarosSession;
 
-    private final StopManager stopManager;
-
-    private FileSystemChangeListener fileSystemListener;
+    private final FileSystemChangeListener fileSystemListener;
 
     private final Map<IProject, SharedProject> sharedProjects = Collections.synchronizedMap(new HashMap<IProject, SharedProject>());
     /**
      * Should return <code>true</code> while executing resource changes to avoid
      * an infinite resource event loop.
      */
-    @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
 
-    private LocalEditorHandler localEditorHandler;
+    private final LocalEditorHandler localEditorHandler;
 
-    private LocalEditorManipulator localEditorManipulator;
+    private final LocalEditorManipulator localEditorManipulator;
 
-    @Inject
-    private Workspace workspace;
+    private final Workspace workspace;
 
-    @Inject
-    private ConsistencyWatchdogClient consistencyWatchdogClient;
+    private final ConsistencyWatchdogClient consistencyWatchdogClient;
 
-    private Blockable stopManagerListener = new Blockable() {
-        @Override
-        public void unblock() {
-            SharedResourcesManager.this.pause = false;
-        }
-
-        @Override
-        public void block() {
-            SharedResourcesManager.this.pause = true;
-        }
-    };
 
     @Override
     public void start() {
         sarosSession.addActivityProducer(this);
         sarosSession.addActivityConsumer(consumer);
-        stopManager.addBlockable(stopManagerListener);
         workspace.addResourceListener(fileSystemListener);
 
     }
@@ -155,18 +99,21 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         workspace.removeResourceListener(fileSystemListener);
         sarosSession.removeActivityProducer(this);
         sarosSession.removeActivityConsumer(consumer);
-        stopManager.removeBlockable(stopManagerListener);
     }
 
-    public SharedResourcesManager(ISarosSession sarosSession,
-                                  StopManager stopManager, EditorManager editorManager,
-                                  LocalEditorHandler localEditorHandler,
-                                  LocalEditorManipulator localEditorManipulator) {
+    public SharedResourcesChangeListener(ISarosSession sarosSession,
+        EditorManager editorManager,
+        FileReplacementInProgressObservable fileReplacementInProgressObservable,
+        LocalEditorHandler localEditorHandler,
+        LocalEditorManipulator localEditorManipulator, Workspace workspace,
+        ConsistencyWatchdogClient consistencyWatchdogClient) {
         this.sarosSession = sarosSession;
-        this.stopManager = stopManager;
+        this.fileReplacementInProgressObservable = fileReplacementInProgressObservable;
         this.localEditorHandler = localEditorHandler;
         this.localEditorManipulator = localEditorManipulator;
         this.fileSystemListener = new FileSystemChangeListener(this, editorManager);
+        this.workspace = workspace;
+        this.consistencyWatchdogClient = consistencyWatchdogClient;
     }
 
 
@@ -177,38 +124,44 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
                     || activity instanceof FolderActivity || activity instanceof VCSActivity))
                 return;
 
-            try {
         /*
-             * FIXME this will lockout everything. File changes made in the
-             * meantime from another background job are not recognized. See
-             * AddMultipleFilesTest STF test which fails randomly.
-             */
-                fileReplacementInProgressObservable.startReplacement();
-                fileSystemListener.setEnabled(false);
-                super.exec(activity);
+         * FIXME this will lockout everything. File changes made in the
+         * meantime from another background job are not recognized. See
+         * AddMultipleFilesTest STF test which fails randomly.
+         */
+            fileReplacementInProgressObservable.startReplacement();
+            fileSystemListener.setEnabled(false);
+            super.exec(activity);
 
-                LOG.trace("execing " + activity.toString() + " in "
-                        + Thread.currentThread().getName());
+            LOG.trace("execing " + activity.toString() + " in " + Thread
+                .currentThread().getName());
 
-                if (activity instanceof FileActivity) {
-                    exec((FileActivity) activity);
-                } else if (activity instanceof FolderActivity) {
-                    exec((FolderActivity) activity);
-                } else if (activity instanceof VCSActivity) {
-                    exec((VCSActivity) activity);
-                }
+            fileReplacementInProgressObservable.replacementDone();
+            fileSystemListener.setEnabled(true);
+            LOG.trace("done execing " + activity.toString());
+        }
 
-            } /* catch (IOException e) {
-                LOG.error("Failed to execute resource activity.", e);
-            } */ finally {
-                fileReplacementInProgressObservable.replacementDone();
-                fileSystemListener.setEnabled(true);
-                LOG.trace("done execing " + activity.toString());
+        @Override
+        public void receive(FileActivity activity) {
+            try {
+                handleFileActivity(activity);
+            } catch (IOException e) {
+                LOG.error("Failed to execute activity: " + activity, e);
+            }
+        }
+
+        @Override
+        public void receive(FolderActivity activity) {
+            try {
+                handleFolderActivity(activity);
+            } catch (IOException e) {
+                LOG.error("Failed to execute activity: " + activity, e);
             }
         }
     };
 
-    protected void exec(FileActivity activity) throws IOException {
+    protected void handleFileActivity(FileActivity activity)
+        throws IOException {
 
         if (activity.isRecovery()) {
             handleFileRecovery(activity);
@@ -256,7 +209,7 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
             sarosSession.getConcurrentDocumentClient().reset(path);
         }
 
-        //todo: generates error as looks like Jupiter on server side is will be reset later
+        //FIXME: generates error as looks like Jupiter on server side is will be reset later
         //consistencyWatchdogClient.performCheck(path);
     }
 
@@ -293,7 +246,10 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         //We need to try replaceAll directly in document if it is open
         boolean replaced = false;
 
-        String newText = new String(activity.getContent(), EncodingProjectManager.getInstance().getDefaultCharset());
+        String encodingString = activity.getEncoding();
+
+        //FIXME: Test if updateEncoding method will be necessary
+        String newText = new String(activity.getContent(), encodingString);
         replaced = localEditorManipulator.replaceText(activity.getPath(), newText);
 
         if (replaced) {
@@ -316,7 +272,8 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         }
     }
 
-    protected void exec(FolderActivity activity) {
+    protected void handleFolderActivity(FolderActivity activity)
+        throws IOException {
 
         SPath path = activity.getPath();
 
@@ -324,97 +281,20 @@ public class SharedResourcesManager extends AbstractActivityProducer implements
         fileSystemListener.setEnabled(false);
         fileSystemListener.addIncoming(folder.getFullPath().toFile());
 
-        try {
-            if (activity.getType() == FolderActivity.Type.CREATED) {
-                FileUtils.create(folder);
-            } else if (activity.getType() == FolderActivity.Type.REMOVED) {
+        if (activity.getType() == FolderActivity.Type.CREATED) {
+            FileUtils.create(folder);
+        } else if (activity.getType() == FolderActivity.Type.REMOVED) {
 
-                if (folder.exists()) {
-                    FileUtils.delete(folder);
-                }
-
+            if (folder.exists()) {
+                FileUtils.delete(folder);
             }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-            throw new OperationCanceledException("Canceled due to IO error");
-        }
 
+        }
         fileSystemListener.setEnabled(true);
     }
 
     void internalFireActivity(IActivity activity) {
         fireActivity(activity);
-    }
-
-    protected void exec(VCSActivity activity) {
-        final VCSActivity.Type activityType = activity.getType();
-        SPath path = activity.getPath();
-
-        /* final IResource resource = ((EclipseResourceImpl) path.getResource())
-                .getDelegate();
-
-        final IProject project = ((EclipseProjectImpl) path.getProject())
-                .getDelegate();
-
-        final String url = activity.getURL();
-        final String directory = activity.getDirectory();
-        final String revision = activity.getParam1();
-
-        // Connect is special since the project doesn't have a VCSAdapter
-        // yet.
-        final VCSAdapter vcs = activityType == VCSActivity.Type.CONNECT ? VCSAdapter
-                .getAdapter(revision) : VCSAdapter.getAdapter(project);
-        if (vcs == null) {
-            LOG.warn("Could not execute VCS activity. Do you have the Subclipse plug-in installed?");
-            if (activity.containedActivity.size() > 0) {
-                LOG.trace("contained activities: "
-                        + activity.containedActivity.toString());
-            }
-            for (IResourceActivity a : activity.containedActivity) {
-                exec(a);
-            }
-            return;
-        }
-
-        try {
-            // TODO Should these operations run in an IWorkspaceRunnable?
-            Shell shell = SWTUtils.getShell();
-            ProgressMonitorDialog progressMonitorDialog = new ProgressMonitorDialog(
-                    shell);
-            progressMonitorDialog.open();
-            Shell pmdShell = progressMonitorDialog.getShell();
-            pmdShell.setText("Saros running VCS operation");
-            LOG.trace("about to call progressMonitorDialog.run");
-            progressMonitorDialog.run(true, false, new IRunnableWithProgress() {
-                @Override
-                public void run(IProgressMonitor progress)
-
-                        throws InvocationTargetException, InterruptedException {
-                    LOG.trace("progressMonitorDialog.run started");
-                    if (!SWTUtils.isSWT())
-                        LOG.trace("not in SWT thread");
-                    if (activityType == VCSActivity.Type.CONNECT) {
-                        vcs.connect(project, url, directory, progress);
-                    } else if (activityType == VCSActivity.Type.DISCONNECT) {
-                        vcs.disconnect(project, revision != null, progress);
-                    } else if (activityType == VCSActivity.Type.SWITCH) {
-                        vcs.switch_(resource, url, revision, progress);
-                    } else if (activityType == VCSActivity.Type.UPDATE) {
-                        vcs.update(resource, revision, progress);
-                    } else {
-                        LOG.error("VCS activity type not implemented yet.");
-                    }
-                    LOG.trace("progressMonitorDialog.run done");
-                }
-
-            });
-            pmdShell.dispose();
-        } catch (InvocationTargetException e) {
-            // TODO We can't get here, right?
-            throw new IllegalStateException(e);
-        } catch (InterruptedException e) {
-            LOG.error("Code not designed to be interrupted!");
-        }*/
     }
 
     // HACK

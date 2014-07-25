@@ -62,13 +62,15 @@ import java.util.List;
 public class FileSystemChangeListener extends AbstractStoppableListener implements VirtualFileListener {
 
     private static Logger LOG = Logger.getLogger(FileSystemChangeListener.class);
-    private SharedResourcesManager resourceManager;
+    private SharedResourcesChangeListener resourceManager;
     private Workspace workspace;
     private List<File> incomingList = new ArrayList<File>();
 
     private LocalEditorHandler localEditorHandler;
 
-    public FileSystemChangeListener(SharedResourcesManager resourceManager, EditorManager editorManager) {
+    public FileSystemChangeListener(
+        SharedResourcesChangeListener resourceManager,
+        EditorManager editorManager) {
         super(editorManager);
         this.localEditorHandler = editorManager.getLocalEditorHandler();
         this.resourceManager = resourceManager;
@@ -149,7 +151,13 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     @Override
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
 
-
+        try {
+            LOG.info("File: " + virtualFileEvent.getFile().contentsToByteArray()
+                .toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            e.printStackTrace();
+        }
     }
 
 
