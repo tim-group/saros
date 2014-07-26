@@ -58,11 +58,9 @@ import java.util.Map;
 
 /**
  * The SharedResourcesManager creates and handles file and folder activities.
-
  */
 public class SharedResourcesChangeListener extends AbstractActivityProducer
-    implements
-        Startable {
+    implements Startable {
 
     private static final Logger LOG = Logger
         .getLogger(SharedResourcesChangeListener.class);
@@ -71,7 +69,8 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
     private final FileSystemChangeListener fileSystemListener;
 
-    private final Map<IProject, SharedProject> sharedProjects = Collections.synchronizedMap(new HashMap<IProject, SharedProject>());
+    private final Map<IProject, SharedProject> sharedProjects = Collections
+        .synchronizedMap(new HashMap<IProject, SharedProject>());
     /**
      * Should return <code>true</code> while executing resource changes to avoid
      * an infinite resource event loop.
@@ -85,7 +84,6 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
     private final Workspace workspace;
 
     private final ConsistencyWatchdogClient consistencyWatchdogClient;
-
 
     @Override
     public void start() {
@@ -112,17 +110,18 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
         this.fileReplacementInProgressObservable = fileReplacementInProgressObservable;
         this.localEditorHandler = localEditorHandler;
         this.localEditorManipulator = localEditorManipulator;
-        this.fileSystemListener = new FileSystemChangeListener(this, editorManager);
+        this.fileSystemListener = new FileSystemChangeListener(this,
+            editorManager);
         this.workspace = workspace;
         this.consistencyWatchdogClient = consistencyWatchdogClient;
     }
-
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void exec(IActivity activity) {
             if (!(activity instanceof FileActivity
-                    || activity instanceof FolderActivity || activity instanceof VCSActivity))
+                || activity instanceof FolderActivity
+                || activity instanceof VCSActivity))
                 return;
 
         /*
@@ -171,24 +170,23 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         // TODO check if we should open / close existing editors here too
         switch (activity.getType()) {
-            case CREATED:
-                handleFileCreation(activity);
-                break;
-            case REMOVED:
-                handleFileDeletion(activity);
-                break;
-            case MOVED:
-                handleFileMove(activity);
-                break;
+        case CREATED:
+            handleFileCreation(activity);
+            break;
+        case REMOVED:
+            handleFileDeletion(activity);
+            break;
+        case MOVED:
+            handleFileMove(activity);
+            break;
         }
     }
 
     private void handleFileRecovery(FileActivity activity) throws IOException {
         SPath path = activity.getPath();
 
-        LOG.debug("performing recovery for file: "
-                + activity.getPath().getFullPath());
-
+        LOG.debug("performing recovery for file: " + activity.getPath()
+            .getFullPath());
 
         FileActivity.Type type = activity.getType();
 
@@ -200,7 +198,7 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
                 handleFileDeletion(activity);
             } else {
                 LOG.warn("performing recovery for type " + type
-                        + " is not supported");
+                    + " is not supported");
             }
         } finally {
             /*
@@ -230,7 +228,6 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
     private void handleFileDeletion(FileActivity activity) throws IOException {
         IFile file = activity.getPath().getFile();
 
-
         if (file.exists()) {
             fileSystemListener.setEnabled(false);
             //HACK: It does not work to disable the fileSystemListener temporarly,
@@ -241,8 +238,8 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
             FileUtils.delete(file);
             fileSystemListener.setEnabled(true);
         } else {
-            LOG.warn("could not delete file " + file
-                    + " because it does not exist");
+            LOG.warn(
+                "could not delete file " + file + " because it does not exist");
         }
     }
 
@@ -258,7 +255,8 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         //FIXME: Test if updateEncoding method will be necessary
         String newText = new String(activity.getContent(), encodingString);
-        replaced = localEditorManipulator.replaceText(activity.getPath(), newText);
+        replaced = localEditorManipulator
+            .replaceText(activity.getPath(), newText);
 
         if (replaced) {
             localEditorHandler.saveFile(activity.getPath());
@@ -276,10 +274,11 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
                 fileSystemListener
                     .addIncomingFileToFilterFor(file.getFullPath().toFile());
                 FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
-                        new NullProgressMonitor());
+                    new NullProgressMonitor());
                 fileSystemListener.setEnabled(true);
             } else {
-                LOG.info("FileActivity " + activity + " dropped (same content)");
+                LOG.info(
+                    "FileActivity " + activity + " dropped (same content)");
             }
         }
     }
@@ -289,7 +288,8 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         SPath path = activity.getPath();
 
-        IFolder folder = path.getProject().getFolder(path.getProjectRelativePath());
+        IFolder folder = path.getProject()
+            .getFolder(path.getProjectRelativePath());
         fileSystemListener.setEnabled(false);
         //HACK: It does not work to disable the fileSystemListener temporarly,
         //because a fileCreated event will be fired asynchronously,
@@ -311,32 +311,6 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
     void internalFireActivity(IActivity activity) {
         fireActivity(activity);
-    }
-
-    // HACK
-    public void projectAdded(IProject project) {
-
-        //todo
-        /* synchronized (sharedProjects) {
-            IProject eclipseProject = ((EclipseProjectImpl) project)
-                    .getDelegate();
-            sharedProjects.put(eclipseProject, new SharedProject(
-                    eclipseProject, sarosSession));
-        }*/
-    }
-
-    // HACK
-    public void projectRemoved(IProject project) {
-
-        //todo
-        /*synchronized (sharedProjects) {
-
-          *//*  SharedProject sharedProject = sharedProjects
-                    .removeAll(((EclipseProjectImpl) project).getDelegate());
-            if (sharedProject != null)
-                sharedProject.delete();
-                *//*
-        }*/
     }
 
     public ISarosSession getSession() {

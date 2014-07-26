@@ -335,8 +335,6 @@ public final class SarosSession implements ISarosSession {
             if (dependentResources != null)
                 projectMapper.addResources(project, dependentResources);
 
-            // HACK
-            resourceManager.projectAdded(project);
         } else {
             if (dependentResources == null)
                 // upgrade the project to a completely shared project
@@ -610,7 +608,8 @@ public final class SarosSession implements ISarosSession {
             if (!timedOutUsers.isEmpty()) {
                 log.error(
                     "could not synchronize user list properly, following users did not respond: "
-                        + StringUtils.join(timedOutUsers, ", "));
+                        + StringUtils.join(timedOutUsers, ", ")
+                );
             }
         }
 
@@ -1049,8 +1048,6 @@ public final class SarosSession implements ISarosSession {
         if (projectMapper.getProject(projectID) == null) {
             projectMapper.addProject(projectID, project, true);
             projectMapper.addOwnership(ownerJID, project);
-            // HACK
-            resourceManager.projectAdded(project);
         }
     }
 
@@ -1060,8 +1057,6 @@ public final class SarosSession implements ISarosSession {
         if (projectMapper.getProject(projectID) != null) {
             projectMapper.removeOwnership(ownerJID, project);
             projectMapper.removeProject(projectID);
-            // HACK
-            resourceManager.projectRemoved(project);
         }
     }
 
