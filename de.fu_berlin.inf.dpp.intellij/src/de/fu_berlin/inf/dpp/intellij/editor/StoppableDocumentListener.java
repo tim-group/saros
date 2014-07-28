@@ -20,22 +20,20 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
+package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import org.apache.log4j.Logger;
 
 /**
  * A document listener which informs the given EditorManager of changes before
  * they occur in a document (using documentAboutToBeChanged). The DocumentListener
  * is only added to the document that is currently being edited.
- * </p>
- * This listener can be temporarily disabled which prevents the notification of
- * text change events.
+ * <p/>
  */
 public class StoppableDocumentListener extends AbstractStoppableListener
     implements DocumentListener {
@@ -56,11 +54,11 @@ public class StoppableDocumentListener extends AbstractStoppableListener
      * @param event
      */
     @Override
-    public synchronized void beforeDocumentChange(DocumentEvent event) {
+    public void beforeDocumentChange(DocumentEvent event) {
         if (!enabled) {
             return;
         }
-
+        FileDocumentManager.getInstance().getFile(event.getDocument());
         SPath path = editorManager.getEditorPool().getFile(event.getDocument());
         if (path == null) {
             LOG.warn("Could not find path for editor " + event.getDocument());
@@ -92,26 +90,26 @@ public class StoppableDocumentListener extends AbstractStoppableListener
      * Removes this listener from the document.
      */
     public void stopListening() {
-        if (this.document != null) {
-            this.document.removeDocumentListener(this);
-            this.document = null;
+        if (document != null) {
+            document.removeDocumentListener(this);
+            document = null;
         }
     }
 
     /**
      * Removes itself from previously listened documents and registers itself with the new document.
      *
-     * @param document
+     * @param newDocument
      */
-    public void startListening(Document document) {
-        if (this.document == null) {
-            this.document = document;
-            this.document.addDocumentListener(this);
+    public void startListening(Document newDocument) {
+        if (document == null) {
+            document = newDocument;
+            document.addDocumentListener(this);
             //TODO: replace by equals?
-        } else if (this.document != document) {
-            this.document.removeDocumentListener(this);
-            this.document = document;
-            this.document.addDocumentListener(this);
+        } else if (document != newDocument) {
+            document.removeDocumentListener(this);
+            document = newDocument;
+            document.addDocumentListener(this);
         } else {
             //do nothing, as we already listen to that document
         }

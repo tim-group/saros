@@ -33,7 +33,8 @@ public class DocumentFactory {
 
     /**
      * @param file
-     * @return an IDocument created from the file.
+     * @return an IDocument created from the file or <code>null</code>, if the
+     * corresponding file does not exist.
      */
     public static IDocument getDocument(IFile file) {
         Document nativeDocument = ResourceConverter

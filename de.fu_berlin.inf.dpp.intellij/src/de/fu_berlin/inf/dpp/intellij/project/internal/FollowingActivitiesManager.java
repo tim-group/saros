@@ -26,10 +26,14 @@ import de.fu_berlin.inf.dpp.activities.StartFollowingActivity;
 import de.fu_berlin.inf.dpp.activities.StopFollowingActivity;
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.internal.IFollowModeChangesListener;
-import de.fu_berlin.inf.dpp.session.*;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
+import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.User;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
@@ -44,10 +48,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 //todo: copy from eclipse with minor changes
 public class FollowingActivitiesManager extends AbstractActivityProducer
-        implements Startable {
+    implements Startable {
 
     private static final Logger LOG = Logger
-            .getLogger(FollowingActivitiesManager.class);
+        .getLogger(FollowingActivitiesManager.class);
 
     private final List<IFollowModeChangesListener> listeners = new CopyOnWriteArrayList<IFollowModeChangesListener>();
 
@@ -63,7 +67,7 @@ public class FollowingActivitiesManager extends AbstractActivityProducer
 
             if (isFollowed) {
                 fireActivity(new StartFollowingActivity(session.getLocalUser(),
-                        followedUser));
+                    followedUser));
             } else {
                 fireActivity(new StopFollowingActivity(session.getLocalUser()));
             }
@@ -77,8 +81,9 @@ public class FollowingActivitiesManager extends AbstractActivityProducer
             final User target = activity.getFollowedUser();
 
             if (LOG.isDebugEnabled())
-                LOG.debug("received new follow mode from: " + source
-                        + " , followed: " + target);
+                LOG.debug(
+                    "received new follow mode from: " + source + " , followed: "
+                        + target);
 
             collector.setUserFollowing(source, target);
             notifyListeners();
@@ -97,8 +102,8 @@ public class FollowingActivitiesManager extends AbstractActivityProducer
     };
 
     public FollowingActivitiesManager(final ISarosSession session,
-                                      final AwarenessInformationCollector collector,
-                                      final EditorManager editor) {
+        final AwarenessInformationCollector collector,
+        final EditorManager editor) {
         this.session = session;
         this.collector = collector;
         this.editor = editor;

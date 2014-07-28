@@ -29,7 +29,6 @@ import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
@@ -38,6 +37,7 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
@@ -59,11 +59,11 @@ import java.util.Map;
 /**
  * The SharedResourcesManager creates and handles file and folder activities.
  */
-public class SharedResourcesChangeListener extends AbstractActivityProducer
+public class SharedResourcesManager extends AbstractActivityProducer
     implements Startable {
 
     private static final Logger LOG = Logger
-        .getLogger(SharedResourcesChangeListener.class);
+        .getLogger(SharedResourcesManager.class);
 
     private final ISarosSession sarosSession;
 
@@ -100,7 +100,7 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
         sarosSession.removeActivityConsumer(consumer);
     }
 
-    public SharedResourcesChangeListener(ISarosSession sarosSession,
+    public SharedResourcesManager(ISarosSession sarosSession,
         EditorManager editorManager,
         FileReplacementInProgressObservable fileReplacementInProgressObservable,
         LocalEditorHandler localEditorHandler,
@@ -255,30 +255,33 @@ public class SharedResourcesChangeListener extends AbstractActivityProducer
 
         //FIXME: Test if updateEncoding method will be necessary
         String newText = new String(activity.getContent(), encodingString);
-        replaced = localEditorManipulator
-            .replaceText(activity.getPath(), newText);
+        if (!newText.isEmpty()) {
+            replaced = localEditorManipulator
+                .replaceText(activity.getPath(), newText);
 
-        if (replaced) {
-            localEditorHandler.saveFile(activity.getPath());
-
-        } else {
-            IFile file = activity.getPath().getFile();
-            byte[] actualContent = FileUtils.getLocalFileContent(file);
-            byte[] newContent = activity.getContent();
-
-            if (!Arrays.equals(newContent, actualContent)) {
-                fileSystemListener.setEnabled(false);
-                //HACK: It does not work to disable the fileSystemListener temporarly,
-                //because a fileCreated event will be fired asynchronously,
-                //so we have to add this file to the filter list
-                fileSystemListener
-                    .addIncomingFileToFilterFor(file.getFullPath().toFile());
-                FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
-                    new NullProgressMonitor());
-                fileSystemListener.setEnabled(true);
+            if (replaced) {
+                //FIXME: Is this ever called? Test with 2 Saros/I's
+                localEditorHandler.saveFile(activity.getPath());
             } else {
-                LOG.info(
-                    "FileActivity " + activity + " dropped (same content)");
+                IFile file = activity.getPath().getFile();
+                byte[] actualContent = FileUtils.getLocalFileContent(file);
+                byte[] newContent = activity.getContent();
+
+                if (!Arrays.equals(newContent, actualContent)) {
+                    fileSystemListener.setEnabled(false);
+                    //HACK: It does not work to disable the fileSystemListener temporarily,
+                    //because a fileCreated event will be fired asynchronously,
+                    //so we have to add this file to the filter list
+                    fileSystemListener.addIncomingFileToFilterFor(
+                        file.getFullPath().toFile());
+                    FileUtils
+                        .writeFile(new ByteArrayInputStream(newContent), file,
+                            new NullProgressMonitor());
+                    fileSystemListener.setEnabled(true);
+                } else {
+                    LOG.info(
+                        "FileActivity " + activity + " dropped (same content)");
+                }
             }
         }
     }

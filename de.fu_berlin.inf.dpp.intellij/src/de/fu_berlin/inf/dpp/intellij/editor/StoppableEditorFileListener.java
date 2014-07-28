@@ -20,34 +20,33 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
+package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.vfs.VirtualFile;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * IntelliJ editor file listener
  */
 public class StoppableEditorFileListener extends AbstractStoppableListener
-        implements FileEditorManagerListener {
+    implements FileEditorManagerListener {
 
     public StoppableEditorFileListener(EditorManager manager) {
         super(manager);
     }
 
     /**
-     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#openEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     * Calls {@link LocalEditorHandler#openEditor(VirtualFile)}.
      *
      * @param fileEditorManager
      * @param virtualFile
      */
     @Override
     public void fileOpened(@NotNull FileEditorManager fileEditorManager,
-                           @NotNull VirtualFile virtualFile) {
+        @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
@@ -56,14 +55,14 @@ public class StoppableEditorFileListener extends AbstractStoppableListener
     }
 
     /**
-     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#closeEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     * Calls {@link LocalEditorHandler#closeEditor(VirtualFile)}.
      *
      * @param fileEditorManager
      * @param virtualFile
      */
     @Override
     public void fileClosed(@NotNull FileEditorManager fileEditorManager,
-                           @NotNull VirtualFile virtualFile) {
+        @NotNull VirtualFile virtualFile) {
         if (!enabled) {
             return;
         }
@@ -72,7 +71,7 @@ public class StoppableEditorFileListener extends AbstractStoppableListener
     }
 
     /**
-     * Calls {@link de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler#activateEditor(com.intellij.openapi.vfs.VirtualFile)}.
+     * Calls {@link LocalEditorHandler#activateEditor(VirtualFile)}.
      *
      * @param event
      */
@@ -83,6 +82,6 @@ public class StoppableEditorFileListener extends AbstractStoppableListener
         }
 
         editorManager.getLocalEditorHandler()
-                .activateEditor(event.getNewFile());
+            .activateEditor(event.getNewFile());
     }
 }

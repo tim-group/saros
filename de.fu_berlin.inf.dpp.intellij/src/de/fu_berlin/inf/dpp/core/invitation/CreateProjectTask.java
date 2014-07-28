@@ -2,6 +2,7 @@ package de.fu_berlin.inf.dpp.core.invitation;
 
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.project.Project;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
@@ -29,7 +30,9 @@ public class CreateProjectTask implements IWorkspaceRunnable {
     private IWorkspace workspace;
 
     @Inject
-    private Project intellijProject;
+    private Saros saros;
+
+    private final Project intellijProject;
 
     /**
      * Creates a create project task that can be executed by
@@ -51,6 +54,7 @@ public class CreateProjectTask implements IWorkspaceRunnable {
         this.base = base;
         this.monitor = monitor;
         this.workspace = workspace;
+        intellijProject = saros.getProject();
     }
 
     /**

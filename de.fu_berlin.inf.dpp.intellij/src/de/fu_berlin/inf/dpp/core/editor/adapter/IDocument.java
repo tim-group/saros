@@ -23,8 +23,9 @@
 package de.fu_berlin.inf.dpp.core.editor.adapter;
 
 /**
- * Copy of the org.eclipse.jface.textIDocument interface with relevant methods.
- * If not specified otherwise, the methods behave like their Eclipse counterparts.
+ * Equivalent to the org.eclipse.jface.text.IDocument interface with only relevant
+ * methods.If not specified otherwise, the methods behave like their Eclipse
+ * counterparts.
  */
 public interface IDocument {
 

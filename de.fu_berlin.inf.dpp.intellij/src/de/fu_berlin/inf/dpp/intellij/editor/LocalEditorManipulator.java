@@ -30,7 +30,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.Operation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.DeleteOperation;
 import de.fu_berlin.inf.dpp.concurrent.jupiter.internal.text.ITextOperation;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
 import de.fu_berlin.inf.dpp.intellij.editor.text.TextSelection;
@@ -40,7 +39,8 @@ import org.apache.log4j.Logger;
 import java.awt.Color;
 
 /**
- * This class manipulates local editors after activities were received from remote.
+ * This class applies the logic for activities that were received from remote.
+ *
  */
 public class LocalEditorManipulator {
 
@@ -51,7 +51,7 @@ public class LocalEditorManipulator {
     private final EditorAPI editorAPI;
 
     /**
-     * This is just a reference to {@link de.fu_berlin.inf.dpp.core.editor.EditorManager}'s editorPool and not a
+     * This is just a reference to {@link EditorManager}'s editorPool and not a
      * separate pool.
      */
     private EditorPool editorPool;
@@ -65,19 +65,18 @@ public class LocalEditorManipulator {
 
     /**
      * Initializes all fields that require an EditorManager.
-     *
-     * @param manager
      */
-    public void initialize(EditorManager manager) {
-        this.editorPool = manager.getEditorPool();
-        this.manager = manager;
+    public void initialize(EditorManager editorManager) {
+        editorPool = editorManager.getEditorPool();
+        manager = editorManager;
     }
 
     /**
      * Opens an editor for the given path, if it exists.
      *
      * @param path
-     * @return the editor for the given path
+     * @return the editor for the given path,
+     *      or <code>null</code> if the file does not exist
      */
     public Editor openEditor(SPath path) {
 
@@ -118,40 +117,45 @@ public class LocalEditorManipulator {
     }
 
     /**
-     * Replaces the complete text at the given path.
+     * Replaces the content of the document at the given path. The text is only
+     * replaced, if the editor is writable.
      *
-     * @param path
-     * @param text
-     * @return Returns true if replacement was successful
+     * @param path path of the editor
+     * @param text text to set the document's content to
+     * @return Returns <code>true</code> if replacement was successful,
+     *     <code>false</code> if the path was <code>null></code> or the document
+     *     was not writable.
      */
     public boolean replaceText(SPath path, String text) {
         Document doc = editorPool.getDocument(path);
-        if (doc != null) {
-            boolean bWritable = doc.isWritable();
-            doc.setReadOnly(false);
-            editorAPI.setText(doc, text);
-            doc.setReadOnly(!bWritable);
-            return true;
+        if (doc == null) {
+            return false;
+        }
+        if (!doc.isWritable()) {
+            LOG.error("File to replace text in is not writeable: " + path);
+            return false;
         }
 
-        return false;
+        editorAPI.setText(doc, text);
+        return true;
     }
 
     /**
-     * Executes the received operations on the path.
+     * Applies the text operations on the path and marks them in color.
      *
      * @param path
      * @param operations
      * @param color
      */
-    public void editText(SPath path, Operation operations, Color color) {
+    public void applyTextOperations(SPath path, Operation operations,
+        Color color) {
         Document doc = editorPool.getDocument(path);
+        //If the document was not opened in an editor yet, it is not in the editorPool
+        //so we have to create it temporarily here.
         if (doc == null) {
             VirtualFile virtualFile = ResourceConverter.toVirtualFile(path);
             doc = projectAPI.createDocument(virtualFile);
-            editorPool.add(path, doc);
         }
-
          /*
          * Disable documentListener temporarily to avoid being notified of the
          * change
@@ -162,7 +166,14 @@ public class LocalEditorManipulator {
                 editorAPI.deleteText(doc, op.getPosition(),
                     op.getPosition() + op.getTextLength());
             } else {
+                boolean writePermission = doc.isWritable();
+                if (!writePermission) {
+                    doc.setReadOnly(false);
+                }
                 editorAPI.insertText(doc, op.getPosition(), op.getText());
+                if (!writePermission) {
+                    doc.setReadOnly(true);
+                }
                 Editor editor = editorPool.getEditor(path);
                 if (editor != null) {
                     editorAPI.textMarkAdd(editor, op.getPosition(),

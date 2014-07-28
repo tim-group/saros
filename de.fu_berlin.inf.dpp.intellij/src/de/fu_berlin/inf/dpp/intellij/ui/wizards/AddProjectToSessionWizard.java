@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
@@ -35,6 +34,7 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileUtil;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
@@ -67,7 +67,8 @@ import java.util.Map;
  * Wizard for adding project to session
  */
 public class AddProjectToSessionWizard {
-    private static Logger LOG = Logger.getLogger(AddProjectToSessionWizard.class);
+    private static Logger LOG = Logger
+        .getLogger(AddProjectToSessionWizard.class);
 
     public static final String INFO_PAGE_ID = "infoPage";
     public static final String FILE_LIST_PAGE_ID = "fileListPage";
@@ -81,7 +82,6 @@ public class AddProjectToSessionWizard {
      * projectID => projectName
      */
     protected Map<String, String> remoteProjectNames;
-
 
     @Inject
     private IChecksumCache checksumCache;
@@ -148,7 +148,8 @@ public class AddProjectToSessionWizard {
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
-                    process.localCancel("Not accepted", ProcessTools.CancelOption.NOTIFY_PEER);
+                    process.localCancel("Not accepted",
+                        ProcessTools.CancelOption.NOTIFY_PEER);
                 }
 
             });
@@ -177,7 +178,8 @@ public class AddProjectToSessionWizard {
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
-                    process.localCancel("Not accepted", ProcessTools.CancelOption.NOTIFY_PEER);
+                    process.localCancel("Not accepted",
+                        ProcessTools.CancelOption.NOTIFY_PEER);
                 }
 
             });
@@ -186,7 +188,7 @@ public class AddProjectToSessionWizard {
     };
 
     public AddProjectToSessionWizard(IncomingProjectNegotiation process,
-                                     JID peer, List<FileList> fileLists, Map<String, String> projectNames) {
+        JID peer, List<FileList> fileLists, Map<String, String> projectNames) {
 
         SarosPluginContext.initComponent(this);
 
@@ -199,7 +201,8 @@ public class AddProjectToSessionWizard {
 
         wizard = new Wizard(Messages.AddProjectToSessionWizard_title);
 
-        wizard.setHeadPanel(new HeaderPanel(Messages.EnterProjectNamePage_title2, ""));
+        wizard.setHeadPanel(
+            new HeaderPanel(Messages.EnterProjectNamePage_title2, ""));
 
         infoPage = new SelectProjectPage(INFO_PAGE_ID);
         infoPage.setNewProjectName(prjName); //todo
@@ -225,7 +228,6 @@ public class AddProjectToSessionWizard {
 
     }
 
-
     private void runCalculateChangedFiles() {
 
         IProgressMonitor monitor = fileListPage.getProgressMonitor(true, false);
@@ -236,8 +238,10 @@ public class AddProjectToSessionWizard {
 
         final Map<String, IProject> sources = new HashMap<String, IProject>();
         for (FileList fList : fileLists) {
-            String localProjectName = remoteProjectNames.get(fList.getProjectID());
-            IProject localProject = workspace.getRoot().getProject(localProjectName);
+            String localProjectName = remoteProjectNames
+                .get(fList.getProjectID());
+            IProject localProject = workspace.getRoot()
+                .getProject(localProjectName);
             try {
                 localProject.refreshLocal();
             } catch (IOException e) {
@@ -247,10 +251,13 @@ public class AddProjectToSessionWizard {
         }
         modifiedProjects.putAll(getModifiedProjects(sources));
         try {
-            modifiedResources.putAll(calculateModifiedResources(modifiedProjects, monitor));
+            modifiedResources
+                .putAll(calculateModifiedResources(modifiedProjects, monitor));
         } catch (IOException e) {
             LOG.error(e);
-            DialogUtils.showError(wizard.getWizard(), "Calculation error", "Error while calculating modified resources: " + e.getMessage());
+            DialogUtils.showError(wizard.getWizard(), "Calculation error",
+                "Error while calculating modified resources: " + e
+                    .getMessage());
             wizard.close();
 
         }
@@ -280,14 +287,16 @@ public class AddProjectToSessionWizard {
         monitor.done();
 
         if (writeOverCount > 0) {
-            SafeDialogUtils.showWarning(writeOverCount + " files local changes will be overwritten!", "Warning");
+            SafeDialogUtils.showWarning(
+                writeOverCount + " files local changes will be overwritten!",
+                "Warning");
         }
 
     }
 
-
     public void runAddProject() {
-        final IProgressMonitor monitor = progressPage.getProgressMonitor(true, true);
+        final IProgressMonitor monitor = progressPage
+            .getProgressMonitor(true, true);
         process.accept(remoteProjectNames, monitor, false);
     }
 
@@ -295,16 +304,16 @@ public class AddProjectToSessionWizard {
         return saros.getMainPanel();
     }
 
-
     private Collection<SPath> getOpenEditorsForSharedProjects(
-            Collection<IProject> projects) {
+        Collection<IProject> projects) {
 
         //todo: filter by project
         return editorManager.getLocallyOpenEditors();
     }
 
     //todo: implementation needed
-    public void cancelWizard(JID peer, String errorMsg, ProcessTools.CancelLocation type) {
+    public void cancelWizard(JID peer, String errorMsg,
+        ProcessTools.CancelLocation type) {
 
     }
 
@@ -320,15 +329,15 @@ public class AddProjectToSessionWizard {
      * @SWT must be called in the SWT thread context
      */
     private Map<String, IProject> getModifiedProjects(
-            Map<String, IProject> projectMapping) {
+        Map<String, IProject> projectMapping) {
         Map<String, IProject> modifiedProjects = new HashMap<String, IProject>();
 
         for (Map.Entry<String, IProject> entry : projectMapping.entrySet()) {
             //todo
-//            if (!namePage.overwriteResources(entry.getKey()))
-//            {
-//                continue;
-//            }
+            //            if (!namePage.overwriteResources(entry.getKey()))
+            //            {
+            //                continue;
+            //            }
 
             modifiedProjects.put(entry.getKey(), entry.getValue());
         }
@@ -341,8 +350,8 @@ public class AddProjectToSessionWizard {
      * current project mapping.
      */
     private Map<String, FileListDiff> calculateModifiedResources(
-            Map<String, IProject> projectMapping, IProgressMonitor monitor)
-            throws IOException {
+        Map<String, IProject> projectMapping, IProgressMonitor monitor)
+        throws IOException {
         Map<String, FileListDiff> modifiedResources = new HashMap<String, FileListDiff>();
 
         ISarosSession session = sessionManager.getSarosSession();
@@ -354,8 +363,8 @@ public class AddProjectToSessionWizard {
             throw new IllegalStateException("no session running");
         }
 
-        ISubMonitor subMonitor = monitor.convert(
-                "Searching for files that will be modified...",
+        ISubMonitor subMonitor = monitor
+            .convert("Searching for files that will be modified...",
                 projectMapping.size() * 2);
 
         for (Map.Entry<String, IProject> entry : projectMapping.entrySet()) {
@@ -389,12 +398,14 @@ public class AddProjectToSessionWizard {
 
                 if (session.isShared(project)) {
 
-                    List<IResource> eclipseResources = session.getSharedResources(project);
+                    List<IResource> eclipseResources = session
+                        .getSharedResources(project);
 
                     //FIXME: Change VCSprovider back from null, if VCS support is added
-                    FileList sharedFileList = FileListFactory.createFileList(
-                            project, eclipseResources, checksumCache, null,
-                            subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS));
+                    FileList sharedFileList = FileListFactory
+                        .createFileList(project, eclipseResources,
+                            checksumCache, null, subMonitor
+                            .newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS));
 
                     // FIXME FileList objects should be immutable after creation
                     remoteFileList.getPaths().addAll(sharedFileList.getPaths());
@@ -403,19 +414,19 @@ public class AddProjectToSessionWizard {
                 }
 
                 //FIXME: Change VCSprovider back from null, if VCS support is added
-                diff = FileListDiff.diff(FileListFactory.createFileList(
-                                project, null, checksumCache, null,
-                                subMonitor.newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS)),
-                        remoteFileList
+                diff = FileListDiff.diff(FileListFactory
+                        .createFileList(project, null, checksumCache, null,
+                            subMonitor
+                                .newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS)),
+                    remoteFileList
                 );
-
 
                 if (process.isPartialRemoteProject(projectID)) {
                     diff.clearRemovedPaths();
                 }
 
-                if (!diff.getRemovedPaths().isEmpty()
-                        || !diff.getAlteredPaths().isEmpty()) {
+                if (!diff.getRemovedPaths().isEmpty() || !diff.getAlteredPaths()
+                    .isEmpty()) {
                     modifiedResources.put(project.getName(), diff);
                 }
 
@@ -425,6 +436,5 @@ public class AddProjectToSessionWizard {
         }
         return modifiedResources;
     }
-
 
 }

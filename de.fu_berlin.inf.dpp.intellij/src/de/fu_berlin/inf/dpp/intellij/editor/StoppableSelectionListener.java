@@ -20,25 +20,24 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
+package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.editor.event.SelectionListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 
 /**
  * IntelliJ editor selection listener
  */
 public class StoppableSelectionListener extends AbstractStoppableListener
-        implements SelectionListener {
+    implements SelectionListener {
 
     public StoppableSelectionListener(EditorManager manager) {
         super(manager);
     }
 
     /**
-     * Calls {@link de.fu_berlin.inf.dpp.core.editor.EditorManager#generateSelection(de.fu_berlin.inf.dpp.activities.SPath, com.intellij.openapi.editor.event.SelectionEvent)}.
+     * Calls {@link EditorManager#generateSelection(SPath, SelectionEvent)}.
      *
      * @param event
      */
@@ -49,7 +48,7 @@ public class StoppableSelectionListener extends AbstractStoppableListener
         }
 
         SPath path = editorManager.getEditorPool()
-                .getFile(event.getEditor().getDocument());
+            .getFile(event.getEditor().getDocument());
         if (path != null) {
             editorManager.generateSelection(path, event);
         }

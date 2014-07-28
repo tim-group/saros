@@ -33,7 +33,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.intellij.editor.events.StoppableEditorFileListener;
 
 import java.util.concurrent.atomic.AtomicReference;
 

@@ -57,7 +57,7 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesChangeListener;
+import de.fu_berlin.inf.dpp.intellij.project.SharedResourcesManager;
 import de.fu_berlin.inf.dpp.intellij.project.internal.FollowingActivitiesManager;
 import de.fu_berlin.inf.dpp.misc.xstream.SPathConverter;
 import de.fu_berlin.inf.dpp.misc.xstream.UserConverter;
@@ -149,7 +149,7 @@ public final class SarosSession implements ISarosSession {
 
     //private final ChangeColorManager changeColorManager;
     // HACK to be able to move most parts to core
-    private final SharedResourcesChangeListener resourceManager;
+    private final SharedResourcesManager resourceManager;
     private final IActivityListener activityListener = new IActivityListener() {
 
         /**
@@ -259,7 +259,7 @@ public final class SarosSession implements ISarosSession {
         // Classes belonging to a session
 
         // Core Managers
-        sessionContainer.addComponent(SharedResourcesChangeListener.class);
+        sessionContainer.addComponent(SharedResourcesManager.class);
         sessionContainer.addComponent(PermissionManager.class);
         sessionContainer.addComponent(FollowingActivitiesManager.class);
 
@@ -283,7 +283,7 @@ public final class SarosSession implements ISarosSession {
 
         // HACK
         resourceManager = sessionContainer
-            .getComponent(SharedResourcesChangeListener.class);
+            .getComponent(SharedResourcesManager.class);
 
         concurrentDocumentServer = sessionContainer
             .getComponent(ConcurrentDocumentServer.class);

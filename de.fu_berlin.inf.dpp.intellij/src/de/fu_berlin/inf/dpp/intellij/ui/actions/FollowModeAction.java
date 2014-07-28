@@ -23,11 +23,11 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -40,14 +40,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-
 /**
  * Follows active session
  */
 public class FollowModeAction extends AbstractSarosAction {
 
     public static final String NAME = "follow";
-
 
     private ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
@@ -115,7 +113,8 @@ public class FollowModeAction extends AbstractSarosAction {
 
     private ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
         @Override
-        public void followModeChanged(final User user, final boolean isFollowed) {
+        public void followModeChanged(final User user,
+            final boolean isFollowed) {
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
@@ -144,8 +143,8 @@ public class FollowModeAction extends AbstractSarosAction {
 
     private final Set<User> currentRemoteSessionUsers = new LinkedHashSet<User>();
 
-
-    public FollowModeAction(EditorManager editorManager, ISarosSessionManager sessionManager) {
+    public FollowModeAction(EditorManager editorManager,
+        ISarosSessionManager sessionManager) {
         this.editorManager = editorManager;
         this.sessionManager = sessionManager;
 
@@ -179,7 +178,6 @@ public class FollowModeAction extends AbstractSarosAction {
         updateMenu();
     }
 
-
     @Override
     public String getActionName() {
         return NAME;
@@ -189,7 +187,6 @@ public class FollowModeAction extends AbstractSarosAction {
     @Override
     public void run() {
         actionStarted();
-
 
         if (session == null) {
             return;
@@ -225,7 +222,6 @@ public class FollowModeAction extends AbstractSarosAction {
             return null;
         }
 
-
         for (User user : getCurrentRemoteSessionUsers()) {
             String myUserName = user.getNickname();
             if (myUserName.equalsIgnoreCase(userName)) {
@@ -235,7 +231,6 @@ public class FollowModeAction extends AbstractSarosAction {
 
         return null;
     }
-
 
     /**
      * Returns the next user to follow or <code>null</code> if follow mode
@@ -253,7 +248,7 @@ public class FollowModeAction extends AbstractSarosAction {
         User nextUser = null;
 
         for (Iterator<User> it = currentRemoteSessionUsers.iterator(); it
-                .hasNext(); ) {
+            .hasNext(); ) {
             User user = it.next();
             if (user.equals(currentlyFollowedUser)) {
                 if (it.hasNext()) {
@@ -266,7 +261,6 @@ public class FollowModeAction extends AbstractSarosAction {
 
         return nextUser;
     }
-
 
     private void updateMenu() {
         refreshAll();

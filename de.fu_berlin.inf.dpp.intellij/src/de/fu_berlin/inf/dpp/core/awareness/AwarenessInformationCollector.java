@@ -22,8 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.awareness;
 
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.ProjectNegotiationObservable;
 import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AwarenessInformationCollector {
     private static final Logger log = Logger
-            .getLogger(AwarenessInformationCollector.class);
+        .getLogger(AwarenessInformationCollector.class);
 
     protected EditorManager editorManager;
     protected ProjectNegotiationObservable projectNegotiationObservable;
@@ -57,8 +57,8 @@ public class AwarenessInformationCollector {
     protected Map<JID, JID> followModes = new ConcurrentHashMap<JID, JID>();
 
     public AwarenessInformationCollector(SarosSessionObservable sarosSession,
-                                         ProjectNegotiationObservable projectNegotiationObservable,
-                                         EditorManager editorManager) {
+        ProjectNegotiationObservable projectNegotiationObservable,
+        EditorManager editorManager) {
 
         this.sarosSession = sarosSession;
         this.projectNegotiationObservable = projectNegotiationObservable;
@@ -84,8 +84,8 @@ public class AwarenessInformationCollector {
         assert user != null;
         assert !(user.equals(target));
 
-        log.debug("Remembering that User " + user + " is now following "
-                + target);
+        log.debug(
+            "Remembering that User " + user + " is now following " + target);
 
         // forget any old states, in case there are any..
         followModes.remove(user.getJID());
@@ -154,8 +154,8 @@ public class AwarenessInformationCollector {
 
         RemoteEditorManager rem = editorManager.getRemoteEditorManager();
         if (rem != null && user != null) {
-            if (user.isLocal() && editorManager.isActiveEditorShared()
-                    || rem.isRemoteActiveEditorShared(user)) {
+            if (user.isLocal() && editorManager.isActiveEditorShared() || rem
+                .isRemoteActiveEditorShared(user)) {
                 editorActive = true;
             }
         }

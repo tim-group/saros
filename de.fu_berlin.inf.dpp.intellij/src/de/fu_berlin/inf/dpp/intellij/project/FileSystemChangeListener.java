@@ -32,7 +32,6 @@ import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
@@ -40,8 +39,9 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.editor.AbstractStoppableListener;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
-import de.fu_berlin.inf.dpp.intellij.editor.events.AbstractStoppableListener;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
@@ -58,7 +58,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Local file system change listener. It receives events for all files in all projects
  * opened by the user.
@@ -68,7 +67,7 @@ import java.util.Map;
 public class FileSystemChangeListener extends AbstractStoppableListener implements VirtualFileListener {
 
     private static Logger LOG = Logger.getLogger(FileSystemChangeListener.class);
-    private SharedResourcesChangeListener resourceManager;
+    private SharedResourcesManager resourceManager;
     private Workspace workspace;
     //HACK: This file is used to filter events for files that were created from
     //remote, because we can not disable the listener for them
@@ -78,11 +77,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     private LocalEditorHandler localEditorHandler;
 
-    public FileSystemChangeListener(
-        SharedResourcesChangeListener resourceManager,
+    public FileSystemChangeListener(SharedResourcesManager resourceManager,
         EditorManager editorManager) {
         super(editorManager);
-        this.localEditorHandler = editorManager.getLocalEditorHandler();
+        this.editorManager = editorManager;
         this.resourceManager = resourceManager;
     }
 
@@ -129,11 +127,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         if (before) {
 
             file = project.getFile(oldSPath.getFullPath());
-            localEditorHandler.saveFile(oldSPath);
+            editorManager.saveFile(oldSPath);
         } else {
 
             file = project.getFile(newSPath.getFullPath());
-            localEditorHandler.saveFile(newSPath);
+            editorManager.saveFile(newSPath);
         }
 
         if (file == null) {
@@ -146,7 +144,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         String charset = getEncoding(file);
 
         IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
-        editorManager.getEditorPool().replaceAll(oldSPath, newSPath);
+        editorManager.replaceAllEditorsForPath(oldSPath, newSPath);
         project.addFile(newSPath.getFile().getLocation().toFile());
         project.removeFile(oldSPath.getFile().getLocation().toFile());
         resourceManager.internalFireActivity(activity);
@@ -166,28 +164,30 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             .locateProject(new PathImp(file));
         IFile ifile = new FileImp(project, file);
 
-        if (resourceManager.getSession().isShared(ifile)) {
-            if (newFiles.containsKey(virtualFile)) {
-                byte[] content = new byte[0];
+        if (resourceManager.getSession().isShared(ifile) && newFiles
+            .containsKey(virtualFile)) {
+
+            newFiles.remove(virtualFile);
+
+            SPath spath = new SPath(project, ifile.getProjectRelativePath());
+
+            //Files created from template have initial content, but do not have an open
+            //editor yet and no DocumentListener. Their initial content is transferred
+            //here.
+            if (editorManager.isOpenedInEditor(spath)) {
+                String initialContent = null;
                 try {
+                    byte[] content = new byte[0];
                     content = virtualFile.contentsToByteArray();
+                    initialContent = new String(content, getEncoding(ifile));
                 } catch (IOException e) {
                     LOG.error("Could not access newly created file: " + file,
                         e);
                 }
-                if (content.length > 0) {
-                    String newText = null;
-                    try {
-                        newText = new String(content, getEncoding(ifile));
-                    } catch (UnsupportedEncodingException e) {
-                        LOG.error("Unsupported encoding in: " + file, e);
-                    }
 
-                    SPath spath = new SPath(project,
-                        ifile.getProjectRelativePath());
-                    editorManager.generateTextEdit(0, newText, "", spath);
+                if (initialContent.length() > 0) {
+                    editorManager.sendTemplateContent(spath, initialContent);
                 }
-                newFiles.remove(virtualFile);
             }
         }
     }
@@ -245,6 +245,9 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
             //so we check for newly created files' content in {@link #contentsChanged},
             newFiles.put(virtualFile, bytes);
 
+            //we check for newly created files with content (e.g. from HTML templates)
+            //in {@link #contentsChanged},
+            newFiles.put(virtualFile, bytes);
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
 
@@ -294,7 +297,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         }
 
         ((ProjectImp) project).removeFile(file);
-        editorManager.getEditorPool().removeAll(spath);
+        editorManager.removeAllEditorsForPath(spath);
 
         resourceManager.internalFireActivity(activity);
     }

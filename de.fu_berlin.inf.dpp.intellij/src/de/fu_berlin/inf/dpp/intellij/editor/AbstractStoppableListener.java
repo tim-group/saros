@@ -20,22 +20,27 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.editor.events;
-
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+package de.fu_berlin.inf.dpp.intellij.editor;
 
 /**
- * Saros Intellij caret listener.
+ * Abstract IntelliJ event listener.
  */
-public class StoppableCaretListener implements CaretListener {
+public abstract class AbstractStoppableListener {
+
+    protected EditorManager editorManager;
+    protected boolean enabled = true;
+
+    public AbstractStoppableListener(EditorManager manager) {
+        this.editorManager = manager;
+    }
+
     /**
-     * Does nothing.
+     * Enables or disables the forwarding of text changes. Default is enabled.
      *
-     * @param e
+     * @param enabled <code>true</code> to forward text changes, <code>false</code>
+     *                otherwise
      */
-    @Override
-    public void caretUpdate(CaretEvent e) {
-        //TODO: implement this.
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

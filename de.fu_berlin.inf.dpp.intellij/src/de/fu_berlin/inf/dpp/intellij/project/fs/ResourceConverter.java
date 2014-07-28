@@ -35,9 +35,12 @@ import java.io.File;
  */
 public class ResourceConverter {
 
-    private static LocalFileSystem localFileSystem = LocalFileSystem
+    private ResourceConverter() {
+    }
+
+    private static final LocalFileSystem localFileSystem = LocalFileSystem
             .getInstance();
-    private static FileDocumentManager fileDocumentManager = FileDocumentManager
+    private static final FileDocumentManager fileDocumentManager = FileDocumentManager
             .getInstance();
 
     public static Document getDocument(final File file) {
@@ -48,7 +51,7 @@ public class ResourceConverter {
         return toVirtualFile(path.getFile().getFullPath().toFile());
     }
 
-    public static VirtualFile toVirtualFile(File path) {
+    private static VirtualFile toVirtualFile(File path) {
         return localFileSystem.refreshAndFindFileByIoFile(path);
     }
 }

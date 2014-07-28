@@ -22,14 +22,15 @@
 
 package de.fu_berlin.inf.dpp.core.editor.adapter;
 
+import com.intellij.openapi.editor.Document;
+
 /**
- * Adapts the {@link com.intellij.openapi.editor.Document} to
- * {@link de.fu_berlin.inf.dpp.core.editor.adapter.IDocument}.
+ * Adapts the {@link Document} to {@link IDocument}.
  */
 public class DocumentAdapter implements IDocument {
-    private com.intellij.openapi.editor.Document doc;
+    private final Document doc;
 
-    public DocumentAdapter(com.intellij.openapi.editor.Document doc) {
+    public DocumentAdapter(Document doc) {
         this.doc = doc;
     }
 
