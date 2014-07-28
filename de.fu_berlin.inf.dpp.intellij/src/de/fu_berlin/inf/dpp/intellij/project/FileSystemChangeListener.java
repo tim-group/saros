@@ -52,12 +52,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
- * Local file system change listener. Creates network events on file create/delete/rename/move
+ * Local file system change listener. It receives events for all files in all projects
+ * opened by the user.
+ * It filters for files that are shared and calls the corresponding methods for
+ * {@link IActivity}-creation.
  */
 public class FileSystemChangeListener extends AbstractStoppableListener implements VirtualFileListener {
 
@@ -67,6 +73,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
     //HACK: This file is used to filter events for files that were created from
     //remote, because we can not disable the listener for them
     private List<File> incomingFilesToFilterFor = new ArrayList<File>();
+
+    private Map<VirtualFile, byte[]> newFiles = new HashMap<VirtualFile, byte[]>();
 
     private LocalEditorHandler localEditorHandler;
 
@@ -135,13 +143,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
         byte[] bytes = FileUtils.getLocalFileContent(file);
 
-        String charset = null;
-
-        try {
-            charset = file.getCharset();
-        } catch (IOException e) {
-            LOG.error("could not determine encoding for file: " + file, e);
-        }
+        String charset = getEncoding(file);
 
         IActivity activity = new FileActivity(user, FileActivity.Type.MOVED, newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
         editorManager.getEditorPool().replaceAll(oldSPath, newSPath);
@@ -150,19 +152,51 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         resourceManager.internalFireActivity(activity);
     }
 
+    /**
+     * This gets called for all files in the application, after they were changed.
+     * This includes meta-files like workspace.xml.
+     *
+     * @param virtualFileEvent
+     */
     @Override
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
+        VirtualFile virtualFile = virtualFileEvent.getFile();
+        File file = new File(virtualFile.getPath());
+        ProjectImp project = (ProjectImp) workspace.getRoot()
+            .locateProject(new PathImp(file));
+        IFile ifile = new FileImp(project, file);
 
-        try {
-            LOG.info("File: " + virtualFileEvent.getFile().contentsToByteArray()
-                .toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            e.printStackTrace();
+        if (resourceManager.getSession().isShared(ifile)) {
+            if (newFiles.containsKey(virtualFile)) {
+                byte[] content = new byte[0];
+                try {
+                    content = virtualFile.contentsToByteArray();
+                } catch (IOException e) {
+                    LOG.error("Could not access newly created file: " + file,
+                        e);
+                }
+                if (content.length > 0) {
+                    String newText = null;
+                    try {
+                        newText = new String(content, getEncoding(ifile));
+                    } catch (UnsupportedEncodingException e) {
+                        LOG.error("Unsupported encoding in: " + file, e);
+                    }
+
+                    SPath spath = new SPath(project,
+                        ifile.getProjectRelativePath());
+                    editorManager.generateTextEdit(0, newText, "", spath);
+                }
+                newFiles.remove(virtualFile);
+            }
         }
     }
 
-
+    /**
+     * This is called after a file was created on disk, but before optional content
+     * (e.g. templates) are inserted.
+     * @param virtualFileEvent
+     */
     @Override
     public void fileCreated(@NotNull VirtualFileEvent virtualFileEvent) {
         if (!enabled) {
@@ -204,25 +238,12 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
         IActivity activity;
         if (file.isFile()) {
             byte[] bytes = new byte[0];
-            try {
-                //If the file was created with a template, bytes is empty at this
-                //point
-                bytes = virtualFileEvent.getFile().contentsToByteArray();
-            } catch (IOException e) {
-                workspace.LOG.error(e.getMessage(), e);
-            }
-
             String charset = null;
-
             charset = virtualFile.getCharset().name();
-
-
             activity = FileActivity.created(user, spath, bytes, charset, FileActivity.Purpose.ACTIVITY);
-            //HACK: If the file was created with a template, the file content is
-            //not present here, but we can access it in the openEditor event
-            //the localEditorHandler has to know, which files are created, to know
-            //where to send the content with it
-            localEditorHandler.registerNewFile(virtualFileEvent.getFile(), bytes);
+            //If the file was created with a template, it is filled only later
+            //so we check for newly created files' content in {@link #contentsChanged},
+            newFiles.put(virtualFile, bytes);
 
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED, spath);
@@ -427,6 +448,11 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     }
 
+    /**
+     * This method is called for files that already exist and that are modified,
+     * but before the file is modified on disk.
+     * @param virtualFileEvent
+     */
     @Override
     public void beforeContentsChange(@NotNull VirtualFileEvent virtualFileEvent) {
         return;
@@ -448,5 +474,16 @@ public class FileSystemChangeListener extends AbstractStoppableListener implemen
 
     public void addIncomingFileToFilterFor(File file) {
         incomingFilesToFilterFor.add(file);
+    }
+
+    private String getEncoding(IFile file) {
+        String charset = null;
+
+        try {
+            charset = file.getCharset();
+        } catch (IOException e) {
+            LOG.error("could not determine encoding for file: " + file, e);
+        }
+        return charset;
     }
 }

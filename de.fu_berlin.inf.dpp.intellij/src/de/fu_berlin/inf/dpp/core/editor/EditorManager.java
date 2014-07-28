@@ -275,6 +275,9 @@ public class EditorManager extends AbstractActivityProducer {
 
                     setFollowing(null);
 
+                    //This sets all editors, that were set to read only, writeable
+                    //again
+                    unlockAllEditors();
                     editorPool.clear();
 
                     session.removeListener(sharedProjectListener);
@@ -288,6 +291,7 @@ public class EditorManager extends AbstractActivityProducer {
                     remoteWriteAccessManager = null;
                     activeEditor = null;
                     locallyOpenEditors.clear();
+
                 }
             });
         }
@@ -603,15 +607,15 @@ public class EditorManager extends AbstractActivityProducer {
     /**
      * Generates a TextEditActivity and fires it.
      */
-    public synchronized void generateTextEdit(int offset, String oldText,
-        String newText, SPath path) {
+    public synchronized void generateTextEdit(int offset, String newText,
+        String replacedText, SPath path) {
 
         if (session == null) {
             return;
         }
 
         TextEditActivity textEdit = new TextEditActivity(session.getLocalUser(),
-            offset, oldText, newText, path);
+            offset, newText, replacedText, path);
 
         if (!hasWriteAccess || isLocked) {
            /*
@@ -800,7 +804,7 @@ public class EditorManager extends AbstractActivityProducer {
      * documentListener.
      */
     public void startEditor(Editor editor) {
-        editor.getDocument().setReadOnly(false);
+        editor.getDocument().setReadOnly(isLocked || !hasWriteAccess);
         editor.getSelectionModel().addSelectionListener(selectionListener);
         editor.getScrollingModel().addVisibleAreaListener(viewportListener);
         documentListener.startListening(editor.getDocument());
@@ -810,6 +814,7 @@ public class EditorManager extends AbstractActivityProducer {
      * Stops an editor by removing all listeners.
      */
     public void stopEditor(Editor editor) {
+        editor.getDocument().setReadOnly(!isLocked && hasWriteAccess);
         editor.getSelectionModel().removeSelectionListener(selectionListener);
         editor.getScrollingModel().removeVisibleAreaListener(viewportListener);
         documentListener.stopListening();

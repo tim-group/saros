@@ -24,15 +24,12 @@ package de.fu_berlin.inf.dpp.intellij.editor;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.editor.EditorManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,35 +80,6 @@ public class LocalEditorHandler {
     public void openEditor(VirtualFile virtualFile) {
         SPath path = toPath(virtualFile);
         if (path != null) {
-
-            if (newFiles.containsKey(virtualFile)) {
-                //File is new, need to replaceAll content
-                byte[] bytes = new byte[0];
-                try {
-                    bytes = virtualFile.contentsToByteArray();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-
-                byte[] bytesRemote = newFiles.get(virtualFile);
-
-                if (!Arrays.equals(bytes, bytesRemote)) {
-
-                    String replacedText = new String(bytes,
-                            EncodingProjectManager.getInstance()
-                                    .getDefaultCharset()
-                    );
-                    String text = new String(bytesRemote,
-                            EncodingProjectManager.getInstance()
-                                    .getDefaultCharset()
-                    );
-
-                    manager.generateTextEdit(0, replacedText, text, path);
-                }
-
-                newFiles.remove(virtualFile);
-            }
-
             editorPool.add(path, projectAPI.getActiveEditor());
             manager.startEditor(projectAPI.getActiveEditor());
         }
@@ -187,7 +155,7 @@ public class LocalEditorHandler {
 
     private SPath toPath(VirtualFile virtualFile) {
         if (virtualFile == null || !virtualFile.exists() || !manager
-                .hasSession()) {
+            .hasSession()) {
             return null;
         }
 

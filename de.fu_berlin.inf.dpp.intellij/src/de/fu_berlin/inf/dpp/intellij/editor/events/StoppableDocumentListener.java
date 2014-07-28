@@ -67,11 +67,11 @@ public class StoppableDocumentListener extends AbstractStoppableListener
             return;
         }
 
-        String text = event.getNewFragment().toString();
+        String newText = event.getNewFragment().toString();
         String replacedText = event.getOldFragment().toString();
 
         editorManager
-            .generateTextEdit(event.getOffset(), text, replacedText, path);
+            .generateTextEdit(event.getOffset(), newText, replacedText, path);
     }
 
     /**

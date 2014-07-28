@@ -50,8 +50,8 @@ public class WorkspaceRoot implements IWorkspaceRoot {
         IProject prj = projects.get(project);
         if (prj == null) {
             File fPrj = new File(
-                    this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR
-                            + project
+                this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR
+                    + project
             );
             ProjectImp myPrj = new ProjectImp(project, fPrj);
 
@@ -98,8 +98,9 @@ public class WorkspaceRoot implements IWorkspaceRoot {
             sPathRelative = sPathRelative.substring(1);
         }
 
+        //FIXME: THis does not work for projects that share the same prefix, e.g. project4 and project444
         for (String projectName : projects.keySet()) {
-            if (sPathRelative.equalsIgnoreCase(projectName)) {
+            if (sPathRelative.startsWith(projectName)) {
                 return projects.get(projectName);
             }
         }
