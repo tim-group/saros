@@ -27,12 +27,11 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import de.fu_berlin.inf.dpp.activities.SPath;
 
-
 /**
  * This Class represents a checksum of a document. It contains the path, the
  * length and the hash code of the document.
- *
- * @author chjacob
+ * <p/>
+ * TODO: Use core interface for Document
  */
 public class DocumentChecksum {
 

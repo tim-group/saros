@@ -33,7 +33,9 @@ import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
+import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
+import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
@@ -47,7 +49,7 @@ import java.util.concurrent.CancellationException;
 
 
 /**
- * This component is responsible for handling Consistency Errors on the host.
+ * This class is responsible for handling Consistency Errors on the host.
  */
 public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         implements Startable {
@@ -59,6 +61,14 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     private final ISarosSession session;
 
+    private final IActivityConsumer consumer = new AbstractActivityConsumer() {
+        @Override
+        public void receive(ChecksumErrorActivity checksumError) {
+            if (session.isHost())
+                startRecovery(checksumError);
+        }
+    };
+
     public ConsistencyWatchdogHandler(ISarosSession session,
         LocalEditorHandler localEditorHandler) {
         this.session = session;
@@ -67,11 +77,13 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     @Override
     public void start() {
+        session.addActivityConsumer(consumer);
         session.addActivityProducer(this);
     }
 
     @Override
     public void stop() {
+        session.removeActivityConsumer(consumer);
         session.removeActivityProducer(this);
     }
 
@@ -81,7 +93,6 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     protected void startRecovery(final ChecksumErrorActivity checksumError) {
 
         LOG.debug("Received Checksum Error: " + checksumError);
-
 
         UIMonitoredJob recoveryJob = new UIMonitoredJob("File recovery") {
             @Override
@@ -96,7 +107,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     }
 
-    protected void runRecovery(ChecksumErrorActivity checksumError,
+    void runRecovery(ChecksumErrorActivity checksumError,
                                IProgressMonitor progress) throws CancellationException {
 
         List<StartHandle> startHandles = null;
@@ -145,10 +156,11 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     /**
-     * @host This is only called on the host
-     * @nonSWT This method should not be called from the SWT Thread!
+     * This method is only called on the host.
+     * <p>
+     * It should not be called from the UI Thread!
      */
-    protected void recoverFiles(ChecksumErrorActivity checksumError,
+    void recoverFiles(ChecksumErrorActivity checksumError,
                                 IProgressMonitor progress) {
 
         progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
@@ -173,7 +185,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * Recover a single file for the given user (that is either send the file or
      * tell the user to removeAll it).
      */
-    protected void recoverFile(User from, final ISarosSession sarosSession,
+    void recoverFile(User from, final ISarosSession sarosSession,
                                final SPath path, IProgressMonitor progress) {
 
         progress.beginTask("Handling file: " + path, 10);
@@ -201,7 +213,6 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
                 if (content == null) {
                     throw new IOException();
                 }
-
 
                 String charset = null;
 

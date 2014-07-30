@@ -17,7 +17,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
+ *
  */
 
 package de.fu_berlin.inf.dpp.core.concurrent;
@@ -41,6 +41,7 @@ import org.picocontainer.Startable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -57,11 +58,9 @@ import java.util.concurrent.TimeUnit;
  * that their version is correct.
  * <p/>
  * Once started with schedule() the job is scheduled to rerun every INTERVAL ms.
- *
- * @author chjacob
- *         <p/>
- *         TODO Make ConsistencyWatchDog configurable => Timeout, Whether run or
- *         not, etc.
+ * <p/>
+ * TODO Make ConsistencyWatchDog configurable => Timeout, Whether run or
+ * not, etc.
  */
 public class ConsistencyWatchdogServer extends AbstractActivityProducer
     implements Startable, Blockable {
@@ -70,7 +69,7 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
         .getLogger(ConsistencyWatchdogServer.class);
 
     private static final long INTERVAL = 10000;
-    private final HashMap<SPath, DocumentChecksum> docsChecksums = new HashMap<SPath, DocumentChecksum>();
+    private final Map<SPath, DocumentChecksum> docsChecksums = new HashMap<SPath, DocumentChecksum>();
     private final EditorManager editorManager;
     private final ISarosSession session;
     private final StopManager stopManager;
@@ -95,7 +94,6 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             }));
         }
     };
-    ;
 
     public ConsistencyWatchdogServer(ISarosSession session,
         EditorManager editorManager, StopManager stopManager,
