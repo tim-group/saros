@@ -21,6 +21,7 @@
  */
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
+import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRequestExtension;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
@@ -32,7 +33,6 @@ import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
@@ -41,15 +41,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Listens for {@link JoinSessionRequestExtension}s and
+ * <ul>
+ * <li/> rejects new sessions if we already are in a session
+ * <li/> starts a new session, if a new session is requested
+ * <li/> adds users to an existing session, if the session already exists
+ * </ul>
+ */
 public final class JoinSessionRequestHandler {
 
     private static final Logger LOG = Logger
             .getLogger(JoinSessionRequestHandler.class);
+
     private final PacketListener joinSessionRequestListener = new PacketListener() {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
@@ -59,6 +68,7 @@ public final class JoinSessionRequestHandler {
             });
         }
     };
+
     private final ISarosSessionManager sessionManager;
     private final ITransmitter transmitter;
     private final IReceiver receiver;

@@ -31,11 +31,17 @@ import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 
+/**
+ * Handler for registering this instance as XMPP server. When Saros connects to the
+ * XMPP server and this instance supports being a server, this class  adds the
+ * server feature to the XMPP server by calling
+ * {@link ServiceDiscoveryManager#addFeature(String)},
+ */
 public class ServerPreferenceHandler {
 
-    private IPreferenceStore preferenceStore;
+    private final IPreferenceStore preferenceStore;
 
-    private IConnectionListener connectionListener = new IConnectionListener() {
+    private final IConnectionListener connectionListener = new IConnectionListener() {
 
         @Override
         public void connectionStateChanged(Connection connection,

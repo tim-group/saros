@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
+import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.communication.extensions.SessionStatusRequestExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.SessionStatusResponseExtension;
 import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
@@ -32,13 +33,16 @@ import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.ITransmitter;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 import java.util.Set;
 
+/**
+ * Handler for listening for {@link SessionStatusRequestExtension}s. Sends a
+ * {@link SessionStatusResponseExtension} with the session status if it receives one.
+ */
 public final class SessionStatusRequestHandler {
 
     private static final Logger LOG = Logger
@@ -47,7 +51,7 @@ public final class SessionStatusRequestHandler {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
 
                 @Override
                 public void run() {

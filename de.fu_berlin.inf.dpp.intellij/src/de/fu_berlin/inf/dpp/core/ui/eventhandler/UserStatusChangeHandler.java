@@ -44,37 +44,29 @@ public class UserStatusChangeHandler {
 
     private ISharedProjectListener userStatusListener = new AbstractSharedProjectListener() {
 
-        /*
-         * save to call IntelliJUIHelper.showNotification because it uses asyncExec
-         * calls
-         */
-
         @Override
         public void permissionChanged(User user) {
 
             if (user.isLocal()) {
-                NotificationPanel
-                        .showNotification(
-                                Messages.UserStatusChangeHandler_permission_changed,
-                                MessageFormat
-                                        .format(
-                                                Messages.UserStatusChangeHandler_you_have_now_access,
-                                                user.getNickname(),
-                                                user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
-                                                        : Messages.UserStatusChangeHandler_read_only
-                                        )
-                        );
+                NotificationPanel.showNotification(
+                    Messages.UserStatusChangeHandler_permission_changed,
+                    MessageFormat.format(
+                        Messages.UserStatusChangeHandler_you_have_now_access,
+                        user.getNickname(), user.hasWriteAccess() ?
+                            Messages.UserStatusChangeHandler_write :
+                            Messages.UserStatusChangeHandler_read_only
+                    )
+                );
             } else {
-                NotificationPanel
-                        .showNotification(
-                                Messages.UserStatusChangeHandler_permission_changed,
-                                MessageFormat.format(
-                                        Messages.UserStatusChangeHandler_he_has_now_access,
-                                        user.getNickname(),
-                                        user.hasWriteAccess() ? Messages.UserStatusChangeHandler_write
-                                                : Messages.UserStatusChangeHandler_read_only
-                                )
-                        );
+                NotificationPanel.showNotification(
+                    Messages.UserStatusChangeHandler_permission_changed,
+                    MessageFormat.format(
+                        Messages.UserStatusChangeHandler_he_has_now_access,
+                        user.getNickname(), user.hasWriteAccess() ?
+                            Messages.UserStatusChangeHandler_write :
+                            Messages.UserStatusChangeHandler_read_only
+                    )
+                );
 
             }
         }
@@ -82,20 +74,22 @@ public class UserStatusChangeHandler {
         @Override
         public void userJoined(User user) {
 
-            NotificationPanel.showNotification(
-                    Messages.UserStatusChangeHandler_user_joined, MessageFormat
-                            .format(Messages.UserStatusChangeHandler_user_joined_text,
-                                    user.getNickname())
-            );
+            NotificationPanel
+                .showNotification(Messages.UserStatusChangeHandler_user_joined,
+                    MessageFormat.format(
+                        Messages.UserStatusChangeHandler_user_joined_text,
+                        user.getNickname())
+                );
         }
 
         @Override
         public void userLeft(User user) {
-            NotificationPanel.showNotification(
-                    Messages.UserStatusChangeHandler_user_left, MessageFormat
-                            .format(Messages.UserStatusChangeHandler_user_left_text,
-                                    user.getNickname())
-            );
+            NotificationPanel
+                .showNotification(Messages.UserStatusChangeHandler_user_left,
+                    MessageFormat
+                        .format(Messages.UserStatusChangeHandler_user_left_text,
+                            user.getNickname())
+                );
         }
     };
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {

@@ -22,16 +22,20 @@
 
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
+import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.communication.extensions.JoinSessionRejectedExtension;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
+/**
+ * Listens for {@link JoinSessionRejectedExtension}s and notifies the User
+ * if the request to join the session was cancelled.
+ */
 public final class JoinSessionRejectedHandler {
 
     private static final Logger LOG = Logger
@@ -40,7 +44,7 @@ public final class JoinSessionRejectedHandler {
 
         @Override
         public void processPacket(final Packet packet) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
@@ -54,6 +58,11 @@ public final class JoinSessionRejectedHandler {
     };
     private final IReceiver receiver;
 
+    /**
+     * Adds {@link #joinSessionRejectedListener}
+     *
+     * @param receiver
+     */
     public JoinSessionRejectedHandler(IReceiver receiver) {
         this.receiver = receiver;
         this.receiver.addPacketListener(joinSessionRejectedListener,

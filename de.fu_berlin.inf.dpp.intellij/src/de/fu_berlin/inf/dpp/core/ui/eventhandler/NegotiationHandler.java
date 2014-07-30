@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
 import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
@@ -44,8 +46,6 @@ import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
-import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 
 import java.text.MessageFormat;
@@ -65,8 +65,7 @@ public class NegotiationHandler implements INegotiationHandler {
     private static final Logger LOG = Logger.getLogger(NegotiationHandler.class);
     private final ISarosSessionManager sessionManager;
 
-    public NegotiationHandler(ISarosSessionManager sessionManager,
-                              XMPPConnectionService connectionService) {
+    public NegotiationHandler(ISarosSessionManager sessionManager) {
         this.sessionManager = sessionManager;
         this.sessionManager.setNegotiationHandler(this);
     }
@@ -118,7 +117,7 @@ public class NegotiationHandler implements INegotiationHandler {
 
         // Fixes #2727848: InvitationDialog is opened in the
         // background
-        ThreadUtils.runSafeAsync(LOG, new Runnable() {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
 
@@ -133,8 +132,8 @@ public class NegotiationHandler implements INegotiationHandler {
                  *               decide whether to next the invitation.
                  */
 
-
-                JoinSessionWizard sessionWizard = new JoinSessionWizard(process);
+                JoinSessionWizard sessionWizard = new JoinSessionWizard(
+                    process);
             }
         });
 
@@ -149,14 +148,15 @@ public class NegotiationHandler implements INegotiationHandler {
             fileLists.add(pInfo.getFileList());
         }
 
-        ThreadUtils.runSafeSync(LOG, new Runnable() {
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
-                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(process, process.getPeer(), fileLists, process
-                        .getProjectNames());
+                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(
+                    process, process.getPeer(), fileLists,
+                    process.getProjectNames());
             }
-        });
+        }, ModalityState.any());
     }
 
     /**
@@ -169,15 +169,15 @@ public class NegotiationHandler implements INegotiationHandler {
      */
     private class OutgoingInvitationJob extends UIMonitoredJob {
 
-        private OutgoingSessionNegotiation process;
-        private String peer;
+        private final OutgoingSessionNegotiation process;
+        private final String peer;
 
         public OutgoingInvitationJob(OutgoingSessionNegotiation process) {
             super(MessageFormat.format(
                     Messages.NegotiationHandler_inviting_user,
                     getNickname(process.getPeer())));
             this.process = process;
-            this.peer = process.getPeer().getBase();
+            peer = process.getPeer().getBase();
         }
 
         @Override
@@ -246,8 +246,8 @@ public class NegotiationHandler implements INegotiationHandler {
 
     private class OutgoingProjectJob extends UIMonitoredJob {
 
-        private OutgoingProjectNegotiation process;
-        private String peer;
+        private final OutgoingProjectNegotiation process;
+        private final String peer;
 
         public OutgoingProjectJob(
                 OutgoingProjectNegotiation outgoingProjectNegotiation) {
@@ -278,7 +278,8 @@ public class NegotiationHandler implements INegotiationHandler {
                                         Messages.NegotiationHandler_project_sharing_cancelled_text,
                                         peerName);
 
-                        ThreadUtils.runSafeAsync(LOG, new Runnable() {
+                        ApplicationManager.getApplication()
+                            .invokeLater(new Runnable() {
                             @Override
                             public void run() {
                                 DialogUtils.showInfo(DialogUtils.getDefaultContainer(), message,
