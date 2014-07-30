@@ -45,7 +45,96 @@ import java.util.List;
 public class InvitationHandler {
 
     private static final Logger LOG = Logger.getLogger(InvitationHandler.class
-            .getName());
+        .getName());
+
+    private final PacketListener invitationOfferingListener = new PacketListener() {
+
+        @Override
+        public void processPacket(Packet packet) {
+            JID fromJID = new JID(packet.getFrom());
+
+            InvitationOfferingExtension invitation = InvitationOfferingExtension.PROVIDER
+                .getPayload(packet);
+
+            if (invitation == null) {
+                LOG.warn("received invitation from " + fromJID
+                    + " that contains malformed payload");
+                return;
+            }
+
+            String sessionID = invitation.getSessionID();
+            String invitationID = invitation.getNegotiationID();
+            String version = invitation.getVersion();
+            String description = invitation.getDescription();
+
+            LOG.info("received invitation from " + fromJID + " [invitation id: "
+                    + invitationID + ", " + "session id: " + sessionID + ", "
+                    + "version: " + version + "]"
+            );
+
+            /**
+             * @JTourBusStop 7, Invitation Process:
+             *
+             *               (3b) If the invited user (from now on referred
+             *               to as "client") receives an invitation (and if
+             *               he is not already in a running session), Saros
+             *               will send an automatic response to the inviter
+             *               (host). Afterwards, the control is handed over
+             *               to the SessionManager.
+             */
+            if (sessionManager.getSarosSession() == null) {
+                PacketExtension response = InvitationAcknowledgedExtension.PROVIDER
+                    .create(new InvitationAcknowledgedExtension(invitationID));
+                transmitter.sendPacketExtension(fromJID, response);
+
+                sessionManager
+                    .invitationReceived(fromJID, sessionID, invitationID,
+                        version, description);
+            } else {
+                // TODO This text should be replaced with a cancel ID
+                PacketExtension response = CancelInviteExtension.PROVIDER
+                    .create(new CancelInviteExtension(invitationID,
+                        "I am already in a Saros session and so cannot accept your invitation."));
+                transmitter.sendPacketExtension(fromJID, response);
+            }
+        }
+    };
+
+    private final PacketListener projectOfferingListener = new PacketListener() {
+
+        @Override
+        public void processPacket(Packet packet) {
+            JID fromJID = new JID(packet.getFrom());
+
+            ProjectNegotiationOfferingExtension projectNegotiation = ProjectNegotiationOfferingExtension.PROVIDER
+                .getPayload(packet);
+
+            if (projectNegotiation == null) {
+                LOG.warn("received project negotiation from " + fromJID
+                    + " that contains malformed payload");
+                return;
+            }
+
+            String sessionID = projectNegotiation.getSessionID();
+            String negotiationID = projectNegotiation.getNegotiationID();
+            List<ProjectNegotiationData> projectInfos = projectNegotiation
+                .getProjectNegotiationData();
+
+            if (!sessionManager.getSarosSession().getID().equals(sessionID)) {
+                LOG.warn("received project negotiation from " + fromJID
+                    + " that is not in the same session");
+                return;
+            }
+
+            LOG.info("received project negotiation from " + fromJID
+                + " with session id: " + sessionID + " and negotiation id: "
+                + negotiationID);
+
+            sessionManager
+                .incomingProjectReceived(fromJID, projectInfos, negotiationID);
+        }
+    };
+
     @Inject
     private ITransmitter transmitter;
     @Inject
@@ -53,104 +142,9 @@ public class InvitationHandler {
 
     public InvitationHandler(IReceiver receiver) {
 
-        /**
-         * Adds the packetListener that listens to incoming Session Negotiation
-         * requests to the Receiver
-         */
-        receiver.addPacketListener(new PacketListener() {
-
-            @Override
-            public void processPacket(Packet packet) {
-                JID fromJID = new JID(packet.getFrom());
-
-                InvitationOfferingExtension invitation = InvitationOfferingExtension.PROVIDER
-                        .getPayload(packet);
-
-                if (invitation == null) {
-                    LOG.warn("received invitation from " + fromJID
-                        + " that contains malformed payload");
-                    return;
-                }
-
-                String sessionID = invitation.getSessionID();
-                String invitationID = invitation.getNegotiationID();
-                String version = invitation.getVersion();
-                String description = invitation.getDescription();
-
-                LOG.info(
-                    "received invitation from " + fromJID + " [invitation id: "
-                        + invitationID + ", " + "session id: " + sessionID
-                        + ", " + "version: " + version + "]"
-                );
-
-                /**
-                 * @JTourBusStop 7, Invitation Process:
-                 *
-                 *               (3b) If the invited user (from now on referred
-                 *               to as "client") receives an invitation (and if
-                 *               he is not already in a running session), Saros
-                 *               will send an automatic response to the inviter
-                 *               (host). Afterwards, the control is handed over
-                 *               to the SessionManager.
-                 */
-                if (sessionManager.getSarosSession() == null) {
-                    PacketExtension response = InvitationAcknowledgedExtension.PROVIDER
-                            .create(new InvitationAcknowledgedExtension(
-                                    invitationID));
-                    transmitter.sendPacketExtension(fromJID, response);
-
-                    sessionManager.invitationReceived(fromJID, sessionID,
-                            invitationID, version, description);
-                } else {
-                    // TODO This text should be replaced with a cancel ID
-                    PacketExtension response = CancelInviteExtension.PROVIDER
-                            .create(new CancelInviteExtension(invitationID,
-                                    "I am already in a Saros session and so cannot accept your invitation."));
-                    transmitter.sendPacketExtension(fromJID, response);
-                }
-            }
-        }, InvitationOfferingExtension.PROVIDER.getPacketFilter());
-
-        /**
-         * Adds the packetListener that listens to incoming Session Negotiation
-         * requests to the Receiver
-         */
-        receiver.addPacketListener(new PacketListener() {
-
-            @Override
-            public void processPacket(Packet packet) {
-                JID fromJID = new JID(packet.getFrom());
-
-                ProjectNegotiationOfferingExtension projectNegotiation = ProjectNegotiationOfferingExtension.PROVIDER
-                        .getPayload(packet);
-
-                if (projectNegotiation == null) {
-                    LOG.warn("received project negotiation from " + fromJID
-                        + " that contains malformed payload");
-                    return;
-                }
-
-                String sessionID = projectNegotiation.getSessionID();
-                String negotiationID = projectNegotiation.getNegotiationID();
-                List<ProjectNegotiationData> projectInfos = projectNegotiation
-                        .getProjectNegotiationData();
-
-                if (!sessionManager.getSarosSession().getID()
-                    .equals(sessionID)) {
-                    LOG.warn("received project negotiation from " + fromJID
-                        + " that is not in the same session");
-                    return;
-                }
-
-                LOG.info("received project negotiation from " + fromJID
-                    + " with session id: " + sessionID + " and negotiation id: "
-                    + negotiationID);
-
-                sessionManager.incomingProjectReceived(fromJID, projectInfos,
-                        negotiationID);
-
-            }
-
-        }, ProjectNegotiationOfferingExtension.PROVIDER.getPacketFilter());
+        receiver.addPacketListener(invitationOfferingListener,
+            InvitationOfferingExtension.PROVIDER.getPacketFilter());
+        receiver.addPacketListener(projectOfferingListener,
+            ProjectNegotiationOfferingExtension.PROVIDER.getPacketFilter());
     }
 }
