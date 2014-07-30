@@ -7,8 +7,6 @@ import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationOfferingE
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
@@ -21,6 +19,8 @@ import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -419,11 +419,13 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
     private void createCollectors() {
         remoteFileListResponseCollector = xmppReceiver.createCollector(
             ProjectNegotiationMissingFilesExtension.PROVIDER
-                .getPacketFilter(sessionID, processID));
+                .getPacketFilter(sessionID, processID)
+        );
 
         startActivityQueuingResponseCollector = xmppReceiver.createCollector(
             StartActivityQueuingResponse.PROVIDER
-                .getPacketFilter(sessionID, processID));
+                .getPacketFilter(sessionID, processID)
+        );
     }
 
     private void deleteCollectors() {
@@ -464,11 +466,10 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
         List<IProject> projectsToShare, IProgressMonitor monitor)
         throws IOException, LocalCancellationException {
 
-        /*
-         * FIXME must be calculated while the session is blocked !
-         */
-        ISubMonitor subMonitor = monitor.convert(
+        // *stretch* progress bar so it will increment smoothly
+        final int scale = 1000;
 
+        monitor.beginTask(
             "Creating file list and calculating file checksums. This may take a while...",
             projectsToShare.size());
 
@@ -486,13 +487,16 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
                 VCSProvider vcs = null;
                 if (sarosSession.useVersionControl()) {
 
-                    // TODO how to handle this if no adapter is available ?
-                    // if(vcs == null)
+                    //TODO: Find out whether we need VCS support
                 }
                 FileList projectFileList = FileListFactory
                     .createFileList(project,
                         sarosSession.getSharedResources(project), checksumCache,
-                        null, subMonitor.newChild(1));
+                        null, new SubProgressMonitor(monitor, 1 * scale,
+                            SubProgressMonitor.SUPPRESS_BEGINTASK
+                                | SubProgressMonitor.SUPPRESS_SETTASKNAME
+                        )
+                    );
 
                 boolean partial = !sarosSession.isCompletelyShared(project);
 
@@ -516,7 +520,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
             }
         }
 
-        subMonitor.done();
+        monitor.done();
 
         return pInfos;
     }
