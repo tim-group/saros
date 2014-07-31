@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
 public class RemoteProgressManager extends AbstractActivityProducer {
 
     private static final Logger LOG = Logger
-            .getLogger(RemoteProgressManager.class);
+        .getLogger(RemoteProgressManager.class);
 
     private static final Random RANDOM = new Random();
 
@@ -85,7 +85,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             RemoteProgress progress = progressDialogs.get(progressID);
             if (progress == null) {
                 progress = new RemoteProgress(progressID,
-                        progressActivity.getSource());
+                    progressActivity.getSource());
                 progressDialogs.put(progressID, progress);
             }
             progress.receive(progressActivity);
@@ -118,7 +118,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
     private final SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
 
-    private RemoteProgressManager(ISarosSessionManager sessionManager) {
+    public RemoteProgressManager(ISarosSessionManager sessionManager) {
         sessionManager.addSarosSessionListener(sessionListener);
     }
 
@@ -144,7 +144,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
      * your commands to the remote party.
      */
     public IProgressMonitor createRemoteProgress(
-            final ISarosSession sarosSession, final List<User> recipients) {
+        final ISarosSession sarosSession, final List<User> recipients) {
         return new IProgressMonitor() {
 
             private final String progressID = getNextProgressID();
@@ -159,13 +159,13 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             public void beginTask(String name, int totalWorked) {
                 this.totalWorked = totalWorked;
                 createProgressActivityForUsers(localUser, recipients,
-                        progressID, 0, totalWorked, name, ProgressAction.UPDATE);
+                    progressID, 0, totalWorked, name, ProgressAction.UPDATE);
             }
 
             @Override
             public void done() {
                 createProgressActivityForUsers(localUser, recipients,
-                        progressID, 0, 0, null, ProgressAction.DONE);
+                    progressID, 0, 0, null, ProgressAction.DONE);
             }
 
             @Override
@@ -203,39 +203,38 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             @Override
             public void setTaskName(String name) {
                 createProgressActivityForUsers(localUser, recipients,
-                        progressID, worked, totalWorked, name,
-                        ProgressAction.UPDATE);
+                    progressID, worked, totalWorked, name,
+                    ProgressAction.UPDATE);
             }
 
             @Override
             public void subTask(String name) {
                 createProgressActivityForUsers(localUser, recipients,
-                        progressID, worked, totalWorked, name,
-                        ProgressAction.UPDATE);
+                    progressID, worked, totalWorked, name,
+                    ProgressAction.UPDATE);
             }
 
             @Override
             public void worked(int work) {
                 worked += work;
                 if (worked > totalWorked) {
-                    LOG.warn(
-                            MessageFormat
-                                    .format(
-                                            "Worked ({0})is greater than totalWork ({1}). Forgot to call beginTask?",
-                                            worked, totalWorked), new StackTrace()
+                    LOG.warn(MessageFormat.format(
+                            "Worked ({0})is greater than totalWork ({1}). Forgot to call beginTask?",
+                            worked, totalWorked), new StackTrace()
                     );
                 }
                 createProgressActivityForUsers(localUser, recipients,
-                        progressID, worked, totalWorked, null,
-                        ProgressAction.UPDATE);
+                    progressID, worked, totalWorked, null,
+                    ProgressAction.UPDATE);
             }
 
             private void createProgressActivityForUsers(User source,
-                                                        List<User> recipients, String progressID, int workCurrent,
-                                                        int workTotal, String taskName, ProgressAction action) {
+                List<User> recipients, String progressID, int workCurrent,
+                int workTotal, String taskName, ProgressAction action) {
                 for (User target : recipients) {
-                    fireActivity(new ProgressActivity(source, target,
-                            progressID, workCurrent, workTotal, taskName, action));
+                    fireActivity(
+                        new ProgressActivity(source, target, progressID,
+                            workCurrent, workTotal, taskName, action));
                 }
 
             }
@@ -256,7 +255,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
      * @return
      */
     public IProgressMonitor mirrorLocalProgressMonitorToRemote(
-            final ISarosSession session, final User target,
+        final ISarosSession session, final User target,
         final de.fu_berlin.inf.dpp.monitoring.IProgressMonitor monitor) {
 
         return new IProgressMonitor() {
@@ -272,15 +271,17 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
                 // report to remote monitor!
                 this.totalWorked = totalWorked;
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, 0, totalWorked, name, ProgressAction.BEGINTASK));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, 0,
+                        totalWorked, name, ProgressAction.BEGINTASK));
             }
 
             @Override
             public void done() {
                 monitor.done();
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, 0, 0, null, ProgressAction.DONE));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, 0, 0,
+                        null, ProgressAction.DONE));
             }
 
             @Override
@@ -313,26 +314,26 @@ public class RemoteProgressManager extends AbstractActivityProducer {
              */
             @Override
             public void setCanceled(boolean value) {
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, worked, totalWorked, "Cancellation",
-                        ProgressAction.CANCEL));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, worked,
+                        totalWorked, "Cancellation", ProgressAction.CANCEL));
                 monitor.setCanceled(value);
             }
 
             @Override
             public void setTaskName(String name) {
                 monitor.setTaskName(name);
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, worked, totalWorked, name,
-                        ProgressAction.SETTASKNAME));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, worked,
+                        totalWorked, name, ProgressAction.SETTASKNAME));
             }
 
             @Override
             public void subTask(String name) {
                 monitor.subTask(name);
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, worked, totalWorked, name,
-                        ProgressAction.SUBTASK));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, worked,
+                        totalWorked, name, ProgressAction.SUBTASK));
             }
 
             @Override
@@ -340,16 +341,14 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 monitor.worked(work);
                 worked += work;
                 if (worked > totalWorked) {
-                    LOG.warn(
-                            MessageFormat
-                                    .format(
-                                            "Worked ({0})is greater than totalWork ({1}). Forgot to call beginTask?",
-                                            worked, totalWorked), new StackTrace()
+                    LOG.warn(MessageFormat.format(
+                            "Worked ({0})is greater than totalWork ({1}). Forgot to call beginTask?",
+                            worked, totalWorked), new StackTrace()
                     );
                 }
-                fireActivity(new ProgressActivity(localUser, target,
-                        progressID, worked, totalWorked, null,
-                        ProgressAction.UPDATE));
+                fireActivity(
+                    new ProgressActivity(localUser, target, progressID, worked,
+                        totalWorked, null, ProgressAction.UPDATE));
             }
         };
     }
@@ -416,21 +415,21 @@ public class RemoteProgressManager extends AbstractActivityProducer {
              * Activity will never be sent over the Network.
              */
 
-            receive(new ProgressActivity(source, source, progressID, 0, 0,
-                    null, ProgressAction.DONE));
+            receive(new ProgressActivity(source, source, progressID, 0, 0, null,
+                ProgressAction.DONE));
         }
 
         public synchronized void receive(ProgressActivity progressActivity) {
             if (!source.equals(progressActivity.getSource())) {
                 LOG.warn("RemoteProgress with ID: " + progressID
-                        + " is owned by user " + source
-                        + " rejecting packet from other user: " + progressActivity);
+                    + " is owned by user " + source
+                    + " rejecting packet from other user: " + progressActivity);
                 return;
             }
             if (activities == null) {
                 LOG.debug("RemoteProgress with ID: " + progressID
-                        + " has already been closed. Discarding activity: "
-                        + progressActivity);
+                    + " has already been closed. Discarding activity: "
+                    + progressActivity);
                 return;
             }
             activities.add(progressActivity);
@@ -456,49 +455,50 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 }
                 String taskName = activity.getTaskName();
                 int newWorked;
-                LOG.debug("RemoteProgressActivity: " + taskName + " / "
-                        + activity.getAction());
+                LOG.debug(
+                    "RemoteProgressActivity: " + taskName + " / " + activity
+                        .getAction());
 
                 switch (activity.getAction()) {
-                    case BEGINTASK:
+                case BEGINTASK:
+                    subMonitor.beginTask(taskName, activity.getWorkTotal());
+                    break;
+                case SETTASKNAME:
+                    subMonitor.setTaskName(taskName);
+                    break;
+                case SUBTASK:
+                    if (taskName != null) {
+                        subMonitor.subTask(taskName);
+                    }
+                    newWorked = activity.getWorkCurrent();
+                    if (newWorked > worked) {
+                        subMonitor.worked(newWorked - worked);
+                        worked = newWorked;
+                    }
+                    break;
+                case UPDATE:
+                    if (firstTime) {
                         subMonitor.beginTask(taskName, activity.getWorkTotal());
-                        break;
-                    case SETTASKNAME:
-                        subMonitor.setTaskName(taskName);
-                        break;
-                    case SUBTASK:
+                        firstTime = false;
+                    } else {
                         if (taskName != null) {
                             subMonitor.subTask(taskName);
                         }
+
                         newWorked = activity.getWorkCurrent();
                         if (newWorked > worked) {
                             subMonitor.worked(newWorked - worked);
                             worked = newWorked;
                         }
-                        break;
-                    case UPDATE:
-                        if (firstTime) {
-                            subMonitor.beginTask(taskName, activity.getWorkTotal());
-                            firstTime = false;
-                        } else {
-                            if (taskName != null) {
-                                subMonitor.subTask(taskName);
-                            }
-
-                            newWorked = activity.getWorkCurrent();
-                            if (newWorked > worked) {
-                                subMonitor.worked(newWorked - worked);
-                                worked = newWorked;
-                            }
-                        }
-                        break;
-                    case DONE:
-                        subMonitor.done();
-                        return;
-                    case CANCEL:
-                        LOG.info("Progress was cancelled by remote user");
-                        subMonitor.setCanceled(true);
-                        return;
+                    }
+                    break;
+                case DONE:
+                    subMonitor.done();
+                    return;
+                case CANCEL:
+                    LOG.info("Progress was cancelled by remote user");
+                    subMonitor.setCanceled(true);
+                    return;
                 }
             }
         }

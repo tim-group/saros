@@ -37,6 +37,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -67,9 +68,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * from the server by checking our locally existing files against them. See
  * {@link #performCheck(ChecksumActivity)} If an inconsistency is detected the
  * inconsistency state is set via the {@link IsInconsistentObservable}. This
- * enables the {@link ConsistencyAction} (a.k.a. the yellow triangle) in the
- * {@link SarosView}. 2.) Send a ChecksumError to the host, if the user wants to
- * recover from an inconsistency. See {@link #runRecovery(SubMonitor)}
+ * enables the {@link ConsistencyAction} in the SarosToolWindow.
+ * 2.) Send a ChecksumError to the host, if the user wants to
+ * recover from an inconsistency. See {@link #runRecovery(ISubMonitor)}
  */
 public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
@@ -209,11 +210,11 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
     private final SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
     /**
      * boolean condition variable used to interrupt another thread from
-     * performing a recovery in {@link #runRecovery(SubMonitor)}
+     * performing a recovery in {@link #runRecovery(ISubMonitor)}
      */
     private AtomicBoolean cancelRecovery = new AtomicBoolean();
     /**
-     * Lock used exclusively in {@link #runRecovery(SubMonitor)} to prevent two
+     * Lock used exclusively in {@link #runRecovery(ISubMonitor)} to prevent two
      * recovery operations running concurrently.
      */
     private final Lock lock = new ReentrantLock();
