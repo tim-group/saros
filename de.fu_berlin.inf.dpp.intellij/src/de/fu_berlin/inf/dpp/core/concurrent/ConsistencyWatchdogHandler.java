@@ -26,13 +26,13 @@ import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
 import de.fu_berlin.inf.dpp.activities.RecoveryFileActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.IActivityConsumer;
@@ -47,12 +47,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
-
 /**
  * This class is responsible for handling Consistency Errors on the host.
  */
 public class ConsistencyWatchdogHandler extends AbstractActivityProducer
-        implements Startable {
+    implements Startable {
 
     private static final Logger LOG = Logger
         .getLogger(ConsistencyWatchdogHandler.class);
@@ -97,7 +96,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         UIMonitoredJob recoveryJob = new UIMonitoredJob("File recovery") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                runRecovery(checksumError, monitor.convert());
+                runRecovery(checksumError, monitor);
 
                 return new Status(IStatus.OK);
             }
@@ -108,15 +107,15 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     }
 
     void runRecovery(ChecksumErrorActivity checksumError,
-                               IProgressMonitor progress) throws CancellationException {
+        IProgressMonitor progress) throws CancellationException {
 
         List<StartHandle> startHandles = null;
 
         progress.beginTask("Performing recovery", 1200);
         try {
 
-            startHandles = session.getStopManager().stop(
-                    session.getUsers(), "Consistency recovery");
+            startHandles = session.getStopManager()
+                .stop(session.getUsers(), "Consistency recovery");
 
             progress.subTask("Sending files to client...");
             recoverFiles(checksumError, progress);
@@ -139,7 +138,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
             }
             if (inconsistentStartHandle == null) {
                 LOG.error("could not find start handle"
-                        + " of the inconsistent user");
+                    + " of the inconsistent user");
             } else {
                 // FIXME evaluate the return value
                 inconsistentStartHandle.startAndAwait();
@@ -157,25 +156,26 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     /**
      * This method is only called on the host.
-     * <p>
+     * <p/>
      * It should not be called from the UI Thread!
      */
     void recoverFiles(ChecksumErrorActivity checksumError,
-                                IProgressMonitor progress) {
+        IProgressMonitor progress) {
 
-        progress.beginTask("Sending files", checksumError.getPaths().size() + 1);
+        progress
+            .beginTask("Sending files", checksumError.getPaths().size() + 1);
 
         try {
             for (SPath path : checksumError.getPaths()) {
-                progress.subTask("Recovering file: "
-                        + path.getProjectRelativePath());
-                recoverFile(checksumError.getSource(), session, path,
-                        progress);
+                progress.subTask(
+                    "Recovering file: " + path.getProjectRelativePath());
+                recoverFile(checksumError.getSource(), session, path, progress);
             }
 
             // Tell the user that we sent all files
             fireActivity(new ChecksumErrorActivity(session.getLocalUser(),
-                    checksumError.getSource(), null, checksumError.getRecoveryID()));
+                checksumError.getSource(), null,
+                checksumError.getRecoveryID()));
         } finally {
             progress.done();
         }
@@ -186,7 +186,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * tell the user to removeAll it).
      */
     void recoverFile(User from, final ISarosSession sarosSession,
-                               final SPath path, IProgressMonitor progress) {
+        final SPath path, IProgressMonitor progress) {
 
         progress.beginTask("Handling file: " + path, 10);
 
@@ -219,33 +219,33 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
                 try {
                     charset = file.getCharset();
                 } catch (IOException e) {
-                    LOG.error("could not determine encoding for file: " + file, e);
+                    LOG.error("could not determine encoding for file: " + file,
+                        e);
                 }
 
                 // Send the file to client
-                fireActivity(RecoveryFileActivity.created(
-                        user, path, content, from, charset));
+                fireActivity(RecoveryFileActivity
+                    .created(user, path, content, from, charset));
 
                 String checksum = new String(content);
 
-                fireActivity(new ChecksumActivity(user,
-                        path, checksum.hashCode(), checksum.length(), null));
+                fireActivity(
+                    new ChecksumActivity(user, path, checksum.hashCode(),
+                        checksum.length(), null));
             } catch (IOException e) {
                 LOG.error("File could not be read, despite existing: " + path,
-                        e);
+                    e);
             }
         } else {
             // TODO Warn the user...
             // Tell the client to delete the file
-            fireActivity(RecoveryFileActivity.removed(user,
-                    path, from, null));
+            fireActivity(RecoveryFileActivity.removed(user, path, from, null));
             fireActivity(ChecksumActivity.missing(user, path));
 
             progress.worked(8);
         }
         progress.done();
     }
-
 
     protected Image getWarningImage() {
         return null;

@@ -25,10 +25,10 @@ package de.fu_berlin.inf.dpp.core.ui.util;
 import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.SarosSession;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
@@ -39,6 +39,7 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -69,7 +70,7 @@ import java.util.Set;
 public class CollaborationUtils {
 
     private static final Logger LOG = Logger
-            .getLogger(CollaborationUtils.class);
+        .getLogger(CollaborationUtils.class);
 
     @Inject
     private static ISarosSessionManager sessionManager;
@@ -91,27 +92,28 @@ public class CollaborationUtils {
      * @nonBlocking
      */
     public static void startSession(List<IResource> resources,
-                                    final List<JID> contacts) {
+        final List<JID> contacts) {
 
         final Map<IProject, List<IResource>> newResources;
         try {
-            newResources = acquireResources(
-                    resources, null);
+            newResources = acquireResources(resources, null);
         } catch (IOException e) {
-            throw new OperationCanceledException("Seesion starting is canceled due to file system error");
+            throw new OperationCanceledException(
+                "Seesion starting is canceled due to file system error");
         }
 
-        UIMonitoredJob sessionStartupJob = new UIMonitoredJob("Session Startup") {
+        UIMonitoredJob sessionStartupJob = new UIMonitoredJob(
+            "Session Startup") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask("Starting session...",
-                        IProgressMonitor.UNKNOWN);
+                monitor
+                    .beginTask("Starting session...", IProgressMonitor.UNKNOWN);
                 try {
                     sessionManager.startSession(newResources);
                     Set<JID> participantsToAdd = new HashSet<JID>(contacts);
 
-                    monitor.internalWorked(50);
+                    monitor.worked(50);
 
                     ISarosSession session = sessionManager.getSarosSession();
 
@@ -120,15 +122,16 @@ public class CollaborationUtils {
                     }
                     monitor.setTaskName("Inviting participants...");
                     sessionManager.invite(participantsToAdd,
-                            getShareProjectDescription(session));
+                        getShareProjectDescription(session));
 
                     monitor.done();
 
                 } catch (Exception e) {
 
                     LOG.error("could not first a Saros session", e);
-                    return new Status(IStatus.ERROR, SarosSessionPacketExtension.EXTENSION_NAMESPACE,
-                            e.getMessage(), e);
+                    return new Status(IStatus.ERROR,
+                        SarosSessionPacketExtension.EXTENSION_NAMESPACE,
+                        e.getMessage(), e);
                 }
 
                 return Status.OK_STATUS;
@@ -162,12 +165,12 @@ public class CollaborationUtils {
                 reallyLeave = true;
             } else {
                 reallyLeave = DialogUtils.showConfirm(shell,
-                        Messages.CollaborationUtils_confirm_closing,
-                        Messages.CollaborationUtils_confirm_closing_text);
+                    Messages.CollaborationUtils_confirm_closing,
+                    Messages.CollaborationUtils_confirm_closing_text);
             }
         } else {
-            reallyLeave = DialogUtils.showConfirm(shell,
-                    Messages.CollaborationUtils_confirm_leaving,
+            reallyLeave = DialogUtils
+                .showConfirm(shell, Messages.CollaborationUtils_confirm_leaving,
                     Messages.CollaborationUtils_confirm_leaving_text);
         }
 
@@ -190,7 +193,8 @@ public class CollaborationUtils {
      * @param resourcesToAdd
      * @nonBlocking
      */
-    public static void addResourcesToSession(List<IResource> resourcesToAdd) throws IOException {
+    public static void addResourcesToSession(List<IResource> resourcesToAdd)
+        throws IOException {
 
         final ISarosSession sarosSession = sessionManager.getSarosSession();
 
@@ -200,7 +204,7 @@ public class CollaborationUtils {
         }
 
         final Map<IProject, List<IResource>> projectResources = acquireResources(
-                resourcesToAdd, sarosSession);
+            resourcesToAdd, sarosSession);
 
         if (projectResources.isEmpty()) {
             return;
@@ -216,8 +220,8 @@ public class CollaborationUtils {
                 }
 
                 DialogUtils.showError(
-                        Messages.CollaborationUtils_insufficient_privileges,
-                        Messages.CollaborationUtils_insufficient_privileges_text);
+                    Messages.CollaborationUtils_insufficient_privileges,
+                    Messages.CollaborationUtils_insufficient_privileges_text);
             }
         });
     }
@@ -250,7 +254,7 @@ public class CollaborationUtils {
 
                 if (participantsToAdd.size() > 0) {
                     sessionManager.invite(participantsToAdd,
-                            getShareProjectDescription(sarosSession));
+                        getShareProjectDescription(sarosSession));
 
                 }
             }
@@ -265,10 +269,10 @@ public class CollaborationUtils {
      * @param sarosSession
      * @return
      */
-    private static String getShareProjectDescription(ISarosSession sarosSession) {
+    private static String getShareProjectDescription(
+        ISarosSession sarosSession) {
 
-        Set<IProject> projects = sarosSession
-                .getProjects();
+        Set<IProject> projects = sarosSession.getProjects();
 
         StringBuilder result = new StringBuilder();
 
@@ -278,22 +282,27 @@ public class CollaborationUtils {
                 Pair<Long, Long> fileCountAndSize;
 
                 if (sarosSession.isCompletelyShared(project)) {
-                    fileCountAndSize = FileUtils.getFileCountAndSize(Arrays.asList(project.members()), true, IContainer.FILE);
+                    fileCountAndSize = FileUtils
+                        .getFileCountAndSize(Arrays.asList(project.members()),
+                            true, IContainer.FILE);
 
-                    result.append(String.format(
-                            "\nProjectIntl: %s, Files: %d, Size: %s", project.getName(),
-                            fileCountAndSize.v, format(fileCountAndSize.p)));
+                    result.append(String
+                        .format("\nProjectIntl: %s, Files: %d, Size: %s",
+                            project.getName(), fileCountAndSize.v,
+                            format(fileCountAndSize.p)));
                 } else {
-                    List<IResource> resources = sarosSession.getSharedResources(project);
+                    List<IResource> resources = sarosSession
+                        .getSharedResources(project);
 
-                    fileCountAndSize = FileUtils.getFileCountAndSize(resources,
-                            false, IResource.NONE);
+                    fileCountAndSize = FileUtils
+                        .getFileCountAndSize(resources, false, IResource.NONE);
 
-                    result.append(String.format(
-                            "\nProjectIntl: %s, Files: %s, Size: %s", project.getName()
-                                    + " " + Messages.CollaborationUtils_partial,
+                    result.append(String
+                        .format("\nProjectIntl: %s, Files: %s, Size: %s",
+                            project.getName() + " "
+                                + Messages.CollaborationUtils_partial,
                             fileCountAndSize.v, format(fileCountAndSize.p)
-                    ));
+                        ));
                 }
             }
         } catch (IOException e) {
@@ -319,7 +328,8 @@ public class CollaborationUtils {
      * @return
      */
     private static Map<IProject, List<IResource>> acquireResources(
-            List<IResource> selectedResources, ISarosSession sarosSession) throws IOException {
+        List<IResource> selectedResources, ISarosSession sarosSession)
+        throws IOException {
 
         Map<IProject, Set<IResource>> projectsResources = new HashMap<IProject, Set<IResource>>();
 
@@ -368,17 +378,16 @@ public class CollaborationUtils {
             }
         }
 
-
         List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
 
         for (Entry<IProject, Set<IResource>> entry : projectsResources
-                .entrySet()) {
+            .entrySet()) {
 
             IProject project = entry.getKey();
             Set<IResource> resources = entry.getValue();
 
             if (resources == //* full shared *//*
-                    null) {
+                null) {
                 continue;
             }
 
@@ -389,23 +398,25 @@ public class CollaborationUtils {
              * will produce garbage because the project nature is not set /
              * updated correctly
              */
-            IFolder projectFolder = new FolderImp((ProjectImp) project, project.getFullPath().toFile());
+            IFolder projectFolder = new FolderImp((ProjectImp) project,
+                project.getFullPath().toFile());
             for (IResource pFile : projectFolder.members(IResource.FILE)) {
                 String sFileName = pFile.getName().toLowerCase();
-                if (sFileName.endsWith(".iml")
-                        || sFileName.endsWith(".iws")
-                        || sFileName.endsWith(".prj")) {
+                if (sFileName.endsWith(".iml") || sFileName.endsWith(".iws")
+                    || sFileName.endsWith(".prj")) {
                     additionalFilesForPartialSharing.add(pFile);
                 }
             }
 
-
             IFolder settingsFolder = project.getFolder(".idea");
             if (settingsFolder != null && settingsFolder.exists()) {
                 try {
-                    addRecursively(additionalFilesForPartialSharing, settingsFolder);
+                    addRecursively(additionalFilesForPartialSharing,
+                        settingsFolder);
                 } catch (Exception e) {
-                    LOG.warn("could not read the contents of the settings folder", e);
+                    LOG.warn(
+                        "could not read the contents of the settings folder",
+                        e);
                 }
             }
 
@@ -415,14 +426,18 @@ public class CollaborationUtils {
 
         HashMap<IProject, List<IResource>> resources = new HashMap<IProject, List<IResource>>();
 
-        for (Entry<IProject, Set<IResource>> entry : projectsResources.entrySet()) {
-            resources.put(entry.getKey(), entry.getValue() == null ? null : new ArrayList<IResource>(entry.getValue()));
+        for (Entry<IProject, Set<IResource>> entry : projectsResources
+            .entrySet()) {
+            resources.put(entry.getKey(), entry.getValue() == null ?
+                null :
+                new ArrayList<IResource>(entry.getValue()));
         }
 
         return resources;
     }
 
-    private static void addRecursively(List<IResource> fileList, IResource resource) throws Exception {
+    private static void addRecursively(List<IResource> fileList,
+        IResource resource) throws Exception {
 
         if (resource.getType() == IResource.FILE) {
             fileList.add(resource);
@@ -450,9 +465,8 @@ public class CollaborationUtils {
             return String.format(Locale.US, "%.2f MB", size / (1000F * 1000F));
         }
 
-        return String.format(Locale.US, "%.2f GB", size
-                / (1000F * 1000F * 1000F));
+        return String
+            .format(Locale.US, "%.2f GB", size / (1000F * 1000F * 1000F));
     }
-
 
 }

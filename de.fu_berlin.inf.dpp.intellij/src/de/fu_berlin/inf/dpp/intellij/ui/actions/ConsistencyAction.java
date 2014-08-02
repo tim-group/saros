@@ -42,7 +42,7 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +52,6 @@ import java.util.Set;
  */
 public class ConsistencyAction extends AbstractSarosAction {
     public static final String ACTION_NAME = "consistency";
-
 
     @Override
     public String getActionName() {
@@ -88,10 +87,8 @@ public class ConsistencyAction extends AbstractSarosAction {
     @Inject
     protected IsInconsistentObservable inconsistentObservable;
 
-
     private ConsistencyButton consistencyButton;
     private ISarosSession sarosSession;
-
 
     public ConsistencyAction() {
         SarosPluginContext.initComponent(this);
@@ -119,11 +116,11 @@ public class ConsistencyAction extends AbstractSarosAction {
 
         if (sarosSession.isHost() && isInconsistent) {
             LOG.warn("No inconsistency should ever be reported" //$NON-NLS-1$
-                    + " to the host"); //$NON-NLS-1$
+                + " to the host"); //$NON-NLS-1$
             return;
         }
         LOG.debug("Inconsistency indicator goes: " //$NON-NLS-1$
-                + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
+            + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -132,15 +129,13 @@ public class ConsistencyAction extends AbstractSarosAction {
             }
         });
 
-
         if (!isInconsistent) {
             setToolTipText(Messages.ConsistencyAction_tooltip_no_inconsistency);
             return;
         }
 
-
         final Set<SPath> paths = new HashSet<SPath>(
-                watchdogClient.getPathsWithWrongChecksums());
+            watchdogClient.getPathsWithWrongChecksums());
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -160,22 +155,20 @@ public class ConsistencyAction extends AbstractSarosAction {
 
                 // set tooltip
                 setToolTipText(MessageFormat.format(
-                        Messages.ConsistencyAction_tooltip_inconsistency_detected,
-                        files));
+                    Messages.ConsistencyAction_tooltip_inconsistency_detected,
+                    files));
 
                 // TODO Balloon is too aggressive at the moment, when
                 // the host is slow in sending changes (for instance
                 // when refactoring)
 
                 // show balloon notification
-                NotificationPanel
-                        .showNotification(
-                                Messages.ConsistencyAction_title_inconsistency_deteced,
-                                MessageFormat
-                                        .format(
-                                                Messages.ConsistencyAction_message_inconsistency_detected,
-                                                files)
-                        );
+                NotificationPanel.showNotification(
+                    Messages.ConsistencyAction_title_inconsistency_deteced,
+                    MessageFormat.format(
+                        Messages.ConsistencyAction_message_inconsistency_detected,
+                        files)
+                );
             }
         });
     }
@@ -189,27 +182,27 @@ public class ConsistencyAction extends AbstractSarosAction {
         LOG.debug("user activated CW recovery.");
 
         final Set<SPath> paths = new HashSet<SPath>(
-                watchdogClient.getPathsWithWrongChecksums());
+            watchdogClient.getPathsWithWrongChecksums());
 
         StringBuilder sbInconsistentFiles = new StringBuilder();
         for (SPath path : paths) {
             sbInconsistentFiles.append("project: ");
             sbInconsistentFiles.append(path.getProject().getName());
             sbInconsistentFiles.append(", file: ");
-            sbInconsistentFiles.append(path.getProjectRelativePath().toOSString());
+            sbInconsistentFiles
+                .append(path.getProjectRelativePath().toOSString());
             sbInconsistentFiles.append("\n");
 
         }
 
         sbInconsistentFiles.append("\nWould you like to get last changes?\n");
 
-
-        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(), Messages.ConsistencyAction_confirm_dialog_title)) {
+        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(),
+            Messages.ConsistencyAction_confirm_dialog_title)) {
             consistencyButton.setEnabled(true);
 
             return;
         }
-
 
         final ProgressFrame progress = new ProgressFrame("Consistency action");
         progress.setFinishListener(new MonitorProgressBar.FinishListener() {
@@ -219,10 +212,11 @@ public class ConsistencyAction extends AbstractSarosAction {
                     @Override
                     public void run() {
                         consistencyButton.setEnabled(true);
-                        consistencyButton.setInconsistent(watchdogClient.getPathsWithWrongChecksums().size() > 0);
+                        consistencyButton.setInconsistent(
+                            watchdogClient.getPathsWithWrongChecksums().size()
+                                > 0);
                     }
                 });
-
 
             }
         });
@@ -232,8 +226,9 @@ public class ConsistencyAction extends AbstractSarosAction {
             public void run() {
 
                 progress.beginTask(
-                        Messages.ConsistencyAction_progress_perform_recovery, IProgressMonitor.UNKNOWN);
-                watchdogClient.runRecovery(progress.convert());
+                    Messages.ConsistencyAction_progress_perform_recovery,
+                    IProgressMonitor.UNKNOWN);
+                watchdogClient.runRecovery(progress);
 
                 //  progress.done();
             }

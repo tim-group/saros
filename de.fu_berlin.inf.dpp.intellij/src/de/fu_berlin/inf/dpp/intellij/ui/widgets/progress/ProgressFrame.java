@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.widgets.progress;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.JButton;
@@ -39,12 +39,12 @@ import java.awt.event.ActionListener;
  * Creates independent progress monitor window
  */
 //todo: use de.fu_berlin.inf.dpp.monitoring.IProgressMonitor in all IntelliJ classes
-public class ProgressFrame extends MonitorProgressBar
-        implements IProgressMonitor
-{
+public class ProgressFrame implements IProgressMonitor {
 
     public static final String TITLE = "Progress monitor";
     public static final String BUTTON_CANCEL = "Cancel";
+
+    private MonitorProgressBar monitorProgressBar;
 
     @Inject
     private Saros saros;
@@ -55,8 +55,7 @@ public class ProgressFrame extends MonitorProgressBar
     /**
      * Constructor with default title
      */
-    public ProgressFrame()
-    {
+    public ProgressFrame() {
         this(TITLE);
     }
 
@@ -65,8 +64,7 @@ public class ProgressFrame extends MonitorProgressBar
      *
      * @param title dialog title
      */
-    public ProgressFrame(String title)
-    {
+    public ProgressFrame(String title) {
         SarosPluginContext.initComponent(this);
         Container parent = saros.getMainPanel();
 
@@ -79,24 +77,22 @@ public class ProgressFrame extends MonitorProgressBar
 
         frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         btnCancel = new JButton(BUTTON_CANCEL);
-        btnCancel.addActionListener(new ActionListener()
-        {
+        btnCancel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 setCanceled(true);
             }
         });
 
-
-        JLabel infoLabel = super.display.getInfoLabel();
+        JProgressBar progressBar = new JProgressBar(
+            MonitorProgressBar.MIN_VALUE, MonitorProgressBar.MAX_VALUE);
+        JLabel infoLabel = new JLabel(title);
+        monitorProgressBar = new MonitorProgressBar(progressBar, infoLabel);
 
         pane.add(infoLabel);
         pane.add(btnCancel);
 
-        JProgressBar progressBar = super.display.getProgressBar();
         pane.add(progressBar);
 
         infoLabel.setBounds(10, 15, 200, 15);
@@ -111,10 +107,41 @@ public class ProgressFrame extends MonitorProgressBar
     }
 
     @Override
-    public void done()
-    {
-        super.done();
+    public void done() {
+        monitorProgressBar.done();
         frmMain.dispose();
+    }
+
+    @Override public void subTask(String name) {
+        monitorProgressBar.subTask(name);
+    }
+
+    @Override public void setTaskName(String name) {
+        monitorProgressBar.setTaskName(name);
+    }
+
+    @Override public void worked(int amount) {
+        monitorProgressBar.worked(amount);
+    }
+
+    @Override public void setCanceled(boolean canceled) {
+        monitorProgressBar.setCanceled(canceled);
+    }
+
+    @Override public boolean isCanceled() {
+        return monitorProgressBar.isCanceled();
+    }
+
+    @Override public void beginTask(String name, int size) {
+        monitorProgressBar.beginTask(name, size);
+    }
+
+    /**
+     * @param finishListener FinishListener
+     */
+    public void setFinishListener(
+        MonitorProgressBar.FinishListener finishListener) {
+        monitorProgressBar.setFinishListener(finishListener);
     }
 
 }

@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.core.util;
 
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
@@ -33,6 +32,7 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.util.Pair;
 import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.commons.io.IOUtils;
@@ -105,8 +105,9 @@ public class FileUtils {
 
         if (attributes == null) {
             // TODO Throw a FileNotFoundException and deal with it everywhere!
-            log.error("File does not exist for setting readOnly == " + readOnly
-                    + ": " + file, new StackTrace());
+            log.error(
+                "File does not exist for setting readOnly == " + readOnly + ": "
+                    + file, new StackTrace());
             return false;
         }
         boolean result = attributes.isReadOnly();
@@ -121,8 +122,8 @@ public class FileUtils {
             file.setResourceAttributes(attributes);
         } catch (IOException e) {
             // failure is not an option
-            log.warn("Failed to set resource readonly == " + readOnly + ": "
-                    + file);
+            log.warn(
+                "Failed to set resource readonly == " + readOnly + ": " + file);
         }
         return result;
     }
@@ -140,7 +141,7 @@ public class FileUtils {
      * finished by Eclipse.
      */
     public static void writeFile(InputStream input, IFile file,
-                                 IProgressMonitor monitor) throws IOException {
+        IProgressMonitor monitor) throws IOException {
         if (file.exists()) {
             updateFile(input, file, monitor);
         } else {
@@ -160,7 +161,7 @@ public class FileUtils {
      * @throws FileNotFoundException
      */
     public static void backupFile(IFile file, IProgressMonitor monitor)
-            throws CancellationException, IOException {
+        throws CancellationException, IOException {
 
         if (!file.exists()) {
             throw new FileNotFoundException();
@@ -168,7 +169,8 @@ public class FileUtils {
 
         IProject project = file.getProject();
 
-        IPath originalBackupPath = file.getProjectRelativePath().addFileExtension("BACKUP");
+        IPath originalBackupPath = file.getProjectRelativePath()
+            .addFileExtension("BACKUP");
 
         IPath backupPath = originalBackupPath;
 
@@ -178,11 +180,11 @@ public class FileUtils {
             }
 
             backupPath = originalBackupPath.removeFileExtension()
-                    .addFileExtension("BACKUP_" + i);
+                .addFileExtension("BACKUP_" + i);
         }
 
-
-        file.move(file.getFullPath().removeLastSegments(1).append(backupPath.lastSegment()), true);
+        file.move(file.getFullPath().removeLastSegments(1)
+            .append(backupPath.lastSegment()), true);
 
     }
 
@@ -196,11 +198,12 @@ public class FileUtils {
      * handled.
      */
     public static void createFile(final InputStream input, final IFile file,
-                                  IProgressMonitor monitor) throws IOException {
+        IProgressMonitor monitor) throws IOException {
 
         IWorkspaceRunnable createFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
+            public void run(IProgressMonitor monitor)
+                throws OperationCanceledException, IOException {
                 // Make sure directory exists
                 mkdirs(file);
 
@@ -211,9 +214,7 @@ public class FileUtils {
                     wasReadOnly = setReadOnly(parent, false);
                 }
 
-
                 file.create(input, true);
-
 
                 // Reset permissions on parent
                 if (parent != null && wasReadOnly) {
@@ -223,9 +224,8 @@ public class FileUtils {
             }
         };
 
-
         workspace.run(createFileProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, monitor);
+            IWorkspace.AVOID_UPDATE, monitor);
 
     }
 
@@ -235,27 +235,26 @@ public class FileUtils {
      * @pre the file must exist
      */
     public static void updateFile(final InputStream input, final IFile file,
-                                  IProgressMonitor monitor) throws IOException {
+        IProgressMonitor monitor) throws IOException {
 
         IWorkspaceRunnable replaceFileProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
+            public void run(IProgressMonitor monitor)
+                throws OperationCanceledException, IOException {
 
                 file.setContents(input, true, true);
 
             }
         };
 
-
         workspace.run(replaceFileProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, monitor);
+            IWorkspace.AVOID_UPDATE, monitor);
     }
 
     /**
      * Makes sure that the parent directories of the given IResource exist,
      * possibly removing write protection.
      */
-
 
     public static IFolder getParentFolder(IResource resource) {
 
@@ -282,22 +281,21 @@ public class FileUtils {
         }
         if (folder.exists()) {
             log.debug(".create() Creating folder " + folder.getName()
-                    + " not possible - it already exists");
+                + " not possible - it already exists");
             return;
         }
         IWorkspaceRunnable createFolderProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
+            public void run(IProgressMonitor monitor)
+                throws OperationCanceledException, IOException {
 
                 // recursively create folders until parent folder exists
                 // or project root is reached
                 IFolder parentFolder = getParentFolder(folder);
 
-
                 if (parentFolder != null) {
                     create(parentFolder);
                 }
-
 
                 folder.create(IResource.NONE, true);
 
@@ -309,22 +307,22 @@ public class FileUtils {
             }
         };
 
-
         workspace.run(createFolderProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, null);
+            IWorkspace.AVOID_UPDATE, null);
 
     }
 
     public static void delete(final IResource resource) throws IOException {
         if (!resource.exists()) {
             log.warn("File not found for deletion: " + resource,
-                    new StackTrace());
+                new StackTrace());
             return;
         }
 
         IWorkspaceRunnable deleteProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
+            public void run(IProgressMonitor monitor)
+                throws OperationCanceledException, IOException {
                 if (!resource.exists()) {
                     return;
                 }
@@ -335,9 +333,7 @@ public class FileUtils {
 
                 setReadOnly(resource, false);
 
-
                 resource.delete(IResource.FORCE | IResource.KEEP_HISTORY);
-
 
                 if (monitor.isCanceled()) {
                     log.warn("Removing resource failed: " + resource);
@@ -345,9 +341,9 @@ public class FileUtils {
             }
         };
 
-
-        workspace.run(deleteProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, null);
+        workspace
+            .run(deleteProcedure, workspace.getRoot(), IWorkspace.AVOID_UPDATE,
+                null);
 
     }
 
@@ -361,25 +357,24 @@ public class FileUtils {
      * @param source      Resource, that is going to be moved
      */
     public static void move(final IPath destination, final IResource source)
-            throws IOException {
+        throws IOException {
 
-        log.trace(".move(" + destination.toOSString() + " , "
-                + source.getName() + ")");
+        log.trace(".move(" + destination.toOSString() + " , " + source.getName()
+            + ")");
 
         if (!source.isAccessible()) {
-            log.warn(".move Source file can not be accessed  "
-                    + source.getFullPath());
+            log.warn(".move Source file can not be accessed  " + source
+                .getFullPath());
             return;
         }
 
         IWorkspaceRunnable moveProcedure = new IWorkspaceRunnable() {
             @Override
-            public void run(IProgressMonitor monitor) throws OperationCanceledException, IOException {
+            public void run(IProgressMonitor monitor)
+                throws OperationCanceledException, IOException {
                 IPath absDestination = destination.makeAbsolute();
 
-
                 source.move(absDestination, false);
-
 
                 if (monitor.isCanceled()) {
                     log.warn("Moving resource failed (Cancel Button pressed).");
@@ -387,8 +382,9 @@ public class FileUtils {
             }
         };
 
-        workspace.run(moveProcedure, workspace.getRoot(),
-                IWorkspace.AVOID_UPDATE, null);
+        workspace
+            .run(moveProcedure, workspace.getRoot(), IWorkspace.AVOID_UPDATE,
+                null);
 
     }
 
@@ -430,7 +426,6 @@ public class FileUtils {
         return true;
     }
 
-
     /**
      * Calculates the total file count and size for all resources.
      *
@@ -443,8 +438,8 @@ public class FileUtils {
      * {@linkplain de.fu_berlin.inf.dpp.util.Pair#v file count} for the given resources
      */
     public static Pair<Long, Long> getFileCountAndSize(
-            Collection<? extends IResource> resources, boolean includeMembers,
-            int flags) {
+        Collection<? extends IResource> resources, boolean includeMembers,
+        int flags) {
         long totalFileSize = 0;
         long totalFileCount = 0;
 
@@ -452,44 +447,43 @@ public class FileUtils {
 
         for (IResource resource : resources) {
             switch (resource.getType()) {
-                case IResource.FILE:
-                    totalFileCount++;
+            case IResource.FILE:
+                totalFileCount++;
 
-                    try {
-                        long filesize = -1; //todo // EFS.getStore(resource.getLocationURI()).fetchInfo().getLength();
+                try {
+                    long filesize = -1; //todo // EFS.getStore(resource.getLocationURI()).fetchInfo().getLength();
 
-                        totalFileSize += filesize;
-                    } catch (Exception e) {
-                        log.warn(
-                                "failed to retrieve file size of file "
-                                        + resource.getLocationURI(), e
-                        );
-                    }
+                    totalFileSize += filesize;
+                } catch (Exception e) {
+                    log.warn("failed to retrieve file size of file " + resource
+                            .getLocationURI(), e
+                    );
+                }
+                break;
+            case IResource.PROJECT:
+            case IResource.FOLDER:
+                if (!includeMembers) {
                     break;
-                case IResource.PROJECT:
-                case IResource.FOLDER:
-                    if (!includeMembers) {
-                        break;
-                    }
+                }
 
-                    try {
-                        IContainer container = ((IContainer) resource
-                                .getAdapter(IContainer.class));
+                try {
+                    IContainer container = ((IContainer) resource
+                        .getAdapter(IContainer.class));
 
-                        Pair<Long, Long> subFileCountAndSize = FileUtils
-                                .getFileCountAndSize(
-                                        Arrays.asList(container.members(flags)),
-                                        includeMembers, flags);
+                    Pair<Long, Long> subFileCountAndSize = FileUtils
+                        .getFileCountAndSize(
+                            Arrays.asList(container.members(flags)),
+                            includeMembers, flags);
 
-                        totalFileSize += subFileCountAndSize.p;
-                        totalFileCount += subFileCountAndSize.v;
+                    totalFileSize += subFileCountAndSize.p;
+                    totalFileCount += subFileCountAndSize.v;
 
-                    } catch (Exception e) {
-                        log.warn("failed to process container: " + resource, e);
-                    }
-                    break;
-                default:
-                    break;
+                } catch (Exception e) {
+                    log.warn("failed to process container: " + resource, e);
+                }
+                break;
+            default:
+                break;
             }
         }
         fileCountAndSize.p = totalFileSize;
@@ -512,19 +506,19 @@ public class FileUtils {
         try {
             in = localFile.getContents();
         } catch (IOException e) {
-            log.warn("could not get content of file " + localFile.getFullPath());
+            log.warn(
+                "could not get content of file " + localFile.getFullPath());
         }
 
         if (in == null) {
             return null;
         }
 
-
         try {
             content = IOUtils.toByteArray(in);
         } catch (IOException e) {
             log.warn("could not convert file content to byte array (file: "
-                    + localFile.getFullPath() + ")");
+                + localFile.getFullPath() + ")");
         } finally {
             IOUtils.closeQuietly(in);
         }

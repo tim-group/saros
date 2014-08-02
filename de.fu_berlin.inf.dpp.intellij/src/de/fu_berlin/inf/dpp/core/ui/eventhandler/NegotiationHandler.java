@@ -30,7 +30,6 @@ import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -44,6 +43,7 @@ import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.util.XMPPUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
@@ -62,7 +62,8 @@ import java.util.List;
 public class NegotiationHandler implements INegotiationHandler {
 
     public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;
-    private static final Logger LOG = Logger.getLogger(NegotiationHandler.class);
+    private static final Logger LOG = Logger
+        .getLogger(NegotiationHandler.class);
     private final ISarosSessionManager sessionManager;
 
     public NegotiationHandler(ISarosSessionManager sessionManager) {
@@ -82,10 +83,10 @@ public class NegotiationHandler implements INegotiationHandler {
 
     @Override
     public void handleOutgoingSessionNegotiation(
-            OutgoingSessionNegotiation negotiation) {
+        OutgoingSessionNegotiation negotiation) {
 
         OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
-                negotiation);
+            negotiation);
 
         outgoingInvitationJob.setPriority(Thread.NORM_PRIORITY);
         outgoingInvitationJob.schedule();
@@ -93,13 +94,13 @@ public class NegotiationHandler implements INegotiationHandler {
 
     @Override
     public void handleIncomingSessionNegotiation(
-            IncomingSessionNegotiation negotiation) {
+        IncomingSessionNegotiation negotiation) {
         showIncomingInvitationUI(negotiation);
     }
 
     @Override
     public void handleOutgoingProjectNegotiation(
-            OutgoingProjectNegotiation negotiation) {
+        OutgoingProjectNegotiation negotiation) {
 
         OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
         job.setPriority(Thread.NORM_PRIORITY);
@@ -108,12 +109,12 @@ public class NegotiationHandler implements INegotiationHandler {
 
     @Override
     public void handleIncomingProjectNegotiation(
-            IncomingProjectNegotiation negotiation) {
+        IncomingProjectNegotiation negotiation) {
         showIncomingProjectUI(negotiation);
     }
 
     private void showIncomingInvitationUI(
-            final IncomingSessionNegotiation process) {
+        final IncomingSessionNegotiation process) {
 
         // Fixes #2727848: InvitationDialog is opened in the
         // background
@@ -139,7 +140,8 @@ public class NegotiationHandler implements INegotiationHandler {
 
     }
 
-    private void showIncomingProjectUI(final IncomingProjectNegotiation process) {
+    private void showIncomingProjectUI(
+        final IncomingProjectNegotiation process) {
 
         List<ProjectNegotiationData> pInfos = process.getProjectInfos();
         final List<FileList> fileLists = new ArrayList<FileList>(pInfos.size());
@@ -173,8 +175,8 @@ public class NegotiationHandler implements INegotiationHandler {
         private final String peer;
 
         public OutgoingInvitationJob(OutgoingSessionNegotiation process) {
-            super(MessageFormat.format(
-                    Messages.NegotiationHandler_inviting_user,
+            super(MessageFormat
+                .format(Messages.NegotiationHandler_inviting_user,
                     getNickname(process.getPeer())));
             this.process = process;
             peer = process.getPeer().getBase();
@@ -183,54 +185,43 @@ public class NegotiationHandler implements INegotiationHandler {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                SessionNegotiation.Status status = process
-                        .start(monitor);
+                SessionNegotiation.Status status = process.start(monitor);
 
                 switch (status) {
-                    case CANCEL:
-                        return Status.CANCEL_STATUS;
-                    case ERROR:
-                        return new Status(IStatus.ERROR, NAMESPACE,
-                                process.getErrorMessage());
-                    case OK:
-                        break;
-                    case REMOTE_CANCEL:
-                        NotificationPanel
-                                .showNotification(
-                                        Messages.NegotiationHandler_canceled_invitation,
-                                        MessageFormat
-                                                .format(
-                                                        Messages.NegotiationHandler_canceled_invitation_text,
-                                                        peer)
-                                );
+                case CANCEL:
+                    return Status.CANCEL_STATUS;
+                case ERROR:
+                    return new Status(IStatus.ERROR, NAMESPACE,
+                        process.getErrorMessage());
+                case OK:
+                    break;
+                case REMOTE_CANCEL:
+                    NotificationPanel.showNotification(
+                        Messages.NegotiationHandler_canceled_invitation,
+                        MessageFormat.format(
+                            Messages.NegotiationHandler_canceled_invitation_text,
+                            peer)
+                    );
 
-                        return new Status(
-                                IStatus.CANCEL,
-                                NAMESPACE,
-                                MessageFormat
-                                        .format(
-                                                Messages.NegotiationHandler_canceled_invitation_text,
-                                                peer)
-                        );
+                    return new Status(IStatus.CANCEL, NAMESPACE, MessageFormat
+                        .format(
+                            Messages.NegotiationHandler_canceled_invitation_text,
+                            peer)
+                    );
 
-                    case REMOTE_ERROR:
-                        NotificationPanel
-                                .showNotification(
-                                        Messages.NegotiationHandler_error_during_invitation,
-                                        MessageFormat
-                                                .format(
-                                                        Messages.NegotiationHandler_error_during_invitation_text,
-                                                        peer, process.getErrorMessage())
-                                );
+                case REMOTE_ERROR:
+                    NotificationPanel.showNotification(
+                        Messages.NegotiationHandler_error_during_invitation,
+                        MessageFormat.format(
+                            Messages.NegotiationHandler_error_during_invitation_text,
+                            peer, process.getErrorMessage())
+                    );
 
-                        return new Status(
-                                IStatus.ERROR,
-                                NAMESPACE,
-                                MessageFormat
-                                        .format(
-                                                Messages.NegotiationHandler_error_during_invitation_text,
-                                                peer, process.getErrorMessage())
-                        );
+                    return new Status(IStatus.ERROR, NAMESPACE, MessageFormat
+                        .format(
+                            Messages.NegotiationHandler_error_during_invitation_text,
+                            peer, process.getErrorMessage())
+                    );
                 }
             } catch (Exception e) {
                 LOG.error("This exceptions is not expected here: ", e);
@@ -250,7 +241,7 @@ public class NegotiationHandler implements INegotiationHandler {
         private final String peer;
 
         public OutgoingProjectJob(
-                OutgoingProjectNegotiation outgoingProjectNegotiation) {
+            OutgoingProjectNegotiation outgoingProjectNegotiation) {
             super(Messages.NegotiationHandler_sharing_project);
             process = outgoingProjectNegotiation;
             peer = process.getPeer().getBase();
@@ -265,41 +256,40 @@ public class NegotiationHandler implements INegotiationHandler {
                 final String message;
 
                 switch (status) {
-                    case CANCEL:
-                        return Status.CANCEL_STATUS;
-                    case ERROR:
-                        return new Status(IStatus.ERROR, NAMESPACE,
-                                process.getErrorMessage());
-                    case OK:
-                        break;
-                    case REMOTE_CANCEL:
-                        message = MessageFormat
-                                .format(
-                                        Messages.NegotiationHandler_project_sharing_cancelled_text,
-                                        peerName);
+                case CANCEL:
+                    return Status.CANCEL_STATUS;
+                case ERROR:
+                    return new Status(IStatus.ERROR, NAMESPACE,
+                        process.getErrorMessage());
+                case OK:
+                    break;
+                case REMOTE_CANCEL:
+                    message = MessageFormat.format(
+                        Messages.NegotiationHandler_project_sharing_cancelled_text,
+                        peerName);
 
-                        ApplicationManager.getApplication()
-                            .invokeLater(new Runnable() {
+                    ApplicationManager.getApplication()
+                        .invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                DialogUtils.showInfo(DialogUtils.getDefaultContainer(), message,
+                                DialogUtils
+                                    .showInfo(DialogUtils.getDefaultContainer(),
+                                        message,
                                         Messages.NegotiationHandler_project_sharing_cancelled_text);
                             }
                         });
 
-                        return new Status(IStatus.CANCEL, NAMESPACE, message);
+                    return new Status(IStatus.CANCEL, NAMESPACE, message);
 
-                    case REMOTE_ERROR:
-                        message = MessageFormat
-                                .format(
-                                        Messages.NegotiationHandler_sharing_project_cancelled_remotely,
-                                        peerName, process.getErrorMessage());
-                        NotificationPanel
-                                .showNotification(
-                                        Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
-                                        message);
+                case REMOTE_ERROR:
+                    message = MessageFormat.format(
+                        Messages.NegotiationHandler_sharing_project_cancelled_remotely,
+                        peerName, process.getErrorMessage());
+                    NotificationPanel.showNotification(
+                        Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
+                        message);
 
-                        return new Status(IStatus.ERROR, NAMESPACE, message);
+                    return new Status(IStatus.ERROR, NAMESPACE, message);
                 }
             } catch (Exception e) {
                 LOG.error("This exceptions is not expected here: ", e);

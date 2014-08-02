@@ -23,8 +23,6 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
@@ -32,6 +30,8 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -95,9 +95,10 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
         try {
 
             zipFile = new ZipFile(file);
-
-            ISubMonitor subMonitor = monitor
-                    .convert("Unpacking archive file to workspace", zipFile.size());
+            //"Unpacking archive file to workspace"
+            SubProgressMonitor subMonitor = new SubProgressMonitor(monitor,
+                zipFile.size());
+            subMonitor.setTaskName("Unpacking archive file to workspace");
 
             for (Enumeration<? extends ZipEntry> entries = zipFile
                     .entries(); entries.hasMoreElements(); ) {

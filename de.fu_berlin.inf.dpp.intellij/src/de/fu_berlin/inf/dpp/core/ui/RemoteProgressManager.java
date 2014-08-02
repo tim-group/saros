@@ -24,14 +24,13 @@ package de.fu_berlin.inf.dpp.core.ui;
 
 import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.activities.ProgressActivity.ProgressAction;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.IStatus;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.monitor.Status;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -176,26 +175,6 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             }
 
             @Override
-            public void beginTask(String taskName, String type) {
-
-            }
-
-            @Override
-            public void internalWorked(double work) {
-
-            }
-
-            @Override
-            public ISubMonitor convert() {
-                return null;
-            }
-
-            @Override
-            public ISubMonitor convert(String title, int progress) {
-                return null;
-            }
-
-            @Override
             public void setCanceled(boolean value) {
                 throw new UnsupportedOperationException();
             }
@@ -234,7 +213,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 for (User target : recipients) {
                     fireActivity(
                         new ProgressActivity(source, target, progressID,
-                            workCurrent, workTotal, taskName, action));
+                            workCurrent, workTotal, taskName, action)
+                    );
                 }
 
             }
@@ -256,7 +236,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
      */
     public IProgressMonitor mirrorLocalProgressMonitorToRemote(
         final ISarosSession session, final User target,
-        final de.fu_berlin.inf.dpp.monitoring.IProgressMonitor monitor) {
+        final IProgressMonitor monitor) {
 
         return new IProgressMonitor() {
             final String progressID = getNextProgressID();
@@ -273,7 +253,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 this.totalWorked = totalWorked;
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, 0,
-                        totalWorked, name, ProgressAction.BEGINTASK));
+                        totalWorked, name, ProgressAction.BEGINTASK)
+                );
             }
 
             @Override
@@ -281,27 +262,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 monitor.done();
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, 0, 0,
-                        null, ProgressAction.DONE));
-            }
-
-            @Override
-            public void beginTask(String taskName, String type) {
-
-            }
-
-            @Override
-            public void internalWorked(double work) {
-
-            }
-
-            @Override
-            public ISubMonitor convert() {
-                return null;
-            }
-
-            @Override
-            public ISubMonitor convert(String title, int progress) {
-                return null;
+                        null, ProgressAction.DONE)
+                );
             }
 
             @Override
@@ -316,7 +278,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             public void setCanceled(boolean value) {
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, worked,
-                        totalWorked, "Cancellation", ProgressAction.CANCEL));
+                        totalWorked, "Cancellation", ProgressAction.CANCEL)
+                );
                 monitor.setCanceled(value);
             }
 
@@ -325,7 +288,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 monitor.setTaskName(name);
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, worked,
-                        totalWorked, name, ProgressAction.SETTASKNAME));
+                        totalWorked, name, ProgressAction.SETTASKNAME)
+                );
             }
 
             @Override
@@ -333,7 +297,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 monitor.subTask(name);
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, worked,
-                        totalWorked, name, ProgressAction.SUBTASK));
+                        totalWorked, name, ProgressAction.SUBTASK)
+                );
             }
 
             @Override
@@ -348,7 +313,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 }
                 fireActivity(
                     new ProgressActivity(localUser, target, progressID, worked,
-                        totalWorked, null, ProgressAction.UPDATE));
+                        totalWorked, null, ProgressAction.UPDATE)
+                );
             }
         };
     }
@@ -387,9 +353,10 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
                     try {
-                        mainloop(monitor.convert());
+                        mainloop(monitor);
                     } catch (Exception e) {
-                        LOG.error("", e);
+                        LOG.error("error observing remote progress for "
+                            + RemoteProgress.this.source.getNickname(), e);
                         return Status.CANCEL_STATUS;
                     }
                     return Status.OK_STATUS;
@@ -435,8 +402,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             activities.add(progressActivity);
         }
 
-        void mainloop(
-            de.fu_berlin.inf.dpp.monitoring.IProgressMonitor subMonitor) {
+        void mainloop(IProgressMonitor subMonitor) {
             int worked = 0;
             boolean firstTime = true;
 
@@ -457,7 +423,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
                 int newWorked;
                 LOG.debug(
                     "RemoteProgressActivity: " + taskName + " / " + activity
-                        .getAction());
+                        .getAction()
+                );
 
                 switch (activity.getAction()) {
                 case BEGINTASK:

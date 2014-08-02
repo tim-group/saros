@@ -4,11 +4,10 @@ import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
@@ -70,10 +69,6 @@ public class CreateProjectTask implements IWorkspaceRunnable {
 
         if (this.monitor != null) {
             monitor = this.monitor;
-        }
-
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
         }
 
         monitor.beginTask("Creating project", IProgressMonitor.UNKNOWN);

@@ -32,7 +32,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
@@ -43,6 +42,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.SessionNegotiation;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
@@ -50,7 +50,6 @@ import org.picocontainer.annotations.Inject;
 
 import java.awt.Container;
 import java.text.MessageFormat;
-
 
 /**
  * A wizard that guides the user through an incoming invitation process.
@@ -72,7 +71,6 @@ public class JoinSessionWizard {
     private boolean accepted = false;
 
     private IncomingSessionNegotiation process;
-
 
     private SessionNegotiation.Status invitationStatus;
 
@@ -109,10 +107,12 @@ public class JoinSessionWizard {
         wizard = new Wizard(Messages.JoinSessionWizard_title);
         wizard.getNavigationPanel().setBackButton(null);
 
-        wizard.setHeadPanel(new HeaderPanel(Messages.ShowDescriptionPage_title2, Messages.ShowDescriptionPage_description));
+        wizard.setHeadPanel(new HeaderPanel(Messages.ShowDescriptionPage_title2,
+            Messages.ShowDescriptionPage_description));
 
         InfoPage infoPage = new InfoPage(PAGE_INFO_ID);
-        infoPage.addText(process.getPeer().getName() + " " + Messages.JoinSessionWizard_info);
+        infoPage.addText(process.getPeer().getName() + " "
+            + Messages.JoinSessionWizard_info);
         infoPage.addText(process.getDescription());
         infoPage.addPageListener(actionListener);
         infoPage.setNextButtonTitle(Messages.JoinSessionWizard_accept);
@@ -126,7 +126,6 @@ public class JoinSessionWizard {
 
     }
 
-
     public boolean performFinish() {
 
         accepted = true;
@@ -136,21 +135,22 @@ public class JoinSessionWizard {
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
-                    IProgressMonitor progress = progressPage.getProgressMonitor(true, true);
+                    IProgressMonitor progress = progressPage
+                        .getProgressMonitor(true, true);
                     invitationStatus = process.accept(progress);
                     switch (invitationStatus) {
-                        case OK:
-                            break;
-                        case CANCEL:
-                        case ERROR:
-                            asyncShowCancelMessage(process.getPeer(),
-                                    process.getErrorMessage(), CancelLocation.LOCAL);
-                            break;
-                        case REMOTE_CANCEL:
-                        case REMOTE_ERROR:
-                            asyncShowCancelMessage(process.getPeer(),
-                                    process.getErrorMessage(), CancelLocation.REMOTE);
-                            break;
+                    case OK:
+                        break;
+                    case CANCEL:
+                    case ERROR:
+                        asyncShowCancelMessage(process.getPeer(),
+                            process.getErrorMessage(), CancelLocation.LOCAL);
+                        break;
+                    case REMOTE_CANCEL:
+                    case REMOTE_ERROR:
+                        asyncShowCancelMessage(process.getPeer(),
+                            process.getErrorMessage(), CancelLocation.REMOTE);
+                        break;
 
                     }
                 }
@@ -164,7 +164,7 @@ public class JoinSessionWizard {
             }
 
             asyncShowCancelMessage(process.getPeer(), cause.getMessage(),
-                    CancelLocation.LOCAL);
+                CancelLocation.LOCAL);
 
             // give up, close the wizard as we cannot do anything here !
             return accepted;
@@ -173,23 +173,23 @@ public class JoinSessionWizard {
         return accepted;
     }
 
-
     public boolean performCancel() {
-        ThreadUtils.runSafeAsync("CancelJoinSessionWizard", LOG,
-                new Runnable() {
+        ThreadUtils
+            .runSafeAsync("CancelJoinSessionWizard", LOG, new Runnable() {
                     @Override
                     public void run() {
                         process.localCancel(null, CancelOption.NOTIFY_PEER);
                     }
                 }
-        );
+            );
         return true;
     }
 
     /**
      * Get rid of this method, use a listener !
      */
-    public void cancelWizard(final JID jid, final String errorMsg, final CancelLocation cancelLocation) {
+    public void cancelWizard(final JID jid, final String errorMsg,
+        final CancelLocation cancelLocation) {
 
         ThreadUtils.runSafeSync(LOG, new Runnable() {
             @Override
@@ -218,7 +218,7 @@ public class JoinSessionWizard {
     }
 
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
-                                        final CancelLocation cancelLocation) {
+        final CancelLocation cancelLocation) {
         ThreadUtils.runSafeAsync(LOG, new Runnable() {
             @Override
             public void run() {
@@ -228,7 +228,7 @@ public class JoinSessionWizard {
     }
 
     private void showCancelMessage(JID jid, String errorMsg,
-                                   CancelLocation cancelLocation) {
+        CancelLocation cancelLocation) {
 
         String peer = jid.getBase();
 
@@ -236,30 +236,31 @@ public class JoinSessionWizard {
 
         if (errorMsg != null) {
             switch (cancelLocation) {
-                case LOCAL:
-                    DialogUtils.showError(shell,
-                            Messages.JoinSessionWizard_inv_cancelled,
-                            Messages.JoinSessionWizard_inv_cancelled_text
-                                    + Messages.JoinSessionWizard_8 + errorMsg
+            case LOCAL:
+                DialogUtils
+                    .showError(shell, Messages.JoinSessionWizard_inv_cancelled,
+                        Messages.JoinSessionWizard_inv_cancelled_text
+                            + Messages.JoinSessionWizard_8 + errorMsg
                     );
-                    break;
-                case REMOTE:
-                    DialogUtils.showError(shell,
+                break;
+            case REMOTE:
+                DialogUtils.showError(shell,
 
-                            Messages.JoinSessionWizard_inv_cancelled, MessageFormat.format(
-                                    Messages.JoinSessionWizard_inv_cancelled_text2, peer,
-                                    errorMsg)
-                    );
+                    Messages.JoinSessionWizard_inv_cancelled, MessageFormat
+                        .format(Messages.JoinSessionWizard_inv_cancelled_text2,
+                            peer, errorMsg)
+                );
             }
         } else {
             switch (cancelLocation) {
-                case LOCAL:
-                    break;
-                case REMOTE:
-                    DialogUtils.showInfo(shell,
-                            Messages.JoinSessionWizard_inv_cancelled, MessageFormat
-                                    .format(Messages.JoinSessionWizard_inv_cancelled_text3,
-                                            peer)
+            case LOCAL:
+                break;
+            case REMOTE:
+                DialogUtils
+                    .showInfo(shell, Messages.JoinSessionWizard_inv_cancelled,
+                        MessageFormat.format(
+                            Messages.JoinSessionWizard_inv_cancelled_text3,
+                            peer)
                     );
             }
         }

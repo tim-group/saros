@@ -29,8 +29,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
 import de.fu_berlin.inf.dpp.core.editor.adapter.IDocument;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -38,6 +36,7 @@ import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
 import de.fu_berlin.inf.dpp.session.AbstractActivityProducer;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -70,7 +69,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * inconsistency state is set via the {@link IsInconsistentObservable}. This
  * enables the {@link ConsistencyAction} in the SarosToolWindow.
  * 2.) Send a ChecksumError to the host, if the user wants to
- * recover from an inconsistency. See {@link #runRecovery(ISubMonitor)}
+ * recover from an inconsistency. See {@link #runRecovery(IProgressMonitor)}
  */
 public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
@@ -210,11 +209,11 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
     private final SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
     /**
      * boolean condition variable used to interrupt another thread from
-     * performing a recovery in {@link #runRecovery(ISubMonitor)}
+     * performing a recovery in {@link #runRecovery(IProgressMonitor)}
      */
     private AtomicBoolean cancelRecovery = new AtomicBoolean();
     /**
-     * Lock used exclusively in {@link #runRecovery(ISubMonitor)} to prevent two
+     * Lock used exclusively in {@link #runRecovery(IProgressMonitor)} to prevent two
      * recovery operations running concurrently.
      */
     private final Lock lock = new ReentrantLock();
@@ -247,7 +246,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
      * @blocking This method returns after the recovery has finished
      * @client Can only be called on the client!
      */
-    public void runRecovery(ISubMonitor monitor) {
+    public void runRecovery(IProgressMonitor monitor) {
 
         ISarosSession session;
         synchronized (this) {
@@ -343,7 +342,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             }
 
         } finally {
-            monitor.getMain().done();
+            monitor.done();
             lock.unlock();
         }
     }

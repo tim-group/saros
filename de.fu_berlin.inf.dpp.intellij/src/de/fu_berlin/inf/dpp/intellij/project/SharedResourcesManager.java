@@ -29,7 +29,6 @@ import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
-import de.fu_berlin.inf.dpp.core.monitor.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
@@ -276,7 +275,7 @@ public class SharedResourcesManager extends AbstractActivityProducer
                         file.getFullPath().toFile());
                     FileUtils
                         .writeFile(new ByteArrayInputStream(newContent), file,
-                            new NullProgressMonitor());
+                            null);
                     fileSystemListener.setEnabled(true);
                 } else {
                     LOG.info(

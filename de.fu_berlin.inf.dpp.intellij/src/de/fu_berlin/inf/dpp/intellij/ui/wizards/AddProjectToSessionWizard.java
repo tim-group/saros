@@ -26,8 +26,6 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
@@ -49,6 +47,8 @@ import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
 import de.fu_berlin.inf.dpp.invitation.FileListFactory;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.internal.DataTransferManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
@@ -256,8 +256,8 @@ public class AddProjectToSessionWizard {
         } catch (IOException e) {
             LOG.error(e);
             DialogUtils.showError(wizard.getWizard(), "Calculation error",
-                "Error while calculating modified resources: " + e
-                    .getMessage());
+                "Error while calculating modified resources: " + e.getMessage()
+            );
             wizard.close();
 
         }
@@ -363,9 +363,10 @@ public class AddProjectToSessionWizard {
             throw new IllegalStateException("no session running");
         }
 
-        ISubMonitor subMonitor = monitor
-            .convert("Searching for files that will be modified...",
-                projectMapping.size() * 2);
+        SubProgressMonitor subMonitor = new SubProgressMonitor(monitor,
+            projectMapping.size() * 2);
+        subMonitor
+            .setTaskName("\"Searching for files that will be modified...\",");
 
         for (Map.Entry<String, IProject> entry : projectMapping.entrySet()) {
 
@@ -404,8 +405,9 @@ public class AddProjectToSessionWizard {
                     //FIXME: Change VCSprovider back from null, if VCS support is added
                     FileList sharedFileList = FileListFactory
                         .createFileList(project, eclipseResources,
-                            checksumCache, null, subMonitor
-                            .newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS));
+                            checksumCache, null,
+                            new SubProgressMonitor(monitor, 1,
+                                SubProgressMonitor.SUPPRESS_SETTASKNAME));
 
                     // FIXME FileList objects should be immutable after creation
                     remoteFileList.getPaths().addAll(sharedFileList.getPaths());
@@ -416,8 +418,8 @@ public class AddProjectToSessionWizard {
                 //FIXME: Change VCSprovider back from null, if VCS support is added
                 diff = FileListDiff.diff(FileListFactory
                         .createFileList(project, null, checksumCache, null,
-                            subMonitor
-                                .newChild(1, ISubMonitor.SUPPRESS_ALL_LABELS)),
+                            new SubProgressMonitor(monitor, 1,
+                                SubProgressMonitor.SUPPRESS_SETTASKNAME)),
                     remoteFileList
                 );
 

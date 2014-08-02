@@ -1,13 +1,10 @@
 package de.fu_berlin.inf.dpp.core.invitation;
 
-
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitor.IProgressMonitor;
-import de.fu_berlin.inf.dpp.core.monitor.ISubMonitor;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
@@ -18,7 +15,6 @@ import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
-import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
@@ -30,6 +26,8 @@ import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
+import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
@@ -48,7 +46,6 @@ import org.picocontainer.annotations.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +59,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     private static final Logger LOG = Logger
             .getLogger(IncomingProjectNegotiation.class);
     private final ISarosSession sarosSession;
-    private ISubMonitor monitor;
+    private IProgressMonitor monitor;
     private AddProjectToSessionWizard addIncomingProjectUI;
     private List<ProjectNegotiationData> projectInfos;
     @Inject
@@ -142,7 +139,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             running = true;
         }
 
-        this.monitor = monitor.convert("Initializing shared project", 100);
+        this.monitor = monitor;
+        monitor.beginTask("Initializing shared project", 100);
 
         observeMonitor(monitor);
 
@@ -175,7 +173,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                     .addFileTransferListener(archiveTransferListener);
 
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
-                    useVersionControl, this.monitor.newChild(10));
+                useVersionControl, new SubProgressMonitor(monitor, 10));
 
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                     ProjectNegotiationMissingFilesExtension.PROVIDER
@@ -183,7 +181,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                                     sessionID, processID, missingFiles))
             );
 
-            awaitActivityQueueingActivation(this.monitor.newChild(0));
+            awaitActivityQueueingActivation(
+                new SubProgressMonitor(monitor, 10));
 
             /*
              * the user who sends this ProjectNegotiation is now responsible for
@@ -218,7 +217,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
                 acceptArchive(archiveTransferListener,
-                        this.monitor.newChild(80));
+                    new SubProgressMonitor(monitor, 80));
 
             // We are finished with the exchanging process. Add all projects
             // resources to the session.
@@ -287,14 +286,15 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * Accepts the archive with all missing files and decompress it.
      */
     private void acceptArchive(ArchiveTransferListener archiveTransferListener,
-                               ISubMonitor monitor) throws IOException, SarosCancellationException {
+        IProgressMonitor monitor)
+        throws IOException, SarosCancellationException {
 
         // waiting for the big archive to come in
 
-        monitor.beginTask(null, 100);
+        monitor.beginTask("Receiving project files...", 100);
 
         File archiveFile = receiveArchive(archiveTransferListener, processID,
-                monitor.newChild(50, ISubMonitor.SUPPRESS_NONE));
+            new SubProgressMonitor(monitor, 50));
 
         /*
          * FIXME at this point it makes no sense to report the cancellation to
@@ -302,8 +302,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          */
 
         try {
-            unpackArchive(archiveFile,
-                    monitor.newChild(50, ISubMonitor.SUPPRESS_NONE));
+            unpackArchive(archiveFile, new SubProgressMonitor(monitor, 50));
             monitor.done();
         } finally {
             if (archiveFile != null)
@@ -318,7 +317,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      */
     private List<FileList> calculateMissingFiles(
             Map<String, String> projectNames, boolean useVersionControl,
-            ISubMonitor subMonitor) throws SarosCancellationException, IOException {
+        IProgressMonitor subMonitor)
+        throws SarosCancellationException, IOException {
 
         subMonitor.beginTask(null, 100);
         int numberOfLoops = projectNames.size();
@@ -329,7 +329,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          * computes the missing files.
          */
         for (Entry<String, String> entry : projectNames.entrySet()) {
-            ISubMonitor lMonitor = subMonitor.newChild(100 / numberOfLoops);
+            SubProgressMonitor lMonitor = new SubProgressMonitor(subMonitor,
+                100 / numberOfLoops);
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
@@ -370,22 +371,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 //                    LOG.error("Unsaved files detected.");
 //                }
             }
-
-            if (vcs != null) {
-                project = checkoutVCSProject(vcs, project,
-                        projectInfo.getFileList());
-
-                if (project == null)
-                    throw new LocalCancellationException("VCS checkout failed",
-                            CancelOption.NOTIFY_PEER);
-                //TODO: IS VCS support needed?
-/*
-                LOG.debug("initVcState");
-                initVcState(project, vcs, lMonitor.newChild(40),
-                        projectInfo.getFileList());
-
-  */
-            } else if (!project.exists()) {
+            if (!project.exists()) {
                 project = createProject(project, null);
             }
 
@@ -398,7 +384,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             FileList requiredFiles = computeRequiredFiles(project,
                     projectInfo.getFileList(), projectID, vcs,
-                    lMonitor.newChild(30));
+                new SubProgressMonitor(lMonitor, 30));
 
             requiredFiles.setProjectID(projectID);
             checkCancellation(CancelOption.NOTIFY_PEER);
@@ -435,86 +421,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
 
         return createProjectTask.getProject();
-    }
-
-    /**
-     * Checks out a project using the provided VCS adapter. If the project does
-     * not exists it will be created, otherwise it will be updated.
-     *
-     * @param vcs      the VCS adapter to use for checkout
-     * @param project  the project to use for checkout
-     * @param fileList
-     * @return the checked out project or <code>null</code> if it could not
-     * checked out
-     * @throws LocalCancellationException if the process is canceled locally
-     */
-    private IProject checkoutVCSProject(final VCSProvider vcs, IProject project,
-                                        final FileList fileList) throws LocalCancellationException {
-
-        if (isPartialRemoteProject(fileList.getProjectID()))
-            throw new IllegalStateException(
-                    "VCS operations on partial shared projects are not supported");
-
-        if (project.exists()) {
-            //TODO: Is VCS support needed?
-           /* if (!vcs.isManaged(project))
-                return null;
-*/
-            final String repositoryRoot = fileList.getRepositoryRoot();
-            final String directory = fileList.getProjectInfo().getURL()
-                    .substring(repositoryRoot.length());
-
-            // FIXME this should at least throw a OperationCanceledException
-            //Is VCS support needed?
-            //          vcs.connect(project, repositoryRoot, directory, monitor);
-
-            return project;
-        }
-
-        /*
-         * Inform the host of the session that the current (local) user has
-         * started the possibly time consuming SVN checkout via a
-         * remoteProgressMonitor
-         */
-        final ISarosSession session = sarosSessionObservable.getValue();
-
-        if (session == null)
-            throw new LocalCancellationException(
-                    "The current session is terminated.",
-                    CancelOption.DO_NOT_NOTIFY_PEER);
-
-        /*
-         * The monitor that is created here is shown both locally and remote and
-         * is handled like a regular progress monitor.
-         */
-        IProgressMonitor remoteMonitor = rpm
-                .mirrorLocalProgressMonitorToRemote(sarosSession,
-                        sarosSession.getHost(), monitor);
-        remoteMonitor.setTaskName("Project checkout via subversion");
-
-        //TODO: CVS does not work anyways, remove?
-        /*try {
-            project = vcs.checkoutProject(project.getName(), fileList,
-                    remoteMonitor);
-        } catch (OperationCanceledException e) {
-            throw new LocalCancellationException();
-        }*/
-
-        /*
-         * HACK: After checking out a project, give Eclipse/the Team provider
-         * time to realize that the project is now managed. The problem was that
-         * when checking later to see if we have to switch/update individual
-         * resources in initVcState, the project appeared as unmanaged. It might
-         * work to wrap initVcState in a job, such that it is scheduled after
-         * the project is marked as managed.
-         */
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // do nothing
-        }
-
-        return project;
     }
 
     @Override
@@ -587,10 +493,12 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                                           IProgressMonitor monitor) throws LocalCancellationException,
             IOException {
 
-        ISubMonitor subMonitor = monitor.convert("Compute required Files...", 1);
+        //Compute required Files
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
 
-        FileList localFileList = FileListFactory.createFileList(currentLocalProject, null,
-                checksumCache, provider, subMonitor.newChild(1));
+        FileList localFileList = FileListFactory
+            .createFileList(currentLocalProject, null, checksumCache, provider,
+                new SubProgressMonitor(monitor, 1));
 
         FileListDiff filesToSynchronize = computeDiff(localFileList,
                 remoteFileList, currentLocalProject, projectID);
@@ -711,93 +619,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         // TODO: now add the checksums into the cache
     }
 
-    /**
-     * Recursively synchronizes the version control state (URL and revision) of
-     * each resource in the project with the host by switching or updating when
-     * necessary.<br>
-     * <br>
-     * It's very hard to predict how many resources have to be changed. In the
-     * worst case, every resource has to be changed as many times as the number
-     * of segments in its path. Due to these complications, the monitor is only
-     * used for cancellation and the label, but not for the progress bar.
-     *
-     * @param remoteFileList
-     * @throws SarosCancellationException
-     */
-    private void initVcState(IResource resource, VCSProvider vcs,
-                             ISubMonitor monitor, FileList remoteFileList)
-            throws SarosCancellationException {
-        if (monitor.isCanceled())
-            return;
-/* TODO: Is VCS support needed?
-        if (!vcs.isManaged(resource))
-            return;
-*/
-        //final VCSResourceInfo info = vcs.getCurrentResourceInfo(resource);
-        final String path = resource.getProjectRelativePath()
-                .toPortableString();
 
-        //TODO: VCS support?
-        /*if (resource instanceof IProject) {
-            /*
-             * We have to revert the project first because the invitee could
-             * have deleted a managed resource. Also, we don't want an update or
-             * switch to cause an unresolved conflict here. The revert might
-             * leave some unmanaged files, but these will get cleaned up later;
-             * we're only concerned with managed files here.
-             */
-//            vcs.revert(resource, monitor);
-//        }
-
-        String url = remoteFileList.getVCSUrl(path);
-        String revision = remoteFileList.getVCSRevision(path);
-
-        if (url == null || revision == null) {
-            // The resource might have been deleted.
-            return;
-        }
-        /* TODO: Is VCS support needed?
-        if (!info.getURL().equals(url)) {
-            LOG.trace("Switching " + resource.getName() + " from " + info.getURL()
-                    + " to " + url);
-            vcs.switch_(resource, url, revision, monitor);
-        } else if (!info.getRevision().equals(revision)
-                && remoteFileList.getPaths().contains(path)) {
-            LOG.trace("Updating " + resource.getName() + " from "
-                    + info.getRevision() + " to " + revision);
-            vcs.update(resource, revision, monitor);
-        }*/
-        if (monitor.isCanceled())
-            return;
-
-        if (resource instanceof IContainer) {
-            // Recurse.
-            try {
-                List<IResource> children = Arrays
-                        .asList(((IContainer) resource).members());
-                for (IResource child : children) {
-                    if (remoteFileList.getPaths().contains(child.getFullPath()))
-                        initVcState(child, vcs, monitor, remoteFileList);
-                    if (monitor.isCanceled())
-                        break;
-                }
-            } catch (IOException e) {
-                /*
-                 * We shouldn't ever get here. CoreExceptions are thrown e.g. if
-                 * the project is closed or the resource doesn't exist, both of
-                 * which are impossible at this point.
-                 */
-                LOG.error("Unknown error while trying to initialize the "
-                        + "children of " + resource.toString() + ".", e);
-                localCancel(
-                        "Could not initialize the project's version control state, "
-                                + "please try again without VCS support.",
-                        CancelOption.NOTIFY_PEER
-                );
-                executeCancellation();
-            }
-        }
-    }
 
     public List<ProjectNegotiationData> getProjectInfos() {
         return projectInfos;

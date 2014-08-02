@@ -471,7 +471,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         monitor.beginTask(
             "Creating file list and calculating file checksums. This may take a while...",
-            projectsToShare.size());
+            projectsToShare.size() * scale);
 
         List<ProjectNegotiationData> pInfos = new ArrayList<ProjectNegotiationData>(
             projectsToShare.size());
