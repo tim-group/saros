@@ -43,17 +43,21 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
 
-//todo: copy from eclipse
+/**
+ * TODO: Refactor when merging with Saros/E OPN.
+ */
+
 public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
-    private final static Random PROCESS_ID_GENERATOR = new Random();
-    private static Logger log = Logger
+    private static final Random PROCESS_ID_GENERATOR = new Random();
+    private static final Logger LOG = Logger
         .getLogger(OutgoingProjectNegotiation.class);
+
     private List<IProject> projects;
     private ISarosSession sarosSession;
+
     @Inject
     private EditorManager editorManager;
-
     @Inject
     private IChecksumCache checksumCache;
 
@@ -69,7 +73,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
         List<IProject> projects, ISarosContext sarosContext) {
         super(to, sarosSession.getID(), sarosContext);
 
-        this.processID = String.valueOf(PROCESS_ID_GENERATOR.nextLong());
+        processID = String.valueOf(PROCESS_ID_GENERATOR.nextLong());
         this.sarosSession = sarosSession;
         this.projects = projects;
     }
@@ -160,7 +164,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
         } finally {
 
             if (zipArchive != null && !zipArchive.delete()) {
-                log.warn("could not delete archive file: " + zipArchive
+                LOG.warn("could not delete archive file: " + zipArchive
                     .getAbsolutePath());
             }
             deleteCollectors();
@@ -181,7 +185,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         checkCancellation(CancelOption.NOTIFY_PEER);
 
-        log.debug(this + " : sending file list");
+        LOG.debug(this + " : sending file list");
 
         /*
          * file lists are normally very small so we "accept" the circumstance
@@ -214,7 +218,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
     private List<FileList> getRemoteFileList(IProgressMonitor monitor)
         throws IOException, SarosCancellationException {
 
-        log.debug(this + " : waiting for remote file list");
+        LOG.debug(this + " : waiting for remote file list");
 
         monitor.beginTask(
             "Waiting for " + peer.getName() + " to choose project(s) location",
@@ -236,7 +240,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
         List<FileList> remoteFileLists = ProjectNegotiationMissingFilesExtension.PROVIDER
             .getPayload(packet).getFileLists();
 
-        log.debug(this + " : remote file list has been received");
+        LOG.debug(this + " : remote file list has been received");
 
         checkCancellation(CancelOption.NOTIFY_PEER);
 
@@ -278,7 +282,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         usersToStop = new ArrayList<User>(sarosSession.getUsers());
 
-        log.debug(this + " : stopping users " + usersToStop);
+        LOG.debug(this + " : stopping users " + usersToStop);
 
         List<StartHandle> startHandles;
 
@@ -309,7 +313,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
     private void startUsers(List<StartHandle> startHandles) {
         for (StartHandle startHandle : startHandles) {
-            log.debug(this + " : restarting user " + startHandle.getUser());
+            LOG.debug(this + " : restarting user " + startHandle.getUser());
             startHandle.start();
         }
     }
@@ -397,7 +401,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
             }
         }
 
-        log.debug(this + " : creating archive");
+        LOG.debug(this + " : creating archive");
 
         File tempArchive = null;
 
@@ -437,7 +441,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
         IProgressMonitor monitor)
         throws SarosCancellationException, IOException {
 
-        log.debug(this + " : sending archive");
+        LOG.debug(this + " : sending archive");
         monitor.beginTask("Sending archive file...", 100);
 
         assert fileTransferManager != null;
@@ -454,7 +458,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         monitor.done();
 
-        log.debug(this + " : archive send");
+        LOG.debug(this + " : archive send");
     }
 
     /**

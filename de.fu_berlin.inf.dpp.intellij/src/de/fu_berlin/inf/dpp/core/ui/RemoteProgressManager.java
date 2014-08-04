@@ -62,7 +62,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
     private static final Random RANDOM = new Random();
 
-    private ISarosSession sarosSession;
+    private ISarosSession session;
 
     private final Map<String, RemoteProgress> progressDialogs = new HashMap<String, RemoteProgress>();
 
@@ -95,9 +95,9 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
         @Override
         public void sessionStarted(ISarosSession newSharedProject) {
-            sarosSession = newSharedProject;
-            sarosSession.addActivityConsumer(consumer);
-            sarosSession.addActivityProducer(RemoteProgressManager.this);
+            session = newSharedProject;
+            session.addActivityConsumer(consumer);
+            session.addActivityProducer(RemoteProgressManager.this);
             newSharedProject.addListener(sharedProjectListener);
         }
 
@@ -111,7 +111,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
             }
             progressDialogs.clear();
 
-            sarosSession = null;
+            session = null;
         }
     };
 
@@ -240,7 +240,8 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
         return new IProgressMonitor() {
             final String progressID = getNextProgressID();
-            final User localUser = sarosSession.getLocalUser();
+            final User localUser = RemoteProgressManager.this.session
+                .getLocalUser();
             int worked = 0;
             int totalWorked = -1;
 

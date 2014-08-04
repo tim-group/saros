@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- *
+ * TODO: Refactor when merging with Saros/E IPN.
  */
 public class IncomingProjectNegotiation extends ProjectNegotiation {
 
