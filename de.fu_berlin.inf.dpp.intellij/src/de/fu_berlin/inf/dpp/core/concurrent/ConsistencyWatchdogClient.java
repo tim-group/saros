@@ -44,14 +44,11 @@ import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.util.StackTrace;
 import org.apache.log4j.Logger;
-import org.picocontainer.annotations.Inject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -76,19 +73,16 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
     private static final Random RANDOM = new Random();
     private static final Logger LOG = Logger
         .getLogger(ConsistencyWatchdogClient.class);
-    @Inject
+
     private IsInconsistentObservable inconsistencyToResolve;
 
-    @Inject
     private LocalEditorHandler localEditorHandler;
 
-    @Inject
     private final ISarosSessionManager sessionManager;
 
-    @Inject
     private RemoteProgressManager remoteProgressManager;
 
-    private ISarosSession sarosSession;
+    private ISarosSession session;
 
     private final Set<SPath> pathsWithWrongChecksums = new CopyOnWriteArraySet<SPath>();
 
@@ -101,6 +95,33 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
      * The id of the currently running recovery
      */
     private volatile String recoveryID;
+
+    /**
+     * boolean condition variable used to interrupt another thread from
+     * performing a recovery in {@link #runRecovery(IProgressMonitor)}
+     */
+    private AtomicBoolean cancelRecovery = new AtomicBoolean();
+    /**7
+     * Lock used exclusively in {@link #runRecovery(IProgressMonitor)} to prevent two
+     * recovery operations running concurrently.
+     */
+    private final Lock lock = new ReentrantLock();
+
+    public ConsistencyWatchdogClient(final ISarosSessionManager sessionManager,
+        final IsInconsistentObservable inconsistencyToResolve,
+        final LocalEditorHandler localEditorHandler,
+        final RemoteProgressManager remoteProgressManager) {
+        this.sessionManager = sessionManager;
+        this.inconsistencyToResolve = inconsistencyToResolve;
+        this.localEditorHandler = localEditorHandler;
+        this.remoteProgressManager = remoteProgressManager;
+
+        this.sessionManager.addSarosSessionListener(sessionListener);
+    }
+
+    public void dispose() {
+        sessionManager.removeSarosSessionListener(sessionListener);
+    }
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
@@ -177,9 +198,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
-            synchronized (this) {
-                sarosSession = newSarosSession;
-            }
+            session = newSarosSession;
 
             pathsWithWrongChecksums.clear();
             inconsistencyToResolve.setValue(false);
@@ -200,39 +219,19 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             latestChecksums.clear();
             pathsWithWrongChecksums.clear();
 
-            synchronized (this) {
-                sarosSession = null;
-            }
+            session = null;
+
+            // abort running recoveries
+            cancelRecovery.set(true);
         }
     };
-
-    private final SimpleDateFormat format = new SimpleDateFormat("HHmmssSS");
-    /**
-     * boolean condition variable used to interrupt another thread from
-     * performing a recovery in {@link #runRecovery(IProgressMonitor)}
-     */
-    private AtomicBoolean cancelRecovery = new AtomicBoolean();
-    /**
-     * Lock used exclusively in {@link #runRecovery(IProgressMonitor)} to prevent two
-     * recovery operations running concurrently.
-     */
-    private final Lock lock = new ReentrantLock();
-
-    public ConsistencyWatchdogClient(ISarosSessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-        this.sessionManager.addSarosSessionListener(sessionListener);
-    }
-
-    public void dispose() {
-        sessionManager.removeSarosSessionListener(sessionListener);
-    }
 
     /**
      * Returns the set of files for which the ConsistencyWatchdog has identified
      * an inconsistency
      */
     public Set<SPath> getPathsWithWrongChecksums() {
-        return pathsWithWrongChecksums;
+        return new HashSet<SPath>(pathsWithWrongChecksums);
     }
 
     /**
@@ -248,17 +247,18 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
      */
     public void runRecovery(IProgressMonitor monitor) {
 
-        ISarosSession session;
-        synchronized (this) {
-            // Keep a local copy, since the session might end while we're doing
-            // this.
-            session = sarosSession;
-        }
+        ISarosSession currentSession = session;
 
-        if (session.isHost()) {
+        if (currentSession == null)
+            return;
+
+        if (currentSession.isHost())
             throw new IllegalStateException("Can only be called on the client");
-        }
 
+        /*
+         * FIXME this is to lazy, make sure every recovery is terminated when
+         * the session ends
+         */
         if (!lock.tryLock()) {
             LOG.error("Restarting Checksum Error Handling"
                 + " while another operation is running");
@@ -269,6 +269,12 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
                 } while (!lock.tryLock(100, TimeUnit.MILLISECONDS));
             } catch (InterruptedException e) {
                 LOG.error("Not designed to be interruptable");
+                return;
+            }
+            currentSession = session;
+
+            if (currentSession == null) {
+                lock.unlock();
                 return;
             }
         }
@@ -297,18 +303,20 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             monitor
                 .beginTask("Consistency recovery", pathsOfHandledFiles.size());
             final IProgressMonitor remoteProgress = remoteProgressManager
-                .createRemoteProgress(session, session.getRemoteUsers());
+                .createRemoteProgress(currentSession,
+                    currentSession.getRemoteUsers());
             recoveryID = getNextRecoveryID();
 
             filesRemaining.set(pathsOfHandledFiles.size());
 
             remoteProgress.beginTask(
-                "Consistency recovery for user " + session.getLocalUser()
+                "Consistency recovery for user " + currentSession.getLocalUser()
                     .getNickname(), filesRemaining.get()
             );
 
-            fireActivity(new ChecksumErrorActivity(session.getLocalUser(),
-                session.getHost(), pathsOfHandledFiles, recoveryID));
+            fireActivity(
+                new ChecksumErrorActivity(currentSession.getLocalUser(),
+                    currentSession.getHost(), pathsOfHandledFiles, recoveryID));
 
             try {
                 // block until all inconsistencies are resolved
@@ -316,7 +324,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
                 int filesRemainingCurrently;
                 while ((filesRemainingCurrently = filesRemaining.get()) > 0) {
                     if (cancelRecovery.get() || monitor.isCanceled()
-                        || sarosSession == null) {
+                        || session == null) {
                         return;
                     }
 
@@ -348,7 +356,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
     }
 
     private String getNextRecoveryID() {
-        return format.format(new Date()) + RANDOM.nextLong();
+        return Long.toHexString(RANDOM.nextLong());
     }
 
     private boolean isInconsistent(ChecksumActivity checksum) {
@@ -399,47 +407,26 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
         return false;
     }
 
-    /**
-     * Will run a consistency check.
-     *
-     * @return whether a consistency check could be performed or not (for
-     * instance because no current checksum is available)
-     * <p/>
-     * This must be called from the UI thread.
-     * <p/>
-     * This can only be called on the client
-     */
-    public boolean performCheck(SPath path) {
+    private void performCheck(ChecksumActivity checksumActivity) {
 
-        if (sarosSession == null) {
-            LOG.warn("Session already ended. Cannot perform consistency check",
-                new StackTrace());
-            return false;
-        }
+        final ISarosSession currentSession = session;
 
-        ChecksumActivity checksumActivity = latestChecksums.get(path);
-        if (checksumActivity != null) {
-            performCheck(checksumActivity);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    synchronized void performCheck(ChecksumActivity checksumActivity) {
-
-        if (sarosSession.hasWriteAccess() && !sarosSession
-            .getConcurrentDocumentClient().isCurrent(checksumActivity)) {
+        if (currentSession == null)
             return;
-        }
+
+        if (currentSession.hasWriteAccess() && !currentSession
+            .getConcurrentDocumentClient().isCurrent(checksumActivity))
+            return;
 
         boolean changed;
+
         if (isInconsistent(checksumActivity)) {
             changed = pathsWithWrongChecksums.add(checksumActivity.getPath());
         } else {
             changed = pathsWithWrongChecksums
                 .remove(checksumActivity.getPath());
         }
+
         if (!changed) {
             return;
         }
