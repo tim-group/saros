@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
@@ -37,61 +36,46 @@ import org.picocontainer.annotations.Inject;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Contact tree
  */
-public class ContactTree extends AbstractTree implements IRosterListener
-{
+public class ContactTree extends AbstractTree implements IRosterListener {
     public static final String TREE_TITLE = "Contacts";
 
     protected RootTree rootTree;
     private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
     private DefaultTreeModel treeModel;
 
-    @Inject
-    XMPPConnectionService connectionService;
+    @Inject XMPPConnectionService connectionService;
 
-    /**
-     * @param parent
-     */
-    public ContactTree(RootTree parent)
-    {
+    public ContactTree(RootTree parent) {
         super(parent);
+        SarosPluginContext.initComponent(this);
+        ;
         this.rootTree = parent;
         this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
         setUserObject(new AbstractTree.CategoryInfo(TREE_TITLE));
-
-
-        SarosPluginContext.initComponent(this);
-
-        create();
     }
 
-    protected void create()
-    {
-
-    }
-
-    public void createContactNodes()
-    {
+    public void createContactNodes() {
         removeAllChildren();
         DefaultMutableTreeNode node;
 
         Roster roster = connectionService.getRoster();
         //add contacts
-        for (RosterEntry contactEntry : roster.getEntries())
-        {
+        for (RosterEntry contactEntry : roster.getEntries()) {
             ContactInfo contactInfo = new ContactInfo(contactEntry);
             Presence presence = roster.getPresence(contactEntry.getUser());
 
-            if (presence.getType() == Presence.Type.available)
-            {
+            if (presence.getType() == Presence.Type.available) {
                 contactInfo.setOnline(true);
-            }
-            else
-            {
+            } else {
                 contactInfo.setOnline(false);
             }
 
@@ -103,11 +87,9 @@ public class ContactTree extends AbstractTree implements IRosterListener
         }
     }
 
-    public void showContact(final String key)
-    {
+    public void showContact(final String key) {
         ContactInfo contactInfo = contactMap.get(key);
-        if (contactInfo == null || !contactInfo.isHidden())
-        {
+        if (contactInfo == null || !contactInfo.isHidden()) {
             return;
         }
 
@@ -117,20 +99,17 @@ public class ContactTree extends AbstractTree implements IRosterListener
         add(node);
     }
 
-    public void hideContact(final String key)
-    {
+    public void hideContact(final String key) {
         ContactInfo contactInfo = contactMap.get(key);
-        if (contactInfo == null || contactInfo.isHidden())
-        {
+        if (contactInfo == null || contactInfo.isHidden()) {
             return;
         }
 
         contactInfo.setHidden(true);
-        for (int i = 0; i < getChildCount(); i++)
-        {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) getChildAt(i);
-            if (contactInfo.equals(node.getUserObject()))
-            {
+        for (int i = 0; i < getChildCount(); i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) getChildAt(
+                i);
+            if (contactInfo.equals(node.getUserObject())) {
                 treeModel.removeNodeFromParent(node);
                 node.setUserObject(null);
                 break;
@@ -139,43 +118,35 @@ public class ContactTree extends AbstractTree implements IRosterListener
 
     }
 
-    public void removeContacts()
-    {
+    public void removeContacts() {
         removeAllChildren();
         contactMap.clear();
     }
 
     @Override
-    public void rosterChanged(Roster roster)
-    {
+    public void rosterChanged(Roster roster) {
 
     }
 
     @Override
-    public void entriesAdded(Collection<String> addresses)
-    {
+    public void entriesAdded(Collection<String> addresses) {
 
     }
 
     @Override
-    public void entriesUpdated(Collection<String> addresses)
-    {
+    public void entriesUpdated(Collection<String> addresses) {
 
     }
 
     @Override
-    public void entriesDeleted(Collection<String> addresses)
-    {
+    public void entriesDeleted(Collection<String> addresses) {
 
     }
 
-    public List<JID> getOnLineUsers()
-    {
+    public List<JID> getOnLineUsers() {
         List<JID> userList = new ArrayList<JID>();
-        for (ContactInfo info : contactMap.values())
-        {
-            if (info.isOnline())
-            {
+        for (ContactInfo info : contactMap.values()) {
+            if (info.isOnline()) {
                 userList.add(new JID(info.getRosterEntry().getUser()));
             }
         }
@@ -183,29 +154,21 @@ public class ContactTree extends AbstractTree implements IRosterListener
         return userList;
     }
 
-
     @Override
-    public void presenceChanged(Presence presence)
-    {
+    public void presenceChanged(Presence presence) {
         String sUser = new JID(presence.getFrom()).getBareJID().toString();
 
         ContactInfo info = contactMap.get(sUser);
-        if (info != null)
-        {
-            if (presence.getType() == Presence.Type.available)
-            {
+        if (info != null) {
+            if (presence.getType() == Presence.Type.available) {
                 info.setOnline(true);
-            }
-            else
-            {
+            } else {
                 info.setOnline(false);
             }
 
-            Runnable action = new Runnable()
-            {
+            Runnable action = new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     rootTree.getJtree().collapseRow(2);
                     rootTree.getJtree().expandRow(2);
                 }
@@ -214,72 +177,60 @@ public class ContactTree extends AbstractTree implements IRosterListener
             UIUtil.invokeAndWaitIfNeeded(action);
         }
 
-
     }
 
     /**
      * Class to keep contact info
      */
-    protected class ContactInfo extends LeafInfo
-    {
+    protected class ContactInfo extends LeafInfo {
 
         private String status;
         private RosterEntry rosterEntry;
         private boolean isOnline;
         private boolean isHidden = false;
 
-        private ContactInfo(RosterEntry rosterEntry)
-        {
+        private ContactInfo(RosterEntry rosterEntry) {
             super(rosterEntry.getUser(), rosterEntry.getUser());
             this.rosterEntry = rosterEntry;
-            this.status = rosterEntry.getStatus() == null ? null : rosterEntry.getStatus().toString();
+            this.status = rosterEntry.getStatus() == null ?
+                null :
+                rosterEntry.getStatus().toString();
         }
 
-        public ContactInfo(String key, String title)
-        {
+        public ContactInfo(String key, String title) {
             super(key, title);
         }
 
-        public RosterPacket.ItemStatus getStatus()
-        {
+        public RosterPacket.ItemStatus getStatus() {
             return rosterEntry.getStatus();
         }
 
-        public RosterEntry getRosterEntry()
-        {
+        public RosterEntry getRosterEntry() {
             return rosterEntry;
         }
 
-        public boolean isOnline()
-        {
+        public boolean isOnline() {
             return isOnline;
         }
 
-        public boolean isHidden()
-        {
+        public boolean isHidden() {
             return isHidden;
         }
 
-        public void setHidden(boolean isHidden)
-        {
+        public void setHidden(boolean isHidden) {
             this.isHidden = isHidden;
         }
 
-        public void setOnline(boolean isOnline)
-        {
+        public void setOnline(boolean isOnline) {
             this.isOnline = isOnline;
-            if (isOnline)
-            {
+            if (isOnline) {
                 setIcon(IconManager.CONTACT_ONLINE_ICON);
-            }
-            else
-            {
+            } else {
                 setIcon(IconManager.CONTACT_OFFLINE_ICON);
             }
         }
 
-        public String toString()
-        {
+        public String toString() {
             return this.status == null ? title : title + " (" + status + ")";
         }
     }

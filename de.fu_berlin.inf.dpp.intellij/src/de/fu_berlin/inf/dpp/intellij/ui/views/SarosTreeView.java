@@ -40,7 +40,7 @@ import javax.swing.event.TreeSelectionListener;
 import java.awt.Container;
 
 /**
- * Saros core panel tree list
+ * Saros tree view for contacts and sessions.
  */
 public class SarosTreeView {
 
@@ -56,25 +56,20 @@ public class SarosTreeView {
     @Inject
     private XMPPConnectionService connectionService;
 
-    /**
-     * @param parent
-     */
     public SarosTreeView(Container parent) {
         this.parent = parent;
         this.parent.add(create());
         SarosPluginContext.initComponent(this);
     }
 
-    /**
-     * @return
-     */
     public JTree create() {
         rootTree = new RootTree();
 
         sessionTree = new SessionTree(rootTree);
         contactTree = new ContactTree(rootTree);
 
-        this.rootTree.getJtree().addMouseListener(new TreeClickListener(contactTree, sessionTree));
+        this.rootTree.getJtree()
+            .addMouseListener(new TreeClickListener(contactTree, sessionTree));
 
         //listeners
         TreeExpansionListener expansionListener = new TreeExpansionListener() {
@@ -101,7 +96,6 @@ public class SarosTreeView {
         return rootTree.getJtree();
     }
 
-
     public RootTree getRootTree() {
         return rootTree;
     }
@@ -115,12 +109,14 @@ public class SarosTreeView {
     }
 
     /**
-     * Renders event connected
+     * Displays the user@server (connected) string and populates the contact list.
      */
     protected void renderConnected() {
         XMPPAccount activeAccount = accountStore.getActiveAccount();
 
-        String rootText = activeAccount.getUsername() + "@" + activeAccount.getServer() + " (Connected)";
+        String rootText =
+            activeAccount.getUsername() + "@" + activeAccount.getServer()
+                + " (Connected)";
         rootTree.setTitle(rootText);
 
         //add contacts
@@ -128,11 +124,10 @@ public class SarosTreeView {
 
         //add listener for on-line contacts
         connectionService.getRoster().addRosterListener(contactTree);
-
     }
 
     /**
-     * Renders event disconnected
+     * clears the contact list and title.
      */
     protected void renderDisconnected() {
         rootTree.setTitleDefault();

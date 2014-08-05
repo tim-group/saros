@@ -161,23 +161,6 @@ public class FollowModeAction extends AbstractSarosAction {
         updateMenu();
     }
 
-    /**
-     *
-     */
-    private FollowModeAction() {
-        session = sessionManager.getSarosSession();
-
-        sessionManager.addSarosSessionListener(sessionListener);
-        editorManager.addSharedEditorListener(editorListener);
-        currentlyFollowedUser = editorManager.getFollowedUser();
-
-        if (session != null) {
-            currentRemoteSessionUsers.addAll(session.getRemoteUsers());
-        }
-
-        updateMenu();
-    }
-
     @Override
     public String getActionName() {
         return NAME;

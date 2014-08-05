@@ -43,16 +43,11 @@ public class LeaveSessionAction extends AbstractSarosAction {
         return NAME;
     }
 
-
     @Override
     public void run() {
         actionStarted();
-
-        //sessionManager.stopSarosSession();
         CollaborationUtils.leaveSession();
-
-        LOG.info("DISCONNECTED");
-
+        LOG.info("left session");
         actionFinished();
     }
 }

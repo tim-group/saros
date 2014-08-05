@@ -26,8 +26,8 @@ import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
 import de.fu_berlin.inf.dpp.activities.RecoveryFileActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
-import de.fu_berlin.inf.dpp.core.monitor.IStatus;
-import de.fu_berlin.inf.dpp.core.monitor.Status;
+import de.fu_berlin.inf.dpp.core.monitoring.IStatus;
+import de.fu_berlin.inf.dpp.core.monitoring.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
@@ -39,10 +39,10 @@ import de.fu_berlin.inf.dpp.session.IActivityConsumer;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.synchronize.StartHandle;
+import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 import org.apache.log4j.Logger;
 import org.picocontainer.Startable;
 
-import java.awt.Image;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -60,6 +60,8 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
     private final ISarosSession session;
 
+    private final UISynchronizer synchronizer;
+
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
         @Override
         public void receive(ChecksumErrorActivity checksumError) {
@@ -69,9 +71,10 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     };
 
     public ConsistencyWatchdogHandler(ISarosSession session,
-        LocalEditorHandler localEditorHandler) {
+        LocalEditorHandler localEditorHandler, UISynchronizer synchronizer) {
         this.session = session;
         this.localEditorHandler = localEditorHandler;
+        this.synchronizer = synchronizer;
     }
 
     @Override
@@ -159,17 +162,23 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * <p/>
      * It should not be called from the UI Thread!
      */
-    void recoverFiles(ChecksumErrorActivity checksumError,
-        IProgressMonitor progress) {
+    void recoverFiles(final ChecksumErrorActivity checksumError,
+        final IProgressMonitor progress) {
 
         progress
             .beginTask("Sending files", checksumError.getPaths().size() + 1);
 
         try {
-            for (SPath path : checksumError.getPaths()) {
+            for (final SPath path : checksumError.getPaths()) {
                 progress.subTask(
                     "Recovering file: " + path.getProjectRelativePath());
-                recoverFile(checksumError.getSource(), session, path, progress);
+                synchronizer.syncExec(new Runnable() {
+
+                    @Override public void run() {
+                        recoverFile(checksumError.getSource(), session, path,
+                            progress);
+                    }
+                });
             }
 
             // Tell the user that we sent all files
@@ -231,7 +240,8 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
                 fireActivity(
                     new ChecksumActivity(user, path, checksum.hashCode(),
-                        checksum.length(), null));
+                        checksum.length(), null)
+                );
             } catch (IOException e) {
                 LOG.error("File could not be read, despite existing: " + path,
                     e);
@@ -245,9 +255,5 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
             progress.worked(8);
         }
         progress.done();
-    }
-
-    protected Image getWarningImage() {
-        return null;
     }
 }

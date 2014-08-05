@@ -29,7 +29,7 @@ import de.fu_berlin.inf.dpp.communication.chat.muc.MultiUserChatService;
 import de.fu_berlin.inf.dpp.communication.chat.single.SingleUserChatService;
 import de.fu_berlin.inf.dpp.core.awareness.AwarenessInformationCollector;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
-import de.fu_berlin.inf.dpp.core.monitor.remote.RemoteProgressManager;
+import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
@@ -80,70 +80,68 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory {
     // TODO we must abstract the IPrefenceStore stuff otherwise anything here is
     // broken
 
-    private final Component[] components = new Component[]{
+    private final Component[] components = new Component[] {
 
-            // Version support ... broken uses Eclipse / OSGi STUFF
-            Component.create(VersionManager.class),
+        // Version support ... broken uses Eclipse / OSGi STUFF
+        Component.create(VersionManager.class),
 
-            Component.create(MultiUserChatService.class),
-            Component.create(SingleUserChatService.class),
+        Component.create(MultiUserChatService.class),
+        Component.create(SingleUserChatService.class),
 
+        Component.create(XMPPAccountStore.class),
 
-            Component.create(XMPPAccountStore.class),
+        // Invitation hooks
+        Component.create(SessionNegotiationHookManager.class),
 
-            // Invitation hooks
-            Component.create(SessionNegotiationHookManager.class),
+        // VCS (only dummy to satisfy dependencies)
+        Component
+            .create(VCSProviderFactory.class, NullVCSProviderFactoryImpl.class),
 
-            // VCS (only dummy to satisfy dependencies)
-            Component.create(VCSProviderFactory.class, NullVCSProviderFactoryImpl.class),
+        // Network
+        Component.create(DispatchThreadContext.class),
 
+        Component.create(DataTransferManager.class),
 
-            // Network
-            Component.create(DispatchThreadContext.class),
+        Component.create(DiscoveryManager.class),
 
-            Component.create(DataTransferManager.class),
+        Component.create(BindKey.bindKey(ITransport.class,
+            ISarosContextBindings.IBBTransport.class), IBBTransport.class),
 
-            Component.create(DiscoveryManager.class),
+        Component.create(BindKey.bindKey(ITransport.class,
+                ISarosContextBindings.Socks5Transport.class),
+            Socks5Transport.class
+        ),
 
-            Component.create(BindKey.bindKey(ITransport.class,
-                    ISarosContextBindings.IBBTransport.class), IBBTransport.class),
+        Component.create(RosterTracker.class),
+        Component.create(XMPPConnectionService.class),
+        //  Component.create(SkypeManager.class),
 
-            Component.create(BindKey.bindKey(ITransport.class,
-                            ISarosContextBindings.Socks5Transport.class),
-                    Socks5Transport.class
-            ),
+        Component.create(IStunService.class, StunServiceImpl.class),
 
-            Component.create(RosterTracker.class),
-            Component.create(XMPPConnectionService.class),
-            //  Component.create(SkypeManager.class),
+        Component.create(SubscriptionHandler.class),
 
-            Component.create(IStunService.class, StunServiceImpl.class),
+        Component.create(IUPnPService.class, UPnPServiceImpl.class),
+        Component.create(IUPnPAccess.class, UPnPAccessImpl.class),
+        Component.create(IReceiver.class, XMPPReceiver.class),
+        Component.create(ITransmitter.class, XMPPTransmitter.class),
 
-            Component.create(SubscriptionHandler.class),
+        // Observables
+        Component.create(FileReplacementInProgressObservable.class),
+        Component.create(SessionNegotiationObservable.class),
+        Component.create(ProjectNegotiationObservable.class),
+        Component.create(IsInconsistentObservable.class),
+        Component.create(SessionIDObservable.class),
+        Component.create(SarosSessionObservable.class),
+        Component.create(AwarenessInformationCollector.class),
+        // Component.create(FollowingActivitiesManager.class),  //todo
 
-            Component.create(IUPnPService.class, UPnPServiceImpl.class),
-            Component.create(IUPnPAccess.class, UPnPAccessImpl.class),
-            Component.create(IReceiver.class, XMPPReceiver.class),
-            Component.create(ITransmitter.class, XMPPTransmitter.class),
+        // Handlers
+        Component.create(CancelInviteHandler.class),
+        Component.create(CancelProjectSharingHandler.class),
+        Component.create(InvitationHandler.class),
+        Component.create(LeaveAndKickHandler.class),
 
-            // Observables
-            Component.create(FileReplacementInProgressObservable.class),
-            Component.create(SessionNegotiationObservable.class),
-            Component.create(ProjectNegotiationObservable.class),
-            Component.create(IsInconsistentObservable.class),
-            Component.create(SessionIDObservable.class),
-            Component.create(SarosSessionObservable.class),
-            Component.create(AwarenessInformationCollector.class),
-            // Component.create(FollowingActivitiesManager.class),  //todo
-
-            // Handlers
-            Component.create(CancelInviteHandler.class),
-            Component.create(CancelProjectSharingHandler.class),
-            Component.create(InvitationHandler.class),
-            Component.create(LeaveAndKickHandler.class),
-
-            Component.create(RemoteProgressManager.class),
-
+        Component.create(RemoteProgressManager.class),
 
     };
 
@@ -152,7 +150,7 @@ public class SarosCoreContextFactory extends AbstractSarosContextFactory {
         for (Component component : Arrays.asList(components)) {
 
             container.addComponent(component.getBindKey(),
-                    component.getImplementation());
+                component.getImplementation());
         }
     }
 }

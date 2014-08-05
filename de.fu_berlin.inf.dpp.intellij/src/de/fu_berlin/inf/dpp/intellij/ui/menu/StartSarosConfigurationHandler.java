@@ -22,18 +22,17 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.menu;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import de.fu_berlin.inf.dpp.intellij.ui.menu.core.AbstractMenuHandler;
 
 /**
  * Start saros configuration menu action
  */
-public class StartSarosConfigurationHandler extends AbstractMenuHandler
-{
+public class StartSarosConfigurationHandler extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO: Add Saros configuration dialog
     }
 }

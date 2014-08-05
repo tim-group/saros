@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.editor;
 
+import com.intellij.ide.highlighter.ModuleFileType;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -29,10 +30,16 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.module.ModifiableModuleModel;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -209,5 +216,31 @@ public class ProjectAPI {
     public void addFileEditorManagerListener(
         StoppableEditorFileListener listener) {
         editorFileManager.addFileEditorManagerListener(listener);
+    }
+
+    //FIXME: This method does not work yet , just a work in progress
+    public void addModule(IProject p) {
+        try {
+            ProjectManager.getInstance()
+                .createProject(p.getFullPath().toString(), p.getName());
+            String imlName = p.getFullPath() + "/" + p.getName()
+                + ModuleFileType.DOT_DEFAULT_EXTENSION;
+            final Module module = ModuleManager.getInstance(project)
+                .newModule(imlName, p.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            ModuleManager moduleManager = ModuleManager.getInstance(project);
+            final ModifiableModuleModel moduleModel = moduleManager
+                .getModifiableModel();
+            String moduleFilePath = p.getFullPath() + "/" + p.getName()
+                + ModuleFileType.DOT_DEFAULT_EXTENSION;
+            moduleModel.newModule(moduleFilePath, StdModuleTypes.JAVA.getId());
+            moduleModel.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -33,17 +33,16 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 /**
  * Connects XMPP/Jabber server with given account
  */
-public class ConnectServerAction extends AbstractSarosAction implements IConnectionAction {
+public class ConnectServerAction extends AbstractSarosAction {
     public static final String NAME = "connect";
 
     private String activeUser;
     private boolean createNew = false;
-
 
     @Inject
     private XMPPAccountStore accountStore;
@@ -69,9 +68,6 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
         this.activeUser = activeUser;
     }
 
-    /**
-     * @param createNew
-     */
     public void setCreateNew(boolean createNew) {
         this.createNew = createNew;
     }
@@ -97,11 +93,11 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
                     return account;
                 }
             } else {
-                if (server.equalsIgnoreCase(account.getServer()) && user.equalsIgnoreCase(account.getUsername())) {
+                if (server.equalsIgnoreCase(account.getServer()) && user
+                    .equalsIgnoreCase(account.getUsername())) {
                     return account;
                 }
             }
-
 
             if (user.startsWith(account.getUsername())) {
                 return account;
@@ -119,47 +115,52 @@ public class ConnectServerAction extends AbstractSarosAction implements IConnect
             account = locateAccount(activeUser);
             activeUser = null; //removeAll user name
         } else if (createNew || accountStore.isEmpty()) {
-            //throw new RuntimeException("No current account set!"); //todo: open dialog
-
-
-            final String jabberID = SafeDialogUtils.showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')", "dev1_alice_stf", "Login");
+            final String jabberID = SafeDialogUtils
+                .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
+                    "dev1_alice_stf", "Login");
             if (jabberID == null) {
                 actionFinished();
                 return;
             }
-            final String password = SafeDialogUtils.showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+            final String password = SafeDialogUtils
+                .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
             if (password == null) {
                 actionFinished();
                 return;
             }
-            account = accountStore.createAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
-            //account = new XMPPAccount(jabberID, password, Saros.NAMESPACE, Saros.SAROS_SERVER, 80, false, false);
+            account = accountStore
+                .createAccount(jabberID, password, Saros.NAMESPACE,
+                    Saros.SAROS_SERVER, 80, false, false);
             isNew = true;
         } else {
             account = accountStore.getActiveAccount();
         }
 
-        LOG.info("Connecting server: [" + account.getUsername() + "@" + account.getServer() + "]");
+        LOG.info("Connecting server: [" + account.getUsername() + "@" + account
+            .getServer() + "]");
 
         try {
-
-
-            connectionService.connect(new ConnectionConfiguration(account.getServer()), account.getUsername(), account.getPassword());
+            connectionService
+                .connect(new ConnectionConfiguration(account.getServer()),
+                    account.getUsername(), account.getPassword());
 
             //store account
-            if (isNew &&
-                    !accountStore.exists(account.getUsername(), account.getDomain(), account.getServer(), account.getPort())) {
+            if (isNew && !accountStore
+                .exists(account.getUsername(), account.getDomain(),
+                    account.getServer(), account.getPort())) {
 
-                account = accountStore.createAccount(account.getUsername(), account.getPassword(), account.getDomain(), account.getServer(), account.getPort(), account.useTLS(), account.useSASL());
+                account = accountStore
+                    .createAccount(account.getUsername(), account.getPassword(),
+                        account.getDomain(), account.getServer(),
+                        account.getPort(), account.useTLS(), account.useSASL());
             }
             accountStore.setAccountActive(account);
         } catch (XMPPException e) {
-            // Messages.showErrorDialog("Bad login or password. Try again!","Error");
-            JOptionPane.showMessageDialog(guiFrame, "Bad login or password. Try again!", "Error", JOptionPane.ERROR_MESSAGE);
-
+            JOptionPane.showMessageDialog(guiFrame,
+                "Bad login or password. Try again!", "Error",
+                JOptionPane.ERROR_MESSAGE);
             LOG.error(e);
         }
-
 
         actionFinished();
     }

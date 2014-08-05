@@ -29,8 +29,10 @@ import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
+import de.fu_berlin.inf.dpp.core.project.internal.SarosSession;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.ProcessListener;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
@@ -64,14 +66,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 /**
  * The SessionManager is responsible for initiating new Saros sessions and for
  * reacting to invitations. The user can be only part of one session at most.
- *
- * @author rdjemili
  */
-//todo: copy from eclipse
 public class SarosSessionManager implements ISarosSessionManager {
 
     /**
@@ -94,7 +92,7 @@ public class SarosSessionManager implements ISarosSessionManager {
      */
 
     private static final Logger log = Logger
-            .getLogger(SarosSessionManager.class.getName());
+        .getLogger(SarosSessionManager.class.getName());
 
     private static final Random SESSION_ID_GENERATOR = new Random();
 
@@ -125,7 +123,7 @@ public class SarosSessionManager implements ISarosSessionManager {
     private final IConnectionListener listener = new IConnectionListener() {
         @Override
         public void connectionStateChanged(Connection connection,
-                                           ConnectionState state) {
+            ConnectionState state) {
 
             if (state == ConnectionState.DISCONNECTING) {
                 stopSarosSession();
@@ -140,11 +138,11 @@ public class SarosSessionManager implements ISarosSessionManager {
     private volatile INegotiationHandler negotiationHandler;
 
     public SarosSessionManager(XMPPConnectionService connectionService,
-                               SarosSessionObservable sarosSessionObservable,
-                               SessionIDObservable sessionID,
-                               SessionNegotiationObservable currentSessionNegotiations,
-                               ProjectNegotiationObservable currentProjectNegotiations,
-                               PreferenceUtils preferenceUtils) {
+        SarosSessionObservable sarosSessionObservable,
+        SessionIDObservable sessionID,
+        SessionNegotiationObservable currentSessionNegotiations,
+        ProjectNegotiationObservable currentProjectNegotiations,
+        PreferenceUtils preferenceUtils) {
         this.connectionService = connectionService;
         this.sarosSessionObservable = sarosSessionObservable;
         this.sessionIDObservable = sessionID;
@@ -172,16 +170,17 @@ public class SarosSessionManager implements ISarosSessionManager {
      * it.
      * <p/>
      * (At the moment, this separation is invisible to the user.
-     * He/she must share a project in order to first a session.)
+     * He/she must share a project in order to start a session.)
      */
     @Override
     public void startSession(
-            final Map<IProject, List<IResource>> projectResourcesMapping) {
+        final Map<IProject, List<IResource>> projectResourcesMapping) {
 
         try {
-            if (!startStopSessionLock.tryLock(LOCK_TIMEOUT,
-                    TimeUnit.MILLISECONDS)) {
-                log.warn("could not first a new session because another operation still tries to first or stop a session");
+            if (!startStopSessionLock
+                .tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                log.warn(
+                    "could not start a new session because another operation still tries to start or stop a session");
                 return;
             }
         } catch (InterruptedException e) {
@@ -193,32 +192,33 @@ public class SarosSessionManager implements ISarosSessionManager {
 
             if (sessionShutdown) {
                 throw new IllegalStateException(
-                        "cannot first the session from the same thread context that is currently about to stop the session: "
-                                + Thread.currentThread().getName()
+                    "cannot start the session from the same thread context that is currently about to stop the session: "
+                        + Thread.currentThread().getName()
                 );
             }
 
             if (sessionStartup) {
                 log.warn(
-                        "recursive execution detected, ignoring session first request",
-                        new StackTrace());
+                    "recursive execution detected, ignoring session start request",
+                    new StackTrace());
                 return;
             }
 
             if (sarosSessionObservable.getValue() != null) {
-                log.warn("could not first a new session because a session has already been started");
+                log.warn(
+                    "could not start a new session because a session has already been started");
                 return;
             }
 
             sessionStartup = true;
 
-            sessionIDObservable.setValue(String.valueOf(SESSION_ID_GENERATOR
-                    .nextInt(Integer.MAX_VALUE)));
+            sessionIDObservable.setValue(String
+                .valueOf(SESSION_ID_GENERATOR.nextInt(Integer.MAX_VALUE)));
 
             // FIXME should be passed in (colorID, nickname)
             final SarosSession sarosSession = new SarosSession(
-                    preferenceUtils.getSessionNickname(),
-                    preferenceUtils.getFavoriteColorID(), sarosContext);
+                preferenceUtils.getSessionNickname(),
+                preferenceUtils.getFavoriteColorID(), sarosContext);
 
             sarosSessionObservable.setValue(sarosSession);
 
@@ -227,7 +227,7 @@ public class SarosSessionManager implements ISarosSessionManager {
             sessionStarted(sarosSession);
 
             for (Entry<IProject, List<IResource>> mapEntry : projectResourcesMapping
-                    .entrySet()) {
+                .entrySet()) {
 
                 IProject project = mapEntry.getKey();
                 List<IResource> resourcesList = mapEntry.getValue();
@@ -236,8 +236,10 @@ public class SarosSessionManager implements ISarosSessionManager {
                     try {
                         project.open();
                     } catch (IOException e) {
-                        log.error("an error occured while opening project: "
-                                + project.getName(), e);
+                        log.error(
+                            "an error occured while opening project: " + project
+                                .getName(), e
+                        );
                         continue;
                     }
                 }
@@ -250,11 +252,11 @@ public class SarosSessionManager implements ISarosSessionManager {
                     log.warn("could not refresh project: " + project, e);
                 }
 
-                String projectID = String.valueOf(SESSION_ID_GENERATOR
-                        .nextInt(Integer.MAX_VALUE));
+                String projectID = String
+                    .valueOf(SESSION_ID_GENERATOR.nextInt(Integer.MAX_VALUE));
 
-                sarosSession.addSharedResources(project, projectID,
-                        resourcesList);
+                sarosSession
+                    .addSharedResources(project, projectID, resourcesList);
 
                 projectAdded(projectID);
             }
@@ -269,12 +271,12 @@ public class SarosSessionManager implements ISarosSessionManager {
     // FIXME offer a startSession method for the client and host !
     @Override
     public ISarosSession joinSession(JID host, String clientNickname,
-                                     String hostNickname, int clientColor, int hostColor) {
+        String hostNickname, int clientColor, int hostColor) {
 
         assert getSarosSession() == null;
 
         SarosSession sarosSession = new SarosSession(host, clientNickname,
-                hostNickname, clientColor, hostColor, sarosContext);
+            hostNickname, clientColor, hostColor, sarosContext);
 
         sarosSessionObservable.setValue(sarosSession);
 
@@ -289,12 +291,11 @@ public class SarosSessionManager implements ISarosSessionManager {
     @Override
     public void stopSarosSession() {
 
-        //  assert !SWTUtils.isSWT() : "stopSarosSession must not be called from SWT";
-
         try {
-            if (!startStopSessionLock.tryLock(LOCK_TIMEOUT,
-                    TimeUnit.MILLISECONDS)) {
-                log.warn("could not stop the current session because another operation still tries to first or stop a session");
+            if (!startStopSessionLock
+                .tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                log.warn(
+                    "could not stop the current session because another operation still tries to start or stop a session");
                 return;
             }
         } catch (InterruptedException e) {
@@ -306,24 +307,24 @@ public class SarosSessionManager implements ISarosSessionManager {
 
             if (sessionStartup) {
                 throw new IllegalStateException(
-                        "cannot stop the session from the same thread context that is currently about to first the session: "
-                                + Thread.currentThread().getName()
+                    "cannot stop the session from the same thread context that is currently about to start the session: "
+                        + Thread.currentThread().getName()
                 );
             }
 
             if (sessionShutdown) {
                 log.warn(
-                        "recursive execution detected, ignoring session stop request",
-                        new StackTrace());
+                    "recursive execution detected, ignoring session stop request",
+                    new StackTrace());
                 return;
             }
 
             SarosSession sarosSession = (SarosSession) sarosSessionObservable
-                    .getValue();
+                .getValue();
 
             if (sarosSession == null) {
                 sessionIDObservable
-                        .setValue(SessionIDObservable.NOT_IN_SESSION);
+                    .setValue(SessionIDObservable.NOT_IN_SESSION);
                 return;
             }
 
@@ -368,20 +369,20 @@ public class SarosSessionManager implements ISarosSessionManager {
      * @deprecated Error prone method, which produces NPE if not handled
      * correctly. Will soon get removed.
      */
-    @Override
-    @Deprecated
+    @Override @Deprecated
     public ISarosSession getSarosSession() {
         return sarosSessionObservable.getValue();
     }
 
     @Override
     public void invitationReceived(JID from, String sessionID,
-                                   String invitationID, String version, String description) {
+        String invitationID, String version, String description) {
 
         INegotiationHandler handler = negotiationHandler;
 
         if (handler == null) {
-            log.warn("could not next invitation because no handler is installed");
+            log.warn(
+                "could not accept invitation because no handler is installed");
             return;
         }
 
@@ -389,21 +390,24 @@ public class SarosSessionManager implements ISarosSessionManager {
 
         synchronized (this) {
             if (!startStopSessionLock.tryLock()) {
-                log.warn("could not next invitation because the current session is about to stop");
+                log.warn(
+                    "could not accept invitation because the current session is about to stop");
                 return;
             }
 
             try {
 
-                if (sessionIDObservable.getValue() != SessionIDObservable.NOT_IN_SESSION) {
-                    log.error("could not next invitation because there is already a pending invitation");
+                if (sessionIDObservable.getValue()
+                    != SessionIDObservable.NOT_IN_SESSION) {
+                    log.error(
+                        "could not accept invitation because there is already a pending invitation");
                     return;
                 }
 
                 sessionIDObservable.setValue(sessionID);
 
                 process = new IncomingSessionNegotiation(this, from, version,
-                        invitationID, description, sarosContext);
+                    invitationID, description, sarosContext);
 
                 process.setNegotiationListener(processListener);
                 currentSessionNegotiations.add(process);
@@ -420,18 +424,19 @@ public class SarosSessionManager implements ISarosSessionManager {
      * This method is called when a new project was added to the session
      *
      * @param from         The one who added the project.
-     * @param projectInfos what projects where added ({@link de.fu_berlin.inf.dpp.core.invitation.FileList}, projectName etc.)
-     *                     see: {@link de.fu_berlin.inf.dpp.core.invitation.ProjectNegotiationData}
+     * @param projectInfos what projects where added ({@link FileList}, projectName etc.)
+     *                     see: {@link ProjectNegotiationData}
      * @param processID    ID of the exchanging process
      */
     @Override
     public void incomingProjectReceived(JID from,
-                                        List<ProjectNegotiationData> projectInfos, String processID) {
+        List<ProjectNegotiationData> projectInfos, String processID) {
 
         INegotiationHandler handler = negotiationHandler;
 
         if (handler == null) {
-            log.warn("could not next project negotiation because no handler is installed");
+            log.warn(
+                "could not accept project negotiation because no handler is installed");
             return;
         }
 
@@ -439,13 +444,14 @@ public class SarosSessionManager implements ISarosSessionManager {
 
         synchronized (this) {
             if (!startStopSessionLock.tryLock()) {
-                log.warn("could not next project negotation because the current session is about to stop");
+                log.warn(
+                    "could not accept project negotation because the current session is about to stop");
                 return;
             }
 
             try {
                 process = new IncomingProjectNegotiation(getSarosSession(),
-                        from, processID, projectInfos, sarosContext);
+                    from, processID, projectInfos, sarosContext);
 
                 process.setNegotiationListener(processListener);
                 currentProjectNegotiations.addProjectExchangeProcess(process);
@@ -464,7 +470,8 @@ public class SarosSessionManager implements ISarosSessionManager {
         INegotiationHandler handler = negotiationHandler;
 
         if (handler == null) {
-            log.warn("could not first an invitation because no handler is installed");
+            log.warn(
+                "could not start an invitation because no handler is installed");
             return;
         }
 
@@ -472,7 +479,8 @@ public class SarosSessionManager implements ISarosSessionManager {
 
         synchronized (this) {
             if (!startStopSessionLock.tryLock()) {
-                log.warn("could not first an invitation because the current session is about to first or stop");
+                log.warn(
+                    "could not start an invitation because the current session is about to start or stop");
                 return;
             }
 
@@ -497,7 +505,7 @@ public class SarosSessionManager implements ISarosSessionManager {
                 }
 
                 process = new OutgoingSessionNegotiation(toInvite, session,
-                        description, sarosContext);
+                    description, sarosContext);
 
                 process.setNegotiationListener(processListener);
                 currentSessionNegotiations.add(process);
@@ -523,12 +531,13 @@ public class SarosSessionManager implements ISarosSessionManager {
      */
     @Override
     public void addResourcesToSession(
-            Map<IProject, List<IResource>> projectResourcesMapping) {
+        Map<IProject, List<IResource>> projectResourcesMapping) {
 
         ISarosSession session = getSarosSession();
 
         if (session == null) {
-            log.warn("could not add resources because there is no active session");
+            log.warn(
+                "could not add resources because there is no active session");
             return;
         }
 
@@ -538,14 +547,15 @@ public class SarosSessionManager implements ISarosSessionManager {
          */
 
         if (!session.hasWriteAccess()) {
-            log.error("current local user has not enough privileges to add resources to the current session");
+            log.error(
+                "current local user has not enough privileges to add resources to the current session");
             return;
         }
 
         List<IProject> projectsToShare = new ArrayList<IProject>();
 
         for (Entry<IProject, List<IResource>> mapEntry : projectResourcesMapping
-                .entrySet()) {
+            .entrySet()) {
             IProject project = mapEntry.getKey();
             List<IResource> resourcesList = mapEntry.getValue();
 
@@ -553,8 +563,10 @@ public class SarosSessionManager implements ISarosSessionManager {
                 try {
                     project.open();
                 } catch (IOException e) {
-                    log.error("an error occurred while opening project: "
-                            + project.getName(), e);
+                    log.error(
+                        "an error occurred while opening project: " + project
+                            .getName(), e
+                    );
                     continue;
                 }
             }
@@ -572,8 +584,8 @@ public class SarosSessionManager implements ISarosSessionManager {
                 String projectID = session.getProjectID(project);
 
                 if (projectID == null) {
-                    projectID = String.valueOf(SESSION_ID_GENERATOR
-                            .nextInt(Integer.MAX_VALUE));
+                    projectID = String.valueOf(
+                        SESSION_ID_GENERATOR.nextInt(Integer.MAX_VALUE));
                 }
 
                 session.addSharedResources(project, projectID, resourcesList);
@@ -583,14 +595,16 @@ public class SarosSessionManager implements ISarosSessionManager {
         }
 
         if (projectsToShare.isEmpty()) {
-            log.warn("skipping project negotitation because no new projects were added to the current session");
+            log.warn(
+                "skipping project negotitation because no new projects were added to the current session");
             return;
         }
 
         INegotiationHandler handler = negotiationHandler;
 
         if (handler == null) {
-            log.warn("could not first a project negotiation because no handler is installed");
+            log.warn(
+                "could not start a project negotiation because no handler is installed");
             return;
         }
 
@@ -598,7 +612,8 @@ public class SarosSessionManager implements ISarosSessionManager {
 
         synchronized (this) {
             if (!startStopSessionLock.tryLock()) {
-                log.warn("could not first a project negotiation because the current session is about to stop");
+                log.warn(
+                    "could not start a project negotiation because the current session is about to stop");
                 return;
             }
 
@@ -606,11 +621,11 @@ public class SarosSessionManager implements ISarosSessionManager {
                 for (User user : session.getRemoteUsers()) {
 
                     OutgoingProjectNegotiation process = new OutgoingProjectNegotiation(
-                            user.getJID(), session, projectsToShare, sarosContext);
+                        user.getJID(), session, projectsToShare, sarosContext);
 
                     process.setNegotiationListener(processListener);
                     currentProjectNegotiations
-                            .addProjectExchangeProcess(process);
+                        .addProjectExchangeProcess(process);
                     negotiations.add(process);
                 }
             } finally {
@@ -637,7 +652,7 @@ public class SarosSessionManager implements ISarosSessionManager {
         }
 
         List<IProject> currentSharedProjects = new ArrayList<IProject>(
-                session.getProjects());
+            session.getProjects());
 
         if (currentSharedProjects.isEmpty()) {
             return;
@@ -646,7 +661,8 @@ public class SarosSessionManager implements ISarosSessionManager {
         INegotiationHandler handler = negotiationHandler;
 
         if (handler == null) {
-            log.warn("could not first a project negotiation because no handler is installed");
+            log.warn(
+                "could not start a project negotiation because no handler is installed");
             return;
         }
 
@@ -654,13 +670,14 @@ public class SarosSessionManager implements ISarosSessionManager {
 
         synchronized (this) {
             if (!startStopSessionLock.tryLock()) {
-                log.warn("could not first a project negotiation because the current session is about to stop");
+                log.warn(
+                    "could not start a project negotiation because the current session is about to stop");
                 return;
             }
 
             try {
                 process = new OutgoingProjectNegotiation(user, session,
-                        currentSharedProjects, sarosContext);
+                    currentSharedProjects, sarosContext);
 
                 process.setNegotiationListener(processListener);
                 currentProjectNegotiations.addProjectExchangeProcess(process);
@@ -682,20 +699,19 @@ public class SarosSessionManager implements ISarosSessionManager {
         sarosSessionListeners.remove(listener);
     }
 
-
     @Override
-    public void postOutgoingInvitationCompleted(IProgressMonitor monitor, User newUser) {
+    public void postOutgoingInvitationCompleted(IProgressMonitor monitor,
+        User newUser) {
         try {
             for (ISarosSessionListener sarosSessionListener : sarosSessionListeners) {
-                sarosSessionListener.postOutgoingInvitationCompleted(monitor,
-                        newUser);
+                sarosSessionListener
+                    .postOutgoingInvitationCompleted(monitor, newUser);
             }
         } catch (RuntimeException e) {
             log.error("Internal error in notifying listener"
-                    + " of an outgoing invitation: ", e);
+                + " of an outgoing invitation: ", e);
         }
     }
-
 
     @Override
     public void sessionStarting(ISarosSession sarosSession) {
@@ -714,7 +730,7 @@ public class SarosSessionManager implements ISarosSessionManager {
             try {
                 sarosSessionListener.sessionStarted(sarosSession);
             } catch (RuntimeException e) {
-                log.error("error in notifying listener of session first: ", e);
+                log.error("error in notifying listener of session start: ", e);
             }
         }
     }
@@ -741,103 +757,38 @@ public class SarosSessionManager implements ISarosSessionManager {
 
     @Override
     public void projectAdded(String projectID) {
-
-        IProject p = getSarosSession().getProject(projectID);
-
-        try {
-            p.refreshLocal(); //todo
-
-            try {
-                //ProjectManager.getInstance().createProject(p.getFullPath().toString(), p.getName());
-                //    String imlName = p.getFullPath() + "/" + p.getName() + ModuleFileType.DOT_DEFAULT_EXTENSION;
-                //    final Module module = ModuleManager.getInstance(Saros.instance().getProject()).newModule(imlName, p.getName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-           /* try
-            {
-                ModuleManager moduleManager = ModuleManager.getInstance(Saros.instance().getProject());
-                final ModifiableModuleModel moduleModel = moduleManager.getModifiableModel();
-                String moduleFilePath = p.getFullPath() + "/" + p.getName() + ModuleFileType.DOT_DEFAULT_EXTENSION;
-                moduleModel.newModule(moduleFilePath, StdModuleTypes.JAVA.getId());
-                moduleModel.commit();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }*/
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
         for (ISarosSessionListener listener : sarosSessionListeners) {
             try {
                 listener.projectAdded(projectID);
             } catch (RuntimeException e) {
                 log.error("error in notifying listener of an added project: ",
-                        e);
+                    e);
             }
         }
     }
 
-    /*protected Module addModule(final String name, final boolean withSource)
-    {
-        return new WriteCommandAction<Module>(getProject())
-        {
-            @Override
-            protected void run(Result<Module> result) throws Throwable
-            {
-                final VirtualFile depRoot = myFixture.getTempDirFixture().findOrCreateDir(name);
-
-                final ModifiableModuleModel moduleModel = ModuleManager.getInstance(getProject()).getModifiableModel();
-                String moduleName = moduleModel.newModule(depRoot.getPath() + "/" + name + ".iml", StdModuleTypes.JAVA.getId()).getName();
-                moduleModel.commit();
-
-//                final Module dep = ModuleManager.getInstance(getProject()).findModuleByName(moduleName);
-//                ModuleRootModificationUtil.setModuleSdk(dep, ModuleRootManager.getInstance(myModule).getSdk());
-//                if (withSource)
-//                {
-//                    PsiTestUtil.addSourceRoot(dep, depRoot);
-//                }
-//                else
-//                {
-//                    PsiTestUtil.addContentRoot(dep, depRoot);
-//                }
-//                IdeaTestUtil.setModuleLanguageLevel(dep, LanguageLevelModuleExtension.getInstance(myModule).getLanguageLevel());
-
-                result.setResult(dep);
-            }
-        }.execute().getResultObject();
-    }*/
-
-
     private boolean terminateNegotiationProcesses() {
 
-        for (SessionNegotiation process : currentSessionNegotiations
-                .list()) {
+        for (SessionNegotiation process : currentSessionNegotiations.list()) {
             process.localCancel(null, CancelOption.NOTIFY_PEER);
         }
 
         for (ProjectNegotiation process : currentProjectNegotiations
-                .getProcesses().values()) {
+            .getProcesses().values()) {
             process.localCancel(null, CancelOption.NOTIFY_PEER);
         }
 
-        log.trace("waiting for all invitation and project negotiation processes to terminate");
+        log.trace(
+            "waiting for all invitation and project negotiation processes to terminate");
 
         long startTime = System.currentTimeMillis();
 
         boolean terminated = false;
 
-        while (System.currentTimeMillis() - startTime < NEGOTIATION_PROCESS_TIMEOUT) {
+        while (System.currentTimeMillis() - startTime
+            < NEGOTIATION_PROCESS_TIMEOUT) {
             if (currentSessionNegotiations.list().isEmpty()
-                    && currentProjectNegotiations.getProcesses().isEmpty()) {
+                && currentProjectNegotiations.getProcesses().isEmpty()) {
                 terminated = true;
                 break;
             }

@@ -22,33 +22,29 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-
 import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 
 /**
  * Adds new contact
  */
-public class NewContactAction extends AbstractSarosAction
-{
+public class NewContactAction extends AbstractSarosAction {
     public static final String NAME = "addContact";
 
     @Override
-    public String getActionName()
-    {
+    public String getActionName() {
         return NAME;
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         actionStarted();
 
-        //todo
-        LOG.info("ADD_CONTACT - not implemented action");
+        LOG.info("Not implemented action [" + NAME + "]");
 
-
-        SafeDialogUtils.showError("We are sorry, but action [" + NAME + "] not implemented yet!", "Not Implemented");
+        SafeDialogUtils.showError(
+            "We are sorry, but action [" + NAME + "] not implemented yet!",
+            "Not Implemented");
 
         actionFinished();
     }

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.project;
+package de.fu_berlin.inf.dpp.core.project.internal;
 
 import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.activities.EditorActivity;
@@ -41,16 +41,6 @@ import de.fu_berlin.inf.dpp.concurrent.management.ConcurrentDocumentServer;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogHandler;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogServer;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.project.internal.ActivityHandler;
-import de.fu_berlin.inf.dpp.core.project.internal.ActivityQueuer;
-import de.fu_berlin.inf.dpp.core.project.internal.ActivitySequencer;
-import de.fu_berlin.inf.dpp.core.project.internal.ClientSessionTimeoutHandler;
-import de.fu_berlin.inf.dpp.core.project.internal.IActivityHandlerCallback;
-import de.fu_berlin.inf.dpp.core.project.internal.PermissionManager;
-import de.fu_berlin.inf.dpp.core.project.internal.SarosProjectMapper;
-import de.fu_berlin.inf.dpp.core.project.internal.ServerSessionTimeoutHandler;
-import de.fu_berlin.inf.dpp.core.project.internal.SharedProjectListenerDispatch;
-import de.fu_berlin.inf.dpp.core.project.internal.UserInformationHandler;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
@@ -147,7 +137,6 @@ public final class SarosSession implements ISarosSession {
 
     //private final ChangeColorManager changeColorManager;
     // HACK to be able to move most parts to core
-    private final SharedResourcesManager resourceManager;
     private final IActivityListener activityListener = new IActivityListener() {
 
         /**
@@ -278,10 +267,6 @@ public final class SarosSession implements ISarosSession {
 
         // Force the creation of the above components.
         sessionContainer.getComponents();
-
-        // HACK
-        resourceManager = sessionContainer
-            .getComponent(SharedResourcesManager.class);
 
         concurrentDocumentServer = sessionContainer
             .getComponent(ConcurrentDocumentServer.class);

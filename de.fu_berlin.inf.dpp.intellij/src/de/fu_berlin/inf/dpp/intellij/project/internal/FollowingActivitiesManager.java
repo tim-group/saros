@@ -43,10 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * This manager is responsible for distributing knowledge about changes in
  * follow modes between session participants
- *
- * @author Alexander Waldmann (contact@net-corps.de)
  */
-//todo: copy from eclipse with minor changes
 public class FollowingActivitiesManager extends AbstractActivityProducer
     implements Startable {
 
@@ -83,7 +80,8 @@ public class FollowingActivitiesManager extends AbstractActivityProducer
             if (LOG.isDebugEnabled())
                 LOG.debug(
                     "received new follow mode from: " + source + " , followed: "
-                        + target);
+                        + target
+                );
 
             collector.setUserFollowing(source, target);
             notifyListeners();

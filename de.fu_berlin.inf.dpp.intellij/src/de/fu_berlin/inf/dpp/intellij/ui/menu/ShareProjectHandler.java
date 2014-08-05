@@ -22,18 +22,17 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.menu;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import de.fu_berlin.inf.dpp.intellij.ui.menu.core.AbstractMenuHandler;
 
 /**
  * Share project menu action
  */
-public class ShareProjectHandler extends AbstractMenuHandler
-{
+public class ShareProjectHandler extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent)
     {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO: Add share project
     }
 }

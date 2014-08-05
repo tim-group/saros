@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.VCSActivity;
-import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.project.SharedProject;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
@@ -74,15 +73,13 @@ public class SharedResourcesManager extends AbstractActivityProducer
      * Should return <code>true</code> while executing resource changes to avoid
      * an infinite resource event loop.
      */
-    private FileReplacementInProgressObservable fileReplacementInProgressObservable;
+    private final FileReplacementInProgressObservable fileReplacementInProgressObservable;
 
     private final LocalEditorHandler localEditorHandler;
 
     private final LocalEditorManipulator localEditorManipulator;
 
     private final Workspace workspace;
-
-    private final ConsistencyWatchdogClient consistencyWatchdogClient;
 
     @Override
     public void start() {
@@ -103,16 +100,13 @@ public class SharedResourcesManager extends AbstractActivityProducer
         EditorManager editorManager,
         FileReplacementInProgressObservable fileReplacementInProgressObservable,
         LocalEditorHandler localEditorHandler,
-        LocalEditorManipulator localEditorManipulator, Workspace workspace,
-        ConsistencyWatchdogClient consistencyWatchdogClient) {
+        LocalEditorManipulator localEditorManipulator, Workspace workspace) {
         this.sarosSession = sarosSession;
         this.fileReplacementInProgressObservable = fileReplacementInProgressObservable;
         this.localEditorHandler = localEditorHandler;
         this.localEditorManipulator = localEditorManipulator;
-        this.fileSystemListener = new FileSystemChangeListener(this,
-            editorManager);
+        fileSystemListener = new FileSystemChangeListener(this, editorManager);
         this.workspace = workspace;
-        this.consistencyWatchdogClient = consistencyWatchdogClient;
     }
 
     private final IActivityConsumer consumer = new AbstractActivityConsumer() {
@@ -132,12 +126,12 @@ public class SharedResourcesManager extends AbstractActivityProducer
             fileSystemListener.setEnabled(false);
             super.exec(activity);
 
-            LOG.trace("execing " + activity.toString() + " in " + Thread
-                .currentThread().getName());
+            LOG.trace("execing " + activity + " in " + Thread.currentThread()
+                .getName());
 
             fileReplacementInProgressObservable.replacementDone();
             fileSystemListener.setEnabled(true);
-            LOG.trace("done execing " + activity.toString());
+            LOG.trace("done execing " + activity);
         }
 
         @Override
@@ -159,8 +153,7 @@ public class SharedResourcesManager extends AbstractActivityProducer
         }
     };
 
-    protected void handleFileActivity(FileActivity activity)
-        throws IOException {
+    private void handleFileActivity(FileActivity activity) throws IOException {
 
         if (activity.isRecovery()) {
             handleFileRecovery(activity);
@@ -245,7 +238,7 @@ public class SharedResourcesManager extends AbstractActivityProducer
     private void handleFileCreation(FileActivity activity) throws IOException {
 
         //We need to try replaceAll directly in document if it is open
-        boolean replaced = false;
+        boolean replaceSuccessful;
 
         String encodingString = activity.getEncoding() == null ?
             EncodingProjectManager.getInstance().getDefaultCharset()
@@ -255,37 +248,40 @@ public class SharedResourcesManager extends AbstractActivityProducer
         //FIXME: Test if updateEncoding method will be necessary
         String newText = new String(activity.getContent(), encodingString);
         if (!newText.isEmpty()) {
-            replaced = localEditorManipulator
+            //this is true only when the file already existed
+            replaceSuccessful = localEditorManipulator
                 .replaceText(activity.getPath(), newText);
 
-            if (replaced) {
-                //FIXME: Is this ever called? Test with 2 Saros/I's
+            if (replaceSuccessful) {
+                //If the content of the existing document was replaced
+                //successfully, save the file
                 localEditorHandler.saveFile(activity.getPath());
-            } else {
-                IFile file = activity.getPath().getFile();
-                byte[] actualContent = FileUtils.getLocalFileContent(file);
-                byte[] newContent = activity.getContent();
+                return;
+            }
 
-                if (!Arrays.equals(newContent, actualContent)) {
-                    fileSystemListener.setEnabled(false);
-                    //HACK: It does not work to disable the fileSystemListener temporarily,
-                    //because a fileCreated event will be fired asynchronously,
-                    //so we have to add this file to the filter list
-                    fileSystemListener.addIncomingFileToFilterFor(
-                        file.getFullPath().toFile());
-                    FileUtils
-                        .writeFile(new ByteArrayInputStream(newContent), file,
-                            null);
-                    fileSystemListener.setEnabled(true);
-                } else {
-                    LOG.info(
-                        "FileActivity " + activity + " dropped (same content)");
-                }
+            //If the file did not exist, create it
+            IFile file = activity.getPath().getFile();
+            byte[] actualContent = FileUtils.getLocalFileContent(file);
+            byte[] newContent = activity.getContent();
+
+            if (!Arrays.equals(newContent, actualContent)) {
+                fileSystemListener.setEnabled(false);
+                //HACK: It does not work to disable the fileSystemListener temporarily,
+                //because a fileCreated event will be fired asynchronously,
+                //so we have to add this file to the filter list
+                fileSystemListener
+                    .addIncomingFileToFilterFor(file.getFullPath().toFile());
+                FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
+                    null);
+                fileSystemListener.setEnabled(true);
+            } else {
+                LOG.info(
+                    "FileActivity " + activity + " dropped (same content)");
             }
         }
     }
 
-    protected void handleFolderActivity(FolderActivity activity)
+    private void handleFolderActivity(FolderActivity activity)
         throws IOException {
 
         SPath path = activity.getPath();

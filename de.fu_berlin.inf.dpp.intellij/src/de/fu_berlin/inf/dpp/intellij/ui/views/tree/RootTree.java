@@ -22,48 +22,44 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.Component;
 
 /**
  * Root tree
  */
-public class RootTree extends AbstractTree
-{
+public class RootTree extends AbstractTree {
     public static final String SPACER = " ";
     public static final String TITLE_JABBER_SERVER = "XMPP/jabber server (Not connected)";
 
     protected JTree jtree;
 
-    public RootTree()
-    {
-        setUserObject(new CategoryInfo(SPACER + TITLE_JABBER_SERVER + "                                                                    "));
+    public RootTree() {
+        setUserObject(new CategoryInfo(SPACER + TITLE_JABBER_SERVER
+            + "                                                                    "));
 
         jtree = new JTree(this);
-        jtree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        jtree.getSelectionModel()
+            .setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         setTreeIcons(jtree);
     }
 
-    public JTree getJtree()
-    {
+    public JTree getJtree() {
         return jtree;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         ((CategoryInfo) getUserObject()).title = SPACER + title;
     }
 
-    public void setTitleDefault()
-    {
+    public void setTitleDefault() {
         setTitle(TITLE_JABBER_SERVER);
     }
 
@@ -72,51 +68,40 @@ public class RootTree extends AbstractTree
      *
      * @param tree
      */
-    protected void setTreeIcons(JTree tree)
-    {
+    protected void setTreeIcons(JTree tree) {
 
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()
-        {
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer() {
             @Override
             public Component getTreeCellRendererComponent(JTree tree,
-                    Object value, boolean selected, boolean expanded,
-                    boolean isLeaf, int row, boolean focused)
-            {
-                Component c = super.getTreeCellRendererComponent(tree, value,
-                        selected, expanded, isLeaf, row, focused);
+                Object value, boolean selected, boolean expanded,
+                boolean isLeaf, int row, boolean focused) {
+                Component c = super
+                    .getTreeCellRendererComponent(tree, value, selected,
+                        expanded, isLeaf, row, focused);
 
                 TreePath path = tree.getPathForRow(row);
-                if (path != null)
-                {
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                if (path != null) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+                        .getLastPathComponent();
 
-                    if (node != null)
-                    {
-                        if (node instanceof RootTree)
-                        {
+                    if (node != null) {
+                        if (node instanceof RootTree) {
                             setIcon(null);
-                        }
-                        else if (node instanceof SessionTree)
-                        {
+                        } else if (node instanceof SessionTree) {
                             setIcon(IconManager.SESSIONS_ICON);
-                        }
-                        else if (node instanceof ContactTree)
-                        {
+                        } else if (node instanceof ContactTree) {
                             setIcon(IconManager.CONTACTS_ICON);
-                        }
-                        else
-                        {
-                            if (node.getUserObject() instanceof AbstractTree.LeafInfo)
-                            {
-                                AbstractTree.LeafInfo info = (AbstractTree.LeafInfo) node.getUserObject();
-                                if (info.getIcon() != null)
-                                {
+                        } else {
+                            if (node
+                                .getUserObject() instanceof AbstractTree.LeafInfo) {
+                                AbstractTree.LeafInfo info = (AbstractTree.LeafInfo) node
+                                    .getUserObject();
+                                if (info.getIcon() != null) {
                                     setIcon(info.getIcon());
                                 }
                             }
                         }
                     }
-
 
                 }
 

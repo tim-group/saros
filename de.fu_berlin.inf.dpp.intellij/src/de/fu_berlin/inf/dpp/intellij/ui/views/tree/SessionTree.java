@@ -85,7 +85,6 @@ public class SessionTree extends AbstractTree {
         }
     };
 
-
     private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(final ISarosSession newSarosSession) {
@@ -110,7 +109,6 @@ public class SessionTree extends AbstractTree {
                 }
             });
 
-
         }
 
         @Override
@@ -124,7 +122,6 @@ public class SessionTree extends AbstractTree {
 
         }
     };
-
 
     /**
      * @param parent
@@ -154,10 +151,10 @@ public class SessionTree extends AbstractTree {
         getUserObject().title = title;
     }
 
-
     private void createSessionNode(ISarosSession newSarosSession) {
 
-        DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(new SessionInfo(newSarosSession));
+        DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(
+            new SessionInfo(newSarosSession));
 
         this.sessionNodeList.put(newSarosSession, nSession);
 
@@ -176,7 +173,6 @@ public class SessionTree extends AbstractTree {
 
     }
 
-
     private void removeSessionNode(ISarosSession oldSarosSession) {
 
         DefaultMutableTreeNode nSession = sessionNodeList.get(oldSarosSession);
@@ -194,23 +190,26 @@ public class SessionTree extends AbstractTree {
         rootTree.getJtree().expandRow(2);
     }
 
-
     private void addProjectNode(String projectID) {
 
         //iterate projects in sessions
         for (DefaultMutableTreeNode nSession : sessionNodeList.values()) {
-            ISarosSession session = ((SessionInfo) nSession.getUserObject()).getSession();
+            ISarosSession session = ((SessionInfo) nSession.getUserObject())
+                .getSession();
             IProject p = session.getProject(projectID);
             if (p != null) {
                 ProjectInfo projInfo;
                 if (session.isCompletelyShared(p)) {
                     projInfo = new ProjectInfo(p);
                 } else {
-                    projInfo = new ProjectInfo(p, session.getSharedResources(p));
+                    projInfo = new ProjectInfo(p,
+                        session.getSharedResources(p));
 
                 }
-                DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(projInfo);
-                treeModel.insertNodeInto(nProject, nSession, nSession.getChildCount());
+                DefaultMutableTreeNode nProject = new DefaultMutableTreeNode(
+                    projInfo);
+                treeModel.insertNodeInto(nProject, nSession,
+                    nSession.getChildCount());
 
                 treeModel.reload(nSession);
             }
@@ -218,11 +217,13 @@ public class SessionTree extends AbstractTree {
     }
 
     private void addUserNode(User user) {
-        DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(new UserInfo(user));
+        DefaultMutableTreeNode nUser = new DefaultMutableTreeNode(
+            new UserInfo(user));
         userNodeList.put(user, nUser);
         treeModel.insertNodeInto(nUser, this, this.getChildCount());
 
-        saros.getMainPanel().getSarosTree().getContactTree().hideContact(user.getJID().getBareJID().toString());
+        saros.getMainPanel().getSarosTree().getContactTree()
+            .hideContact(user.getJID().getBareJID().toString());
 
         treeModel.reload(this);
     }
@@ -233,7 +234,8 @@ public class SessionTree extends AbstractTree {
             remove(nUser);
             userNodeList.remove(user);
 
-            saros.getMainPanel().getSarosTree().getContactTree().showContact(user.getJID().getBareJID().toString());
+            saros.getMainPanel().getSarosTree().getContactTree()
+                .showContact(user.getJID().getBareJID().toString());
 
             treeModel.reload();
         }

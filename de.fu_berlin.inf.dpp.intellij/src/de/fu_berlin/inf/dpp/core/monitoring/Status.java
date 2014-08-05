@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.monitor;
+package de.fu_berlin.inf.dpp.core.monitoring;
 
 /**
  * This is a dummy implementation to ease the copy-paste-adapt process of

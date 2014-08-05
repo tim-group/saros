@@ -29,7 +29,7 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
 import de.fu_berlin.inf.dpp.core.editor.adapter.IDocument;
-import de.fu_berlin.inf.dpp.core.monitor.remote.RemoteProgressManager;
+import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -101,7 +101,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
      * performing a recovery in {@link #runRecovery(IProgressMonitor)}
      */
     private AtomicBoolean cancelRecovery = new AtomicBoolean();
-    /**7
+    /**
+     * 7
      * Lock used exclusively in {@link #runRecovery(IProgressMonitor)} to prevent two
      * recovery operations running concurrently.
      */
@@ -315,7 +316,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
             fireActivity(
                 new ChecksumErrorActivity(currentSession.getLocalUser(),
-                    currentSession.getHost(), pathsOfHandledFiles, recoveryID));
+                    currentSession.getHost(), pathsOfHandledFiles, recoveryID)
+            );
 
             try {
                 // block until all inconsistencies are resolved
@@ -397,8 +399,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
                     doc.getLength() == checksum.getLength() ? "==" : "!=",
                     checksum.getLength(), doc.get().hashCode(),
                     doc.get().hashCode() == checksum.getHash() ? "==" : "!=",
-                    checksum.getHash()
-                ));
+                    checksum.getHash()));
 
             return true;
         }

@@ -30,9 +30,8 @@ import org.picocontainer.annotations.Inject;
 /**
  * Disconnects XMPP/Jabber server
  */
-public class DisconnectServerAction extends AbstractSarosAction implements IConnectionAction {
+public class DisconnectServerAction extends AbstractSarosAction {
     public static final String NAME = "disconnect";
-
 
     @Inject
     private XMPPConnectionService connectionService;
@@ -46,14 +45,13 @@ public class DisconnectServerAction extends AbstractSarosAction implements IConn
         return NAME;
     }
 
-
     @Override
     public void run() {
         actionStarted();
 
         connectionService.disconnect();
 
-        LOG.info("DISCONNECTED");
+        LOG.info("disconnected from server");
 
         actionFinished();
     }

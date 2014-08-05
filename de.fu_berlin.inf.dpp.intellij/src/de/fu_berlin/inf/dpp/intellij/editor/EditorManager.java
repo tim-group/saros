@@ -61,11 +61,11 @@ import java.util.Set;
 
 /**
  * The EditorManager is responsible for handling all local editors in a DPP-session.
- * <p>
+ * <p/>
  * This includes the functionality of listening for user inputs in an editor, listening for
  * remote inputs and locking the editors of the users with
  * {@link User.Permission#READONLY_ACCESS}.
- * <p>
+ * <p/>
  * This implementation delegates edit activites received from remote to
  * {@link LocalEditorManipulator} and gets called by {@link LocalEditorHandler}
  * for activities from local editors.
@@ -690,8 +690,8 @@ public class EditorManager extends AbstractActivityProducer {
     /**
      * Generates a TextEditActivity and fires it.
      */
-    void generateTextEdit(int offset, String newText,
-        String replacedText, SPath path) {
+    void generateTextEdit(int offset, String newText, String replacedText,
+        SPath path) {
 
         if (session == null) {
             return;

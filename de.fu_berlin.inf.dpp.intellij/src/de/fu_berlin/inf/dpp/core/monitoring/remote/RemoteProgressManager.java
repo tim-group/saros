@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.monitor.remote;
+package de.fu_berlin.inf.dpp.core.monitoring.remote;
 
 import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
@@ -172,8 +172,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
         return new RemoteProgressMonitor(this, getNextID(),
             currentSession.getLocalUser(),
-            new ArrayList<User>(new HashSet<User>(users)), monitor
-        );
+            new ArrayList<User>(new HashSet<User>(users)), monitor);
     }
 
     void monitorUpdated(final ProgressActivity activity) {

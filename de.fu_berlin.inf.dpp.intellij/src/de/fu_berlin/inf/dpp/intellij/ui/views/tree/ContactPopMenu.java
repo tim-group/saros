@@ -56,9 +56,6 @@ class ContactPopMenu extends JPopupMenu {
 
     private ModuleManager moduleManager;
 
-    /**
-     *
-     */
     public ContactPopMenu(ContactTree.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
         SarosPluginContext.initComponent(this);
@@ -69,7 +66,8 @@ class ContactPopMenu extends JPopupMenu {
 
         if (saros.getProject() != null) {
             JMenuItem projectItem = new JMenuItem(saros.getProject().getName());
-            projectItem.addActionListener(new ShareProjectAction(saros.getProject()));
+            projectItem
+                .addActionListener(new ShareProjectAction(saros.getProject()));
 
             menuShareProject.add(projectItem);
 
@@ -81,18 +79,20 @@ class ContactPopMenu extends JPopupMenu {
 
                 for (Module module : modules) {
 
-                    if (saros.getProject().getName().equalsIgnoreCase(module.getName())) {
+                    if (saros.getProject().getName()
+                        .equalsIgnoreCase(module.getName())) {
                         continue;
                     }
 
                     projectItem = new JMenuItem(module.getName());
-                    projectItem.addActionListener(new ShareProjectAction(saros.getProject(), module));
+                    projectItem.addActionListener(
+                        new ShareProjectAction(saros.getProject(), module));
 
                     menuShareProject.add(projectItem);
                 }
 
             } else {
-                //php mode: list of files and dirs
+                //TODO: php mode: list of files and dirs
                 menuShareProject.addSeparator();
                 File dir = new File(saros.getProject().getBasePath());
                 for (File myDir : dir.listFiles()) {
@@ -100,16 +100,18 @@ class ContactPopMenu extends JPopupMenu {
                         continue;
                     }
 
-                    String name = myDir.isFile() ? myDir.getName() : "/" + myDir.getName();
+                    String name = myDir.isFile() ?
+                        myDir.getName() :
+                        "/" + myDir.getName();
                     projectItem = new JMenuItem(name);
-                    projectItem.addActionListener(new ShareDirectoryAction(myDir));
+                    projectItem
+                        .addActionListener(new ShareDirectoryAction(myDir));
 
                     menuShareProject.add(projectItem);
                 }
             }
 
         }
-
 
         add(menuShareProject);
         addSeparator();
@@ -124,9 +126,6 @@ class ContactPopMenu extends JPopupMenu {
 
     }
 
-    /**
-     *
-     */
     private class ShareProjectAction implements ActionListener {
         private Project project;
         private Module module;
@@ -148,9 +147,12 @@ class ContactPopMenu extends JPopupMenu {
         public void actionPerformed(ActionEvent e) {
             String name = module == null ? project.getName() : module.getName();
             //  String path = module == null ? project.getBasePath() : module.getModuleFile().getParent().getPath();    //todo
-            String path = module == null ? project.getBasePath() + "/TestProject" : module.getProject().getBasePath() + "/" + module.getName();
+            String path = module == null ?
+                project.getBasePath() + "/TestProject" :
+                module.getProject().getBasePath() + "/" + module.getName();
 
-            IResource proj = saros.getWorkspace().getRoot().addProject(name, new File(path));
+            IResource proj = saros.getWorkspace().getRoot()
+                .addProject(name, new File(path));
 
             List<IResource> resources = Arrays.asList(proj);
             JID user = new JID(contactInfo.getRosterEntry().getUser());
@@ -176,13 +178,16 @@ class ContactPopMenu extends JPopupMenu {
 
                 if (dir.isDirectory()) {
 
-                    IProject proj = saros.getWorkspace().getRoot().addProject(dir.getName(), dir);
+                    IProject proj = saros.getWorkspace().getRoot()
+                        .addProject(dir.getName(), dir);
                     proj.refreshLocal();
 
                     resources = Arrays.asList((IResource) proj);
                 } else {
                     //todo: not working properly after sharing
-                    IProject proj = saros.getWorkspace().getRoot().addProject(dir.getParentFile().getName(), dir.getParentFile());
+                    IProject proj = saros.getWorkspace().getRoot()
+                        .addProject(dir.getParentFile().getName(),
+                            dir.getParentFile());
                     IResource prjFile = proj.getFile(new PathImp(dir));
                     resources = Arrays.asList(prjFile);
                 }

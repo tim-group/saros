@@ -47,21 +47,12 @@ public abstract class ToolbarButton extends JButton {
         SarosPluginContext.initComponent(this);
     }
 
-    /**
-     * @param path
-     * @param altText
-     */
     protected void setIcon(String path, String altText) {
         setButtonIcon(this, path, altText);
     }
 
-
-    /**
-     * @param button
-     * @param iconPath
-     * @param altText
-     */
-    public static void setButtonIcon(JButton button, String iconPath, String altText) {
+    public static void setButtonIcon(JButton button, String iconPath,
+        String altText) {
         if (!iconPath.startsWith("/"))
             iconPath = "/" + iconPath;
 
@@ -76,31 +67,18 @@ public abstract class ToolbarButton extends JButton {
         }
     }
 
-    /**
-     * @param actionCommand
-     * @return
-     */
     protected ISarosAction getAction(String actionCommand) {
         return SarosActionFactory.getAction(actionCommand);
     }
 
-    /**
-     *
-     */
     protected void startAction() {
         startAction(getActionCommand());
     }
 
-    /**
-     * @param actionName
-     */
     protected void startAction(String actionName) {
         SarosActionFactory.startAction(actionName);
     }
 
-    /**
-     * @param action
-     */
     protected void startAction(ISarosAction action) {
         SarosActionFactory.startAction(action);
     }

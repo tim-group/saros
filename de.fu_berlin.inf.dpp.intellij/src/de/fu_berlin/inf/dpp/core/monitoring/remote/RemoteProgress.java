@@ -20,12 +20,12 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.monitor.remote;
+package de.fu_berlin.inf.dpp.core.monitoring.remote;
 
 import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.activities.ProgressActivity.ProgressAction;
-import de.fu_berlin.inf.dpp.core.monitor.IStatus;
-import de.fu_berlin.inf.dpp.core.monitor.Status;
+import de.fu_berlin.inf.dpp.core.monitoring.IStatus;
+import de.fu_berlin.inf.dpp.core.monitoring.Status;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.User;
@@ -122,7 +122,8 @@ final class RemoteProgress {
         if (!source.equals(activity.getSource())) {
             LOG.warn(
                 "RemoteProgress with ID: " + id + " is owned by user " + source
-                    + " rejecting activity from other user: " + activity);
+                    + " rejecting activity from other user: " + activity
+            );
             return;
         }
 

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.core.monitor.remote;
+package de.fu_berlin.inf.dpp.core.monitoring.remote;
 
 import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.activities.ProgressActivity.ProgressAction;
@@ -126,6 +126,7 @@ class RemoteProgressMonitor implements IProgressMonitor {
         for (final User target : targets)
             rpm.monitorUpdated(
                 new ProgressActivity(source, target, id, workCurrent, workTotal,
-                    taskName, action));
+                    taskName, action)
+            );
     }
 }

@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.IConnectionAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
@@ -49,7 +49,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Saros core panel toolbar
+ * Saros toolbar.
  */
 public class SarosToolbar {
     public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
@@ -84,7 +84,8 @@ public class SarosToolbar {
 
         @Override
         public void actionFinished(ISarosAction action) {
-            if (action instanceof IConnectionAction) {
+            if (action instanceof ConnectServerAction
+                || action instanceof DisconnectServerAction) {
 
                 final SarosTreeView sarosTree = sarosMainView.getSarosTree();
                 if (connectionService.isConnected()) {
@@ -97,7 +98,8 @@ public class SarosToolbar {
                     @Override
                     public void run() {
                         JTree jTree = sarosTree.getRootTree().getJtree();
-                        DefaultTreeModel model = (DefaultTreeModel) (jTree.getModel());
+                        DefaultTreeModel model = (DefaultTreeModel) (jTree
+                            .getModel());
                         model.reload();
 
                         jTree.expandRow(2);
@@ -124,7 +126,7 @@ public class SarosToolbar {
      * @return
      */
     private JToolBar create(SarosMainPanelView parent) {
-        this.sarosMainView = parent;
+        sarosMainView = parent;
 
         jToolBar = new JToolBar("Saros IntelliJ toolbar");
         jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -138,28 +140,34 @@ public class SarosToolbar {
         return jToolBar;
     }
 
-    /**
-     *
-     */
     protected void addToolbarButtons() {
 
         ConnectButton connectionButton = new ConnectButton();
         //triggers tree changes
-        connectionButton.getConnectAction().addActionListener(treeActionListener);
-        connectionButton.getDisconnectAction().addActionListener(treeActionListener);
+        connectionButton.getConnectAction()
+            .addActionListener(treeActionListener);
+        connectionButton.getDisconnectAction()
+            .addActionListener(treeActionListener);
         //triggers toolbar buttons enable/disable
-        connectionButton.getConnectAction().addActionListener(toolbarActionListener);
-        connectionButton.getDisconnectAction().addActionListener(toolbarActionListener);
+        connectionButton.getConnectAction()
+            .addActionListener(toolbarActionListener);
+        connectionButton.getDisconnectAction()
+            .addActionListener(toolbarActionListener);
 
         jToolBar.add(connectionButton);
-        toolbarButtons.put(connectionButton.getConnectAction().getActionName(), connectionButton);
-        toolbarButtons.put(connectionButton.getDisconnectAction().getActionName(), connectionButton);
+        toolbarButtons.put(connectionButton.getConnectAction().getActionName(),
+            connectionButton);
+        toolbarButtons
+            .put(connectionButton.getDisconnectAction().getActionName(),
+                connectionButton);
 
         //add contact button
-        addNavigationButton(NewContactAction.NAME, "Add contact to session", ADD_CONTACT_ICON_PATH, "addContact");
+        addNavigationButton(NewContactAction.NAME, "Add contact to session",
+            ADD_CONTACT_ICON_PATH, "addContact");
 
         //preferences button
-        addNavigationButton(NotImplementedAction.actions.preferences.name(), "Open preferences", OPEN_REFS_ICON_PATH, "preferences");
+        addNavigationButton(NotImplementedAction.actions.preferences.name(),
+            "Open preferences", OPEN_REFS_ICON_PATH, "preferences");
 
         //follow button
         //addNavigationButton(FollowModeAction.NAME, "Enter follow mode", "followmode", "follow");
@@ -170,38 +178,35 @@ public class SarosToolbar {
         //reload button
         // addNavigationButton(NotImplementedAction.actions.reload.name(), "Reload", "images/btn/reload.png", "reload");
         ConsistencyButton consistencyButton = new ConsistencyButton();
-        toolbarButtons.put(consistencyButton.getActionCommand(), consistencyButton);
+        toolbarButtons
+            .put(consistencyButton.getActionCommand(), consistencyButton);
         jToolBar.add(consistencyButton);
 
         //session leave button
-        ISarosAction actionLeave = SarosActionFactory.getAction(LeaveSessionAction.NAME);
-        addNavigationButton(actionLeave.getActionName(), "Leave session", LEAVE_SESSION_ICON_PATH, "leave");
+        ISarosAction actionLeave = SarosActionFactory
+            .getAction(LeaveSessionAction.NAME);
+        addNavigationButton(actionLeave.getActionName(), "Leave session",
+            LEAVE_SESSION_ICON_PATH, "leave");
         actionLeave.addActionListener(treeActionListener);
         actionLeave.addActionListener(toolbarActionListener);
 
     }
 
-    /**
-     * @param action
-     * @param toolTipText
-     * @param iconPath
-     * @param altText
-     */
-    private void addNavigationButton(String action, String toolTipText, String iconPath, String altText) {
+    private void addNavigationButton(String action, String toolTipText,
+        String iconPath, String altText) {
         //Create and initialize the button.
-        JButton button = new CommonButton(action, toolTipText, iconPath, altText);
+        JButton button = new CommonButton(action, toolTipText, iconPath,
+            altText);
         toolbarButtons.put(button.getActionCommand(), button);
         jToolBar.add(button);
     }
 
-    /**
-     *
-     */
     private void initButtons() {
         Runnable action = new Runnable() {
             @Override
             public void run() {
-                JButton btnConnect = toolbarButtons.get(ConnectServerAction.NAME);
+                JButton btnConnect = toolbarButtons
+                    .get(ConnectServerAction.NAME);
                 for (JButton button : toolbarButtons.values()) {
                     if (btnConnect != button) {
                         button.setEnabled(connectionService.isConnected());
@@ -212,13 +217,5 @@ public class SarosToolbar {
         };
 
         UIUtil.invokeAndWaitIfNeeded(action);
-    }
-
-    public Map<String, JButton> getToolbarButtons() {
-        return toolbarButtons;
-    }
-
-    public JToolBar getJToolBar() {
-        return jToolBar;
     }
 }

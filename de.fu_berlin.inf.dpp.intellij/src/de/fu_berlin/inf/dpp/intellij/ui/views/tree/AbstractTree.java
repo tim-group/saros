@@ -34,14 +34,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public abstract class AbstractTree extends DefaultMutableTreeNode {
     protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
 
-
     protected final DefaultMutableTreeNode parent;
     protected IconManager iconManager;
 
     protected AbstractTree() {
-        this.parent = this;
-        this.iconManager = new IconManager();
-
+        parent = this;
+        iconManager = new IconManager();
     }
 
     protected AbstractTree(DefaultMutableTreeNode parent) {

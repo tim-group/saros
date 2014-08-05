@@ -27,6 +27,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import de.fu_berlin.inf.dpp.synchronize.UISynchronizer;
 
+/**
+ * Class implements the {@link UISynchronizer} with
+ * {@link Application#invokeLater(Runnable)} and
+ * {@link Application#invokeAndWait(Runnable, ModalityState)}.
+ */
 public class IntelliJSynchronizer implements UISynchronizer {
 
     @Override

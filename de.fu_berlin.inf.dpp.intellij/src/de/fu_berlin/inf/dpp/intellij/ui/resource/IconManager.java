@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.resource;
 
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 import java.net.URL;
 
 /**

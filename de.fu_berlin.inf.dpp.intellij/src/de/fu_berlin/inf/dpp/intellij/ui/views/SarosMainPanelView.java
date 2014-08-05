@@ -25,15 +25,25 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import de.fu_berlin.inf.dpp.core.Saros;
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.io.File;
 
 /**
  * Saros main panel view
  */
 public class SarosMainPanelView extends JFrame {
-    protected static final Logger LOG = Logger.getLogger(SarosMainPanelView.class);
+    protected static final Logger LOG = Logger
+        .getLogger(SarosMainPanelView.class);
 
     private Container parent;
 
@@ -43,9 +53,9 @@ public class SarosMainPanelView extends JFrame {
 
     static {
         try {
-
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-            LOG.debug("Look&feel " + UIManager.getCrossPlatformLookAndFeelClassName());
+            LOG.debug("Look&feel " + UIManager
+                .getCrossPlatformLookAndFeelClassName());
         } catch (Exception e) {
             LOG.error("Could not set Look&feel !", e);
         }
@@ -61,17 +71,17 @@ public class SarosMainPanelView extends JFrame {
         this.saros.setMainPanel(this);
 
         if (saros.getToolWindow() != null) {
-            this.parent = saros.getToolWindow().getComponent().getParent();
+            parent = saros.getToolWindow().getComponent().getParent();
         } else {
-            this.parent = this;
+            parent = this;
             setTitle("Saros panel");
         }
     }
 
-
     public void create() {
 
-        LOG.info("Plugin started in [" + new File("").getAbsolutePath() + "] directory");
+        LOG.info("Plugin started in [" + new File("").getAbsolutePath()
+            + "] directory");
 
         sarosTree = new SarosTreeView(this);
         sarosToolbar = new SarosToolbar(this);
@@ -80,13 +90,16 @@ public class SarosMainPanelView extends JFrame {
 
         JTree tree = sarosTree.create();
         JScrollPane treeView = new JScrollPane(tree);  //todo
-        treeView.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        treeView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        treeView.setVerticalScrollBarPolicy(
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        treeView.setHorizontalScrollBarPolicy(
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sessionPane.add(treeView);
 
         Container chartPane = new JPanel(new BorderLayout());
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sessionPane, chartPane);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+            sessionPane, chartPane);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(350);
 
@@ -97,11 +110,6 @@ public class SarosMainPanelView extends JFrame {
 
         parent.add(splitPane);
 
-    }
-
-
-    public SarosToolbar getSarosToolbar() {
-        return sarosToolbar;
     }
 
     public SarosTreeView getSarosTree() {
