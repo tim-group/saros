@@ -5,9 +5,9 @@ import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFi
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
+import de.fu_berlin.inf.dpp.core.monitor.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;

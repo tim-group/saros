@@ -97,13 +97,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Saros session implementation
  */
-//todo: copy from eclipse
 public final class SarosSession implements ISarosSession {
 
-    private static final Logger log = Logger.getLogger(SarosSession.class);
+    private static final Logger LOG = Logger.getLogger(SarosSession.class);
     private final IPathFactory pathFactory;
 
-    /* Dependencies */
     private final ISarosContext sarosContext;
     private final ConcurrentDocumentClient concurrentDocumentClient;
     private final ConcurrentDocumentServer concurrentDocumentServer;
@@ -426,7 +424,7 @@ public final class SarosSession implements ISarosSession {
         if (user == null || permission == null)
             throw new IllegalArgumentException();
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
             @Override
             public void run() {
                 user.setPermission(permission);
@@ -434,7 +432,7 @@ public final class SarosSession implements ISarosSession {
             }
         }));
 
-        log.info("user " + user + " is now a " + permission);
+        LOG.info("user " + user + " is now a " + permission);
     }
 
     @Override
@@ -488,7 +486,7 @@ public final class SarosSession implements ISarosSession {
         user.setInSession(true);
 
         if (participants.putIfAbsent(jid, user) != null) {
-            log.error("user " + user + " added twice to SarosSession",
+            LOG.error("user " + user + " added twice to SarosSession",
                 new StackTrace());
             throw new IllegalArgumentException();
         }
@@ -518,20 +516,20 @@ public final class SarosSession implements ISarosSession {
             }
         }
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userJoined(user);
             }
         }));
 
-        log.info("user " + user + " joined session");
+        LOG.info("user " + user + " joined session");
     }
 
     @Override
     public void userStartedQueuing(final User user) {
 
-        log.info("user " + user
+        LOG.info("user " + user
             + " started queuing projects and can receive IResourceActivities");
 
         /**
@@ -540,7 +538,7 @@ public final class SarosSession implements ISarosSession {
          */
         projectMapper.addMissingProjectsToUser(user);
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userStartedQueuing(user);
@@ -551,10 +549,10 @@ public final class SarosSession implements ISarosSession {
     @Override
     public void userFinishedProjectNegotiation(final User user) {
 
-        log.info("user " + user
+        LOG.info("user " + user
             + " now has Projects and can process IResourceActivities");
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userFinishedProjectNegotiation(user);
@@ -578,7 +576,7 @@ public final class SarosSession implements ISarosSession {
     public void removeUser(final User user) {
         synchronized (this) {
             if (!user.isInSession()) {
-                log.warn("user " + user
+                LOG.warn("user " + user
                     + " is already or is currently removed from the session");
                 return;
             }
@@ -588,7 +586,7 @@ public final class SarosSession implements ISarosSession {
 
         JID jid = user.getJID();
         if (participants.remove(jid) == null) {
-            log.error("tried to remove user " + user
+            LOG.error("tried to remove user " + user
                 + " who was never added to the session");
             return;
         }
@@ -606,14 +604,14 @@ public final class SarosSession implements ISarosSession {
                     currentRemoteUsers);
 
             if (!timedOutUsers.isEmpty()) {
-                log.error(
+                LOG.error(
                     "could not synchronize user list properly, following users did not respond: "
                         + StringUtils.join(timedOutUsers, ", ")
                 );
             }
         }
 
-        synchronizer.syncExec(ThreadUtils.wrapSafe(log, new Runnable() {
+        synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
             @Override
             public void run() {
                 listenerDispatch.userLeft(user);
@@ -627,7 +625,7 @@ public final class SarosSession implements ISarosSession {
         connectionManager
             .closeConnection(ISarosSession.SESSION_CONNECTION_ID, jid);
 
-        log.info("user " + user + " left session");
+        LOG.info("user " + user + " left session");
     }
 
     @Override
@@ -647,7 +645,7 @@ public final class SarosSession implements ISarosSession {
                     .create(new KickUserExtension(getID()))
             );
         } catch (IOException e) {
-            log.warn("could not kick user " + user
+            LOG.warn("could not kick user " + user
                 + " from the session because the connection to the user is already lost");
         }
 
@@ -727,7 +725,7 @@ public final class SarosSession implements ISarosSession {
                         .create(new LeaveSessionExtension(getID()))
                 );
             } catch (IOException e) {
-                log.warn("failed to notify user " + user
+                LOG.warn("failed to notify user " + user
                     + " about local session stop", e);
             }
         }
@@ -809,7 +807,7 @@ public final class SarosSession implements ISarosSession {
             if (activity.isValid())
                 valid.add(activity);
             else
-                log.error("could not handle incoming activity: " + activity);
+                LOG.error("could not handle incoming activity: " + activity);
         }
 
         List<IActivity> processed = activityQueuer.process(valid);
@@ -861,7 +859,7 @@ public final class SarosSession implements ISarosSession {
         try {
             activitySequencer.sendActivity(recipients, activity);
         } catch (IllegalArgumentException e) {
-            log.warn("could not serialize activity: " + activity, e);
+            LOG.warn("could not serialize activity: " + activity, e);
         }
     }
 
@@ -996,7 +994,7 @@ public final class SarosSession implements ISarosSession {
                 childResources = Arrays
                     .asList(((IContainer) resource).members());
             } catch (IOException e) {
-                log.error("Can't get children of folder " + resource, e);
+                LOG.error("Can't get children of folder " + resource, e);
                 return;
             }
 

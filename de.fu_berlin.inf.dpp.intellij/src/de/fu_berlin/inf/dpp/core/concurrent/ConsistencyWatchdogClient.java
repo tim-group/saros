@@ -29,10 +29,10 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
 import de.fu_berlin.inf.dpp.core.editor.adapter.IDocument;
+import de.fu_berlin.inf.dpp.core.monitor.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
@@ -303,8 +303,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             monitor
                 .beginTask("Consistency recovery", pathsOfHandledFiles.size());
             final IProgressMonitor remoteProgress = remoteProgressManager
-                .createRemoteProgress(currentSession,
-                    currentSession.getRemoteUsers());
+                .createRemoteProgress(session.getRemoteUsers(), null);
             recoveryID = getNextRecoveryID();
 
             filesRemaining.set(pathsOfHandledFiles.size());
