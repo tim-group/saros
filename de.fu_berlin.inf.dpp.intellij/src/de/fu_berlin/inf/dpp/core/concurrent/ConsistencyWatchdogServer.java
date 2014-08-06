@@ -85,9 +85,8 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             synchronizer.syncExec(ThreadUtils.wrapSafe(LOG, new Runnable() {
                 @Override
                 public void run() {
-                    if (locked) {
+                    if (locked)
                         return;
-                    }
 
                     calculateChecksums();
                 }
@@ -145,24 +144,21 @@ public class ConsistencyWatchdogServer extends AbstractActivityProducer
             isInterrupted = true;
         }
 
-        if (!isTerminated) {
+        if (!isTerminated)
             LOG.error("consistency watchdog is still running");
-        }
 
         synchronizer.asyncExec(new Runnable() {
             @Override
             public void run() {
-                for (DocumentChecksum document : docsChecksums.values()) {
+                for (DocumentChecksum document : docsChecksums.values())
                     document.dispose();
-                }
 
                 docsChecksums.clear();
             }
         });
 
-        if (isInterrupted) {
+        if (isInterrupted)
             Thread.currentThread().interrupt();
-        }
     }
 
     @Override

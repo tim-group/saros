@@ -95,7 +95,6 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
         try {
 
             zipFile = new ZipFile(file);
-            //"Unpacking archive file to workspace"
             monitor.beginTask("Unpacking archive file to workspace",
                 zipFile.size());
 
@@ -150,7 +149,7 @@ public class DecompressArchiveTask implements IWorkspaceRunnable {
                 if (!file.exists()) {
                     //FIXME: Cancellation from UI is only possible between file writes
                     // thus leading to long delays for large files. Make this
-                    //cancelable
+                    // cancelable
                     file.create(in, true);
                 } else {
                     file.setContents(in, true, true);

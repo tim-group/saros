@@ -148,11 +148,9 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
                 startHandles.remove(inconsistentStartHandle);
             }
         } finally {
-            if (startHandles != null) {
-                for (StartHandle startHandle : startHandles) {
+            if (startHandles != null)
+                for (StartHandle startHandle : startHandles)
                     startHandle.start();
-                }
-            }
             progress.done();
         }
     }
@@ -214,14 +212,12 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
         final User user = sarosSession.getLocalUser();
 
         if (file.exists()) {
-
             try {
 
                 byte[] content = FileUtils.getLocalFileContent(file);
 
-                if (content == null) {
+                if (content == null)
                     throw new IOException();
-                }
 
                 String charset = null;
 

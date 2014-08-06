@@ -82,7 +82,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
     private RemoteProgressManager remoteProgressManager;
 
-    private ISarosSession session;
+    private volatile ISarosSession session;
 
     private final Set<SPath> pathsWithWrongChecksums = new CopyOnWriteArraySet<SPath>();
 
@@ -142,9 +142,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             if (error.getSource().isHost()) {
                 String myRecoveryID = recoveryID;
                 if (myRecoveryID != null && myRecoveryID
-                    .equals(error.getRecoveryID())) {
+                    .equals(error.getRecoveryID()))
                     filesRemaining.set(0); // Host tell us he is done
-                }
             }
         }
 
@@ -154,9 +153,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
                 int currentValue;
                 while ((currentValue = filesRemaining.get()) > 0) {
                     if (filesRemaining
-                        .compareAndSet(currentValue, currentValue - 1)) {
+                        .compareAndSet(currentValue, currentValue - 1))
                         break;
-                    }
                 }
                 // Recoveries do not invalidate checksums :-)
                 return;
@@ -188,9 +186,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
             @Override
             public void permissionChanged(User user) {
 
-                if (user.isRemote()) {
+                if (user.isRemote())
                     return;
-                }
 
                 // Clear our checksums
                 latestChecksums.clear();
@@ -289,17 +286,15 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
             for (SPath path : pathsOfHandledFiles) {
 
-                if (cancelRecovery.get() || monitor.isCanceled()) {
+                if (cancelRecovery.get() || monitor.isCanceled())
                     return;
-                }
 
                 localEditorHandler.saveFile(path);
 
             }
 
-            if (cancelRecovery.get()) {
+            if (cancelRecovery.get())
                 return;
-            }
 
             monitor
                 .beginTask("Consistency recovery", pathsOfHandledFiles.size());
@@ -325,9 +320,8 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
                 int filesRemainingCurrently;
                 while ((filesRemainingCurrently = filesRemaining.get()) > 0) {
                     if (cancelRecovery.get() || monitor.isCanceled()
-                        || session == null) {
+                        || session == null)
                         return;
-                    }
 
                     if (filesRemainingCurrently < filesRemainingBefore) {
                         int worked =
@@ -365,22 +359,21 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
         SPath path = checksum.getPath();
         IFile file = path.getFile();
 
-        if (!checksum.existsFile()) {
+        if (!checksum.existsFile())
             /*
              * If the checksum tells us that the file does not exist at the
              * host, check whether we still have it. If it exists, we do have an
              * inconsistency
              */
             return file.exists();
-        }
+
 
         /*
          * If the checksum tells us, that the file exists, but we do not have
          * it, it is an inconsistency as well
          */
-        if (!file.exists()) {
+        if (!file.exists())
             return true;
-        }
 
         IDocument doc = DocumentFactory.getDocument(file);
 
@@ -420,27 +413,25 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
 
         boolean changed;
 
-        if (isInconsistent(checksumActivity)) {
+        if (isInconsistent(checksumActivity))
             changed = pathsWithWrongChecksums.add(checksumActivity.getPath());
-        } else {
+        else
             changed = pathsWithWrongChecksums
                 .remove(checksumActivity.getPath());
-        }
 
-        if (!changed) {
+        if (!changed)
             return;
-        }
 
         // Update InconsistencyToResolve observable
         if (pathsWithWrongChecksums.isEmpty()) {
-            if (inconsistencyToResolve.getValue()) {
+            if (inconsistencyToResolve.getValue())
                 LOG.info("All Inconsistencies are resolved");
-            }
+
             inconsistencyToResolve.setValue(false);
         } else {
-            if (!inconsistencyToResolve.getValue()) {
+            if (!inconsistencyToResolve.getValue())
                 LOG.info("Inconsistencies have been detected");
-            }
+
             inconsistencyToResolve.setValue(true);
         }
     }
