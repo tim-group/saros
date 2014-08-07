@@ -502,7 +502,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
         try {
             charset = file.getCharset();
         } catch (IOException e) {
-            LOG.error("could not determine encoding for file: " + file, e);
+            LOG.warn("could not determine encoding for file: " + file, e);
         }
         return charset;
     }

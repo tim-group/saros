@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.concurrent;
 
+import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.ChecksumActivity;
 import de.fu_berlin.inf.dpp.activities.ChecksumErrorActivity;
 import de.fu_berlin.inf.dpp.activities.RecoveryFileActivity;
@@ -31,6 +32,7 @@ import de.fu_berlin.inf.dpp.core.monitoring.Status;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ResourceConverter;
 import de.fu_berlin.inf.dpp.intellij.runtime.UIMonitoredJob;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
@@ -114,7 +116,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
 
         List<StartHandle> startHandles = null;
 
-        progress.beginTask("Performing recovery", 1200);
+        progress.beginTask("Performing recovery", IProgressMonitor.UNKNOWN);
         try {
 
             startHandles = session.getStopManager()
@@ -163,9 +165,6 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
     void recoverFiles(final ChecksumErrorActivity checksumError,
         final IProgressMonitor progress) {
 
-        progress
-            .beginTask("Sending files", checksumError.getPaths().size() + 1);
-
         try {
             for (final SPath path : checksumError.getPaths()) {
                 progress.subTask(
@@ -173,8 +172,7 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
                 synchronizer.syncExec(new Runnable() {
 
                     @Override public void run() {
-                        recoverFile(checksumError.getSource(), session, path,
-                            progress);
+                        recoverFile(checksumError.getSource(), session, path);
                     }
                 });
             }
@@ -193,63 +191,58 @@ public class ConsistencyWatchdogHandler extends AbstractActivityProducer
      * tell the user to removeAll it).
      */
     void recoverFile(User from, final ISarosSession sarosSession,
-        final SPath path, IProgressMonitor progress) {
-
-        progress.beginTask("Handling file: " + path, 10);
+        final SPath path) {
 
         IFile file = path.getFile();
-
-        // Save document before sending to client
-        if (file.exists()) {
-            localEditorHandler.saveFile(path);
-        }
-        progress.worked(1);
 
         // Reset jupiter
         sarosSession.getConcurrentDocumentServer().reset(from, path);
 
-        progress.worked(15);
         final User user = sarosSession.getLocalUser();
 
-        if (file.exists()) {
-            try {
-
-                byte[] content = FileUtils.getLocalFileContent(file);
-
-                if (content == null)
-                    throw new IOException();
-
-                String charset = null;
-
-                try {
-                    charset = file.getCharset();
-                } catch (IOException e) {
-                    LOG.error("could not determine encoding for file: " + file,
-                        e);
-                }
-
-                // Send the file to client
-                fireActivity(RecoveryFileActivity
-                    .created(user, path, content, from, charset));
-
-                String checksum = new String(content);
-
-                fireActivity(
-                    new ChecksumActivity(user, path, checksum.hashCode(),
-                        checksum.length(), null)
-                );
-            } catch (IOException e) {
-                LOG.error("File could not be read, despite existing: " + path,
-                    e);
-            }
-        } else {
+        if (!file.exists()) {
             // TODO Warn the user...
             // Tell the client to delete the file
             fireActivity(RecoveryFileActivity.removed(user, path, from, null));
             fireActivity(ChecksumActivity.missing(user, path));
-
-            progress.worked(8);
+            return;
+        } else {
+            localEditorHandler.saveFile(path);
         }
-        progress.done();
+
+        String charset = null;
+        try {
+            charset = file.getCharset();
+        } catch (IOException e) {
+            LOG.warn("could not determine encoding for file: " + file, e);
+        }
+
+        if (charset == null) {
+            charset = EncodingProjectManager.getInstance().getDefaultCharset()
+                .name();
+        }
+
+        byte[] content = FileUtils.getLocalFileContent(file);
+
+        if (content == null) {
+            LOG.error("could not read file: " + file);
+            return;
+        }
+
+        fireActivity(
+            RecoveryFileActivity.created(user, path, content, from, charset));
+        /*
+         * immediately follow up with a new checksum to the remote side can
+         * verify the recovered file
+         */
+        final DocumentChecksum checksum = new DocumentChecksum(path);
+        checksum
+            .bind(ResourceConverter.getDocument(path.getFullPath().toFile()));
+        checksum.update();
+
+        fireActivity(new ChecksumActivity(user, path, checksum.hashCode(),
+                checksum.getLength(), null)
+        );
+        checksum.dispose();
     }
 }

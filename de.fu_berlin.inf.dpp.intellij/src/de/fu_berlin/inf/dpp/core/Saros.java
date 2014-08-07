@@ -150,8 +150,8 @@ public class Saros {
 
         //todo: set parameters from config
         connectionService
-            .configure(Saros.NAMESPACE, Saros.RESOURCE, false, false, 8888,
-                null, null, true, null, 80, true);
+            .configure(Saros.NAMESPACE, Saros.RESOURCE, false, true, 8888, null,
+                null, true, null, 80, true);
 
         isInitialized = true;
         // Make sure that all components in the container are
