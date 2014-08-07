@@ -167,7 +167,7 @@ public final class SarosSession implements ISarosSession {
     private IConnectionManager connectionManager;
     private boolean useVersionControl = true;
     // KARL HELD YOU ARE MY WTF GUY !!!
-    private List<IResource> selectedResources = new ArrayList<IResource>();
+    private final List<IResource> selectedResources = new ArrayList<IResource>();
     private boolean started = false;
     private boolean stopped = false;
     private SPathConverter pathConverter;
@@ -200,13 +200,12 @@ public final class SarosSession implements ISarosSession {
 
         context.initComponent(this);
 
-        this.pathFactory = context.getComponent(IPathFactory.class);
+        pathFactory = context.getComponent(IPathFactory.class);
 
-        this.sessionID = context.getComponent(SessionIDObservable.class)
-            .getValue();
-        this.projectMapper = new SarosProjectMapper();
-        this.activityQueuer = new ActivityQueuer();
-        this.sarosContext = context;
+        sessionID = context.getComponent(SessionIDObservable.class).getValue();
+        projectMapper = new SarosProjectMapper();
+        activityQueuer = new ActivityQueuer();
+        sarosContext = context;
 
         // FIXME that should be passed in !
         JID localUserJID = connectionService.getJID();

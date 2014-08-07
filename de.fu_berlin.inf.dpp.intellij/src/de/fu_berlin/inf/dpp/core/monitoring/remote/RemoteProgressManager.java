@@ -26,6 +26,7 @@ import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
@@ -54,8 +55,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
 
     private static final Random RANDOM = new Random();
 
-    //TODO: Uncomment when ISarosSessionManager was added
-    //private final ISarosSessionManager sessionManager;
+    private final ISarosSessionManager sessionManager;
 
     private volatile ISarosSession session;
 
@@ -135,10 +135,9 @@ public class RemoteProgressManager extends AbstractActivityProducer {
         }
     };
 
-    //TODO: Uncomment when ISarosSessionManager was added
-    public RemoteProgressManager(/*ISarosSessionManager sessionManager*/) {
-        /*this.sessionManager = sessionManager;
-        this.sessionManager.addSarosSessionListener(sessionListener);*/
+    public RemoteProgressManager(ISarosSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        this.sessionManager.addSarosSessionListener(sessionListener);
     }
 
     /**

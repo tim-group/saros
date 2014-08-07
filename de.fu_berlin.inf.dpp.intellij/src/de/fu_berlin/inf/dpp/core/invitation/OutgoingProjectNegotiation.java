@@ -53,8 +53,8 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
     private static final Logger LOG = Logger
         .getLogger(OutgoingProjectNegotiation.class);
 
-    private List<IProject> projects;
-    private ISarosSession sarosSession;
+    private final List<IProject> projects;
+    private final ISarosSession sarosSession;
 
     @Inject
     private EditorManager editorManager;
@@ -375,17 +375,6 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
                 );
             }
 
-            //            final IProject delegate =  project;
-            //
-            //
-            //            /*
-            //             * TODO: Ask the user whether to save the resources, but only if
-            //             * they have changed. How to ask Eclipse whether there are resource
-            //             * changes? if (outInvitationUI.confirmProjectSave(peer))
-            //             * getOpenEditors => filter per Project => if dirty ask to save
-            //             */
-            //            EditorManagerEcl.saveProject(delegate, false);
-
             final StringBuilder aliasBuilder = new StringBuilder();
 
             aliasBuilder.append(projectID).append(PATH_DELIMITER);
@@ -403,7 +392,7 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
 
         LOG.debug(this + " : creating archive");
 
-        File tempArchive = null;
+        File tempArchive;
 
         try {
             tempArchive = File.createTempFile("saros_" + processID, ".zip");
@@ -489,14 +478,10 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
             try {
 
                 VCSProvider vcs = null;
-                if (sarosSession.useVersionControl()) {
-
-                    //TODO: Find out whether we need VCS support
-                }
                 FileList projectFileList = FileListFactory
                     .createFileList(project,
                         sarosSession.getSharedResources(project), checksumCache,
-                        null, new SubProgressMonitor(monitor, 1 * scale,
+                        vcs, new SubProgressMonitor(monitor, scale,
                             SubProgressMonitor.SUPPRESS_BEGINTASK
                                 | SubProgressMonitor.SUPPRESS_SETTASKNAME
                         )
@@ -507,10 +492,10 @@ public class OutgoingProjectNegotiation extends ProjectNegotiation {
                 String projectID = sarosSession.getProjectID(project);
                 projectFileList.setProjectID(projectID);
 
-                ProjectNegotiationData pInfo = new ProjectNegotiationData(
+                ProjectNegotiationData negotiationData = new ProjectNegotiationData(
                     projectID, project.getName(), partial, projectFileList);
 
-                pInfos.add(pInfo);
+                pInfos.add(negotiationData);
 
             } catch (IOException e) {
                 /*

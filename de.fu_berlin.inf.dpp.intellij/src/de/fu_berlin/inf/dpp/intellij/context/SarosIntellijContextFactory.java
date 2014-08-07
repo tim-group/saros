@@ -70,62 +70,58 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
     private final Saros saros;
 
-    private final Component[] components = new Component[]{
+    private final Component[] components = new Component[] {
 
+        Component.create(ISarosSessionManager.class, SarosSessionManager.class),
 
-            Component.create(ISarosSessionManager.class, SarosSessionManager.class),
+        Component.create(EditorAPI.class), Component.create(ProjectAPI.class),
 
-            Component.create(EditorAPI.class),
-            Component.create(ProjectAPI.class),
+        Component.create(EditorManager.class),
+        Component.create(LocalEditorHandler.class),
+        Component.create(LocalEditorManipulator.class),
 
-            Component.create(EditorManager.class),
-            Component.create(LocalEditorHandler.class),
-            Component.create(LocalEditorManipulator.class),
+        // Core Managers
+        Component.create(ConsistencyWatchdogClient.class),
 
-            // Core Managers
-            Component.create(ConsistencyWatchdogClient.class),
+        // UI handlers
+        Component.create(NegotiationHandler.class),
+        Component.create(UserStatusChangeHandler.class),
+        Component.create(JoinSessionRequestHandler.class),
+        Component.create(JoinSessionRejectedHandler.class),
+        Component.create(ServerPreferenceHandler.class),
+        Component.create(SessionStatusRequestHandler.class),
+        Component.create(XMPPAuthorizationHandler.class),
 
-            // UI handlers
-            Component.create(NegotiationHandler.class),
-            Component.create(UserStatusChangeHandler.class),
-            Component.create(JoinSessionRequestHandler.class),
-            Component.create(JoinSessionRejectedHandler.class),
-            Component.create(ServerPreferenceHandler.class),
-            Component.create(SessionStatusRequestHandler.class),
-            Component.create(XMPPAuthorizationHandler.class),
-
-            // Cache support
+        // Cache support
             /*
             * TODO avoid direct creation as this will become tricky especially if
             * we are the delegate and depends on components that are only available
             * after we added all our context stuff or vice versa
             */
-            Component.create(IChecksumCache.class, ChecksumCacheImpl.class),  //todo
-//            Component.create(IChecksumCache.class, new ChecksumCacheImpl(
-//                    new FileContentNotifierBridge())),
+        Component.create(IChecksumCache.class, ChecksumCacheImpl.class),
+        //            Component.create(IChecksumCache.class, new ChecksumCacheImpl(
+        //                    new FileContentNotifierBridge())),
 
+        // SWT EDT support
+        Component.create(UISynchronizer.class, IntelliJSynchronizer.class),
 
-            // SWT EDT support
-            Component.create(UISynchronizer.class, IntelliJSynchronizer.class),
+        Component.create(IFileContentChangedNotifier.class,
+            FileContentChangedNotifierBridge.class),
 
-            Component.create(IFileContentChangedNotifier.class, FileContentChangedNotifierBridge.class),
+        Component.create(PreferenceUtils.class),
 
+        Component.create(FollowModeAction.class),
+        Component.create(LeaveSessionAction.class),
 
-            Component.create(PreferenceUtils.class),
-
-            Component.create(FollowModeAction.class),
-            Component.create(LeaveSessionAction.class),
-
-            //   Component.create(IAddProjectToSessionWizard.class, AddProjectToSessionWizard.class),
-
+        //   Component.create(IAddProjectToSessionWizard.class, AddProjectToSessionWizard.class),
 
     };
 
-    public SarosIntellijContextFactory(Saros saros, ISarosContextFactory delegate) {
+    public SarosIntellijContextFactory(Saros saros,
+        ISarosContextFactory delegate) {
         this.saros = saros;
         this.additionalContext = delegate;
     }
-
 
     @Override
     public void createComponents(MutablePicoContainer container) {
@@ -139,7 +135,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
         // Saros Core PathIntl Support
         container.addComponent(IPathFactory.class, workspace.getPathFactory());
 
-
         container.addComponent(IWorkspace.class, workspace);
         // container.addComponent(Workspace.class, workspace);
 
@@ -149,17 +144,18 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
         for (Component component : Arrays.asList(components)) {
             container.addComponent(component.getBindKey(),
-                    component.getImplementation());
+                component.getImplementation());
         }
 
         container.addComponent(Saros.class, saros);
 
-        container.addComponent(BindKey.bindKey(String.class,
-                ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL");  //todo
+        container.addComponent(BindKey
+            .bindKey(String.class, ISarosContextBindings.SarosVersion.class),
+            "14.1.31.DEVEL");  //todo
 
-
-        container.addComponent(BindKey.bindKey(String.class,
-                ISarosContextBindings.PlatformVersion.class), "4.3.2"); //todo
+        container.addComponent(BindKey
+            .bindKey(String.class, ISarosContextBindings.PlatformVersion.class),
+            "4.3.2"); //todo
 
     }
 }

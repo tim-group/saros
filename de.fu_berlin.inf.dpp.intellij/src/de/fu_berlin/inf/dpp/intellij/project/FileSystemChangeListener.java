@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VirtualFileEvent;
 import com.intellij.openapi.vfs.VirtualFileListener;
 import com.intellij.openapi.vfs.VirtualFileMoveEvent;
 import com.intellij.openapi.vfs.VirtualFilePropertyEvent;
+import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
 import de.fu_berlin.inf.dpp.activities.IActivity;
@@ -60,7 +61,7 @@ import java.util.Set;
  * opened by the user.
  * <p/>
  * It filters for files that are shared and calls the corresponding methods for
- * {@link IActivity}-creation.
+ * {@link IActivity}-creation on the {@link SharedResourcesManager}.
  */
 public class FileSystemChangeListener extends AbstractStoppableListener
     implements VirtualFileListener {
@@ -70,7 +71,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     private final SharedResourcesManager resourceManager;
     private Workspace workspace;
 
-    //HACK: This file is used to filter events for files that were created from
+    //HACK: This list is used to filter events for files that were created from
     //remote, because we can not disable the listener for them
     private final List<File> incomingFilesToFilterFor = new ArrayList<File>();
 
@@ -153,6 +154,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
         IActivity activity = new FileActivity(user, FileActivity.Type.MOVED,
             newSPath, oldSPath, bytes, charset, FileActivity.Purpose.ACTIVITY);
         editorManager.replaceAllEditorsForPath(oldSPath, newSPath);
+
         project.addFile(newSPath.getFile().getLocation().toFile());
         project.removeFile(oldSPath.getFile().getLocation().toFile());
         resourceManager.internalFireActivity(activity);
@@ -182,9 +184,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener
 
             SPath spath = new SPath(project, ifile.getProjectRelativePath());
 
-            //Files created from template have initial content, but do not have an open
-            //editor yet and no DocumentListener. Their initial content is transferred
-            //here.
+            //Files created from templates have initial content and are opened in
+            // an editor, but do not have a DocumentListener. Their initial content
+            // is transferred here, because the DocumentListener is added after
+            // it was inserted
             if (editorManager.isOpenedInEditor(spath)) {
                 String initialContent = null;
                 try {
@@ -196,7 +199,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
                         e);
                 }
 
-                if (!initialContent.isEmpty()) {
+                if (initialContent != null && !initialContent.isEmpty()) {
                     editorManager.sendTemplateContent(spath, initialContent);
                 }
             }
@@ -348,7 +351,6 @@ public class FileSystemChangeListener extends AbstractStoppableListener
 
         SPath oldSPath = new SPath(project, oldPath);
 
-        //move activity
         if (newFile.isFile()) {
             generateFileMove(oldSPath, newSPath, false);
 
@@ -441,7 +443,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             bytes = virtualFileCopyEvent.getOriginalFile()
                 .contentsToByteArray();
         } catch (IOException e) {
-            workspace.LOG.error(e.getMessage(), e);
+            Workspace.LOG.error(e.getMessage(), e);
         }
 
         activity = FileActivity
@@ -487,8 +489,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     }
 
     /**
-     * Adds a file to the filter list for incoming files (for which no new
-     * events should be generated).
+     * Adds a file to the filter list for incoming files (for which no activities
+     * should be generated).
      *
      * @param file
      */
@@ -504,6 +506,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener
         } catch (IOException e) {
             LOG.warn("could not determine encoding for file: " + file, e);
         }
+        if (charset == null)
+            return EncodingProjectManager.getInstance().getDefaultCharset()
+                .name();
+
         return charset;
     }
 }

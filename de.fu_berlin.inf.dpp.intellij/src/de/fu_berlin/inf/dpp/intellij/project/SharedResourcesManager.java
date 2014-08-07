@@ -101,6 +101,7 @@ public class SharedResourcesManager extends AbstractActivityProducer
         FileReplacementInProgressObservable fileReplacementInProgressObservable,
         LocalEditorHandler localEditorHandler,
         LocalEditorManipulator localEditorManipulator, Workspace workspace) {
+
         this.sarosSession = sarosSession;
         this.fileReplacementInProgressObservable = fileReplacementInProgressObservable;
         this.localEditorHandler = localEditorHandler;
@@ -199,9 +200,6 @@ public class SharedResourcesManager extends AbstractActivityProducer
              */
             sarosSession.getConcurrentDocumentClient().reset(path);
         }
-
-        //FIXME: generates error as looks like Jupiter on server side is will be reset later
-        //consistencyWatchdogClient.performCheck(path);
     }
 
     private void handleFileMove(FileActivity activity) throws IOException {
@@ -237,12 +235,11 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
     private void handleFileCreation(FileActivity activity) throws IOException {
 
-        //We need to try replaceAll directly in document if it is open
+        //We need to try replaceAll directly in document if it is open already
         boolean replaceSuccessful;
 
         String encodingString = activity.getEncoding() == null ?
-            EncodingProjectManager.getInstance().getDefaultCharset()
-                .toString() :
+            EncodingProjectManager.getInstance().getDefaultCharset().name() :
             activity.getEncoding();
 
         //FIXME: Test if updateEncoding method will be necessary
@@ -258,27 +255,25 @@ public class SharedResourcesManager extends AbstractActivityProducer
                 localEditorHandler.saveFile(activity.getPath());
                 return;
             }
-
-            //If the file did not exist, create it
-            IFile file = activity.getPath().getFile();
-            byte[] actualContent = FileUtils.getLocalFileContent(file);
-            byte[] newContent = activity.getContent();
-
-            if (!Arrays.equals(newContent, actualContent)) {
-                fileSystemListener.setEnabled(false);
-                //HACK: It does not work to disable the fileSystemListener temporarily,
-                //because a fileCreated event will be fired asynchronously,
-                //so we have to add this file to the filter list
-                fileSystemListener
-                    .addIncomingFileToFilterFor(file.getFullPath().toFile());
-                FileUtils.writeFile(new ByteArrayInputStream(newContent), file,
-                    null);
-                fileSystemListener.setEnabled(true);
-            } else {
-                LOG.info(
-                    "FileActivity " + activity + " dropped (same content)");
-            }
         }
+
+        //If the file did not exist, create it
+        IFile file = activity.getPath().getFile();
+        byte[] actualContent = FileUtils.getLocalFileContent(file);
+        byte[] newContent = activity.getContent();
+
+        if (Arrays.equals(newContent, actualContent)) {
+            LOG.info("FileActivity " + activity + " dropped (same content)");
+            return;
+        }
+        fileSystemListener.setEnabled(false);
+        //HACK: It does not work to disable the fileSystemListener temporarily,
+        //because a fileCreated event will be fired asynchronously,
+        //so we have to add this file to the filter list
+        fileSystemListener
+            .addIncomingFileToFilterFor(file.getFullPath().toFile());
+        FileUtils.writeFile(new ByteArrayInputStream(newContent), file, null);
+        fileSystemListener.setEnabled(true);
     }
 
     private void handleFolderActivity(FolderActivity activity)

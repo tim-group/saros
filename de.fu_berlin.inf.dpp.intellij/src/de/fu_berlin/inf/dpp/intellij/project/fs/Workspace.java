@@ -72,8 +72,8 @@ public class Workspace implements IWorkspace {
 
     @Override
     public void run(final IWorkspaceRunnable procedure,
-                    IProgressMonitor monitor)
-            throws OperationCanceledException, IOException {
+        IProgressMonitor monitor)
+        throws OperationCanceledException, IOException {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -84,7 +84,7 @@ public class Workspace implements IWorkspace {
 
     @Override
     public void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode,
-                    IProgressMonitor monitor) {
+        IProgressMonitor monitor) {
 
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -122,12 +122,6 @@ public class Workspace implements IWorkspace {
         this.root = new WorkspaceRoot(path);
         this.path = path;
 
-        LOG.info("Add workspace " + path.getAbsolutePath());
-        for (File prj : path.listFiles()) {
-            if (prj.isDirectory()) {
-                root.addProject(prj.getName(), prj);
-            }
-        }
     }
 
     @Override

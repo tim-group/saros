@@ -10,7 +10,6 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
@@ -18,6 +17,7 @@ import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
@@ -61,7 +61,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     private final ISarosSession sarosSession;
     private IProgressMonitor monitor;
     private AddProjectToSessionWizard addIncomingProjectUI;
-    private List<ProjectNegotiationData> projectInfos;
+    private final List<ProjectNegotiationData> projectInfos;
+
     @Inject
     private PreferenceUtils preferenceUtils;
     @Inject
@@ -75,9 +76,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
     /**
-     * maps the projectID to the project in workspace
+     * Maps the projectID to the project in workspace
      */
-    private Map<String, IProject> localProjects;
+    private final Map<String, IProject> localProjects;
     private boolean running;
 
     private PacketCollector startActivityQueuingRequestCollector;
@@ -94,13 +95,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         this.sarosSession = sarosSession;
         this.processID = processID;
         this.projectInfos = projectInfos;
-        this.localProjects = new HashMap<String, IProject>();
+        localProjects = new HashMap<String, IProject>();
     }
 
     @Override
     public Map<String, String> getProjectNames() {
         Map<String, String> result = new HashMap<String, String>();
-        for (ProjectNegotiationData info : this.projectInfos) {
+        for (ProjectNegotiationData info : projectInfos) {
             result.put(info.getProjectID(), info.getProjectName());
         }
         return result;
@@ -114,7 +115,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * fileList}
      */
     public FileList getRemoteFileList(String projectID) {
-        for (ProjectNegotiationData info : this.projectInfos) {
+        for (ProjectNegotiationData info : projectInfos) {
             if (info.getProjectID().equals(projectID))
                 return info.getFileList();
         }
@@ -145,8 +146,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         observeMonitor(monitor);
 
         IWorkspace ws = workspace;
-        IWorkspaceDescription desc = ws.getDescription();
-        boolean wasAutobuilding = desc.isAutoBuilding();
+
+        //TODO: By default IDEA does not autobuild, but we should add a check for that
 
         fileReplacementInProgressObservable.startReplacement();
 
@@ -159,11 +160,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         try {
             checkCancellation(CancelOption.NOTIFY_PEER);
-
-            if (wasAutobuilding) {
-                desc.setAutoBuilding(false);
-                ws.setDescription(desc);
-            }
 
             if (fileTransferManager == null)
                 // FIXME: the logic will try to send this to the remote contact
@@ -212,7 +208,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             boolean filesMissing = false;
 
             for (FileList list : missingFiles)
-                filesMissing |= list.getPaths().size() > 0;
+                filesMissing |= !list.getPaths().isEmpty();
 
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing)
@@ -258,25 +254,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             deleteCollectors();
             monitor.done();
-
-            // Re-enable auto-building...
-            if (wasAutobuilding) {
-                desc.setAutoBuilding(true);
-                try {
-                    ws.setDescription(desc);
-                } catch (IOException e) {
-                    localCancel(
-                        "An error occurred while synchronising the project",
-                        CancelOption.NOTIFY_PEER);
-                }
-            }
         }
 
         return terminateProcess(exception);
     }
 
     public boolean isPartialRemoteProject(String projectID) {
-        for (ProjectNegotiationData info : this.projectInfos) {
+        for (ProjectNegotiationData info : projectInfos) {
             if (info.getProjectID().equals(projectID))
                 return info.isPartial();
         }
@@ -306,8 +290,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             unpackArchive(archiveFile, new SubProgressMonitor(monitor, 50));
             monitor.done();
         } finally {
-            if (archiveFile != null)
-                archiveFile.delete();
+            if (archiveFile != null) {
+                boolean result = archiveFile.delete();
+                if (!result) {
+                    LOG.warn("could not delete archive File " + archiveFile
+                        .getAbsolutePath());
+                }
+            }
         }
     }
 
@@ -354,25 +343,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             VCSProvider vcs = null;
 
-            // FIXME we should stop here for partial shared projects
-            /*if (preferenceUtils.useVersionControl() && useVersionControl
-                    && !projectInfo.isPartial()) {
-                vcs = VCSAdapter.getAdapter(projectInfo.getFileList()
-                        .getVcsProviderID());
-            }*/
-
             IProject project = workspace.getRoot().getProject(projectName);
 
-            if (project.exists()) {
-                /*
-                 * Saving unsaved files is supposed to be done in
-                 * JoinSessionWizard#performFinish().
-                 */
-                //todo
-                //                if (EditorAPI.existUnsavedFiles(project)) {
-                //                    LOG.error("Unsaved files detected.");
-                //                }
-            }
             if (!project.exists()) {
                 project = createProject(project, null);
             }
@@ -557,7 +529,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                     public void run(IProgressMonitor progress)
                         throws IOException {
                         for (String path : toDelete) {
-                            IResource resource = path.endsWith("/") ?
+                            IResource resource = path
+                                .endsWith(PathImp.FILE_SEPARATOR) ?
                                 currentLocalProject.getFolder(path) :
                                 currentLocalProject.getFile(path);
 
@@ -707,9 +680,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         } catch (XMPPException e) {
             throw new IOException(e.getMessage(), e.getCause());
         } finally {
-            if (transferFailed)
-                archiveFile.delete();
-
+            if (transferFailed) {
+                boolean result = archiveFile.delete();
+                if (!result) {
+                    LOG.warn("could not delete archive File " + archiveFile
+                        .getAbsolutePath());
+                }
+            }
             monitor.done();
         }
 
@@ -728,7 +705,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private static class ArchiveTransferListener
         implements FileTransferListener {
-        private String description;
+        private final String description;
         private volatile FileTransferRequest request;
 
         public ArchiveTransferListener(String description) {
@@ -743,11 +720,11 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
 
         public boolean hasReceived() {
-            return this.request != null;
+            return request != null;
         }
 
         public FileTransferRequest getRequest() {
-            return this.request;
+            return request;
         }
     }
 }

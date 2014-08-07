@@ -39,6 +39,13 @@ public class WorkspaceRoot implements IWorkspaceRoot {
 
     public WorkspaceRoot(File workspacePath) {
         this.workspacePath = workspacePath;
+        for (File prj : workspacePath.listFiles()) {
+            if (prj.isDirectory()) {
+                addProject(prj.getName(), prj);
+            }
+        }
+        LOG.info("Add workspace " + workspacePath.getAbsolutePath());
+
     }
 
     protected WorkspaceRoot() {
