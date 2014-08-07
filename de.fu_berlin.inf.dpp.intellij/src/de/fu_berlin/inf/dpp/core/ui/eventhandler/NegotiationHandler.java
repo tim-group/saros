@@ -24,7 +24,7 @@ package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
@@ -61,7 +61,6 @@ import java.util.List;
  */
 public class NegotiationHandler implements INegotiationHandler {
 
-    public static final String NAMESPACE = SarosSessionPacketExtension.EXTENSION_NAMESPACE;
     private static final Logger LOG = Logger
         .getLogger(NegotiationHandler.class);
     private final ISarosSessionManager sessionManager;
@@ -153,7 +152,6 @@ public class NegotiationHandler implements INegotiationHandler {
         ApplicationManager.getApplication().invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                // AddProjectsDialogUI projectWizard = new AddProjectsDialog(process,  fileLists);
                 AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(
                     process, process.getPeer(), fileLists,
                     process.getProjectNames());
@@ -191,7 +189,7 @@ public class NegotiationHandler implements INegotiationHandler {
                 case CANCEL:
                     return Status.CANCEL_STATUS;
                 case ERROR:
-                    return new Status(IStatus.ERROR, NAMESPACE,
+                    return new Status(IStatus.ERROR, Saros.SAROS,
                         process.getErrorMessage());
                 case OK:
                     break;
@@ -203,7 +201,7 @@ public class NegotiationHandler implements INegotiationHandler {
                             peer)
                     );
 
-                    return new Status(IStatus.CANCEL, NAMESPACE, MessageFormat
+                    return new Status(IStatus.CANCEL, Saros.SAROS, MessageFormat
                         .format(
                             Messages.NegotiationHandler_canceled_invitation_text,
                             peer)
@@ -217,15 +215,16 @@ public class NegotiationHandler implements INegotiationHandler {
                             peer, process.getErrorMessage())
                     );
 
-                    return new Status(IStatus.ERROR, NAMESPACE, MessageFormat
+                    return new Status(IStatus.ERROR, Saros.SAROS, MessageFormat
                         .format(
                             Messages.NegotiationHandler_error_during_invitation_text,
                             peer, process.getErrorMessage())
                     );
                 }
             } catch (Exception e) {
-                LOG.error("This exceptions is not expected here: ", e);
-                return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
+                LOG.error("This exception is not expected here: ", e);
+                return new Status(IStatus.ERROR, Saros.SAROS, e.getMessage(),
+                    e);
 
             }
 
@@ -259,7 +258,7 @@ public class NegotiationHandler implements INegotiationHandler {
                 case CANCEL:
                     return Status.CANCEL_STATUS;
                 case ERROR:
-                    return new Status(IStatus.ERROR, NAMESPACE,
+                    return new Status(IStatus.ERROR, Saros.SAROS,
                         process.getErrorMessage());
                 case OK:
                     break;
@@ -272,14 +271,12 @@ public class NegotiationHandler implements INegotiationHandler {
                         .invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                DialogUtils
-                                    .showInfo(DialogUtils.getDefaultContainer(),
-                                        message,
+                                DialogUtils.showInfo(message,
                                         Messages.NegotiationHandler_project_sharing_cancelled_text);
                             }
                         });
 
-                    return new Status(IStatus.CANCEL, NAMESPACE, message);
+                    return new Status(IStatus.CANCEL, Saros.SAROS, message);
 
                 case REMOTE_ERROR:
                     message = MessageFormat.format(
@@ -289,11 +286,12 @@ public class NegotiationHandler implements INegotiationHandler {
                         Messages.NegotiationHandler_sharing_project_cancelled_remotely_text,
                         message);
 
-                    return new Status(IStatus.ERROR, NAMESPACE, message);
+                    return new Status(IStatus.ERROR, Saros.SAROS, message);
                 }
             } catch (Exception e) {
-                LOG.error("This exceptions is not expected here: ", e);
-                return new Status(IStatus.ERROR, NAMESPACE, e.getMessage(), e);
+                LOG.error("This exception is not expected here: ", e);
+                return new Status(IStatus.ERROR, Saros.SAROS, e.getMessage(),
+                    e);
 
             }
 

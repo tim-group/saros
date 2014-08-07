@@ -165,6 +165,9 @@ public class Saros {
     }
 
     public Project getProject() {
+        //Saros is a project-level plugin and should never be started without a project
+        assert project != null;
+
         return project;
     }
 

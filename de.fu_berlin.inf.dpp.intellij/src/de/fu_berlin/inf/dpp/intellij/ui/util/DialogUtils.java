@@ -31,7 +31,7 @@ import java.awt.Component;
 import java.awt.Container;
 
 /**
- * Dialog message helper
+ * Dialog message helper that starts Dialogs in the current Thread.
  */
 public class DialogUtils {
 
@@ -46,7 +46,8 @@ public class DialogUtils {
     }
 
     public static void showError(Component parent, String title, String msg) {
-        JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showInternalMessageDialog(parent, msg, title,
+            JOptionPane.ERROR_MESSAGE);
     }
 
     public static void showError(String title, String msg) {
@@ -54,15 +55,18 @@ public class DialogUtils {
     }
 
     public static void showWarning(Component parent, String title, String msg) {
-        JOptionPane.showInternalMessageDialog(parent, msg, title, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showInternalMessageDialog(parent, msg, title,
+            JOptionPane.WARNING_MESSAGE);
     }
 
     public static void showWarning(String title, String msg) {
         showWarning(getDefaultContainer(), msg, title);
     }
 
-    public static boolean showConfirm(Component parent, String title, String msg) {
-        int resp = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.OK_CANCEL_OPTION);
+    public static boolean showConfirm(Component parent, String title,
+        String msg) {
+        int resp = JOptionPane.showConfirmDialog(parent, msg, title,
+            JOptionPane.OK_CANCEL_OPTION);
         return resp == 0;
     }
 
@@ -70,8 +74,10 @@ public class DialogUtils {
         return showConfirm(getDefaultContainer(), msg, title);
     }
 
-    public static boolean showQuestion(Component parent, String title, String msg) {
-        int answer = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION);
+    public static boolean showQuestion(Component parent, String title,
+        String msg) {
+        int answer = JOptionPane
+            .showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION);
 
         return answer == 0;
     }
@@ -80,9 +86,9 @@ public class DialogUtils {
         return showQuestion(getDefaultContainer(), msg, title);
     }
 
-
     public static void showInfo(Container parent, String title, String msg) {
-        JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(parent, msg, title,
+            JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void showInfo(String title, String msg) {

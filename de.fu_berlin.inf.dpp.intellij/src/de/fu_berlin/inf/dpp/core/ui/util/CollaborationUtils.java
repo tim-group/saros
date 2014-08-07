@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.core.ui.util;
 
-import de.fu_berlin.inf.dpp.communication.extensions.SarosSessionPacketExtension;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitoring.IStatus;
@@ -48,7 +48,6 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.Container;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +79,7 @@ public class CollaborationUtils {
     }
 
     private CollaborationUtils() {
-        // NOP
+
     }
 
     /**
@@ -128,9 +127,8 @@ public class CollaborationUtils {
 
                 } catch (Exception e) {
 
-                    LOG.error("could not first a Saros session", e);
-                    return new Status(IStatus.ERROR,
-                        SarosSessionPacketExtension.EXTENSION_NAMESPACE,
+                    LOG.error("could not start a Saros session", e);
+                    return new Status(IStatus.ERROR, Saros.SAROS,
                         e.getMessage(), e);
                 }
 
@@ -150,8 +148,6 @@ public class CollaborationUtils {
 
         ISarosSession sarosSession = sessionManager.getSarosSession();
 
-        Container shell = DialogUtils.getDefaultContainer();
-
         if (sarosSession == null) {
             LOG.warn("cannot leave a non-running session");
             return;
@@ -164,13 +160,13 @@ public class CollaborationUtils {
                 // Do not ask when host is alone...
                 reallyLeave = true;
             } else {
-                reallyLeave = DialogUtils.showConfirm(shell,
-                    Messages.CollaborationUtils_confirm_closing,
+                reallyLeave = DialogUtils
+                    .showConfirm(Messages.CollaborationUtils_confirm_closing,
                     Messages.CollaborationUtils_confirm_closing_text);
             }
         } else {
             reallyLeave = DialogUtils
-                .showConfirm(shell, Messages.CollaborationUtils_confirm_leaving,
+                .showConfirm(Messages.CollaborationUtils_confirm_leaving,
                     Messages.CollaborationUtils_confirm_leaving_text);
         }
 
@@ -193,8 +189,7 @@ public class CollaborationUtils {
      * @param resourcesToAdd
      * @nonBlocking
      */
-    public static void addResourcesToSession(List<IResource> resourcesToAdd)
-        throws IOException {
+    public static void addResourcesToSession(List<IResource> resourcesToAdd) {
 
         final ISarosSession sarosSession = sessionManager.getSarosSession();
 
@@ -203,8 +198,13 @@ public class CollaborationUtils {
             return;
         }
 
-        final Map<IProject, List<IResource>> projectResources = acquireResources(
-            resourcesToAdd, sarosSession);
+        final Map<IProject, List<IResource>> projectResources;
+        try {
+            projectResources = acquireResources(resourcesToAdd, sarosSession);
+        } catch (IOException e) {
+            LOG.error("could not accquire resources due to:", e);
+            return;
+        }
 
         if (projectResources.isEmpty()) {
             return;
@@ -287,7 +287,7 @@ public class CollaborationUtils {
                             true, IContainer.FILE);
 
                     result.append(String
-                        .format("\nProjectIntl: %s, Files: %d, Size: %s",
+                        .format("\nProject: %s, Files: %d, Size: %s",
                             project.getName(), fileCountAndSize.v,
                             format(fileCountAndSize.p)));
                 } else {
@@ -298,7 +298,7 @@ public class CollaborationUtils {
                         .getFileCountAndSize(resources, false, IResource.NONE);
 
                     result.append(String
-                        .format("\nProjectIntl: %s, Files: %s, Size: %s",
+                        .format("\nProject: %s, Files: %s, Size: %s",
                             project.getName() + " "
                                 + Messages.CollaborationUtils_partial,
                             fileCountAndSize.v, format(fileCountAndSize.p)
@@ -378,8 +378,6 @@ public class CollaborationUtils {
             }
         }
 
-        List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
-
         for (Entry<IProject, Set<IResource>> entry : projectsResources
             .entrySet()) {
 
@@ -391,12 +389,12 @@ public class CollaborationUtils {
                 continue;
             }
 
-            additionalFilesForPartialSharing.clear();
+            List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
 
             /*
-             * we need this file otherwise creating a new project on the remote
-             * will produce garbage because the project nature is not set /
-             * updated correctly
+             * we need the .iws, .iml and .prj files and the .idea folder,
+             * otherwise creating a new project on the remote will produce
+             * garbage because the project nature is not set / updated correctly
              */
             IFolder projectFolder = new FolderImp((ProjectImp) project,
                 project.getFullPath().toFile());
@@ -407,7 +405,6 @@ public class CollaborationUtils {
                     additionalFilesForPartialSharing.add(pFile);
                 }
             }
-
             IFolder settingsFolder = project.getFolder(".idea");
             if (settingsFolder != null && settingsFolder.exists()) {
                 try {

@@ -25,12 +25,16 @@ package de.fu_berlin.inf.dpp.intellij.ui;
 import de.fu_berlin.inf.dpp.intellij.util.MessageUtils;
 
 /**
- * UI message bundle
+ * UI message bundle.
  */
 public class Messages {
 
     private static final String BUNDLE_NAME = Messages.class.getName()
         .toLowerCase();
+
+    static {
+        MessageUtils.initializeMessages(BUNDLE_NAME, Messages.class);
+    }
 
     public static String AddContactWizard_title;
     public static String AddContactWizardPage_nickname;
@@ -431,11 +435,6 @@ public class Messages {
     public static String UserStatusChangeHandler_read_only;
     public static String UserStatusChangeHandler_write;
     public static String UserStatusChangeHandler_you_have_now_access;
-
-    static {
-        // initialize resource bundle
-        MessageUtils.initializeMessages(BUNDLE_NAME, Messages.class);
-    }
 
     private Messages() {
     }
