@@ -158,14 +158,17 @@ public class ProjectImp implements IProject {
     public IFile getFile(String name) {
         if (fileMap.containsKey(name)) {
             return fileMap.get(name);
-        } else {
-            if (path.isAbsolute()) {
-                return new FileImp(this, new File(name));
-            } else {
-                return new FileImp(this,
-                        new File(this.path + "/" + name));
-            }
         }
+
+        IFile file;
+        if (path.isAbsolute()) {
+            file = new FileImp(this, new File(name));
+
+        } else {
+            file = new FileImp(this, new File(this.path + "/" + name));
+        }
+        addResource(file);
+        return file;
     }
 
     @Override
