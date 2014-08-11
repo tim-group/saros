@@ -31,13 +31,7 @@ import de.fu_berlin.inf.dpp.core.preferences.IPreferenceStore;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.JoinSessionRejectedHandler;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.JoinSessionRequestHandler;
 import de.fu_berlin.inf.dpp.core.ui.eventhandler.NegotiationHandler;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.ServerPreferenceHandler;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.SessionStatusRequestHandler;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.UserStatusChangeHandler;
-import de.fu_berlin.inf.dpp.core.ui.eventhandler.XMPPAuthorizationHandler;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
@@ -85,12 +79,6 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
         // UI handlers
         Component.create(NegotiationHandler.class),
-        Component.create(UserStatusChangeHandler.class),
-        Component.create(JoinSessionRequestHandler.class),
-        Component.create(JoinSessionRejectedHandler.class),
-        Component.create(ServerPreferenceHandler.class),
-        Component.create(SessionStatusRequestHandler.class),
-        Component.create(XMPPAuthorizationHandler.class),
 
         // Cache support
             /*
@@ -149,13 +137,13 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
         container.addComponent(Saros.class, saros);
 
-        container.addComponent(BindKey
-            .bindKey(String.class, ISarosContextBindings.SarosVersion.class),
-            "14.1.31.DEVEL");  //todo
+        container.addComponent(BindKey.bindKey(String.class,
+                ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL"
+        );  //todo
 
-        container.addComponent(BindKey
-            .bindKey(String.class, ISarosContextBindings.PlatformVersion.class),
-            "4.3.2"); //todo
+        container.addComponent(BindKey.bindKey(String.class,
+                ISarosContextBindings.PlatformVersion.class), "4.3.2"
+        ); //todo
 
     }
 }

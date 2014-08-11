@@ -1,7 +1,8 @@
 /*
+/*
  *
  *  DPP - Serious Distributed Pair Programming
- *  (c) Freie UniversitÃ¤t Berlin - Fachbereich Mathematik und Informatik - 2010
+ *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
  *  (c) NFQ (www.nfq.com) - 2014
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -57,7 +58,6 @@ import java.util.List;
  * project negotiations that are received by the Saros Session Manager
  * component.
  *
- * @author srossbach
  */
 public class NegotiationHandler implements INegotiationHandler {
 
@@ -87,7 +87,6 @@ public class NegotiationHandler implements INegotiationHandler {
         OutgoingInvitationJob outgoingInvitationJob = new OutgoingInvitationJob(
             negotiation);
 
-        outgoingInvitationJob.setPriority(Thread.NORM_PRIORITY);
         outgoingInvitationJob.schedule();
     }
 
@@ -102,7 +101,6 @@ public class NegotiationHandler implements INegotiationHandler {
         OutgoingProjectNegotiation negotiation) {
 
         OutgoingProjectJob job = new OutgoingProjectJob(negotiation);
-        job.setPriority(Thread.NORM_PRIORITY);
         job.schedule();
     }
 
@@ -115,8 +113,6 @@ public class NegotiationHandler implements INegotiationHandler {
     private void showIncomingInvitationUI(
         final IncomingSessionNegotiation process) {
 
-        // Fixes #2727848: InvitationDialog is opened in the
-        // background
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -152,11 +148,11 @@ public class NegotiationHandler implements INegotiationHandler {
         ApplicationManager.getApplication().invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                AddProjectToSessionWizard projectToSessionWizard = new AddProjectToSessionWizard(
+                new AddProjectToSessionWizard(
                     process, process.getPeer(), fileLists,
                     process.getProjectNames());
             }
-        }, ModalityState.any());
+        }, ModalityState.current());
     }
 
     /**
