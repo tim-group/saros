@@ -57,7 +57,6 @@ import java.util.List;
  * This handler is responsible for presenting and running the session and
  * project negotiations that are received by the Saros Session Manager
  * component.
- *
  */
 public class NegotiationHandler implements INegotiationHandler {
 
@@ -148,9 +147,8 @@ public class NegotiationHandler implements INegotiationHandler {
         ApplicationManager.getApplication().invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                new AddProjectToSessionWizard(
-                    process, process.getPeer(), fileLists,
-                    process.getProjectNames());
+                new AddProjectToSessionWizard(process, process.getPeer(),
+                    fileLists, process.getProjectNames());
             }
         }, ModalityState.current());
     }
@@ -268,7 +266,7 @@ public class NegotiationHandler implements INegotiationHandler {
                             @Override
                             public void run() {
                                 DialogUtils.showInfo(message,
-                                        Messages.NegotiationHandler_project_sharing_cancelled_text);
+                                    Messages.NegotiationHandler_project_sharing_cancelled_text);
                             }
                         });
 

@@ -1,4 +1,5 @@
 /*
+/*
  *
  *  DPP - Serious Distributed Pair Programming
  *  (c) Freie Universität Berlin - Fachbereich Mathematik und Informatik - 2010
@@ -33,6 +34,7 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.JMenu;
@@ -49,6 +51,9 @@ import java.util.List;
  * Contact pop-up menu
  */
 class ContactPopMenu extends JPopupMenu {
+
+    private static final Logger LOG = Logger.getLogger(ContactPopMenu.class);
+
     @Inject
     protected Saros saros;
 
@@ -196,8 +201,8 @@ class ContactPopMenu extends JPopupMenu {
                 List<JID> contacts = Arrays.asList(user);
 
                 CollaborationUtils.startSession(resources, contacts);
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            } catch (IOException exception) {
+                LOG.error("could not share directory due to", exception);
             }
         }
     }

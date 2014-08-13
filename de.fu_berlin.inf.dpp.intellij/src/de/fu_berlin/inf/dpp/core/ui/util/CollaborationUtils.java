@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.core.ui.util;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitoring.IStatus;
 import de.fu_berlin.inf.dpp.core.monitoring.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -93,13 +92,8 @@ public class CollaborationUtils {
     public static void startSession(List<IResource> resources,
         final List<JID> contacts) {
 
-        final Map<IProject, List<IResource>> newResources;
-        try {
-            newResources = acquireResources(resources, null);
-        } catch (IOException e) {
-            throw new OperationCanceledException(
-                "Seesion starting is canceled due to file system error");
-        }
+        final Map<IProject, List<IResource>> newResources = acquireResources(
+            resources, null);
 
         UIMonitoredJob sessionStartupJob = new UIMonitoredJob(
             "Session Startup") {
@@ -199,12 +193,8 @@ public class CollaborationUtils {
         }
 
         final Map<IProject, List<IResource>> projectResources;
-        try {
-            projectResources = acquireResources(resourcesToAdd, sarosSession);
-        } catch (IOException e) {
-            LOG.error("could not accquire resources due to:", e);
-            return;
-        }
+
+        projectResources = acquireResources(resourcesToAdd, sarosSession);
 
         if (projectResources.isEmpty()) {
             return;
@@ -328,8 +318,7 @@ public class CollaborationUtils {
      * @return
      */
     private static Map<IProject, List<IResource>> acquireResources(
-        List<IResource> selectedResources, ISarosSession sarosSession)
-        throws IOException {
+        List<IResource> selectedResources, ISarosSession sarosSession) {
 
         Map<IProject, Set<IResource>> projectsResources = new HashMap<IProject, Set<IResource>>();
 
@@ -398,12 +387,16 @@ public class CollaborationUtils {
              */
             IFolder projectFolder = new FolderImp((ProjectImp) project,
                 project.getFullPath().toFile());
-            for (IResource pFile : projectFolder.members(IResource.FILE)) {
-                String sFileName = pFile.getName().toLowerCase();
-                if (sFileName.endsWith(".iml") || sFileName.endsWith(".iws")
-                    || sFileName.endsWith(".prj")) {
-                    additionalFilesForPartialSharing.add(pFile);
+            try {
+                for (IResource pFile : projectFolder.members(IResource.FILE)) {
+                    String sFileName = pFile.getName().toLowerCase();
+                    if (sFileName.endsWith(".iml") || sFileName.endsWith(".iws")
+                        || sFileName.endsWith(".prj")) {
+                        additionalFilesForPartialSharing.add(pFile);
+                    }
                 }
+            } catch (IOException e) {
+                LOG.warn("could not open folder " + projectFolder, e);
             }
             IFolder settingsFolder = project.getFolder(".idea");
             if (settingsFolder != null && settingsFolder.exists()) {

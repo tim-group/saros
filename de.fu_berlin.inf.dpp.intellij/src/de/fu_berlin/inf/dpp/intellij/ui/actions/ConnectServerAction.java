@@ -109,6 +109,30 @@ public class ConnectServerAction extends AbstractSarosAction {
 
     @Override
     public void run() {
+/*
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            @Override public void run() {
+                try {
+                    ModuleManager moduleManager = ModuleManager.getInstance(saros.getProject());
+                    moduleManager.newModule(
+                        saros.getProject().getBasePath() + "/" + "testcreate/testcreate.iml",
+                        StdModuleTypes.JAVA.getId());
+
+                    ModuleManager moduleManager = ModuleManager.getInstance(saros.getProject());
+                    final ModifiableModuleModel moduleModel = moduleManager
+                        .getModifiableModel();
+                    String moduleFilePath = saros.getProject().getBasePath() + "/testnewmodule"
+                        + ModuleFileType.DOT_DEFAULT_EXTENSION;
+                    new JavaModuleType().createModuleBuilder().createModule(
+                        moduleModel);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });*/
+
+
+
         XMPPAccount account;
         boolean isNew = false;
         if (activeUser != null) {

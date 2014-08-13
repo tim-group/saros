@@ -33,8 +33,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SarosComponent implements com.intellij.openapi.components.ProjectComponent {
 
-
-    public SarosComponent(Project project) {
+    public SarosComponent(final Project project) {
         PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/src/log4j.properties");  //todo
 
         Saros.create(project);

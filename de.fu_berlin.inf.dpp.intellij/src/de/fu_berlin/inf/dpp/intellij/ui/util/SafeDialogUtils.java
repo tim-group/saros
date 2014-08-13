@@ -43,11 +43,10 @@ public class SafeDialogUtils {
     }
 
     /**
-     * @param message
-     * @param initialValue
-     * @return
+     * Shows an input dialog in the UI thread.
      */
-    public static String showInputDialog(final String message, final String initialValue, final String title) {
+    public static String showInputDialog(final String message,
+        final String initialValue, final String title) {
         final StringBuilder response = new StringBuilder();
 
         UIUtil.invokeAndWaitIfNeeded(new Runnable() {
@@ -62,10 +61,6 @@ public class SafeDialogUtils {
         return response.toString();
     }
 
-    /**
-     * @param message
-     * @param title
-     */
     public static void showWarning(final String message, final String title) {
         UIUtil.invokeAndWaitIfNeeded(new Runnable() {
             @Override
@@ -75,10 +70,6 @@ public class SafeDialogUtils {
         });
     }
 
-    /**
-     * @param message
-     * @param title
-     */
     public static void showError(final String message, final String title) {
         UIUtil.invokeAndWaitIfNeeded(new Runnable() {
             @Override

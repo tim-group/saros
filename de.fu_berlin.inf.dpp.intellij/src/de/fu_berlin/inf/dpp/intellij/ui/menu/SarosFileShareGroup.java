@@ -142,10 +142,8 @@ public class SarosFileShareGroup extends ActionGroup {
                 List<JID> contacts = Arrays.asList(userJID);
 
                 CollaborationUtils.startSession(resources, contacts);
-
-
             } catch (IOException e1) {
-                LOG.trace(e1.getMessage(), e1);
+                LOG.error("could not share project with user due to", e1);
             }
         }
 

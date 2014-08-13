@@ -38,11 +38,14 @@ public class DialogUtils {
     @Inject
     private static Saros saros;
 
-    private static final Container container;
+    private static final Container CONTAINER;
+
+    private DialogUtils() {
+    }
 
     static {
         SarosPluginContext.initComponent(new DialogUtils());
-        container = saros.getMainPanel();
+        CONTAINER = saros.getMainPanel();
     }
 
     public static void showError(Component parent, String title, String msg) {
@@ -67,7 +70,7 @@ public class DialogUtils {
         String msg) {
         int resp = JOptionPane.showConfirmDialog(parent, msg, title,
             JOptionPane.OK_CANCEL_OPTION);
-        return resp == 0;
+        return resp == JOptionPane.OK_OPTION;
     }
 
     public static boolean showConfirm(String title, String msg) {
@@ -79,7 +82,7 @@ public class DialogUtils {
         int answer = JOptionPane
             .showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION);
 
-        return answer == 0;
+        return answer == JOptionPane.YES_OPTION;
     }
 
     public static boolean showQuestion(String title, String msg) {
@@ -96,6 +99,6 @@ public class DialogUtils {
     }
 
     public static Container getDefaultContainer() {
-        return container;
+        return CONTAINER;
     }
 }
