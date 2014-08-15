@@ -297,7 +297,7 @@ public class CollaborationUtils {
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            return "Could not get descriprion";
+            return "Could not get description";
         }
 
         return result.toString();
