@@ -381,33 +381,19 @@ public class CollaborationUtils {
             List<IResource> additionalFilesForPartialSharing = new ArrayList<IResource>();
 
             /*
-             * we need the .iws, .iml and .prj files and the .idea folder,
-             * otherwise creating a new project on the remote will produce
-             * garbage because the project nature is not set / updated correctly
+             * we need the .iml file, otherwise the project type will not be set correctly on the other side
              */
             IFolder projectFolder = new FolderImp((ProjectImp) project,
                 project.getFullPath().toFile());
             try {
                 for (IResource pFile : projectFolder.members(IResource.FILE)) {
                     String sFileName = pFile.getName().toLowerCase();
-                    if (sFileName.endsWith(".iml") || sFileName.endsWith(".iws")
-                        || sFileName.endsWith(".prj")) {
+                    if (sFileName.endsWith(".iml")) {
                         additionalFilesForPartialSharing.add(pFile);
                     }
                 }
             } catch (IOException e) {
-                LOG.warn("could not open folder " + projectFolder, e);
-            }
-            IFolder settingsFolder = project.getFolder(".idea");
-            if (settingsFolder != null && settingsFolder.exists()) {
-                try {
-                    addRecursively(additionalFilesForPartialSharing,
-                        settingsFolder);
-                } catch (Exception e) {
-                    LOG.warn(
-                        "could not read the contents of the settings folder",
-                        e);
-                }
+                LOG.warn("could not open .iml file in " + projectFolder, e);
             }
 
             resources.addAll(additionalFilesForPartialSharing);

@@ -164,7 +164,7 @@ public class ConsistencyAction extends AbstractSarosAction {
 
                 // show balloon notification
                 NotificationPanel.showNotification(
-                    Messages.ConsistencyAction_title_inconsistency_deteced,
+                    Messages.ConsistencyAction_title_inconsistency_detected,
                     MessageFormat.format(
                         Messages.ConsistencyAction_message_inconsistency_detected,
                         files)

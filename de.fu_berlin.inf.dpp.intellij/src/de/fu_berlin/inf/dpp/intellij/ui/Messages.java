@@ -49,7 +49,7 @@ public class Messages {
     public static String ConsistencyAction_confirm_dialog_title;
     public static String ConsistencyAction_message_inconsistency_detected;
     public static String ConsistencyAction_progress_perform_recovery;
-    public static String ConsistencyAction_title_inconsistency_deteced;
+    public static String ConsistencyAction_title_inconsistency_detected;
     public static String ConsistencyAction_tooltip_inconsistency_detected;
     public static String ConsistencyAction_tooltip_no_inconsistency;
 
