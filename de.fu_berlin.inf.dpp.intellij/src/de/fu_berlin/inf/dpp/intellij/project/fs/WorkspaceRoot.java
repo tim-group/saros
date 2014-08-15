@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
@@ -34,10 +35,12 @@ import java.util.Map;
 public class WorkspaceRoot implements IWorkspaceRoot {
     public static final Logger LOG = Logger.getLogger(WorkspaceRoot.class);
 
+    private Project project;
     private File workspacePath;
     private Map<String, IProject> projects = new HashMap<String, IProject>();
 
-    public WorkspaceRoot(File workspacePath) {
+    public WorkspaceRoot(Project project, File workspacePath) {
+        this.project = project;
         this.workspacePath = workspacePath;
         for (File prj : workspacePath.listFiles()) {
             if (prj.isDirectory()) {
@@ -60,7 +63,7 @@ public class WorkspaceRoot implements IWorkspaceRoot {
                 this.workspacePath.getAbsolutePath() + PathImp.FILE_SEPARATOR
                     + project
             );
-            ProjectImp myPrj = new ProjectImp(project, fPrj);
+            ProjectImp myPrj = new ProjectImp(this.project, project, fPrj);
 
             addProject(myPrj);
 
@@ -80,7 +83,7 @@ public class WorkspaceRoot implements IWorkspaceRoot {
 
         ProjectImp prj = (ProjectImp) this.projects.get(name);
         if (prj == null) {
-            prj = new ProjectImp(name, path);
+            prj = new ProjectImp(this.project, name, path);
             addProject(prj);
         }
 

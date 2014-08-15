@@ -217,30 +217,4 @@ public class ProjectAPI {
         StoppableEditorFileListener listener) {
         editorFileManager.addFileEditorManagerListener(listener);
     }
-
-    //FIXME: This method does not work yet , just a work in progress
-    public void addModule(IProject p) {
-        try {
-            ProjectManager.getInstance()
-                .createProject(p.getFullPath().toString(), p.getName());
-            String imlName = p.getFullPath() + "/" + p.getName()
-                + ModuleFileType.DOT_DEFAULT_EXTENSION;
-            final Module module = ModuleManager.getInstance(project)
-                .newModule(imlName, p.getName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            ModuleManager moduleManager = ModuleManager.getInstance(project);
-            final ModifiableModuleModel moduleModel = moduleManager
-                .getModifiableModel();
-            String moduleFilePath = p.getFullPath() + "/" + p.getName()
-                + ModuleFileType.DOT_DEFAULT_EXTENSION;
-            moduleModel.newModule(moduleFilePath, StdModuleTypes.JAVA.getId());
-            moduleModel.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

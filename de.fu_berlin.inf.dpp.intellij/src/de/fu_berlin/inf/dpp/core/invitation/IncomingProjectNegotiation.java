@@ -4,6 +4,7 @@ import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
@@ -18,6 +19,7 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
@@ -73,6 +75,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     private IChecksumCache checksumCache;
     @Inject
     private IWorkspace workspace;
+    @Inject
+    private Saros saros;
     @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
     /**
@@ -145,8 +149,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         observeMonitor(monitor);
 
-        IWorkspace ws = workspace;
-
         //TODO: By default IDEA does not autobuild, but we should add a check for that
 
         fileReplacementInProgressObservable.startReplacement();
@@ -167,6 +169,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             fileTransferManager
                 .addFileTransferListener(archiveTransferListener);
+
+            createProjectHandles(projectNames);
 
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
                 useVersionControl, new SubProgressMonitor(monitor, 10));
@@ -215,6 +219,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 acceptArchive(archiveTransferListener,
                     new SubProgressMonitor(monitor, 80));
 
+            openProjects();
+
             // We are finished with the exchanging process. Add all projects
             // resources to the session.
             for (String projectID : localProjects.keySet()) {
@@ -259,6 +265,30 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         return terminateProcess(exception);
     }
 
+    private void openProjects() {
+        for (IProject project : localProjects.values()) {
+            if (!project.isOpen()) {
+                try {
+                    project.open();
+                } catch (IOException e) {
+                    LOG.error("unable to create project " + project.getName(), e);
+                }
+            }
+        }
+    }
+
+    private void createProjectHandles(Map<String, String> projectNames) throws LocalCancellationException, IOException {
+        for (Entry<String, String> entry : projectNames.entrySet()) {
+            String projectID = entry.getKey();
+            String projectName = entry.getValue();
+
+            IProject project = new ProjectImp(saros.getProject(),
+                    projectName,
+                    new File(saros.getProject().getBasePath() + File.separator + projectName));
+            localProjects.put(projectID, project);
+        }
+    }
+
     public boolean isPartialRemoteProject(String projectID) {
         for (ProjectNegotiationData info : projectInfos) {
             if (info.getProjectID().equals(projectID))
@@ -270,8 +300,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     /**
      * Accepts the archive with all missing files and decompress it.
      */
-    private void acceptArchive(ArchiveTransferListener archiveTransferListener,
-        IProgressMonitor monitor)
+    private void acceptArchive(ArchiveTransferListener archiveTransferListener, IProgressMonitor monitor)
         throws IOException, SarosCancellationException {
 
         // waiting for the big archive to come in
@@ -343,18 +372,12 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             VCSProvider vcs = null;
 
-            IProject project = workspace.getRoot().getProject(projectName);
-
-            if (!project.exists()) {
-                project = createProject(project, null);
-            }
-
-            localProjects.put(projectID, project);
-
             checkCancellation(CancelOption.NOTIFY_PEER);
 
             LOG.debug("compute required Files for project " + projectName
                 + " with ID: " + projectID);
+
+            IProject project = localProjects.get(projectID);
 
             FileList requiredFiles = computeRequiredFiles(project,
                 projectInfo.getFileList(), projectID, vcs,
@@ -368,33 +391,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
 
         return missingFiles;
-    }
-
-    /**
-     * Creates a new project. If a base project is given those files are copied
-     * into the new project.
-     *
-     * @param project the project to create
-     * @param base    the project to copy resources from
-     * @return the created project
-     * @throws LocalCancellationException if the process is canceled locally
-     * @throws IOException                if the project already exists or could not created
-     */
-    private IProject createProject(final IProject project, final IProject base)
-        throws LocalCancellationException, IOException {
-
-        final CreateProjectTask createProjectTask = new CreateProjectTask(
-            project.getName(), base, monitor, workspace);
-
-        try {
-            workspace.run(createProjectTask, monitor);
-        } catch (OperationCanceledException e) {
-            throw new LocalCancellationException();
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e.getCause());
-        }
-
-        return createProjectTask.getProject();
     }
 
     @Override

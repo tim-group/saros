@@ -119,7 +119,7 @@ public class Workspace implements IWorkspace {
      * @deprecated use for tests only
      */
     public void createWorkSpace(File path) {
-        this.root = new WorkspaceRoot(path);
+        this.root = new WorkspaceRoot(project, path);
         this.path = path;
 
     }
@@ -134,7 +134,7 @@ public class Workspace implements IWorkspace {
     }
 
     protected void initPath(File path) {
-        this.root = new WorkspaceRoot(path);
+        this.root = new WorkspaceRoot(project, path);
         this.path = path;
     }
 

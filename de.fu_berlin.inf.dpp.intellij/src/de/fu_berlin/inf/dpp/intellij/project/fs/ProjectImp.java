@@ -22,6 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleWithNameAlreadyExists;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
@@ -30,6 +38,8 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +52,14 @@ import java.util.Map;
 
 public class ProjectImp implements IProject {
     public static final String DEFAULT_CHARSET = "utf8";
+
+    public static final String INTELLI_J_IDEA = "IntelliJ IDEA";
+    public static final String DEFAULT_MODULE_EXTENSION = ".iml";
+    private static final Logger LOG = Logger.getLogger(ProjectImp.class);
+
     private String defaultCharset = DEFAULT_CHARSET;
+
+    private Project project;
     private String name;
     private File path;
 
@@ -62,7 +79,8 @@ public class ProjectImp implements IProject {
         this.name = name;
     }
 
-    public ProjectImp(String name, File path) {
+    public ProjectImp(Project project, String name, File path) {
+        this.project = project;
         this.name = name;
         setPath(path);
 
@@ -192,12 +210,42 @@ public class ProjectImp implements IProject {
 
     @Override
     public boolean isOpen() {
-        return isOpen;
+        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
+
+        if (IDEAVersion.equals(INTELLI_J_IDEA)) {
+            Module mod = ModuleManager.getInstance(project).findModuleByName(name);
+            return mod != null && mod.isLoaded();
+        } else {
+            return isOpen;
+        }
     }
 
     @Override
     public void open() throws IOException {
-        this.isOpen = true;
+        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
+
+        if (IDEAVersion.equals(INTELLI_J_IDEA)) {
+            final String projectFile = path + File.separator + name + DEFAULT_MODULE_EXTENSION;
+            try {
+                //this is only called when the .iml file already exists on disk (after IPN)
+                List<File> refreshList = new ArrayList<File>();
+                refreshList.add(new File(projectFile));
+                LocalFileSystem.getInstance().refreshIoFiles(refreshList);
+                ModuleManager.getInstance(project).loadModule(projectFile);
+            } catch (InvalidDataException e) {
+                throw new IOException("invalid data in project file " + projectFile, e);
+            } catch (JDOMException e) {
+                throw new IOException("invalid data in project file " + projectFile, e);
+            } catch (ModuleWithNameAlreadyExists e) {
+                throw new IOException("module with name already exists for file " + projectFile, e);
+            }
+        } else {
+            if (!getFullPath().toFile().mkdirs()) {
+                LOG.error("Could not open project: " + getName());
+                throw new IOException("Could not open project");
+            }
+            this.isOpen = true;
+        }
     }
 
     @Override
