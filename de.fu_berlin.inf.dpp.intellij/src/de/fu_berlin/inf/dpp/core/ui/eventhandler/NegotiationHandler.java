@@ -25,12 +25,9 @@ package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.core.invitation.INegotiationHandler;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingProjectNegotiation;
-import de.fu_berlin.inf.dpp.core.invitation.OutgoingSessionNegotiation;
+import de.fu_berlin.inf.dpp.core.invitation.*;
 import de.fu_berlin.inf.dpp.core.monitoring.IStatus;
 import de.fu_berlin.inf.dpp.core.monitoring.Status;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -144,13 +141,19 @@ public class NegotiationHandler implements INegotiationHandler {
             fileLists.add(pInfo.getFileList());
         }
 
-        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+        UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+
             @Override
             public void run() {
-                new AddProjectToSessionWizard(process, process.getPeer(),
-                    fileLists, process.getProjectNames());
+                ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AddProjectToSessionWizard(process, process.getPeer(),
+                                fileLists, process.getProjectNames());
+                    }
+                }, ModalityState.current());
             }
-        }, ModalityState.current());
+        });
     }
 
     /**

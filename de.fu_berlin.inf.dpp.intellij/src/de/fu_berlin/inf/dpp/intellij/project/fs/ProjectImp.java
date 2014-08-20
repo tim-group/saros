@@ -22,21 +22,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleWithNameAlreadyExists;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.filesystem.IContainer;
-import de.fu_berlin.inf.dpp.filesystem.IFile;
-import de.fu_berlin.inf.dpp.filesystem.IFolder;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
-import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
+import de.fu_berlin.inf.dpp.filesystem.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -84,7 +79,7 @@ public class ProjectImp implements IProject {
         this.name = name;
         setPath(path);
 
-        //scan(path);
+        scan(path);
     }
 
     public void setPath(File path) {
@@ -183,7 +178,7 @@ public class ProjectImp implements IProject {
             file = new FileImp(this, new File(name));
 
         } else {
-            file = new FileImp(this, new File(this.path + "/" + name));
+            file = new FileImp(this, new File(this.path + File.separator + name));
         }
         addResource(file);
         return file;
@@ -213,8 +208,15 @@ public class ProjectImp implements IProject {
         String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
         if (IDEAVersion.equals(INTELLI_J_IDEA)) {
-            Module mod = ModuleManager.getInstance(project).findModuleByName(name);
-            return mod != null && mod.isLoaded();
+            return ApplicationManager.getApplication().runReadAction(
+                new Computable<Boolean>() {
+
+                    @Override public Boolean compute() {
+                        Module mod = ModuleManager.getInstance(project).findModuleByName(name);
+                        return mod != null && mod.isLoaded();
+                    }
+                });
+
         } else {
             return isOpen;
         }
@@ -225,20 +227,16 @@ public class ProjectImp implements IProject {
         String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
         if (IDEAVersion.equals(INTELLI_J_IDEA)) {
-            final String projectFile = path + File.separator + name + DEFAULT_MODULE_EXTENSION;
-            try {
-                //this is only called when the .iml file already exists on disk (after IPN)
-                List<File> refreshList = new ArrayList<File>();
-                refreshList.add(new File(projectFile));
-                LocalFileSystem.getInstance().refreshIoFiles(refreshList);
-                ModuleManager.getInstance(project).loadModule(projectFile);
-            } catch (InvalidDataException e) {
-                throw new IOException("invalid data in project file " + projectFile, e);
-            } catch (JDOMException e) {
-                throw new IOException("invalid data in project file " + projectFile, e);
-            } catch (ModuleWithNameAlreadyExists e) {
-                throw new IOException("module with name already exists for file " + projectFile, e);
-            }
+
+            //this is only called when the .iml file already exists on disk (after IPN)
+            //TODO: Does not work with projects shared from Eclipse, would need
+            //independent metadata for that
+             LoadModuleRunnable loader = new LoadModuleRunnable();
+             ApplicationManager.getApplication().invokeLater(loader);
+             if (loader.getException() != null) {
+                 throw loader.getException();
+             }
+
         } else {
             if (!getFullPath().toFile().mkdirs()) {
                 LOG.error("Could not open project: " + getName());
@@ -424,6 +422,40 @@ public class ProjectImp implements IProject {
         }
 
         return getClass().getName() + sb;
+    }
+
+    private class LoadModuleRunnable implements Runnable {
+
+        public IOException getException() {
+            return exception;
+        }
+
+        private IOException exception = null;
+
+        @Override public void run() {
+            ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                @Override
+                public void run() {
+                    final String projectFile = path + File.separator + name + DEFAULT_MODULE_EXTENSION;
+                    try {
+                        List<File> refreshList = new ArrayList<File>();
+                        refreshList.add(new File(projectFile));
+                        LocalFileSystem.getInstance()
+                            .refreshIoFiles(refreshList);
+                        ModuleManager.getInstance(project)
+                            .loadModule(projectFile);
+                    }  catch (InvalidDataException e) {
+                        exception = new IOException("invalid data in project file " + projectFile, e);
+                    } catch (JDOMException e) {
+                        exception = new IOException("invalid data in project file " + projectFile, e);
+                    } catch (ModuleWithNameAlreadyExists e) {
+                        exception = new IOException("module with name already exists for file " + projectFile, e);
+                    } catch (IOException e) {
+                        exception = e;
+                    }
+                }
+            });
+        }
     }
 
 }
