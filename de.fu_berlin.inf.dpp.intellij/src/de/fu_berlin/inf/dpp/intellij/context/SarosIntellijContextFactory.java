@@ -32,17 +32,15 @@ import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.project.SarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.eventhandler.NegotiationHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.UserStatusChangeHandler;
+import de.fu_berlin.inf.dpp.core.ui.eventhandler.XMPPAuthorizationHandler;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
-import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
-import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
-import de.fu_berlin.inf.dpp.intellij.editor.ProjectAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.*;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
 import de.fu_berlin.inf.dpp.intellij.store.PreferenceStore;
@@ -79,6 +77,8 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
 
         // UI handlers
         Component.create(NegotiationHandler.class),
+        Component.create(UserStatusChangeHandler.class),
+        Component.create(XMPPAuthorizationHandler.class),
 
         // Cache support
             /*
