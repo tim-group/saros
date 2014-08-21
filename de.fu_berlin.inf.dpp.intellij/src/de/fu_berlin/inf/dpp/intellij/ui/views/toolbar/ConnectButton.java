@@ -25,16 +25,10 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.JButton;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;

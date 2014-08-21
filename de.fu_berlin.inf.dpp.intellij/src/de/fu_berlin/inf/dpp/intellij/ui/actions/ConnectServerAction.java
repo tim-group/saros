@@ -26,14 +26,13 @@ import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 /**
  * Connects XMPP/Jabber server with given account
@@ -109,29 +108,6 @@ public class ConnectServerAction extends AbstractSarosAction {
 
     @Override
     public void run() {
-/*
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-            @Override public void run() {
-                try {
-                    ModuleManager moduleManager = ModuleManager.getInstance(saros.getProject());
-                    moduleManager.newModule(
-                        saros.getProject().getBasePath() + "/" + "testcreate/testcreate.iml",
-                        StdModuleTypes.JAVA.getId());
-
-                    ModuleManager moduleManager = ModuleManager.getInstance(saros.getProject());
-                    final ModifiableModuleModel moduleModel = moduleManager
-                        .getModifiableModel();
-                    String moduleFilePath = saros.getProject().getBasePath() + "/testnewmodule"
-                        + ModuleFileType.DOT_DEFAULT_EXTENSION;
-                    new JavaModuleType().createModuleBuilder().createModule(
-                        moduleModel);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });*/
-
-
 
         XMPPAccount account;
         boolean isNew = false;

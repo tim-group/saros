@@ -22,8 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ISarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 
 /**
  * Leaves session

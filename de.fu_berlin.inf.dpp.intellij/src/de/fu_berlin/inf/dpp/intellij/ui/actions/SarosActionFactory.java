@@ -20,18 +20,10 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
+package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.OpenChartAction;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 

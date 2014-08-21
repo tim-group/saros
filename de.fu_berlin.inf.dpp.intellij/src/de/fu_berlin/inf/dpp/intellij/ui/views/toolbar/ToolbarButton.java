@@ -24,13 +24,12 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ISarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.*;
 import java.net.URL;
 
 /**

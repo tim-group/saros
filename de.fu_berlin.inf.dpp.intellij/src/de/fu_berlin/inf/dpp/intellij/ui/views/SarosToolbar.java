@@ -24,14 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
@@ -39,12 +32,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.JButton;
-import javax.swing.JToolBar;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 

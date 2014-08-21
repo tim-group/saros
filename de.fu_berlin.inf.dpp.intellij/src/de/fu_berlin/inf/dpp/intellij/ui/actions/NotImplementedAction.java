@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 
 /**

@@ -34,9 +34,6 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.HeaderPanel;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.PageActionListener;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.Wizard;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
@@ -48,7 +45,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.Container;
+import java.awt.*;
 import java.text.MessageFormat;
 
 /**

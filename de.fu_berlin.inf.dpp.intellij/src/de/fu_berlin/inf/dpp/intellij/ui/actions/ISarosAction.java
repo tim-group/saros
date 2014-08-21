@@ -20,16 +20,32 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.actions.events;
+package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
+import java.awt.*;
 
 /**
- * Saros action listener
+ * Saros action interface
  */
-public interface SarosActionListener
+public interface ISarosAction extends Runnable
 {
-    void actionStarted(ISarosAction action);
+    void addActionListener(SarosActionListener actionListener);
 
-    void actionFinished(ISarosAction action);
+    void removeActionListener(SarosActionListener actionListener);
+
+    void removeAllActionListeners();
+
+
+    public void removeAllRefreshListeners();
+
+
+    public void addRefreshListener(UIRefreshListener refreshListener);
+
+
+    public void removeRefreshListener(UIRefreshListener refreshListener);
+
+
+    String getActionName();
+
+    public void setGuiFrame(Container guiFrame);
 }

@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards.core;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

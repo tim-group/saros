@@ -22,12 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.ISarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.SarosActionFactory;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.core.UIRefreshListener;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.events.SarosActionListener;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
 import de.fu_berlin.inf.dpp.session.User;
 
 import javax.swing.*;

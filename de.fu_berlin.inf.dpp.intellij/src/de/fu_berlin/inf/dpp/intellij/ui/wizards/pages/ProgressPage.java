@@ -23,15 +23,11 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.core.AbstractWizardPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Standard progress bar panel

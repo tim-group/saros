@@ -20,12 +20,26 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.actions.core;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
 /**
- * UI refresh listener interface
+ * Interface defines wizard page action listener structure
+ *
  */
-public interface UIRefreshListener
+public interface PageActionListener
 {
-    void refresh(AbstractSarosAction action);
+    /**
+     * User clicked on Back button
+     */
+    void back();
+
+    /**
+     * User clicked on next or next button
+     */
+    void next();
+
+    /**
+     * User clicked on back or cancel button
+     */
+    void cancel();
 }
