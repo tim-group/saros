@@ -33,7 +33,6 @@ import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.intellij.project.fs.FileUtil;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
@@ -56,7 +55,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.Component;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -372,7 +371,8 @@ public class AddProjectToSessionWizard {
 
             String projectID = entry.getKey();
             IProject project = entry.getValue();
-            FileUtil.create(project);
+            //In Eclipse this creates the handle and opens the project - not necessary here, because we just use the folder
+            //on disk -- opening happens later in IPN
 
             FileListDiff diff;
 
