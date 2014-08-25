@@ -73,6 +73,10 @@ public class WorkspaceRoot implements IWorkspaceRoot {
         }
     }
 
+    @Override public IPath getLocation() {
+        return new PathImp(workspacePath);
+    }
+
     public void addProject(IProject proj) {
         this.projects.put(proj.getName(), proj);
     }
@@ -90,10 +94,6 @@ public class WorkspaceRoot implements IWorkspaceRoot {
         return prj;
     }
 
-    @Override
-    public IProject getDefaultProject() {
-        return null;
-    }
 
     public IProject locateProject(IPath path) {
         //calculate relative path

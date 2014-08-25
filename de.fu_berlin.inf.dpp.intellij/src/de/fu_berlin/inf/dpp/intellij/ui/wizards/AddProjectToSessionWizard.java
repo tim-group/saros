@@ -203,7 +203,7 @@ public class AddProjectToSessionWizard {
         infoPage = new SelectProjectPage(INFO_PAGE_ID);
         infoPage.setNewProjectName(prjName); //todo
         infoPage.setProjectName(prjName);
-        infoPage.setProjectBase(workspace.getPath().getAbsolutePath());
+        infoPage.setProjectBase(workspace.getRoot().getLocation().toOSString());
         infoPage.addPageListener(infoPageListener);
         infoPage.create();
         wizard.registerPage(infoPage);

@@ -40,13 +40,4 @@ public interface IWorkspace {
         throws OperationCanceledException, IOException;
 
     IWorkspaceRoot getRoot();
-
-    IWorkspaceDescription getDescription();
-
-    void setDescription(IWorkspaceDescription description) throws IOException;
-
-    File getPath();
-
-    IPathFactory getPathFactory();
-
 }

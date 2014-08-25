@@ -31,9 +31,5 @@ public interface IWorkspaceRoot {
 
     IProject getProject(String project);
 
-    IProject addProject(String title, File file);
-
-    IProject getDefaultProject();
-
-    IProject locateProject(IPath path);
+    public IPath getLocation();
 }

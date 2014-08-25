@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.project;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import de.fu_berlin.inf.dpp.activities.FileActivity;
 import de.fu_berlin.inf.dpp.activities.FolderActivity;
@@ -67,8 +69,6 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
     private final FileSystemChangeListener fileSystemListener;
 
-    private final Map<IProject, SharedProject> sharedProjects = Collections
-        .synchronizedMap(new HashMap<IProject, SharedProject>());
     /**
      * Should return <code>true</code> while executing resource changes to avoid
      * an infinite resource event loop.
@@ -83,17 +83,27 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
     @Override
     public void start() {
-        sarosSession.addActivityProducer(this);
-        sarosSession.addActivityConsumer(consumer);
-        workspace.addResourceListener(fileSystemListener);
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
 
+            @Override public void run() {
+                sarosSession.addActivityProducer(SharedResourcesManager.this);
+                sarosSession.addActivityConsumer(consumer);
+                workspace.addResourceListener(fileSystemListener);
+
+            }
+        }, ModalityState.any());
     }
 
     @Override
     public void stop() {
-        workspace.removeResourceListener(fileSystemListener);
-        sarosSession.removeActivityProducer(this);
-        sarosSession.removeActivityConsumer(consumer);
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+
+            @Override public void run() {
+                workspace.removeResourceListener(fileSystemListener);
+                sarosSession.removeActivityProducer(SharedResourcesManager.this);
+                sarosSession.removeActivityConsumer(consumer);
+            }
+        }, ModalityState.any());
     }
 
     public SharedResourcesManager(ISarosSession sarosSession,
@@ -218,7 +228,12 @@ public class SharedResourcesManager extends AbstractActivityProducer
     private void handleFileDeletion(FileActivity activity) throws IOException {
         IFile file = activity.getPath().getFile();
 
-        if (file.exists()) {
+        if (!file.exists()) {
+            LOG.warn(
+                "could not delete file " + file + " because it does not exist");
+        }
+
+        try {
             fileSystemListener.setEnabled(false);
             //HACK: It does not work to disable the fileSystemListener temporarly,
             //because a fileCreated event will be fired asynchronously,
@@ -226,17 +241,12 @@ public class SharedResourcesManager extends AbstractActivityProducer
             fileSystemListener
                 .addIncomingFileToFilterFor(file.getFullPath().toFile());
             FileUtils.delete(file);
+        }  finally {
             fileSystemListener.setEnabled(true);
-        } else {
-            LOG.warn(
-                "could not delete file " + file + " because it does not exist");
         }
     }
 
     private void handleFileCreation(FileActivity activity) throws IOException {
-
-        //We need to try replaceAll directly in document if it is open already
-        boolean replaceSuccessful;
 
         String encodingString = activity.getEncoding() == null ?
             EncodingProjectManager.getInstance().getDefaultCharset().name() :
@@ -244,9 +254,11 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
         //FIXME: Test if updateEncoding method will be necessary
         String newText = new String(activity.getContent(), encodingString);
+
+        //if the file exists, try to replace the content completely
         if (!newText.isEmpty()) {
             //this is true only when the file already existed
-            replaceSuccessful = localEditorManipulator
+            boolean replaceSuccessful = localEditorManipulator
                 .replaceText(activity.getPath(), newText);
 
             if (replaceSuccessful) {
@@ -266,14 +278,19 @@ public class SharedResourcesManager extends AbstractActivityProducer
             LOG.info("FileActivity " + activity + " dropped (same content)");
             return;
         }
-        fileSystemListener.setEnabled(false);
-        //HACK: It does not work to disable the fileSystemListener temporarily,
-        //because a fileCreated event will be fired asynchronously,
-        //so we have to add this file to the filter list
-        fileSystemListener
-            .addIncomingFileToFilterFor(file.getFullPath().toFile());
-        FileUtils.writeFile(new ByteArrayInputStream(newContent), file, null);
-        fileSystemListener.setEnabled(true);
+
+        try {
+            fileSystemListener.setEnabled(false);
+            //HACK: It does not work to disable the fileSystemListener temporarily,
+            //because a fileCreated event will be fired asynchronously,
+            //so we have to add this file to the filter list
+            fileSystemListener
+                .addIncomingFileToFilterFor(file.getFullPath().toFile());
+            FileUtils
+                .writeFile(new ByteArrayInputStream(newContent), file, null);
+        } finally {
+            fileSystemListener.setEnabled(true);
+        }
     }
 
     private void handleFolderActivity(FolderActivity activity)
@@ -287,19 +304,21 @@ public class SharedResourcesManager extends AbstractActivityProducer
         //HACK: It does not work to disable the fileSystemListener temporarly,
         //because a fileCreated event will be fired asynchronously,
         //so we have to add this file to the filter list
-        fileSystemListener
-            .addIncomingFileToFilterFor(folder.getFullPath().toFile());
+        try {
+            if (activity.getType() == FolderActivity.Type.CREATED) {
+                FileUtils.create(folder);
+            } else if (activity.getType() == FolderActivity.Type.REMOVED) {
 
-        if (activity.getType() == FolderActivity.Type.CREATED) {
-            FileUtils.create(folder);
-        } else if (activity.getType() == FolderActivity.Type.REMOVED) {
+                if (folder.exists()) {
+                    FileUtils.delete(folder);
+                }
 
-            if (folder.exists()) {
-                FileUtils.delete(folder);
             }
-
+            fileSystemListener
+                .addIncomingFileToFilterFor(folder.getFullPath().toFile());
+        } finally {
+            fileSystemListener.setEnabled(true);
         }
-        fileSystemListener.setEnabled(true);
     }
 
     void internalFireActivity(IActivity activity) {
@@ -310,4 +329,3 @@ public class SharedResourcesManager extends AbstractActivityProducer
         return sarosSession;
     }
 }
-

@@ -33,7 +33,7 @@ import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.net.business.CancelInviteHandler;
 import de.fu_berlin.inf.dpp.core.net.business.CancelProjectSharingHandler;
 import de.fu_berlin.inf.dpp.core.net.business.InvitationHandler;
-import de.fu_berlin.inf.dpp.core.project.LeaveAndKickHandler;
+import de.fu_berlin.inf.dpp.core.net.business.LeaveAndKickHandler;
 import de.fu_berlin.inf.dpp.core.vcs.NullVCSProviderFactoryImpl;
 import de.fu_berlin.inf.dpp.invitation.hooks.SessionNegotiationHookManager;
 import de.fu_berlin.inf.dpp.net.DispatchThreadContext;

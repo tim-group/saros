@@ -32,6 +32,7 @@ import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
@@ -156,8 +157,7 @@ class ContactPopMenu extends JPopupMenu {
                 project.getBasePath() + "/TestProject" :
                 module.getProject().getBasePath() + "/" + module.getName();
 
-            IResource proj = saros.getWorkspace().getRoot()
-                .addProject(name, new File(path));
+            IResource proj = saros.getWorkspace().getRoot().getProject(name);
 
             List<IResource> resources = Arrays.asList(proj);
             JID user = new JID(contactInfo.getRosterEntry().getUser());
@@ -183,16 +183,13 @@ class ContactPopMenu extends JPopupMenu {
 
                 if (dir.isDirectory()) {
 
-                    IProject proj = saros.getWorkspace().getRoot()
-                        .addProject(dir.getName(), dir);
+                    IProject proj = saros.getWorkspace().getRoot().getProject(dir.getName());
                     proj.refreshLocal();
 
                     resources = Arrays.asList((IResource) proj);
                 } else {
                     //todo: not working properly after sharing
-                    IProject proj = saros.getWorkspace().getRoot()
-                        .addProject(dir.getParentFile().getName(),
-                            dir.getParentFile());
+                    IProject proj = saros.getWorkspace().getRoot().getProject(dir.getName());
                     IResource prjFile = proj.getFile(new PathImp(dir));
                     resources = Arrays.asList(prjFile);
                 }

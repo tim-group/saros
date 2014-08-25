@@ -41,6 +41,7 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.editor.AbstractStoppableListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.StoppableDocumentListener;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
@@ -57,7 +58,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Local file system change listener. It receives events for all files in all projects
+ * Vritual file system listener. It receives events for all files in all projects
  * opened by the user.
  * <p/>
  * It filters for files that are shared and calls the corresponding methods for
@@ -131,12 +132,13 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     private void generateFileMove(SPath oldSPath, SPath newSPath,
         boolean before) {
         User user = resourceManager.getSession().getLocalUser();
-        ProjectImp project = (ProjectImp) oldSPath.getProject();
+        ProjectImp project = (ProjectImp) newSPath.getProject();
+        ProjectImp oldProject = (ProjectImp) oldSPath.getProject();
 
         IFile file;
 
         if (before) {
-            file = project.getFile(oldSPath.getFullPath());
+            file = oldProject.getFile(oldSPath.getFullPath());
             editorManager.saveFile(oldSPath);
         } else {
             file = project.getFile(newSPath.getFullPath());
@@ -156,13 +158,14 @@ public class FileSystemChangeListener extends AbstractStoppableListener
         editorManager.replaceAllEditorsForPath(oldSPath, newSPath);
 
         project.addFile(newSPath.getFile().getLocation().toFile());
-        project.removeFile(oldSPath.getFile().getLocation().toFile());
+        oldProject.removeFile(oldSPath.getFile().getLocation().toFile());
         resourceManager.internalFireActivity(activity);
     }
 
     /**
      * Calls {@link EditorManager#sendTemplateContent(SPath, String)} for files
-     * that were created with initial content.
+     * that were created with initial content. For other content changes itm
+     * {@link StoppableDocumentListener} is used.
      * <p/>
      * This gets called for all files in the application, after they were changed.
      * This includes meta-files like workspace.xml.
@@ -172,17 +175,15 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     @Override
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
         VirtualFile virtualFile = virtualFileEvent.getFile();
-        File file = new File(virtualFile.getPath());
-        ProjectImp project = (ProjectImp) workspace.getRoot()
-            .locateProject(new PathImp(file));
-        IFile ifile = new FileImp(project, file);
+        ProjectImp project = workspace.getProjectForPath(virtualFile.getPath());
+        IFile file = new FileImp(project, new File(virtualFile.getPath()));
 
-        if (resourceManager.getSession().isShared(ifile) && newFiles
+        if (resourceManager.getSession().isShared(file) && newFiles
             .contains(virtualFile)) {
 
             newFiles.remove(virtualFile);
 
-            SPath spath = new SPath(project, ifile.getProjectRelativePath());
+            SPath spath = new SPath(project, file.getProjectRelativePath());
 
             //Files created from templates have initial content and are opened in
             // an editor, but do not have a DocumentListener. Their initial content
@@ -193,7 +194,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
                 try {
                     byte[] content = new byte[0];
                     content = virtualFile.contentsToByteArray();
-                    initialContent = new String(content, getEncoding(ifile));
+                    initialContent = new String(content, getEncoding(file));
                 } catch (IOException e) {
                     LOG.error("Could not access newly created file: " + file,
                         e);
@@ -218,10 +219,9 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        VirtualFile virtualFile = virtualFileEvent.getFile();
-        File file = new File(virtualFile.getPath());
+        File file = convertVirtualFileEventToFile(virtualFileEvent);
         IPath path = new PathImp(file);
-        IProject project = workspace.getRoot().locateProject(path);
+        ProjectImp project = workspace.getProjectForPath(file.getPath());
 
         if (project == null || !project.exists()) {
             return;
@@ -244,8 +244,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
                 return;
             }
 
-        int projSegmentCount = project.getFullPath().segments().length;
-        path = path.removeFirstSegments(projSegmentCount);
+        path = makeAbsolutePathProjectRelative(path, project);
 
         SPath spath = new SPath(project, path);
         User user = resourceManager.getSession().getLocalUser();
@@ -253,14 +252,14 @@ public class FileSystemChangeListener extends AbstractStoppableListener
 
         if (file.isFile()) {
             byte[] bytes = new byte[0];
-            String charset = null;
-            charset = virtualFile.getCharset().name();
+            String charset;
+            charset = virtualFileEvent.getFile().getCharset().name();
             activity = FileActivity.created(user, spath, bytes, charset,
                 FileActivity.Purpose.ACTIVITY);
 
             //If the file was created with a template, it is filled only later
             //so we check for newly created files' content in {@link #contentsChanged},
-            newFiles.add(virtualFile);
+            newFiles.add(virtualFileEvent.getFile());
         } else {
             activity = new FolderActivity(user, FolderActivity.Type.CREATED,
                 spath);
@@ -277,14 +276,14 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        File file = new File(virtualFileEvent.getFile().getPath());
+        File file = convertVirtualFileEventToFile(virtualFileEvent);
         if (incomingFilesToFilterFor.contains(file)) {
             incomingFilesToFilterFor.remove(file);
             return;
         }
 
         IPath path = new PathImp(file);
-        IProject project = workspace.getRoot().locateProject(path);
+        ProjectImp project = workspace.getProjectForPath(file.getPath());
 
         if (project == null || !project.exists()) {
             return;
@@ -294,8 +293,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        int projSegmentCount = project.getFullPath().segments().length;
-        path = path.removeFirstSegments(projSegmentCount);
+        path = makeAbsolutePathProjectRelative(path, project);
 
         SPath spath = new SPath(project, path);
         User user = resourceManager.getSession().getLocalUser();
@@ -321,14 +319,14 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        File newFile = new File(virtualFileMoveEvent.getFile().getPath());
+        File newFile = convertVirtualFileEventToFile(virtualFileMoveEvent);
         if (incomingFilesToFilterFor.contains(newFile)) {
             incomingFilesToFilterFor.remove(newFile);
             return;
         }
 
         IPath path = new PathImp(newFile);
-        IProject project = workspace.getRoot().locateProject(path);
+        ProjectImp project = workspace.getProjectForPath(newFile.getPath());
 
         if (project == null || !project.exists()) {
             return;
@@ -338,8 +336,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        int projSegmentCount = project.getFullPath().segments().length;
-        path = path.removeFirstSegments(projSegmentCount);
+        path = makeAbsolutePathProjectRelative(path, project);
 
         SPath newSPath = new SPath(project, path);
 
@@ -347,23 +344,26 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             virtualFileMoveEvent.getOldParent() + File.separator
                 + virtualFileMoveEvent.getFileName()
         ));
-        oldPath = oldPath.removeFirstSegments(projSegmentCount);
+        IProject oldProject = workspace.getProjectForPath(oldPath.toPortableString());
 
-        SPath oldSPath = new SPath(project, oldPath);
+        oldPath = makeAbsolutePathProjectRelative(oldPath, project);
+        SPath oldSPath = new SPath(oldProject, oldPath);
 
-        if (newFile.isFile()) {
-            generateFileMove(oldSPath, newSPath, false);
-
-        } else {
-            generateFolderMove(oldSPath, newSPath, false);
+        //FIXME: Handle cases where files are moved from outside the shared project
+        //into the shared project
+        if (oldProject == null) {
+            LOG.error(" can not move files from unshared project to shared project");
+            return;
+        }
+        if (project.equals(oldProject)) {
+            if (newFile.isFile()) {
+                generateFileMove(oldSPath, newSPath, false);
+            } else {
+                generateFolderMove(oldSPath, newSPath, false);
+            }
         }
     }
 
-    /**
-     * TODO: When is this method called?
-     *
-     * @param filePropertyEvent
-     */
     @Override
     public void propertyChanged(
         @NotNull VirtualFilePropertyEvent filePropertyEvent) {
@@ -375,7 +375,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             filePropertyEvent.getFile().getParent().getPath() + File.separator
                 + filePropertyEvent.getOldValue()
         );
-        File newFile = new File(filePropertyEvent.getFile().getPath());
+        File newFile = convertVirtualFileEventToFile(filePropertyEvent);
 
         if (incomingFilesToFilterFor.contains(newFile)) {
             incomingFilesToFilterFor.remove(newFile);
@@ -383,22 +383,20 @@ public class FileSystemChangeListener extends AbstractStoppableListener
         }
 
         IPath oldPath = new PathImp(oldFile);
-        IProject project = workspace.getRoot().locateProject(oldPath);
+        ProjectImp project = workspace.getProjectForPath(newFile.getPath());
 
         if (project == null || !project.exists()) {
             return;
         }
 
-        int projSegmentCount = project.getFullPath().segments().length;
-
-        oldPath = oldPath.removeFirstSegments(projSegmentCount);
+        oldPath = makeAbsolutePathProjectRelative(oldPath, project);
         SPath oldSPath = new SPath(project, oldPath);
 
         IPath newPath = new PathImp(newFile);
-        newPath = newPath.removeFirstSegments(projSegmentCount);
+        newPath = makeAbsolutePathProjectRelative(newPath, project);
 
         SPath newSPath = new SPath(project, newPath);
-        //move activity
+        //we handle this as a move activity
         if (newFile.isFile()) {
             generateFileMove(oldSPath, newSPath, false);
         } else {
@@ -414,13 +412,14 @@ public class FileSystemChangeListener extends AbstractStoppableListener
 
         VirtualFile virtualFile = virtualFileCopyEvent.getFile();
         File newFile = new File(virtualFile.getPath());
+
         if (incomingFilesToFilterFor.contains(newFile)) {
             incomingFilesToFilterFor.remove(newFile);
             return;
         }
 
         IPath path = new PathImp(newFile);
-        IProject project = workspace.getRoot().locateProject(path);
+        ProjectImp project = workspace.getProjectForPath(newFile.getPath());
 
         if (project == null || !project.exists()) {
             return;
@@ -430,8 +429,7 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             return;
         }
 
-        int projSegmentCount = project.getFullPath().segments().length;
-        path = path.removeFirstSegments(projSegmentCount);
+        path = makeAbsolutePathProjectRelative(path, project);
 
         SPath spath = new SPath(project, path);
 
@@ -443,7 +441,8 @@ public class FileSystemChangeListener extends AbstractStoppableListener
             bytes = virtualFileCopyEvent.getOriginalFile()
                 .contentsToByteArray();
         } catch (IOException e) {
-            Workspace.LOG.error(e.getMessage(), e);
+            Workspace.LOG.error("could not read content of original file " + virtualFileCopyEvent.getOriginalFile(), e);
+            return;
         }
 
         activity = FileActivity
@@ -470,18 +469,18 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     @Override
     public void beforeContentsChange(
         @NotNull VirtualFileEvent virtualFileEvent) {
-
+        //Do nothing
     }
 
     @Override
     public void beforeFileDeletion(@NotNull VirtualFileEvent virtualFileEvent) {
-
+        //Do nothing
     }
 
     @Override
     public void beforeFileMovement(
         @NotNull VirtualFileMoveEvent virtualFileMoveEvent) {
-
+        //Do nothing
     }
 
     public void setWorkspace(Workspace workspace) {
@@ -496,6 +495,18 @@ public class FileSystemChangeListener extends AbstractStoppableListener
      */
     public void addIncomingFileToFilterFor(File file) {
         incomingFilesToFilterFor.add(file);
+    }
+
+    private IPath makeAbsolutePathProjectRelative(IPath path,
+        IProject project) {
+        int projSegmentCount = project.getFullPath().segments().length;
+        path = path.removeFirstSegments(projSegmentCount);
+        return path;
+    }
+
+    private File convertVirtualFileEventToFile(
+        VirtualFileEvent virtualFileEvent) {
+        return new File(virtualFileEvent.getFile().getPath());
     }
 
     private String getEncoding(IFile file) {

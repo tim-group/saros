@@ -26,10 +26,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceDescription;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
 import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
 import de.fu_berlin.inf.dpp.intellij.project.FileSystemChangeListener;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
@@ -46,7 +44,6 @@ public class Workspace implements IWorkspace {
 
     private File path;
     private Project project;
-    private IWorkspaceDescription description = new WorkspaceDescription();
 
     /**
      * @deprecated use for testing only
@@ -106,14 +103,6 @@ public class Workspace implements IWorkspace {
         return root;
     }
 
-    public IWorkspaceDescription getDescription() {
-        return description;
-    }
-
-    public void setDescription(IWorkspaceDescription description) {
-        this.description = description;
-    }
-
     /**
      * @param path
      * @deprecated use for tests only
@@ -122,15 +111,6 @@ public class Workspace implements IWorkspace {
         this.root = new WorkspaceRoot(project, path);
         this.path = path;
 
-    }
-
-    @Override
-    public IPathFactory getPathFactory() {
-        return new PathFactory();
-    }
-
-    public File getPath() {
-        return path;
     }
 
     protected void initPath(File path) {
@@ -148,4 +128,8 @@ public class Workspace implements IWorkspace {
         fileSystem.removeVirtualFileListener(listener);
     }
 
+    public ProjectImp getProjectForPath(String path) {
+        //FIXME: implement this
+        return null;
+    }
 }

@@ -170,7 +170,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             fileTransferManager
                 .addFileTransferListener(archiveTransferListener);
 
-            createProjectHandles(projectNames);
+            createLocalProjects(projectNames);
 
             List<FileList> missingFiles = calculateMissingFiles(projectNames,
                 useVersionControl, new SubProgressMonitor(monitor, 10));
@@ -277,14 +277,21 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
     }
 
-    private void createProjectHandles(Map<String, String> projectNames) throws LocalCancellationException, IOException {
+    private void createLocalProjects(Map<String, String> projectNames) throws LocalCancellationException, IOException {
         for (Entry<String, String> entry : projectNames.entrySet()) {
             String projectID = entry.getKey();
             String projectName = entry.getValue();
 
+            File projectFolder = new File(saros.getProject().getBasePath() + File.separator + projectName);
+
+            if (!projectFolder.exists()) {
+                if (!projectFolder.mkdir()) {
+                    LOG.error("could not create project folder " + projectFolder);
+                }
+            }
+
             IProject project = new ProjectImp(saros.getProject(),
-                    projectName,
-                    new File(saros.getProject().getBasePath() + File.separator + projectName));
+                    projectName, projectFolder);
             localProjects.put(projectID, project);
         }
     }
