@@ -10,14 +10,14 @@ import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
 import de.fu_berlin.inf.dpp.exceptions.SarosCancellationException;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
@@ -120,8 +120,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      */
     public FileList getRemoteFileList(String projectID) {
         for (ProjectNegotiationData info : projectInfos) {
-            if (info.getProjectID().equals(projectID))
+            if (info.getProjectID().equals(projectID)) {
                 return info.getFileList();
+            }
         }
         return null;
     }
@@ -164,8 +165,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             checkCancellation(CancelOption.NOTIFY_PEER);
 
             if (fileTransferManager == null)
-                // FIXME: the logic will try to send this to the remote contact
+            // FIXME: the logic will try to send this to the remote contact
+            {
                 throw new IOException("not connected to a XMPP server");
+            }
 
             fileTransferManager
                 .addFileTransferListener(archiveTransferListener);
@@ -178,9 +181,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                 ProjectNegotiationMissingFilesExtension.PROVIDER.create(
                     new ProjectNegotiationMissingFilesExtension(sessionID,
-                        processID, missingFiles)
-                )
-            );
+                        processID, missingFiles)));
 
             awaitActivityQueueingActivation(
                 new SubProgressMonitor(monitor, 10));
@@ -204,20 +205,21 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                 StartActivityQueuingResponse.PROVIDER.create(
-                    new StartActivityQueuingResponse(sessionID, processID))
-            );
+                    new StartActivityQueuingResponse(sessionID, processID)));
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
             boolean filesMissing = false;
 
-            for (FileList list : missingFiles)
+            for (FileList list : missingFiles) {
                 filesMissing |= !list.getPaths().isEmpty();
+            }
 
             // Host/Inviter decided to transmit files with one big archive
-            if (filesMissing)
+            if (filesMissing) {
                 acceptArchive(archiveTransferListener,
                     new SubProgressMonitor(monitor, 80));
+            }
 
             openProjects();
 
@@ -252,9 +254,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
              */
             sarosSession.disableQueuing();
 
-            if (fileTransferManager != null)
+            if (fileTransferManager != null) {
                 fileTransferManager
                     .removeFileTransferListener(archiveTransferListener);
+            }
 
             fileReplacementInProgressObservable.replacementDone();
 
@@ -271,35 +274,41 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 try {
                     project.open();
                 } catch (IOException e) {
-                    LOG.error("unable to create project " + project.getName(), e);
+                    LOG.error("unable to create project " + project.getName(),
+                        e);
                 }
             }
         }
     }
 
-    private void createLocalProjects(Map<String, String> projectNames) throws LocalCancellationException, IOException {
+    private void createLocalProjects(Map<String, String> projectNames)
+        throws LocalCancellationException, IOException {
         for (Entry<String, String> entry : projectNames.entrySet()) {
             String projectID = entry.getKey();
             String projectName = entry.getValue();
 
-            File projectFolder = new File(saros.getProject().getBasePath() + File.separator + projectName);
+            File projectFolder = new File(
+                saros.getProject().getBasePath() + File.separator
+                    + projectName);
 
             if (!projectFolder.exists()) {
                 if (!projectFolder.mkdir()) {
-                    LOG.error("could not create project folder " + projectFolder);
+                    LOG.error(
+                        "could not create project folder " + projectFolder);
                 }
             }
 
-            IProject project = new ProjectImp(saros.getProject(),
-                    projectName, projectFolder);
+            IProject project = new ProjectImp(saros.getProject(), projectName,
+                projectFolder);
             localProjects.put(projectID, project);
         }
     }
 
     public boolean isPartialRemoteProject(String projectID) {
         for (ProjectNegotiationData info : projectInfos) {
-            if (info.getProjectID().equals(projectID))
+            if (info.getProjectID().equals(projectID)) {
                 return info.isPartial();
+            }
         }
         return false;
     }
@@ -307,7 +316,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     /**
      * Accepts the archive with all missing files and decompress it.
      */
-    private void acceptArchive(ArchiveTransferListener archiveTransferListener, IProgressMonitor monitor)
+    private void acceptArchive(ArchiveTransferListener archiveTransferListener,
+        IProgressMonitor monitor)
         throws IOException, SarosCancellationException {
 
         // waiting for the big archive to come in
@@ -366,16 +376,18 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             ProjectNegotiationData projectInfo = null;
 
             for (ProjectNegotiationData info : projectInfos) {
-                if (info.getProjectID().equals(projectID))
+                if (info.getProjectID().equals(projectID)) {
                     projectInfo = info;
+                }
             }
 
             if (projectInfo == null)
-                // this should never happen
+            // this should never happen
+            {
                 throw new RuntimeException(
                     "cannot add project with id " + projectID
-                        + ", this id is unknown"
-                );
+                        + ", this id is unknown");
+            }
 
             VCSProvider vcs = null;
 
@@ -412,27 +424,32 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          * currently NOT support cancellation of the project negotiation
          * properly !
          */
-        for (Entry<String, IProject> entry : localProjects.entrySet())
+        for (Entry<String, IProject> entry : localProjects.entrySet()) {
             sarosSession
                 .removeProjectMapping(entry.getKey(), entry.getValue(), peer);
+        }
 
         // The session might have been stopped already, if not we will stop it.
         if (sarosSession.getProjectResourcesMapping().keySet().isEmpty()
-            || sarosSession.getRemoteUsers().isEmpty())
+            || sarosSession.getRemoteUsers().isEmpty()) {
             sessionManager.stopSarosSession();
+        }
     }
 
     @Override
     public synchronized boolean remoteCancel(String errorMsg) {
-        if (!super.remoteCancel(errorMsg))
+        if (!super.remoteCancel(errorMsg)) {
             return false;
+        }
 
-        if (addIncomingProjectUI != null)
+        if (addIncomingProjectUI != null) {
             addIncomingProjectUI
                 .cancelWizard(peer, errorMsg, CancelLocation.REMOTE);
+        }
 
-        if (!running)
+        if (!running) {
             terminateProcess(null);
+        }
 
         return true;
     }
@@ -440,15 +457,18 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     @Override
     public synchronized boolean localCancel(String errorMsg,
         CancelOption cancelOption) {
-        if (!super.localCancel(errorMsg, cancelOption))
+        if (!super.localCancel(errorMsg, cancelOption)) {
             return false;
+        }
 
-        if (addIncomingProjectUI != null)
+        if (addIncomingProjectUI != null) {
             addIncomingProjectUI
                 .cancelWizard(peer, errorMsg, CancelLocation.LOCAL);
+        }
 
-        if (!running)
+        if (!running) {
             terminateProcess(null);
+        }
 
         return true;
     }
@@ -547,7 +567,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                             }
                         }
                     }
-                }, workspace.getRoot(), IWorkspace.AVOID_UPDATE, null);
+                });
 
                 diff.clearRemovedPaths();
             }
@@ -587,7 +607,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          */
 
         try {
-            workspace.run(decompressTask, monitor);
+            workspace.run(decompressTask);
         } catch (OperationCanceledException e) {
             throw new LocalCancellationException(null,
                 CancelOption.DO_NOT_NOTIFY_PEER);
@@ -613,18 +633,17 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         monitor.beginTask("Waiting for " + peer.getName()
                 + " to continue the project negotiation...",
-            IProgressMonitor.UNKNOWN
-        );
+            IProgressMonitor.UNKNOWN);
 
         Packet packet = collectPacket(startActivityQueuingRequestCollector,
             PACKET_TIMEOUT);
 
-        if (packet == null)
+        if (packet == null) {
             throw new LocalCancellationException(
                 "received no response from " + peer
                     + " while waiting to continue the project negotiation",
-                CancelOption.DO_NOT_NOTIFY_PEER
-            );
+                CancelOption.DO_NOT_NOTIFY_PEER);
+        }
 
         monitor.done();
     }
@@ -632,8 +651,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     private void createCollectors() {
         startActivityQueuingRequestCollector = xmppReceiver.createCollector(
             StartActivityQueuingRequest.PROVIDER
-                .getPacketFilter(sessionID, processID)
-        );
+                .getPacketFilter(sessionID, processID));
     }
 
     private void deleteCollectors() {
@@ -695,8 +713,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         LOG.debug(
             this + " : stored archive in file " + archiveFile.getAbsolutePath()
-                + ", size: " + CoreUtils.formatByte(archiveFile.length())
-        );
+                + ", size: " + CoreUtils.formatByte(archiveFile.length()));
 
         return archiveFile;
     }

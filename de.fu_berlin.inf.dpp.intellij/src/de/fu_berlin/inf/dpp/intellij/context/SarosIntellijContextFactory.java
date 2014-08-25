@@ -35,12 +35,16 @@ import de.fu_berlin.inf.dpp.core.ui.eventhandler.NegotiationHandler;
 import de.fu_berlin.inf.dpp.core.ui.eventhandler.UserStatusChangeHandler;
 import de.fu_berlin.inf.dpp.core.ui.eventhandler.XMPPAuthorizationHandler;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.ChecksumCacheImpl;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IFileContentChangedNotifier;
 import de.fu_berlin.inf.dpp.filesystem.IPathFactory;
-import de.fu_berlin.inf.dpp.intellij.editor.*;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorAPI;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
+import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorManipulator;
+import de.fu_berlin.inf.dpp.intellij.editor.ProjectAPI;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileContentChangedNotifierBridge;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathFactory;
 import de.fu_berlin.inf.dpp.intellij.runtime.IntelliJSynchronizer;
@@ -139,12 +143,11 @@ public class SarosIntellijContextFactory extends AbstractSarosContextFactory {
         container.addComponent(Saros.class, saros);
 
         container.addComponent(BindKey.bindKey(String.class,
-                ISarosContextBindings.SarosVersion.class), "14.1.31.DEVEL"
-        );  //todo
+                ISarosContextBindings.SarosVersion.class),
+            "14.1.31.DEVEL");  //todo
 
         container.addComponent(BindKey.bindKey(String.class,
-                ISarosContextBindings.PlatformVersion.class), "4.3.2"
-        ); //todo
+                ISarosContextBindings.PlatformVersion.class), "4.3.2"); //todo
 
     }
 }

@@ -28,10 +28,10 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IChecksumCache;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
@@ -52,7 +52,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -203,7 +203,7 @@ public class AddProjectToSessionWizard {
         infoPage = new SelectProjectPage(INFO_PAGE_ID);
         infoPage.setNewProjectName(prjName); //todo
         infoPage.setProjectName(prjName);
-        infoPage.setProjectBase(workspace.getRoot().getLocation().toOSString());
+        infoPage.setProjectBase(workspace.getLocation().toOSString());
         infoPage.addPageListener(infoPageListener);
         infoPage.create();
         wizard.registerPage(infoPage);
@@ -236,8 +236,7 @@ public class AddProjectToSessionWizard {
         for (FileList fList : fileLists) {
             String localProjectName = remoteProjectNames
                 .get(fList.getProjectID());
-            IProject localProject = workspace.getRoot()
-                .getProject(localProjectName);
+            IProject localProject = workspace.getProject(localProjectName);
             try {
                 localProject.refreshLocal();
             } catch (IOException e) {
@@ -252,8 +251,8 @@ public class AddProjectToSessionWizard {
         } catch (IOException e) {
             LOG.error(e);
             DialogUtils.showError(wizard.getWizard(), "Calculation error",
-                "Error while calculating modified resources: " + e.getMessage()
-            );
+                "Error while calculating modified resources: " + e
+                    .getMessage());
             wizard.close();
 
         }
@@ -417,8 +416,7 @@ public class AddProjectToSessionWizard {
                         .createFileList(project, null, checksumCache, null,
                             new SubProgressMonitor(monitor, 1,
                                 SubProgressMonitor.SUPPRESS_SETTASKNAME)),
-                    remoteFileList
-                );
+                    remoteFileList);
 
                 if (process.isPartialRemoteProject(projectID)) {
                     diff.clearRemovedPaths();

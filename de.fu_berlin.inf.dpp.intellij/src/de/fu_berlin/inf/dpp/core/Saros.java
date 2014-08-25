@@ -28,7 +28,7 @@ import de.fu_berlin.inf.dpp.core.context.SarosContext;
 import de.fu_berlin.inf.dpp.core.context.SarosCoreContextFactory;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.context.SarosIntellijContextFactory;
 import de.fu_berlin.inf.dpp.intellij.project.fs.Workspace;
 import de.fu_berlin.inf.dpp.intellij.ui.views.SarosMainPanelView;
@@ -139,8 +139,7 @@ public class Saros {
 
         //CONTEXT
         sarosContext = new SarosContext(new SarosIntellijContextFactory(this,
-            new SarosCoreContextFactory()), new DotGraphMonitor()
-        );
+            new SarosCoreContextFactory()), new DotGraphMonitor());
 
         SarosPluginContext.setSarosContext(sarosContext);
 

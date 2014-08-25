@@ -24,12 +24,11 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspace;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRoot;
-import de.fu_berlin.inf.dpp.core.workspace.IWorkspaceRunnable;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
+import de.fu_berlin.inf.dpp.filesystem.IWorkspaceRunnable;
 import de.fu_berlin.inf.dpp.intellij.project.FileSystemChangeListener;
-import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
 import org.apache.log4j.Logger;
 
@@ -67,40 +66,19 @@ public class Workspace implements IWorkspace {
         createWorkSpace(new File(project.getBasePath()));
     }
 
-    @Override
-    public void run(final IWorkspaceRunnable procedure,
-        IProgressMonitor monitor)
-        throws OperationCanceledException, IOException {
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
-        }
+    @Override public void run(IWorkspaceRunnable procedure) throws IOException {
+        procedure.run(new NullProgressMonitor());
+    }
 
-        procedure.run(monitor);
-
+    @Override public IProject getProject(String project) {
+        //TODO implement this
+        return null;
     }
 
     @Override
-    public void run(IWorkspaceRunnable procedure, IWorkspaceRoot root, int mode,
-        IProgressMonitor monitor) {
-
-        if (monitor == null) {
-            monitor = new NullProgressMonitor();
-        }
-
-        try {
-            procedure.run(monitor);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public IWorkspaceRoot getRoot() {
-        if (root == null) {
-            throw new RuntimeException("Workspace not initialized!");
-        }
-
-        return root;
+    public IPath getLocation() {
+        //TODO implement this
+        return null;
     }
 
     /**
