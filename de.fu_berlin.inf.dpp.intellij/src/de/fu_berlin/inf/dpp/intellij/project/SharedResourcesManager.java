@@ -235,12 +235,12 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
         try {
             fileSystemListener.setEnabled(false);
+            FileUtils.delete(file);
             //HACK: It does not work to disable the fileSystemListener temporarly,
             //because a fileCreated event will be fired asynchronously,
             //so we have to add this file to the filter list
             fileSystemListener
                 .addIncomingFileToFilterFor(file.getFullPath().toFile());
-            FileUtils.delete(file);
         }  finally {
             fileSystemListener.setEnabled(true);
         }
@@ -281,13 +281,13 @@ public class SharedResourcesManager extends AbstractActivityProducer
 
         try {
             fileSystemListener.setEnabled(false);
+            FileUtils
+                .writeFile(new ByteArrayInputStream(newContent), file, null);
             //HACK: It does not work to disable the fileSystemListener temporarily,
             //because a fileCreated event will be fired asynchronously,
             //so we have to add this file to the filter list
             fileSystemListener
                 .addIncomingFileToFilterFor(file.getFullPath().toFile());
-            FileUtils
-                .writeFile(new ByteArrayInputStream(newContent), file, null);
         } finally {
             fileSystemListener.setEnabled(true);
         }
