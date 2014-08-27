@@ -128,9 +128,19 @@ public class ConnectServerAction extends AbstractSarosAction {
                 actionFinished();
                 return;
             }
+            final String sarosServer = SafeDialogUtils
+                .showInputDialog(
+                    "Saros server " +
+                        "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
+                    "localhost", "Server");
+            if (sarosServer == null) {
+                actionFinished();
+                return;
+            }
+
             account = accountStore
                 .createAccount(jabberID, password, Saros.NAMESPACE,
-                    Saros.SAROS_SERVER, 80, false, false);
+                    sarosServer, 80, false, false);
             isNew = true;
         } else {
             account = accountStore.getActiveAccount();
