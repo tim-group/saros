@@ -70,9 +70,20 @@ public class ProjectImp implements IProject {
     private boolean isAccessible;
     private IResourceAttributes attributes;
 
-    public ProjectImp(String name) {
+
+    public ProjectImp(Project project, String name) {
+
+        File path = new File(
+            project.getBasePath() + File.separator
+                + name
+        );
+
+        this.project = project;
         this.name = name;
+        setPath(path);
+        scan(path);
     }
+
 
     public ProjectImp(Project project, String name, File path) {
         this.project = project;

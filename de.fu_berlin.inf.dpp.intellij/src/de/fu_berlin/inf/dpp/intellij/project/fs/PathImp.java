@@ -29,31 +29,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.4.4
- * Time: 11.41
- */
-
 public class PathImp implements IPath {
     public static final String FILE_SEPARATOR = "/";
 
-    private String _path;
+    private final String path;
+    private final String[] segments;
 
-    public PathImp(String path) {
+    public PathImp(final String path) {
 
+        String cleanPath = path;
         if (path.startsWith("file:/") || path.startsWith("file:\\"))
-            path = path.substring("file:/".length());
+            cleanPath = path.substring("file:/".length());
 
         //Linux: Removing the first slash makes the file inaccessible, so we only do it for windows
         if (isWindows()) {
             if (path.startsWith("\\") || path.startsWith("/"))
-                path = path.substring(1);
+                cleanPath = path.substring(1);
         }
 
-        this._path = path;
-        _path = toPortableString();
+        this.path = cleanPath;
+        segments = path.split(File.separator);
     }
 
     public PathImp(File file) {
@@ -62,94 +57,89 @@ public class PathImp implements IPath {
 
     @Override
     public IPath append(IPath path) {
-        return _path.endsWith(FILE_SEPARATOR) ?
-            new PathImp(_path + path.toPortableString()) :
-            new PathImp(_path + FILE_SEPARATOR + path.toPortableString());
+        return this.path.endsWith(FILE_SEPARATOR) ?
+            new PathImp(this.path + path.toPortableString()) :
+            new PathImp(this.path + FILE_SEPARATOR + path.toPortableString());
     }
 
     @Override
     public String lastSegment() {
-        String[] segments = _path.split(FILE_SEPARATOR);
         return segments[segments.length - 1];
     }
 
     @Override
     public boolean hasTrailingSeparator() {
-        return _path.endsWith(FILE_SEPARATOR);
+        return path.endsWith(FILE_SEPARATOR);
     }
 
     @Override
     public boolean isPrefixOf(IPath path) {
-        return path.toString().startsWith(_path);
+        return path.toString().startsWith(this.path);
     }
 
     @Override
     public int segmentCount() {
-        return _path.split(FILE_SEPARATOR).length;
+        return segments.length;
     }
 
     @Override
     public IPath removeLastSegments(int count) {
-        String[] segments = _path.split(FILE_SEPARATOR);
-        segments = Arrays.copyOf(segments, segments.length - count);
-
-        return new PathImp(join(segments));
+        String[] result = Arrays.copyOf(segments, segments.length - count);
+        return new PathImp(join(result));
     }
 
     @Override
     public IPath removeFirstSegments(int count) {
-        String[] segments = _path.split(FILE_SEPARATOR);
         if (!isWindows()) {
             count += 1;
         }
-        segments = Arrays.copyOfRange(segments, count, segments.length);
+        String[] result = Arrays.copyOfRange(segments, count, segments.length);
 
-        return new PathImp(join(segments));
+        return new PathImp(join(result));
     }
 
     @Override
     public boolean isEmpty() {
-        return new File(_path).exists();
+        return new File(path).exists();
+    }
+
+    @Override
+    public String segment(int index) {
+        if (index >= segments.length)
+            return null;
+        return segments[index];
     }
 
     @Override
     public String[] segments() {
-        String[] array = _path.split(FILE_SEPARATOR);
-        List<String> list = new ArrayList<String>();
-
-        for (int i = 0; i < array.length; i++) {
-            String segment = array[i];
-            if (!segment.isEmpty()) {
-                list.add(segment);
-            }
-        }
-
-        return list.toArray(new String[] { });
+        String[] segmentCopy = new String[segments.length];
+        System.arraycopy(segments, 0, segmentCopy, 0, segments.length);
+        return segmentCopy;
     }
 
     @Override
     public IPath append(String path) {
-        return new PathImp(_path.endsWith(FILE_SEPARATOR) ?
-            _path + path :
-            _path + FILE_SEPARATOR + path);
+        return new PathImp(this.path.endsWith(FILE_SEPARATOR) ?
+            this.path + path :
+            this.path + FILE_SEPARATOR + path);
     }
 
     @Override
     public IPath addTrailingSeparator() {
-        return _path.endsWith(FILE_SEPARATOR) ?
-            new PathImp(_path) :
-            new PathImp(_path + FILE_SEPARATOR);
+        return path.endsWith(FILE_SEPARATOR) ?
+            new PathImp(path) :
+            new PathImp(path + FILE_SEPARATOR);
 
     }
 
     @Override
     public IPath addFileExtension(String extension) {
-        return new PathImp(_path + "." + extension);
+        return new PathImp(path + "." + extension);
     }
 
     @Override
     public IPath removeFileExtension() {
-        String path = _path;
+        String path = this.path;
         if (path.contains(".")) {
             path = path.substring(0, path.lastIndexOf("."));
         }
@@ -158,7 +148,7 @@ public class PathImp implements IPath {
 
     @Override
     public String getFileExtension() {
-        String path = _path;
+        String path = this.path;
         if (path.contains(".")) {
             path = path.substring(path.lastIndexOf("."));
         }
@@ -168,17 +158,17 @@ public class PathImp implements IPath {
 
     @Override
     public IPath makeAbsolute() {
-        return new PathImp(new File(_path).getAbsolutePath());
+        return new PathImp(new File(path).getAbsolutePath());
     }
 
     @Override
     public boolean isAbsolute() {
-        return new File(_path).isAbsolute();
+        return new File(path).isAbsolute();
     }
 
     @Override
     public String toPortableString() {
-        String path = _path;
+        String path = this.path;
 
         if (path.contains("\\")) {
             path = path.replace('\\', '/');
@@ -188,12 +178,12 @@ public class PathImp implements IPath {
 
     @Override
     public String toOSString() {
-        return new File(_path).getPath();
+        return new File(path).getPath();
     }
 
     @Override
     public File toFile() {
-        return new File(_path);
+        return new File(path);
     }
 
     private String join(String... data) {
@@ -209,12 +199,12 @@ public class PathImp implements IPath {
     }
 
     public String toString() {
-        return _path;
+        return path;
     }
 
     @Override
     public int hashCode() {
-        return this._path.toLowerCase().hashCode();
+        return this.path.toLowerCase().hashCode();
     }
 
     @Override
@@ -224,7 +214,7 @@ public class PathImp implements IPath {
 
         PathImp other = (PathImp) obj;
 
-        return this._path.equalsIgnoreCase(other._path);
+        return this.path.equalsIgnoreCase(other.path);
     }
 
     private boolean isWindows() {

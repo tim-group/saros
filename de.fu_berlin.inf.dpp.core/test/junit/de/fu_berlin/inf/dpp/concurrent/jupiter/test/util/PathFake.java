@@ -92,6 +92,10 @@ public class PathFake implements IPath {
         throw new UnsupportedOperationException();
     }
 
+    @Override public String segment(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public String[] segments() {
         throw new UnsupportedOperationException();

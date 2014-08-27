@@ -37,63 +37,49 @@ import java.io.IOException;
 
 public class Workspace implements IWorkspace {
     public static final Logger LOG = Logger.getLogger(Workspace.class);
-    private WorkspaceRoot root;
 
     private LocalFileSystem fileSystem;
 
-    private File path;
     private Project project;
-
-    /**
-     * @deprecated use for testing only
-     */
-    public Workspace() {
-    }
-
-    public Workspace(File basePath) {
-        initPath(basePath);
-    }
-
-    public Workspace(String basePath) {
-        this(new File(basePath));
-    }
 
     public Workspace(Project project) {
         this.project = project;
-        this.fileSystem = LocalFileSystem.getInstance();
-        this.fileSystem.addRootToWatch(project.getBasePath(), true);
-        //initPath(new File(project.getBasePath()));
-        createWorkSpace(new File(project.getBasePath()));
+        fileSystem = LocalFileSystem.getInstance();
+        fileSystem.addRootToWatch(project.getBasePath(), true);
     }
 
     @Override public void run(IWorkspaceRunnable procedure) throws IOException {
         procedure.run(new NullProgressMonitor());
     }
 
-    @Override public IProject getProject(String project) {
-        //TODO implement this
-        return null;
+    @Override
+    public IProject getProject(String projectName) {
+        return new ProjectImp(project, projectName);
+    }
+
+    /**
+     * Returns a handle to the project for the given path.
+     */
+    public ProjectImp getProjectForPath(String path) {
+
+        if (!path.startsWith(project.getBasePath())) {
+            LOG.error("tried to access project outside workspace: " + path);
+            return null;
+        }
+
+        LOG.info("STARTS WITH SEPARATOR OR NOT?: " + project.getBasePath());
+        String relativePath = path.substring(project.getBasePath().length()).toLowerCase();
+        if (relativePath.startsWith(File.separator)) {
+            relativePath = relativePath.substring(1);
+        }
+
+        String projectName = new PathImp(relativePath).segment(0);
+        return new ProjectImp(project, projectName);
     }
 
     @Override
     public IPath getLocation() {
-        //TODO implement this
-        return null;
-    }
-
-    /**
-     * @param path
-     * @deprecated use for tests only
-     */
-    public void createWorkSpace(File path) {
-        this.root = new WorkspaceRoot(project, path);
-        this.path = path;
-
-    }
-
-    protected void initPath(File path) {
-        this.root = new WorkspaceRoot(project, path);
-        this.path = path;
+        return new PathImp(project.getBasePath());
     }
 
     public void addResourceListener(FileSystemChangeListener listener) {
@@ -104,10 +90,5 @@ public class Workspace implements IWorkspace {
     public void removeResourceListener(FileSystemChangeListener listener) {
         listener.setWorkspace(this);
         fileSystem.removeVirtualFileListener(listener);
-    }
-
-    public ProjectImp getProjectForPath(String path) {
-        //FIXME: implement this
-        return null;
     }
 }
