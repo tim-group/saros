@@ -27,6 +27,7 @@ import de.fu_berlin.inf.dpp.core.Saros;
 import org.apache.log4j.PropertyConfigurator;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 
 /**
  * Component that is initalized when a project is loaded. It initializes Saros.
@@ -34,7 +35,8 @@ import org.jetbrains.annotations.NotNull;
 public class SarosComponent implements com.intellij.openapi.components.ProjectComponent {
 
     public SarosComponent(final Project project) {
-        PropertyConfigurator.configure("/home/holger/code/saros-raimondas/de.fu_berlin.inf.dpp.intellij/src/log4j.properties");  //todo
+        InputStream log4jProperties = getClass().getResourceAsStream("/log4j.properties");
+        PropertyConfigurator.configure(log4jProperties);
 
         Saros.create(project);
     }
