@@ -42,17 +42,15 @@ public class CommonButton extends ToolbarButton implements ActionListener
      * @param iconPath
      * @param altText
      */
-    public CommonButton(String actionCommand, String tooltipText, String iconPath, String altText)
-    {
+    public CommonButton(String actionCommand, String tooltipText, String iconPath, String altText) {
         this.actionCommand = actionCommand;
+
         action = SarosActionFactory.getAction(actionCommand);
         action.setGuiFrame(this);
-
         setIcon(iconPath, altText);
         setActionCommand(actionCommand);
         setToolTipText(tooltipText);
         addActionListener(this);
-        action.setGuiFrame(this);
     }
 
     public String getActionCommand()

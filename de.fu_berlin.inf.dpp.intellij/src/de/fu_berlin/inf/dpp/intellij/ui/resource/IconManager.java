@@ -34,37 +34,29 @@ public class IconManager
 {
     public static final Logger LOG = Logger.getLogger(IconManager.class);
 
-    public static final ImageIcon SESSIONS_ICON = getIcon("icons/elcl16/project_share_tsk.png", "sessions");
-    public static final ImageIcon CONTACT_ONLINE_ICON = getIcon("icons/obj16/buddy_saros_obj.png", "contactOnLine");
-    public static final ImageIcon CONTACT_OFFLINE_ICON = getIcon("icons/obj16/buddy_offline_obj.png", "contactOffLine");
-    public static final ImageIcon CONTACTS_ICON = getIcon("icons/obj16/group.png", "contacts");
+    public static final ImageIcon SESSIONS_ICON = getIcon("/icons/elcl16/project_share_tsk.png", "sessions");
+    public static final ImageIcon CONTACT_ONLINE_ICON = getIcon("/icons/obj16/buddy_saros_obj.png", "contactOnLine");
+    public static final ImageIcon CONTACT_OFFLINE_ICON = getIcon("/icons/obj16/buddy_offline_obj.png", "contactOffLine");
+    public static final ImageIcon CONTACTS_ICON = getIcon("/icons/obj16/group.png", "contacts");
 
-    public static final ImageIcon FOLLOW_ICON = getIcon("icons/ovr16/followmode.png", "follow");
+    public static final ImageIcon FOLLOW_ICON = getIcon("/icons/ovr16/followmode.png", "follow");
 
-    public static final ImageIcon IN_SYNC_ICON = getIcon("icons/etool16/in_sync.png", "Files are consistent");
-    public static final ImageIcon OUT_OF_SYNC_ICON = getIcon("icons/etool16/out_sync.png", "Files are NOT consistent");
+    public static final ImageIcon IN_SYNC_ICON = getIcon("/icons/etool16/in_sync.png", "Files are consistent");
+    public static final ImageIcon OUT_OF_SYNC_ICON = getIcon("/icons/etool16/out_sync.png", "Files are NOT consistent");
 
     /**
-     * Creates icon by image path
-     *
-     * @param path  Image path
-     * @param descriprion  Icon description
-     * @return  ImageIcon
+     * Creates icon by image path. Path must start with a slash and be
+     * relative the the src folder.
      */
     public static ImageIcon getIcon(String path, String description)
     {
-        if (!path.startsWith("/"))
-        {
-            path = "/" + path;
-        }
-
         URL url = IconManager.class.getResource(path);
         if (url == null)
         {
-            LOG.error("Could not load icon. Path not exist: " + path);
+            LOG.error("Could not load icon " + description + ". Path does not exist in resources: " + path);
         }
 
-        return description == null ? new ImageIcon(url) : new ImageIcon(url, description);
+        return new ImageIcon(url, description);
     }
 
 

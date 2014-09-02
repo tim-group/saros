@@ -66,7 +66,6 @@ public class SarosActionFactory {
         registeredActions.put(action.getActionName(), action);
     }
 
-
     /**
      * @param actionName
      * @return

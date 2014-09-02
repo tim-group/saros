@@ -60,6 +60,10 @@ public class Saros {
      */
     public static final String NAMESPACE_SERVER = NAMESPACE + ".server";
     /**
+     * Default server name
+     */
+    public static final String SAROS_SERVER = "localhost";
+    /**
      * The name of the resource identifier used by Saros when connecting to the
      * XMPP server (for instance when logging in as john@doe.com, Saros will
      * connect using john@doe.com/Saros)
