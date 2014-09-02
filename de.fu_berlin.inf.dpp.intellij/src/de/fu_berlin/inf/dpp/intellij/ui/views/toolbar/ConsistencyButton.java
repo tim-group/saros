@@ -61,7 +61,7 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
         if (isEnabled() && isInconsistent)
         {
             setEnabled(false);
-            startAction();
+            startAction(action);
         }
 
     }

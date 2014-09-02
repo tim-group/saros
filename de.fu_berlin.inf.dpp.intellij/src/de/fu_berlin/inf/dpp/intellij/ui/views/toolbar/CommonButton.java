@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ISarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 
 import java.awt.event.ActionEvent;
@@ -34,10 +34,7 @@ import java.awt.event.ActionListener;
 public class CommonButton extends ToolbarButton implements ActionListener
 {
     private String actionCommand;
-    private ISarosAction sarosAction;
-    private String altText;
-    private String tooltipText;
-    private String iconPath;
+    private AbstractSarosAction action;
 
     /**
      * @param actionCommand
@@ -48,43 +45,14 @@ public class CommonButton extends ToolbarButton implements ActionListener
     public CommonButton(String actionCommand, String tooltipText, String iconPath, String altText)
     {
         this.actionCommand = actionCommand;
-        this.altText = altText;
-        this.tooltipText = tooltipText;
-        this.iconPath = iconPath;
+        action = SarosActionFactory.getAction(actionCommand);
+        action.setGuiFrame(this);
 
-        this.sarosAction = SarosActionFactory.getAction(actionCommand);
-        sarosAction.setGuiFrame(this);
-
-        create();
-    }
-
-    /**
-     * @param sarosAction
-     * @param altText
-     * @param tooltipText
-     * @param iconPath
-     */
-    public CommonButton(ISarosAction sarosAction, String tooltipText, String iconPath, String altText)
-    {
-        this.sarosAction = sarosAction;
-        this.altText = altText;
-        this.tooltipText = tooltipText;
-        this.iconPath = iconPath;
-        this.actionCommand = sarosAction.getActionName();
-        sarosAction.setGuiFrame(this);
-
-        create();
-    }
-
-    protected void create()
-    {
-        setIcon(this.iconPath, this.altText);
-        setActionCommand(this.actionCommand);
-
-        setToolTipText(this.tooltipText);
-
+        setIcon(iconPath, altText);
+        setActionCommand(actionCommand);
+        setToolTipText(tooltipText);
         addActionListener(this);
-        this.sarosAction.setGuiFrame(this);
+        action.setGuiFrame(this);
     }
 
     public String getActionCommand()
@@ -92,14 +60,9 @@ public class CommonButton extends ToolbarButton implements ActionListener
         return actionCommand;
     }
 
-    public ISarosAction getSarosAction()
-    {
-        return sarosAction;
-    }
-
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        startAction(sarosAction);
+        startAction(action);
     }
 }

@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 
 /**
- * Class used to emulate not implemented actions
+ * Class used to report that an action is not implemented yet.
  */
 public class NotImplementedAction extends AbstractSarosAction
 {
@@ -38,12 +38,7 @@ public class NotImplementedAction extends AbstractSarosAction
 
     public NotImplementedAction(actions enAction)
     {
-        this.name = enAction.name();
-    }
-
-    public NotImplementedAction(String name)
-    {
-        this.name = name;
+        name = enAction.name();
     }
 
     @Override

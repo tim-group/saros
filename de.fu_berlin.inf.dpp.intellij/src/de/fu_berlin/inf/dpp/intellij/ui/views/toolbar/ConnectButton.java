@@ -40,7 +40,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
     public static final String CONNECT_ICON_PATH = "icons/elcl16/connect.png";
     private JPopupMenu popupMenu = new JPopupMenu();
 
-    private final ISarosAction disconnectAction;
+    private final AbstractSarosAction disconnectAction;
     private final ConnectServerAction connectAction;
 
     @Inject
@@ -49,7 +49,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
     public ConnectButton() {
         SarosPluginContext.initComponent(this);
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
-        connectAction = SarosActionFactory.getConnectServerAction();
+        connectAction = (ConnectServerAction)SarosActionFactory.getAction(ConnectServerAction.NAME);
         createButton();
     }
 
@@ -71,7 +71,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
 
                 if (accountStore.isEmpty()) {
                     button.setEnabled(false);
-                    startAction();
+                    startAction(connectAction);
                 } else {
                     popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
                 }
@@ -149,17 +149,17 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
     }
 
     @Override
-    public void actionStarted(ISarosAction action) {
+    public void actionStarted(AbstractSarosAction action) {
 
     }
 
     @Override
-    public void actionFinished(ISarosAction action) {
+    public void actionFinished(AbstractSarosAction action) {
         popupMenu.removeAll();
         createMenu();
     }
 
-    public ISarosAction getDisconnectAction() {
+    public AbstractSarosAction getDisconnectAction() {
         return disconnectAction;
     }
 

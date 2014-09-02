@@ -34,11 +34,8 @@ import java.util.Map;
  * Action factory
  */
 public class SarosActionFactory {
-    private static Logger LOG = Logger.getLogger(SarosActionFactory.class);
 
-    private static Map<String, ISarosAction> registeredActions = new HashMap<String, ISarosAction>();
-
-    private static ConnectServerAction connectServerAction;
+    private static Map<String, AbstractSarosAction> registeredActions = new HashMap<String, AbstractSarosAction>();
 
     @Inject
     private static Saros saros;
@@ -51,9 +48,7 @@ public class SarosActionFactory {
 
     static {
         SarosPluginContext.initComponent(new SarosActionFactory());
-        //register all actions
-        connectServerAction = new ConnectServerAction();
-        registerAction(connectServerAction);
+        registerAction(new ConnectServerAction());
         registerAction(new DisconnectServerAction());
         registerAction(followModeAction);
         registerAction(leaveSessionAction);
@@ -67,19 +62,8 @@ public class SarosActionFactory {
 
     }
 
-    /**
-     * @param action
-     * @return
-     */
-    private static ISarosAction registerAction(AbstractSarosAction action) {
-
-        ISarosAction oldAction = registeredActions.put(action.getActionName(), action);
-
-        if (oldAction != null) {
-            throw new IllegalArgumentException("Tried to register action " + action.getClass() + " more than once");
-        }
-
-        return action;
+    private static void registerAction(AbstractSarosAction action) {
+        registeredActions.put(action.getActionName(), action);
     }
 
 
@@ -87,8 +71,8 @@ public class SarosActionFactory {
      * @param actionName
      * @return
      */
-    public static ISarosAction getAction(String actionName) {
-        ISarosAction action = registeredActions.get(actionName);
+    public static AbstractSarosAction getAction(String actionName) {
+        AbstractSarosAction action = registeredActions.get(actionName);
         if (action == null) {
             throw new IllegalArgumentException("Action " + actionName + " not exist!");
         }
@@ -96,25 +80,7 @@ public class SarosActionFactory {
         return action;
     }
 
-    /**
-     * @param action
-     */
-    public static void startAction(ISarosAction action) {
-        // ThreadUtils.runSafeAsync(LOG,action);
+    public static void startAction(AbstractSarosAction action) {
         action.run();
-    }
-
-    /**
-     * @param actionName
-     */
-    public static void startAction(String actionName) {
-        startAction(getAction(actionName));
-    }
-
-    //
-    // Specific actions
-    //
-    public static ConnectServerAction getConnectServerAction() {
-        return connectServerAction;
     }
 }

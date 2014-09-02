@@ -23,7 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 /**
- * Opens chart
+ * Action to open a whiteboard chart.
  */
 public class OpenChartAction extends AbstractSarosAction
 {

@@ -26,7 +26,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 
 /**
- * Leaves session
+ * Action to leave session
  */
 public class LeaveSessionAction extends AbstractSarosAction {
     public static final String NAME = "leave";
@@ -42,11 +42,9 @@ public class LeaveSessionAction extends AbstractSarosAction {
         return NAME;
     }
 
-    @Override
     public void run() {
         actionStarted();
         CollaborationUtils.leaveSession();
-        LOG.info("left session");
         actionFinished();
     }
 }

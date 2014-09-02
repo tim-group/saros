@@ -24,12 +24,13 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.ISarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import java.net.URL;
 
 /**
@@ -66,19 +67,7 @@ public abstract class ToolbarButton extends JButton {
         }
     }
 
-    protected ISarosAction getAction(String actionCommand) {
-        return SarosActionFactory.getAction(actionCommand);
-    }
-
-    protected void startAction() {
-        startAction(getActionCommand());
-    }
-
-    protected void startAction(String actionName) {
-        SarosActionFactory.startAction(actionName);
-    }
-
-    protected void startAction(ISarosAction action) {
-        SarosActionFactory.startAction(action);
+    protected void startAction(AbstractSarosAction action) {
+        action.run();
     }
 }

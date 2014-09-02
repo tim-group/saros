@@ -27,7 +27,7 @@ import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
 /**
- * Disconnects XMPP/Jabber server
+ * Disconnects from XMPP/Jabber server
  */
 public class DisconnectServerAction extends AbstractSarosAction {
     public static final String NAME = "disconnect";
@@ -49,8 +49,6 @@ public class DisconnectServerAction extends AbstractSarosAction {
         actionStarted();
 
         connectionService.disconnect();
-
-        LOG.info("disconnected from server");
 
         actionFinished();
     }

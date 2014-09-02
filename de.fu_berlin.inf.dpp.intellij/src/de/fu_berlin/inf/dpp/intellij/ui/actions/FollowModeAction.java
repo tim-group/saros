@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Follows active session
+ * Action to activate follow mode.
  */
 public class FollowModeAction extends AbstractSarosAction {
 
@@ -57,7 +57,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
                     if (user.equals(currentlyFollowedUser)) {
                         currentlyFollowedUser = null;
-                        updateMenu();
+                        refreshAll();
                     }
                 }
             });
@@ -70,7 +70,7 @@ public class FollowModeAction extends AbstractSarosAction {
                 @Override
                 public void run() {
                     currentRemoteSessionUsers.add(user);
-                    updateMenu();
+                    refreshAll();
 
                 }
             });
@@ -90,7 +90,7 @@ public class FollowModeAction extends AbstractSarosAction {
                     FollowModeAction.this.session = session;
                     currentRemoteSessionUsers.clear();
                     currentRemoteSessionUsers.addAll(session.getRemoteUsers());
-                    updateMenu();
+                    refreshAll();
                 }
             });
         }
@@ -104,7 +104,7 @@ public class FollowModeAction extends AbstractSarosAction {
                 public void run() {
                     FollowModeAction.this.session = null;
                     currentRemoteSessionUsers.clear();
-                    updateMenu();
+                    refreshAll();
                 }
             });
         }
@@ -124,7 +124,7 @@ public class FollowModeAction extends AbstractSarosAction {
                         currentlyFollowedUser = null;
                     }
 
-                    updateMenu();
+                    refreshAll();
                 }
             });
         }
@@ -157,7 +157,7 @@ public class FollowModeAction extends AbstractSarosAction {
             currentRemoteSessionUsers.addAll(session.getRemoteUsers());
         }
 
-        updateMenu();
+        refreshAll();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
     }
 
-    @Override
+        @Override
     public void run() {
         actionStarted();
 
@@ -212,40 +212,6 @@ public class FollowModeAction extends AbstractSarosAction {
         }
 
         return null;
-    }
-
-    /**
-     * Returns the next user to follow or <code>null</code> if follow mode
-     * should be disabled.
-     */
-    private User getNextUserToFollow() {
-        if (currentRemoteSessionUsers.isEmpty()) {
-            return null;
-        }
-
-        if (currentlyFollowedUser == null) {
-            return currentRemoteSessionUsers.iterator().next();
-        }
-
-        User nextUser = null;
-
-        for (Iterator<User> it = currentRemoteSessionUsers.iterator(); it
-            .hasNext(); ) {
-            User user = it.next();
-            if (user.equals(currentlyFollowedUser)) {
-                if (it.hasNext()) {
-                    nextUser = it.next();
-                }
-
-                break;
-            }
-        }
-
-        return nextUser;
-    }
-
-    private void updateMenu() {
-        refreshAll();
     }
 
 }

@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 
 /**
- * Adds new contact
+ * Action to add contact. Not implemented yet.
  */
 public class NewContactAction extends AbstractSarosAction {
     public static final String NAME = "addContact";

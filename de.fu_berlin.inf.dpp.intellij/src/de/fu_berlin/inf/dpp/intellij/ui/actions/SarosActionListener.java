@@ -27,7 +27,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
  */
 public interface SarosActionListener
 {
-    void actionStarted(ISarosAction action);
+    void actionStarted(AbstractSarosAction action);
 
-    void actionFinished(ISarosAction action);
+    void actionFinished(AbstractSarosAction action);
 }

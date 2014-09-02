@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
+import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
@@ -47,7 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Checks shared project consistency
+ * Performs project recovery, when inconsistency was detected.
  */
 public class ConsistencyAction extends AbstractSarosAction {
     public static final String ACTION_NAME = "consistency";
@@ -111,17 +112,22 @@ public class ConsistencyAction extends AbstractSarosAction {
 
     }
 
+    /**
+     * This method activates the consistency recovery button, if an inconsistency
+     * was detected and displays a tooltip.
+     * @param isInconsistent
+     */
     private void handleConsistencyChange(final Boolean isInconsistent) {
 
         if (sarosSession.isHost() && isInconsistent) {
-            LOG.warn("No inconsistency should ever be reported" //$NON-NLS-1$
-                + " to the host"); //$NON-NLS-1$
+            LOG.warn("No inconsistency should ever be reported"
+                + " to the host");
             return;
         }
-        LOG.debug("Inconsistency indicator goes: " //$NON-NLS-1$
-            + (isInconsistent ? "on" : "off")); //$NON-NLS-1$ //$NON-NLS-2$
+        LOG.debug("Inconsistency indicator goes: "
+            + (isInconsistent ? "on" : "off"));
 
-        SwingUtilities.invokeLater(new Runnable() {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
                 consistencyButton.setInconsistent(isInconsistent);
@@ -136,7 +142,7 @@ public class ConsistencyAction extends AbstractSarosAction {
         final Set<SPath> paths = new HashSet<SPath>(
             watchdogClient.getPathsWithWrongChecksums());
 
-        SwingUtilities.invokeLater(new Runnable() {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
 
@@ -176,6 +182,10 @@ public class ConsistencyAction extends AbstractSarosAction {
         NotificationPanel.showNotification(text, "Consistency warning");
     }
 
+    /**
+     * This method asks for confirmation to override files and starts
+     * {@link ConsistencyWatchdogClient#runRecovery(IProgressMonitor)}.
+     */
     @Override
     public void run() {
         LOG.debug("user activated CW recovery.");
@@ -194,7 +204,9 @@ public class ConsistencyAction extends AbstractSarosAction {
 
         }
 
-        sbInconsistentFiles.append("\nWould you like to get last changes?\n");
+        sbInconsistentFiles.append("Please confirm project modifications.\n\n"
+            + "                + The recovery process will perform changes to files and folders of the current shared project(s).\n\n"
+            + "                + The affected files and folders may be either modified, created, or deleted.");
 
         if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(),
             Messages.ConsistencyAction_confirm_dialog_title)) {
@@ -207,13 +219,12 @@ public class ConsistencyAction extends AbstractSarosAction {
         progress.setFinishListener(new MonitorProgressBar.FinishListener() {
             @Override
             public void finished() {
-                SwingUtilities.invokeLater(new Runnable() {
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         consistencyButton.setEnabled(true);
                         consistencyButton.setInconsistent(
-                            watchdogClient.getPathsWithWrongChecksums().size()
-                                > 0);
+                            !watchdogClient.getPathsWithWrongChecksums().isEmpty());
                     }
                 });
 
@@ -223,13 +234,10 @@ public class ConsistencyAction extends AbstractSarosAction {
         ThreadUtils.runSafeAsync(LOG, new Runnable() {
             @Override
             public void run() {
-
                 progress.beginTask(
                     Messages.ConsistencyAction_progress_perform_recovery,
                     IProgressMonitor.UNKNOWN);
                 watchdogClient.runRecovery(progress);
-
-                //  progress.done();
             }
         });
     }

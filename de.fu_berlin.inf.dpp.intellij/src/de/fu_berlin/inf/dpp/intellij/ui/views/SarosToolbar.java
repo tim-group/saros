@@ -56,24 +56,24 @@ public class SarosToolbar {
 
     private SarosActionListener toolbarActionListener = new SarosActionListener() {
         @Override
-        public void actionStarted(ISarosAction action) {
+        public void actionStarted(AbstractSarosAction action) {
 
         }
 
         @Override
-        public void actionFinished(ISarosAction action) {
+        public void actionFinished(AbstractSarosAction action) {
             initButtons();
         }
     };
 
     private SarosActionListener treeActionListener = new SarosActionListener() {
         @Override
-        public void actionStarted(ISarosAction action) {
+        public void actionStarted(AbstractSarosAction action) {
 
         }
 
         @Override
-        public void actionFinished(ISarosAction action) {
+        public void actionFinished(AbstractSarosAction action) {
             if (action instanceof ConnectServerAction
                 || action instanceof DisconnectServerAction) {
 
@@ -173,7 +173,7 @@ public class SarosToolbar {
         jToolBar.add(consistencyButton);
 
         //session leave button
-        ISarosAction actionLeave = SarosActionFactory
+        AbstractSarosAction actionLeave = SarosActionFactory
             .getAction(LeaveSessionAction.NAME);
         addNavigationButton(actionLeave.getActionName(), "Leave session",
             LEAVE_SESSION_ICON_PATH, "leave");

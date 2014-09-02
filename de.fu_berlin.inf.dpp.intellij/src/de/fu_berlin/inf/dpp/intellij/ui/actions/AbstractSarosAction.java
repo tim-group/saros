@@ -27,7 +27,7 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,23 +35,24 @@ import java.util.List;
  * Parent class for all Saros actions
  */
 
-public abstract class AbstractSarosAction implements ISarosAction {
+public abstract class AbstractSarosAction implements Runnable {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
     @Inject
     protected Saros saros;
     protected Container guiFrame;
 
-    private List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
-    private List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
+    private final List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
+    private final List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
     protected AbstractSarosAction() {
         SarosPluginContext.initComponent(this);
     }
 
     protected void actionStarted() {
-        LOG.info("Action started [" + this.getActionName() + "]");
+        LOG.info("Action started [" + getActionName() + "]");
 
+        //FIXME: Why is this duplicated?
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list) {
             if (actionListener == null) {
@@ -63,7 +64,7 @@ public abstract class AbstractSarosAction implements ISarosAction {
     }
 
     protected void actionFinished() {
-        LOG.info("Action finished [" + this.getActionName() + "]");
+        LOG.info("Action finished [" + getActionName() + "]");
 
         final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
         for (SarosActionListener actionListener : list) {
@@ -82,17 +83,14 @@ public abstract class AbstractSarosAction implements ISarosAction {
         }
     }
 
-    @Override
     public void removeAllActionListeners() {
         actionListeners.clear();
     }
 
-    @Override
     public void removeActionListener(SarosActionListener actionListener) {
         actionListeners.remove(actionListener);
     }
 
-    @Override
     public void addActionListener(SarosActionListener actionListener) {
         if (actionListener != null) {
             actionListeners.add(actionListener);
@@ -100,18 +98,14 @@ public abstract class AbstractSarosAction implements ISarosAction {
 
     }
 
-    @Override
     public void removeAllRefreshListeners() {
         refreshListeners.clear();
     }
 
-
-    @Override
     public void addRefreshListener(UIRefreshListener refreshListener) {
         refreshListeners.add(refreshListener);
     }
 
-    @Override
     public void removeRefreshListener(UIRefreshListener refreshListener) {
         refreshListeners.remove(refreshListener);
     }
@@ -119,4 +113,6 @@ public abstract class AbstractSarosAction implements ISarosAction {
     public void setGuiFrame(Container guiFrame) {
         this.guiFrame = guiFrame;
     }
+
+    public abstract String getActionName();
 }

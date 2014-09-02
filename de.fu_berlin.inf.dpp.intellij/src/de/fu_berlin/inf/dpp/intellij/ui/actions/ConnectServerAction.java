@@ -35,7 +35,7 @@ import org.picocontainer.annotations.Inject;
 import javax.swing.*;
 
 /**
- * Connects XMPP/Jabber server with given account
+ * Connects to XMPP/Jabber server with given account
  */
 public class ConnectServerAction extends AbstractSarosAction {
     public static final String NAME = "connect";

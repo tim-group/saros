@@ -139,13 +139,13 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
 
     @Override
-    public void actionStarted(ISarosAction action)
+    public void actionStarted(AbstractSarosAction action)
     {
 
     }
 
     @Override
-    public void actionFinished(ISarosAction action)
+    public void actionFinished(AbstractSarosAction action)
     {
 
     }
