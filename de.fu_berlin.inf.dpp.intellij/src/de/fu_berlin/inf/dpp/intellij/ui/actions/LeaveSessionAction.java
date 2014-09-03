@@ -43,7 +43,7 @@ public class LeaveSessionAction extends AbstractSarosAction {
         return NAME;
     }
 
-    public void run() {
+    public void execute() {
         actionStarted();
         CollaborationUtils.leaveSession();
         actionFinished();

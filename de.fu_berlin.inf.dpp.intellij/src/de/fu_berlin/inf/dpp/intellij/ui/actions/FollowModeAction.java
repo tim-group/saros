@@ -167,7 +167,7 @@ public class FollowModeAction extends AbstractSarosAction {
     }
 
         @Override
-    public void run() {
+    public void execute() {
         actionStarted();
 
         if (session == null) {

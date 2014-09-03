@@ -114,7 +114,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
                 public void actionPerformed(ActionEvent e)
                 {
                     action.setFollowUser(e.getActionCommand());
-                    startAction(action);
+                    action.execute();
                 }
             });
             popupMenu.add(menuItem);
@@ -129,7 +129,7 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
             public void actionPerformed(ActionEvent e)
             {
                 action.setFollowUser(e.getActionCommand());
-                startAction(action);
+                action.execute();
             }
         });
         leaveItem.setEnabled(isUser);

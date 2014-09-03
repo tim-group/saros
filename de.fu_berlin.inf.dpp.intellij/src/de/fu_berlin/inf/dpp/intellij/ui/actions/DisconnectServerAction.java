@@ -41,7 +41,7 @@ public class DisconnectServerAction extends AbstractSarosAction {
     }
 
     @Override
-    public void run() {
+    public void execute() {
         actionStarted();
 
         connectionService.disconnect();

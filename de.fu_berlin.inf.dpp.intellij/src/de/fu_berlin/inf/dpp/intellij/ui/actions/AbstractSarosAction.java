@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Parent class for all Saros actions
  */
-public abstract class AbstractSarosAction implements Runnable {
+public abstract class AbstractSarosAction {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
     @Inject
@@ -76,4 +76,6 @@ public abstract class AbstractSarosAction implements Runnable {
     }
 
     public abstract String getActionName();
+
+    public abstract void execute();
 }

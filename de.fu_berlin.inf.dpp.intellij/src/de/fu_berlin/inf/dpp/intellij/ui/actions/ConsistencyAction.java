@@ -187,7 +187,7 @@ public class ConsistencyAction extends AbstractSarosAction {
      * {@link ConsistencyWatchdogClient#runRecovery(IProgressMonitor)}.
      */
     @Override
-    public void run() {
+    public void execute() {
         LOG.debug("user activated CW recovery.");
 
         final Set<SPath> paths = new HashSet<SPath>(

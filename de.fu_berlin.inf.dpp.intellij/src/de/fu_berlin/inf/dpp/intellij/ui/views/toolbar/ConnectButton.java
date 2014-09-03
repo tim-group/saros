@@ -68,7 +68,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
 
                 if (accountStore.isEmpty()) {
                     button.setEnabled(false);
-                    startAction(connectAction);
+                    connectAction.execute();
                 } else {
                     popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
                 }
@@ -90,7 +90,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
                 public void actionPerformed(ActionEvent e) {
                     button.setEnabled(false);
                     connectAction.setActiveUser(userName);
-                    startAction(connectAction);
+                    connectAction.execute();
                 }
             });
             popupMenu.add(accountItem);
@@ -119,7 +119,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         disconnect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 button.setEnabled(false);
-                startAction(disconnectAction);
+                connectAction.execute();
             }
         });
         popupMenu.add(disconnect);
@@ -132,8 +132,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
      *
      */
     protected void createNewAccount() {
-        connectAction.setCreateNew(true);
-        startAction(connectAction);
+        connectAction.executeAndCreateNewAccount();
     }
 
     /**

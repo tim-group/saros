@@ -78,8 +78,4 @@ public class SarosActionFactory {
 
         return action;
     }
-
-    public static void startAction(AbstractSarosAction action) {
-        action.run();
-    }
 }

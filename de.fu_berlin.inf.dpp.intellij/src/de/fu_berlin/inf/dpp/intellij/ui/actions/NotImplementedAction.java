@@ -50,7 +50,7 @@ public class NotImplementedAction extends AbstractSarosAction
 
 
     @Override
-    public void run()
+    public void execute()
     {
         actionStarted();
 

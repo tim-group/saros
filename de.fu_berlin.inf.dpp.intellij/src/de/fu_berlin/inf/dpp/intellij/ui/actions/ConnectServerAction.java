@@ -103,41 +103,15 @@ public class ConnectServerAction extends AbstractSarosAction {
     }
 
     @Override
-    public void run() {
-
-        XMPPAccount account;
+    public void execute() {
+//FIXME: Check logic
+        XMPPAccount account = null;
         boolean isNew = false;
         if (activeUser != null) {
             account = locateAccount(activeUser);
             activeUser = null; //removeAll user name
-        } else if (createNew || accountStore.isEmpty()) {
-            final String jabberID = SafeDialogUtils
-                .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
-                    "dev1_alice_stf", "Login");
-            if (jabberID == null) {
-                actionFinished();
-                return;
-            }
-            final String password = SafeDialogUtils
-                .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
-            if (password == null) {
-                actionFinished();
-                return;
-            }
-            final String sarosServer = SafeDialogUtils
-                .showInputDialog(
-                    "Saros server " +
-                        "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
-                    "localhost", "Server");
-            if (sarosServer == null) {
-                actionFinished();
-                return;
-            }
-
-            account = accountStore
-                .createAccount(jabberID, password, Saros.NAMESPACE,
-                    sarosServer, 80, false, false);
-            isNew = true;
+        } else if (accountStore.isEmpty()) {
+            executeAndCreateNewAccount(); //FIXME: Does this work or create loop?
         } else {
             account = accountStore.getActiveAccount();
         }
@@ -169,5 +143,36 @@ public class ConnectServerAction extends AbstractSarosAction {
         }
 
         actionFinished();
+    }
+
+    public void executeAndCreateNewAccount() {
+        final String jabberID = SafeDialogUtils
+            .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
+                "dev1_alice_stf", "Login");
+        if (jabberID == null) {
+            actionFinished();
+            return;
+        }
+        final String password = SafeDialogUtils
+            .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+        if (password == null) {
+            actionFinished();
+            return;
+        }
+        final String sarosServer = SafeDialogUtils
+            .showInputDialog(
+                "Saros server " +
+                    "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
+                "localhost", "Server");
+        if (sarosServer == null) {
+            actionFinished();
+            return;
+        }
+
+        account = accountStore
+            .createAccount(jabberID, password, Saros.NAMESPACE,
+                sarosServer, 80, false, false);
+        isNew = true;
+        execute();
     }
 }

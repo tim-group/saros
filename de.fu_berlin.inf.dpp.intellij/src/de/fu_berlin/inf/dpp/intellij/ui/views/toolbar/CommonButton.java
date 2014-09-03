@@ -60,6 +60,6 @@ public class CommonButton extends ToolbarButton implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        startAction(action);
+        action.execute();
     }
 }
