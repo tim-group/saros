@@ -62,9 +62,6 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         createMenu();
         connectAction.addActionListener(this);   //register listener
 
-        disconnectAction.setGuiFrame(this);
-        connectAction.setGuiFrame(this);
-
         final JButton button = this;
         this.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {

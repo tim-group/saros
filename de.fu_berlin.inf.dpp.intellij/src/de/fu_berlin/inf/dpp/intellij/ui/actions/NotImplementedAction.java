@@ -38,6 +38,7 @@ public class NotImplementedAction extends AbstractSarosAction
 
     public NotImplementedAction(actions enAction)
     {
+        super();
         name = enAction.name();
     }
 

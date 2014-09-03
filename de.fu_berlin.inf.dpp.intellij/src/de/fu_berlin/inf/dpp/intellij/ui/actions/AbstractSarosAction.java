@@ -34,13 +34,11 @@ import java.util.List;
 /**
  * Parent class for all Saros actions
  */
-
 public abstract class AbstractSarosAction implements Runnable {
     protected static final Logger LOG = Logger.getLogger(AbstractSarosAction.class);
 
     @Inject
     protected Saros saros;
-    protected Container guiFrame;
 
     private final List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
     private final List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
@@ -50,68 +48,31 @@ public abstract class AbstractSarosAction implements Runnable {
     }
 
     protected void actionStarted() {
-        LOG.info("Action started [" + getActionName() + "]");
-
-        //FIXME: Why is this duplicated?
-        final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
-        for (SarosActionListener actionListener : list) {
-            if (actionListener == null) {
-                continue;
-            }
-
+        for (SarosActionListener actionListener : actionListeners) {
+            assert actionListener != null;
             actionListener.actionStarted(this);
         }
     }
 
     protected void actionFinished() {
-        LOG.info("Action finished [" + getActionName() + "]");
-
-        final List<SarosActionListener> list = new ArrayList<SarosActionListener>(actionListeners);
-        for (SarosActionListener actionListener : list) {
-            if (actionListener == null) {
-                continue;
-            }
-
+        for (SarosActionListener actionListener : actionListeners) {
+            assert actionListener != null;
             actionListener.actionFinished(this);
         }
     }
 
     protected void refreshAll() {
-        final List<UIRefreshListener> list = new ArrayList<UIRefreshListener>(refreshListeners);
-        for (UIRefreshListener refreshListener : list) {
+        for (UIRefreshListener refreshListener : refreshListeners) {
             refreshListener.refresh(this);
         }
     }
 
-    public void removeAllActionListeners() {
-        actionListeners.clear();
-    }
-
-    public void removeActionListener(SarosActionListener actionListener) {
-        actionListeners.remove(actionListener);
-    }
-
     public void addActionListener(SarosActionListener actionListener) {
-        if (actionListener != null) {
-            actionListeners.add(actionListener);
-        }
-
-    }
-
-    public void removeAllRefreshListeners() {
-        refreshListeners.clear();
+         actionListeners.add(actionListener);
     }
 
     public void addRefreshListener(UIRefreshListener refreshListener) {
         refreshListeners.add(refreshListener);
-    }
-
-    public void removeRefreshListener(UIRefreshListener refreshListener) {
-        refreshListeners.remove(refreshListener);
-    }
-
-    public void setGuiFrame(Container guiFrame) {
-        this.guiFrame = guiFrame;
     }
 
     public abstract String getActionName();

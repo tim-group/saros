@@ -49,10 +49,6 @@ public class ConnectServerAction extends AbstractSarosAction {
     @Inject
     private XMPPConnectionService connectionService;
 
-    public ConnectServerAction() {
-        SarosPluginContext.initComponent(this);
-    }
-
     @Override
     public String getActionName() {
         return NAME;
@@ -166,7 +162,7 @@ public class ConnectServerAction extends AbstractSarosAction {
             }
             accountStore.setAccountActive(account);
         } catch (XMPPException e) {
-            JOptionPane.showMessageDialog(guiFrame,
+            JOptionPane.showMessageDialog(null,
                 "Bad login or password. Try again!", "Error",
                 JOptionPane.ERROR_MESSAGE);
             LOG.error(e);

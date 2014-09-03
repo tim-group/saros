@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
+import com.intellij.openapi.actionSystem.DataKeys;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 

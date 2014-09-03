@@ -91,7 +91,7 @@ public class ConsistencyAction extends AbstractSarosAction {
     private ISarosSession sarosSession;
 
     public ConsistencyAction() {
-        SarosPluginContext.initComponent(this);
+        super();
 
         setSharedProject(sessionManager.getSarosSession());
         sessionManager.addSarosSessionListener(sessionListener);
@@ -208,7 +208,7 @@ public class ConsistencyAction extends AbstractSarosAction {
             + "                + The recovery process will perform changes to files and folders of the current shared project(s).\n\n"
             + "                + The affected files and folders may be either modified, created, or deleted.");
 
-        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(),
+        if (!DialogUtils.showQuestion(null, sbInconsistentFiles.toString(),
             Messages.ConsistencyAction_confirm_dialog_title)) {
             consistencyButton.setEnabled(true);
 
