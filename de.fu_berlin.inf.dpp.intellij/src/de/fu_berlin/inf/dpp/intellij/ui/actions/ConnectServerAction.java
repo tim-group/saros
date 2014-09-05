@@ -111,17 +111,15 @@ public class ConnectServerAction extends AbstractSarosAction {
                 .connect(new ConnectionConfiguration(account.getServer()),
                     account.getUsername(), account.getPassword());
 
-            //store account
-            /* FIXME: Necessary?
             if (!accountStore
                 .exists(account.getUsername(), account.getDomain(),
                     account.getServer(), account.getPort())) {
-
+                LOG.info("!!!!! IS THIS NECESSARY????");
                 account = accountStore
                     .createAccount(account.getUsername(), account.getPassword(),
                         account.getDomain(), account.getServer(),
                         account.getPort(), account.useTLS(), account.useSASL());
-            }*/
+            }
             accountStore.setAccountActive(account);
         } catch (XMPPException e) {
             JOptionPane
