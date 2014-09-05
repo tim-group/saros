@@ -24,8 +24,10 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
@@ -62,15 +64,14 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         createMenu();
         connectAction.addActionListener(this);   //register listener
 
-        final JButton button = this;
-        this.addActionListener(new ActionListener() {
+        addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
-
                 if (accountStore.isEmpty()) {
-                    button.setEnabled(false);
-                    connectAction.execute();
+                    setEnabled(false);
+                    XMPPAccount account = createNewAccount();
+                    connectAction.executeWithUser(account.getUsername());
                 } else {
-                    popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
+                    popupMenu.show(ConnectButton.this, 0, getBounds().y + getBounds().height);
                 }
             }
         });
@@ -89,8 +90,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
             accountItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     button.setEnabled(false);
-                    connectAction.setActiveUser(userName);
-                    connectAction.execute();
+                    connectAction.executeWithUser(userName);
                 }
             });
             popupMenu.add(accountItem);
@@ -102,7 +102,11 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         menuItemAdd.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 button.setEnabled(false);
-                createNewAccount();
+                XMPPAccount account = createNewAccount();
+                if (account == null) {
+                    SafeDialogUtils.showError("Account could not be created",
+                        "Error");
+                }
             }
         });
         popupMenu.add(menuItemAdd);
@@ -119,7 +123,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         disconnect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 button.setEnabled(false);
-                connectAction.execute();
+                disconnectAction.execute();
             }
         });
         popupMenu.add(disconnect);
@@ -129,10 +133,37 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
     }
 
     /**
-     *
+     * Asks for Name, Password and server for a new XMPP account.
      */
-    protected void createNewAccount() {
-        connectAction.executeAndCreateNewAccount();
+    protected XMPPAccount createNewAccount() {
+        final String jabberID = SafeDialogUtils
+            .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
+                "dev1_alice_stf", "Login");
+        if (jabberID == null) {
+            return null;
+        }
+        final String password = SafeDialogUtils
+            .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+        if (password == null) {
+            return null;
+        }
+        final String sarosServer = SafeDialogUtils
+            .showInputDialog("Saros server "
+                    + "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
+                "localhost", "Server"
+            );
+        if (sarosServer == null) {
+            return null;
+        }
+
+        try {
+            return accountStore
+                .createAccount(jabberID, password, Saros.NAMESPACE, sarosServer,
+                    80, false, false);
+        } catch (IllegalArgumentException e) {
+            SafeDialogUtils.showError(e.getMessage(), "Error");
+        }
+        return null;
     }
 
     /**

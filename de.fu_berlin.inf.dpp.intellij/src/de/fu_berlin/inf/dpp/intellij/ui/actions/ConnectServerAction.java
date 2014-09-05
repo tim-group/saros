@@ -35,13 +35,10 @@ import org.picocontainer.annotations.Inject;
 import javax.swing.*;
 
 /**
- * Connects to XMPP/Jabber server with given account
+ * Connects to XMPP/Jabber server with given account or active account
  */
 public class ConnectServerAction extends AbstractSarosAction {
     public static final String NAME = "connect";
-
-    private String activeUser;
-    private boolean createNew = false;
 
     @Inject
     private XMPPAccountStore accountStore;
@@ -55,23 +52,26 @@ public class ConnectServerAction extends AbstractSarosAction {
     }
 
     /**
-     * Sets active user to connect as
-     *
-     * @param activeUser
+     * Connects with the given user.
      */
-    public void setActiveUser(String activeUser) {
-        this.activeUser = activeUser;
+    public void executeWithUser(String user) {
+        XMPPAccount account = locateAccount(user);
+        connectAccount(account);
+        actionFinished();
     }
 
-    public void setCreateNew(boolean createNew) {
-        this.createNew = createNew;
+    /**
+     * Connects with active account from the {@link XMPPAccountStore}.
+     */
+    @Override
+    public void execute() {
+        XMPPAccount account = accountStore.getActiveAccount();
+        connectAccount(account);
+        actionFinished();
     }
 
     /**
      * Searches for user in account store
-     *
-     * @param user
-     * @return
      */
     protected XMPPAccount locateAccount(String user) {
         int index = user.indexOf("@");
@@ -102,20 +102,7 @@ public class ConnectServerAction extends AbstractSarosAction {
         return null;
     }
 
-    @Override
-    public void execute() {
-//FIXME: Check logic
-        XMPPAccount account = null;
-        boolean isNew = false;
-        if (activeUser != null) {
-            account = locateAccount(activeUser);
-            activeUser = null; //removeAll user name
-        } else if (accountStore.isEmpty()) {
-            executeAndCreateNewAccount(); //FIXME: Does this work or create loop?
-        } else {
-            account = accountStore.getActiveAccount();
-        }
-
+    private void connectAccount(XMPPAccount account) {
         LOG.info("Connecting server: [" + account.getUsername() + "@" + account
             .getServer() + "]");
 
@@ -125,7 +112,8 @@ public class ConnectServerAction extends AbstractSarosAction {
                     account.getUsername(), account.getPassword());
 
             //store account
-            if (isNew && !accountStore
+            /* FIXME: Necessary?
+            if (!accountStore
                 .exists(account.getUsername(), account.getDomain(),
                     account.getServer(), account.getPort())) {
 
@@ -133,46 +121,15 @@ public class ConnectServerAction extends AbstractSarosAction {
                     .createAccount(account.getUsername(), account.getPassword(),
                         account.getDomain(), account.getServer(),
                         account.getPort(), account.useTLS(), account.useSASL());
-            }
+            }*/
             accountStore.setAccountActive(account);
         } catch (XMPPException e) {
-            JOptionPane.showMessageDialog(null,
-                "Bad login or password. Try again!", "Error",
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane
+                .showMessageDialog(null, "Bad login or password. Try again!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             LOG.error(e);
         }
 
         actionFinished();
-    }
-
-    public void executeAndCreateNewAccount() {
-        final String jabberID = SafeDialogUtils
-            .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
-                "dev1_alice_stf", "Login");
-        if (jabberID == null) {
-            actionFinished();
-            return;
-        }
-        final String password = SafeDialogUtils
-            .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
-        if (password == null) {
-            actionFinished();
-            return;
-        }
-        final String sarosServer = SafeDialogUtils
-            .showInputDialog(
-                "Saros server " +
-                    "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
-                "localhost", "Server");
-        if (sarosServer == null) {
-            actionFinished();
-            return;
-        }
-
-        account = accountStore
-            .createAccount(jabberID, password, Saros.NAMESPACE,
-                sarosServer, 80, false, false);
-        isNew = true;
-        execute();
     }
 }
