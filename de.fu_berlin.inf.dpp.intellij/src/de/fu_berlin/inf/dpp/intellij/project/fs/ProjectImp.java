@@ -72,15 +72,9 @@ public class ProjectImp implements IProject {
 
 
     public ProjectImp(Project project, String name) {
-
-        File path = new File(
-            project.getBasePath() + File.separator
-                + name
-        );
-
         this.project = project;
         this.name = name;
-        setPath(path);
+        setPath(new File(project.getBasePath()));
         scan(path);
     }
 

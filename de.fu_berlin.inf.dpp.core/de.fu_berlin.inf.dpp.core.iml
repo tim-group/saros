@@ -80,6 +80,7 @@
     <orderEntry type="library" exported="" name="smack" level="project" />
     <orderEntry type="library" exported="" name="smackx" level="project" />
     <orderEntry type="library" exported="" name="smackx-debug" level="project" />
+    <orderEntry type="library" name="org.eclipse.jgit-3.4.1.201406201815-r" level="project" />
   </component>
 </module>
 
