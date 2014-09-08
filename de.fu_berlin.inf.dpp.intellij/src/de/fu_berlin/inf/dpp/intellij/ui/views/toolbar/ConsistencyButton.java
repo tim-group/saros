@@ -34,7 +34,6 @@ import java.awt.event.ActionListener;
 public class ConsistencyButton extends ToolbarButton implements ActionListener
 {
 
-
     private static final String IN_SYNC_ICON_PATH = "icons/etool16/in_sync.png";
     private static final String OUT_SYNC_ICON_PATH = "icons/etool16/out_sync.png";
 
@@ -44,15 +43,12 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
 
     public ConsistencyButton()
     {
-
-        this.action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.NAME);
-        this.action.setConsistencyButton(this);
+        action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.NAME);
+        action.setConsistencyButton(this);
         setActionCommand(action.getActionName());
         // super.setEnabled(false);
         addActionListener(this);
-
         setInconsistent(false);
-
     }
 
     @Override
@@ -63,7 +59,6 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
             setEnabled(false);
             action.execute();
         }
-
     }
 
     public void setInconsistent(boolean isInconsistent)
