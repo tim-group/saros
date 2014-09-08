@@ -58,6 +58,7 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         createDisconnectMenuItem();
         createAddAccountMenuÍtem();
         createConfigureAccountMenuItem();
+        createMenuItems();
         createConnectButton();
     }
 
@@ -67,7 +68,6 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
 
         setToolTipText("Connect to XMPP/jabber server");
 
-        createMenuItems();
         connectAction.addActionListener(this);   //register listener
 
         addActionListener(new ActionListener() {

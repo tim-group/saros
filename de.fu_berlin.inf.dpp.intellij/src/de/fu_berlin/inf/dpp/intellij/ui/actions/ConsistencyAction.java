@@ -26,7 +26,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -42,7 +41,6 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,22 +49,22 @@ import java.util.Set;
  * Performs project recovery, when inconsistency was detected.
  */
 public class ConsistencyAction extends AbstractSarosAction {
-    public static final String ACTION_NAME = "consistency";
+    public static final String NAME = "consistency";
 
     @Override
     public String getActionName() {
-        return ACTION_NAME;
+        return NAME;
     }
 
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
-            setSharedProject(newSarosSession);
+            setSarosSession(newSarosSession);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-            setSharedProject(null);
+            setSarosSession(null);
         }
     };
 
@@ -92,19 +90,18 @@ public class ConsistencyAction extends AbstractSarosAction {
 
     public ConsistencyAction() {
         super();
-
-        setSharedProject(sessionManager.getSarosSession());
+        setSarosSession(sessionManager.getSarosSession());
         sessionManager.addSarosSessionListener(sessionListener);
     }
 
-    private void setSharedProject(ISarosSession newSharedProject) {
+    private void setSarosSession(ISarosSession newSession) {
 
         // Unregister from previous project
         if (sarosSession != null) {
             inconsistentObservable.remove(isConsistencyListener);
         }
 
-        sarosSession = newSharedProject;
+        sarosSession = newSession;
 
         if (sarosSession != null) {
             inconsistentObservable.addAndNotify(isConsistencyListener);

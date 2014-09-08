@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import com.intellij.openapi.actionSystem.DataKeys;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 
@@ -46,7 +45,7 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
     public ConsistencyButton()
     {
 
-        this.action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.ACTION_NAME);
+        this.action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.NAME);
         this.action.setConsistencyButton(this);
         setActionCommand(action.getActionName());
         // super.setEnabled(false);
