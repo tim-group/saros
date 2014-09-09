@@ -37,7 +37,7 @@ import java.awt.event.ActionListener;
 /**
  * Implementation of connect XMPP/jabber server button
  */
-public class ConnectButton extends ToolbarButton implements SarosActionListener {
+public class ConnectButton extends ToolbarButton {
     public static final String CONNECT_ICON_PATH = "icons/elcl16/connect.png";
 
     private JPopupMenu popupMenu = new JPopupMenu();
@@ -55,6 +55,14 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         SarosPluginContext.initComponent(this);
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
         connectAction = (ConnectServerAction)SarosActionFactory.getAction(ConnectServerAction.NAME);
+        connectAction.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent action) {
+                popupMenu.removeAll();
+                createMenuItems();
+            }
+        });
+
         createDisconnectMenuItem();
         createAddAccountMenuÍtem();
         createConfigureAccountMenuItem();
@@ -67,8 +75,6 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         setActionCommand(ConnectServerAction.NAME);
 
         setToolTipText("Connect to XMPP/jabber server");
-
-        connectAction.addActionListener(this);   //register listener
 
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
@@ -175,24 +181,9 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         return null;
     }
 
-    /**
-     *
-     */
     protected void configureAccounts() {
-        LOG.debug("ConnectButton.actionPerformed CONFIGURE");
 
         throw new IllegalStateException("Not implemented!");
-    }
-
-    @Override
-    public void actionStarted(AbstractSarosAction action) {
-
-    }
-
-    @Override
-    public void actionFinished(AbstractSarosAction action) {
-        popupMenu.removeAll();
-        createMenuItems();
     }
 
     public AbstractSarosAction getDisconnectAction() {

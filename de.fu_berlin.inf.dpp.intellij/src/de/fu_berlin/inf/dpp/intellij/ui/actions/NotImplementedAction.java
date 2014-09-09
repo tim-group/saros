@@ -52,8 +52,6 @@ public class NotImplementedAction extends AbstractSarosAction
     @Override
     public void execute()
     {
-        actionStarted();
-
         LOG.info("Not implemented action [" + name + "]");
 
         SafeDialogUtils.showError("We are sorry, but action [" + name + "] not implemented yet!", "Not Implemented");

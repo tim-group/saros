@@ -27,7 +27,8 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,34 +41,27 @@ public abstract class AbstractSarosAction {
     @Inject
     protected Saros saros;
 
-    private final List<SarosActionListener> actionListeners = new ArrayList<SarosActionListener>();
+    private final List<ActionListener> actionListeners = new ArrayList<ActionListener>();
     private final List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
     protected AbstractSarosAction() {
         SarosPluginContext.initComponent(this);
     }
 
-    protected void actionStarted() {
-        for (SarosActionListener actionListener : actionListeners) {
-            assert actionListener != null;
-            actionListener.actionStarted(this);
-        }
-    }
-
     protected void actionFinished() {
-        for (SarosActionListener actionListener : actionListeners) {
+        for (ActionListener actionListener : actionListeners) {
             assert actionListener != null;
-            actionListener.actionFinished(this);
+            actionListener.actionPerformed(new ActionEvent(this, 0, getActionName()));
         }
     }
 
     protected void refreshAll() {
         for (UIRefreshListener refreshListener : refreshListeners) {
-            refreshListener.refresh(this);
+            refreshListener.refresh();
         }
     }
 
-    public void addActionListener(SarosActionListener actionListener) {
+    public void addActionListener(ActionListener actionListener) {
          actionListeners.add(actionListener);
     }
 

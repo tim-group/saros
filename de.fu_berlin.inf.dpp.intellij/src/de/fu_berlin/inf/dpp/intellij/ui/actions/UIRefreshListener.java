@@ -27,5 +27,5 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
  */
 public interface UIRefreshListener
 {
-    void refresh(AbstractSarosAction action);
+    public void refresh();
 }

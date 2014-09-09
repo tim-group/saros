@@ -31,7 +31,7 @@ import java.awt.event.ActionListener;
 /**
  * General button used to create any common button
  */
-public class CommonButton extends ToolbarButton implements ActionListener
+public class CommonButton extends ToolbarButton
 {
     private String actionCommand;
     private AbstractSarosAction action;
@@ -49,7 +49,11 @@ public class CommonButton extends ToolbarButton implements ActionListener
         setIcon(iconPath, altText);
         setActionCommand(actionCommand);
         setToolTipText(tooltipText);
-        addActionListener(this);
+        addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent actionEvent) {
+                action.execute();
+            }
+        });
     }
 
     public String getActionCommand()
@@ -57,9 +61,4 @@ public class CommonButton extends ToolbarButton implements ActionListener
         return actionCommand;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        action.execute();
-    }
 }

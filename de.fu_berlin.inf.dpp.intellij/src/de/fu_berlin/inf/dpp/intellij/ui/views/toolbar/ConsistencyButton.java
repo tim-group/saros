@@ -31,11 +31,20 @@ import java.awt.event.ActionListener;
 /**
  * Consistency check button implementation
  */
-public class ConsistencyButton extends ToolbarButton implements ActionListener
+public class ConsistencyButton extends ToolbarButton
 {
 
     private static final String IN_SYNC_ICON_PATH = "icons/etool16/in_sync.png";
     private static final String OUT_SYNC_ICON_PATH = "icons/etool16/out_sync.png";
+    private final ActionListener actionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (isEnabled() && isInconsistent) {
+                setEnabled(false);
+                action.execute();
+            }
+        }
+    };
 
     private boolean isInconsistent = false;
 
@@ -47,18 +56,8 @@ public class ConsistencyButton extends ToolbarButton implements ActionListener
         action.setConsistencyButton(this);
         setActionCommand(action.getActionName());
         // super.setEnabled(false);
-        addActionListener(this);
+        addActionListener(actionListener);
         setInconsistent(false);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        if (isEnabled() && isInconsistent)
-        {
-            setEnabled(false);
-            action.execute();
-        }
     }
 
     public void setInconsistent(boolean isInconsistent)

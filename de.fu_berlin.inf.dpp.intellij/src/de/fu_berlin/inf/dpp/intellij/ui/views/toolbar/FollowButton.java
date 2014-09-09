@@ -32,7 +32,7 @@ import java.awt.event.ActionListener;
 /**
  * Follow button implementation
  */
-public class FollowButton extends ToolbarButton implements SarosActionListener
+public class FollowButton extends ToolbarButton
 {
     public static final String FOLLOW_ICON_PATH = "icons/ovr16/followmode.png";
     private JPopupMenu popupMenu;
@@ -41,11 +41,12 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
     private UIRefreshListener refreshListener = new UIRefreshListener()
     {
         @Override
-        public void refresh(AbstractSarosAction actionEvent)
+        public void refresh()
         {
-            createMenu(followModeAction);
+            createMenu();
         }
     };
+    private String menuItemPrefix;
 
     public FollowButton()
     {
@@ -62,61 +63,29 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
 
         setToolTipText("Enter follow mode");
 
-        createMenu(followModeAction);
-        this.setEnabled(false);
+        createMenu();
+        setEnabled(false);
 
         final JButton button = this;
-        this.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ev)
-            {
-                popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
+        addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                popupMenu.show(button, 0,
+                    button.getBounds().y + button.getBounds().height);
             }
 
         });
     }
 
 
-    public void createMenu(final FollowModeAction action)
+    public void createMenu()
     {
         popupMenu = new JPopupMenu();
 
-        final String prefix = "Follow ";
+        menuItemPrefix = "Follow ";
 
-        boolean isUser = false;
-        for (User user : action.getCurrentRemoteSessionUsers())
+        for (User user : followModeAction.getCurrentRemoteSessionUsers())
         {
-            isUser = true;
-            String userName = user.getNickname();
-            String userNameShort = userName;
-            int index = userNameShort.indexOf("@");
-            if (index > -1)
-            {
-                userNameShort = userNameShort.substring(0, index);
-            }
-
-            JMenuItem menuItem = new JMenuItem(prefix + userNameShort);
-
-            User currentUser = action.getCurrentlyFollowedUser();
-
-            if (currentUser != null)
-            {
-                String currentUserName = currentUser.getNickname();
-                if (currentUserName.equalsIgnoreCase(userNameShort))
-                {
-                    menuItem.setEnabled(false);
-                }
-            }
-
-            menuItem.setActionCommand(userName);
-            menuItem.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    action.setFollowUser(e.getActionCommand());
-                    action.execute();
-                }
-            });
+            JMenuItem menuItem = createItemForUser(user);
             popupMenu.add(menuItem);
         }
 
@@ -128,25 +97,43 @@ public class FollowButton extends ToolbarButton implements SarosActionListener
         {
             public void actionPerformed(ActionEvent e)
             {
-                action.setFollowUser(e.getActionCommand());
-                action.execute();
+                followModeAction.execute(e.getActionCommand());
             }
         });
-        leaveItem.setEnabled(isUser);
+        leaveItem.setEnabled(followModeAction.getCurrentlyFollowedUser() != null);
 
         popupMenu.add(leaveItem);
     }
 
+    private JMenuItem createItemForUser(User user) {
+        String userName = user.getNickname();
+        String userNameShort = userName;
+        int index = userNameShort.indexOf("@");
+        if (index > -1)
+        {
+            userNameShort = userNameShort.substring(0, index);
+        }
 
-    @Override
-    public void actionStarted(AbstractSarosAction action)
-    {
+        JMenuItem menuItem = new JMenuItem(menuItemPrefix + userNameShort);
 
-    }
+        User currentlyFollowedUser = followModeAction.getCurrentlyFollowedUser();
+        if (currentlyFollowedUser != null)
+        {
+            String currentUserName = currentlyFollowedUser.getNickname();
+            if (currentUserName.equalsIgnoreCase(userNameShort))
+            {
+                menuItem.setEnabled(false);
+            }
+        }
 
-    @Override
-    public void actionFinished(AbstractSarosAction action)
-    {
-
+        menuItem.setActionCommand(userName);
+        menuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                followModeAction.execute(e.getActionCommand());
+            }
+        });
+        return menuItem;
     }
 }

@@ -35,6 +35,8 @@ import org.picocontainer.annotations.Inject;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,28 +56,20 @@ public class SarosToolbar {
     @Inject
     private XMPPConnectionService connectionService;
 
-    private SarosActionListener toolbarActionListener = new SarosActionListener() {
-        @Override
-        public void actionStarted(AbstractSarosAction action) {
-
-        }
+    private ActionListener toolbarActionListener = new ActionListener() {
 
         @Override
-        public void actionFinished(AbstractSarosAction action) {
+        public void actionPerformed(ActionEvent action) {
             initButtons();
         }
     };
 
-    private SarosActionListener treeActionListener = new SarosActionListener() {
-        @Override
-        public void actionStarted(AbstractSarosAction action) {
-
-        }
+    private ActionListener treeActionListener = new ActionListener() {
 
         @Override
-        public void actionFinished(AbstractSarosAction action) {
-            if (action instanceof ConnectServerAction
-                || action instanceof DisconnectServerAction) {
+        public void actionPerformed(ActionEvent action) {
+            if (action.getSource() instanceof ConnectServerAction
+                || action.getSource() instanceof DisconnectServerAction) {
 
                 final SarosTreeView sarosTree = sarosMainView.getSarosTree();
                 if (connectionService.isConnected()) {
