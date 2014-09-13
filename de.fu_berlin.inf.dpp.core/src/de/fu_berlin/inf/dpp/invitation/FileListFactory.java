@@ -56,8 +56,7 @@ public class FileListFactory {
                                           VCSProvider provider, IProgressMonitor monitor) throws IOException {
 
         FileListFactory fact = new FileListFactory(checksumCache, monitor);
-        VcsIgnore vcsIgnore = GitIgnore.forProject(project);
-        return fact.build(project, resources, provider, vcsIgnore);
+        return fact.build(project, resources, provider);
     }
 
     /**
@@ -85,7 +84,7 @@ public class FileListFactory {
     }
 
     private FileList build(IProject project, List<IResource> resources,
-        VCSProvider provider, VcsIgnore vcsIgnore) throws IOException {
+                           VCSProvider provider) throws IOException {
 
         FileList list = new FileList();
 
@@ -94,13 +93,13 @@ public class FileListFactory {
             resources = Arrays.asList(project.members());
         }
 
-        addMembersToList(list, resources, provider, vcsIgnore);
+        addMembersToList(list, resources, provider);
 
         return list;
     }
 
-    private void addMembersToList(final FileList list, final List<IResource> resources, final VCSProvider provider,
-        VcsIgnore vcsIgnore)
+    private void addMembersToList(final FileList list,
+                                  final List<IResource> resources, final VCSProvider provider)
             throws IOException {
 
         if (resources.size() == 0)
@@ -143,9 +142,8 @@ public class FileListFactory {
         while (!stack.isEmpty()) {
             IResource resource = stack.pop();
 
-            if (shouldIgnore(resource, vcsIgnore)) {
+            if (resource.isDerived() || !resource.exists())
                 continue;
-            }
 
             String path = resource.getProjectRelativePath().toPortableString();
 
@@ -214,11 +212,6 @@ public class FileListFactory {
 
             monitor.worked(1);
         }
-    }
-
-    private boolean shouldIgnore(IResource resource, VcsIgnore vcsIgnore) {
-        return
-            resource.isDerived() || !resource.exists() || vcsIgnore.isIgnored(resource);
     }
 
     /**
