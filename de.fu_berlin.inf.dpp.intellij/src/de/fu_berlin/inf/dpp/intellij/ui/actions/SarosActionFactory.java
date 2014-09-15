@@ -52,8 +52,6 @@ public class SarosActionFactory {
         registerAction(followModeAction);
         registerAction(leaveSessionAction);
         registerAction(new ConsistencyAction());
-        registerAction(new NewContactAction());
-        registerAction(new OpenWhiteboardAction());
 
         for (NotImplementedAction.actions enAction : NotImplementedAction.actions.values()) {
             registerAction(new NotImplementedAction(enAction));
@@ -68,7 +66,7 @@ public class SarosActionFactory {
     public static AbstractSarosAction getAction(String actionName) {
         AbstractSarosAction action = registeredActions.get(actionName);
         if (action == null) {
-            throw new IllegalArgumentException("Action " + actionName + " not exist!");
+            throw new IllegalArgumentException("Action " + actionName + " does not exist!");
         }
 
         return action;

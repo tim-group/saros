@@ -31,7 +31,8 @@ public class NotImplementedAction extends AbstractSarosAction
 {
     public enum actions
     {
-        preferences
+        preferences,
+        newContact
     }
 
     private String name;
@@ -56,6 +57,6 @@ public class NotImplementedAction extends AbstractSarosAction
 
         SafeDialogUtils.showError("We are sorry, but action [" + name + "] not implemented yet!", "Not Implemented");
 
-        actionFinished();
+        actionPerformed();
     }
 }

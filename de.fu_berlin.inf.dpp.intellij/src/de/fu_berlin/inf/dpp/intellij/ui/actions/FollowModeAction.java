@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Action to activate follow mode.
+ * Action to activateor deactivate follow mode.
  */
 public class FollowModeAction extends AbstractSarosAction {
 
@@ -150,7 +150,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
         editorManager.setFollowing(findUser(userName));
 
-        actionFinished();
+        actionPerformed();
     }
 
     @Override

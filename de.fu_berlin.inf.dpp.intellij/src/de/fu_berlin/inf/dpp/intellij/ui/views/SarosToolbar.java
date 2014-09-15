@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.NewContactAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
@@ -128,7 +127,7 @@ public class SarosToolbar {
         connectionButton.setEnabled(true);
 
         addButton(
-            new SimpleButton(NewContactAction.NAME, "Add contact to session",
+            new SimpleButton(NotImplementedAction.actions.newContact.name(), "Add contact to session",
                 ADD_CONTACT_ICON_PATH, "addContact")
         );
 

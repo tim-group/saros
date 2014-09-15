@@ -108,7 +108,6 @@ public class ConsistencyAction extends AbstractSarosAction {
     /**
      * This method activates the consistency recovery button, if an inconsistency
      * was detected and displays a tooltip.
-     * @param isInconsistent
      */
     private void handleConsistencyChange(final Boolean isInconsistent) {
 
@@ -194,7 +193,6 @@ public class ConsistencyAction extends AbstractSarosAction {
         if (!DialogUtils.showQuestion(null, inconsistentFiles,
             Messages.ConsistencyAction_confirm_dialog_title)) {
             consistencyButton.setEnabled(true);
-
             return;
         }
 

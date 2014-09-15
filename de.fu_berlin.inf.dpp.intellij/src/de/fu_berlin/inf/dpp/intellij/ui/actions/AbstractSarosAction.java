@@ -48,9 +48,8 @@ public abstract class AbstractSarosAction {
         SarosPluginContext.initComponent(this);
     }
 
-    protected void actionFinished() {
+    protected void actionPerformed() {
         for (ActionListener actionListener : actionListeners) {
-            assert actionListener != null;
             actionListener.actionPerformed(new ActionEvent(this, 0, getActionName()));
         }
     }

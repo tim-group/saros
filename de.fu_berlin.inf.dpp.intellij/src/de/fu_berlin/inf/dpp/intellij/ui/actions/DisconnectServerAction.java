@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
@@ -43,7 +42,6 @@ public class DisconnectServerAction extends AbstractSarosAction {
     @Override
     public void execute() {
         connectionService.disconnect();
-
-        actionFinished();
+        actionPerformed();
     }
 }
