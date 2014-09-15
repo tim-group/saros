@@ -31,7 +31,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.filesystem.*;
+import de.fu_berlin.inf.dpp.filesystem.IContainer;
+import de.fu_berlin.inf.dpp.filesystem.IFile;
+import de.fu_berlin.inf.dpp.filesystem.IFolder;
+import de.fu_berlin.inf.dpp.filesystem.IPath;
+import de.fu_berlin.inf.dpp.filesystem.IProject;
+import de.fu_berlin.inf.dpp.filesystem.IResource;
+import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -121,12 +127,17 @@ public class ProjectImp implements IProject {
     protected void addRecursive(File file) {
 
         if (file.isDirectory()) {
-            for (File myFile : file.listFiles()) {
+            for (File myFile : getSafeFileList(file)) {
                 addRecursive(myFile);
             }
         } else {
             addFile(file);
         }
+    }
+
+    private File[] getSafeFileList(File file) {
+        File[] files = file.listFiles();
+        return files != null ? files : new File[0];
     }
 
     @Override

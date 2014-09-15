@@ -26,24 +26,19 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
-import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
-import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -58,12 +53,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
- *
+ * Saros action group for the pop-up menu when right-clicking on a module.
  */
 public class SarosFileShareGroup extends ActionGroup {
-    private static Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
+    private static final Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
 
     @Inject
     private Saros saros;
@@ -72,69 +66,78 @@ public class SarosFileShareGroup extends ActionGroup {
     private ISarosSessionManager sessionManager;
 
 
-    public void actionPerformed(AnActionEvent e) {
 
+    public void actionPerformed(AnActionEvent e) {
+        //do nothing when menu pops-up
     }
 
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
-        //the object has to be initialized here, because it is created before the
-        //{@link de.fu_berlin.inf.dpp.intellij.SarosComponent}.
+        //the object has to be initialized here, because it is created before
+        //{@link de.fu_berlin.inf.dpp.core.Saros}.
         SarosPluginContext.initComponent(this);
 
         if (e == null || !Saros.isInitialized()
                 || sessionManager.getSarosSession() != null) {
             return new AnAction[0];
-        } else {
-            VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
-            Project project = e.getData(CommonDataKeys.PROJECT);
-            if (virtualFile == null || project == null
-                    || virtualFile.equals(project.getBaseDir())) {
-                return new AnAction[0];
-            }
-
-            List<AnAction> list = new ArrayList<AnAction>();
-            for (JID user : saros.getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
-                list.add(new ShareWithUser(user));
-            }
-
-            return list.toArray(new AnAction[]{});
         }
 
+        VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        Project project = e.getData(CommonDataKeys.PROJECT);
+        if (virtualFile == null || project == null) {
+            return new AnAction[0];
+        }
+
+        List<AnAction> list = new ArrayList<AnAction>();
+        for (JID user : saros.getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
+            list.add(new ShareWithUserAction(user));
+        }
+
+        return list.toArray(new AnAction[]{});
     }
 
 
-    public class ShareWithUser extends AnAction {
+    public class ShareWithUserAction extends AnAction {
 
-        private JID userJID;
-        private String title;
+        private final JID userJID;
+        private final String title;
 
-
-        public ShareWithUser(JID user) {
+        public ShareWithUserAction(JID user) {
             super(user.getName(), null, IconManager.CONTACT_ONLINE_ICON);
-            this.userJID = user;
-            this.title = user.getName();
+            userJID = user;
+            title = user.getName();
         }
 
         @Override
         public void actionPerformed(AnActionEvent e) {
             VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+            if (virtFile == null) {
+                return;
+            }
+
             File file = new File(virtFile.getPath());
             try {
                 Module module = ProjectFileIndex.SERVICE.getInstance(e.getProject()).getModuleForFile(virtFile);
-                ProjectImp project = new ProjectImp(e.getProject(), module.getName(), file);
+                String moduleName = null;
+                if (module != null) {
+                    moduleName = module.getName();
+                } else {
+                    //FIXME: Fix for non-module IDEAs
+                }
+                ProjectImp project = new ProjectImp(e.getProject(), moduleName, file);
 
                 List<IResource> resources = new ArrayList<IResource>();
 
-
                 if (virtFile.isDirectory()) {
-                    //check if it is a real project
+                    //check if it is a completely shared project
                     FolderImp resFolder = new FolderImp(project, file);
                     if (resFolder.getFullPath().segmentCount() == project.getFullPath().segmentCount()) {
+                        //fully shared
                         project.refreshLocal();
                         resources.add(project);
                     } else {
+                        //partially shared
                         resources.addAll(getParentFolders(project, project.getFullPath(), resFolder.getFullPath()));
                         loadChildResources(project, resFolder.toFile(), resources);
                     }
@@ -155,33 +158,28 @@ public class SarosFileShareGroup extends ActionGroup {
 
 
         /**
-         * Loads all down tree resourced
+         * Loads all resources under file into resources by traversing the
+         * directory tree..
          *
-         * @param project
-         * @param file
-         * @param resources
-         * @throws IOException
          */
-        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) throws IOException {
+        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) {
             if (file.isDirectory()) {
                 resources.add(new FolderImp(project, file));
-                for (File f : file.listFiles()) {
+                for (File f : getSafeFileList(file)) {
                     loadChildResources(project, f, resources);
                 }
             } else {
                 resources.add(new FileImp(project, file));
             }
-
         }
 
+        private File[] getSafeFileList(File file) {
+            File[] files = file.listFiles();
+            return files != null ? files : new File[0];
+        }
 
         /**
-         * Load folders between project and file
-         *
-         * @param project
-         * @param top
-         * @param bottom
-         * @return
+         * Load parent folders of file, for partially shared files.
          */
         private List<IResource> getParentFolders(ProjectImp project, IPath top, IPath bottom) {
             List<IResource> folders = new ArrayList<IResource>();
