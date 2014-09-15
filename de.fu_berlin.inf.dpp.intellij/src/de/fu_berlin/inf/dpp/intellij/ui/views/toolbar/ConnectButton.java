@@ -25,12 +25,15 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.Saros;
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -68,14 +71,10 @@ public class ConnectButton extends ToolbarButton {
         createAddAccountMenuÍtem();
         createConfigureAccountMenuItem();
         createMenuItems();
-        createConnectButton();
-    }
 
-    private void createConnectButton() {
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 if (accountStore.isEmpty()) {
-                    //setEnabled(false);
                     XMPPAccount account = createNewAccount();
                     connectAction.executeWithUser(account.getUsername());
                 } else {
@@ -103,7 +102,6 @@ public class ConnectButton extends ToolbarButton {
         JMenuItem accountItem = new JMenuItem(userName);
         accountItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //button.setEnabled(false);
                 connectAction.executeWithUser(userName);
             }
         });
@@ -114,7 +112,6 @@ public class ConnectButton extends ToolbarButton {
         disconnect = new JMenuItem("Disconnect server");
         disconnect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //button.setEnabled(false);
                 disconnectAction.execute();
             }
         });
@@ -180,6 +177,11 @@ public class ConnectButton extends ToolbarButton {
     protected void configureAccounts() {
 
         throw new IllegalStateException("Not implemented!");
+    }
+
+    public void addActionListenerToActions(ActionListener listener) {
+        disconnectAction.addActionListener(listener);
+        connectAction.addActionListener(listener);
     }
 
     public AbstractSarosAction getDisconnectAction() {
