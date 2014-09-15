@@ -35,6 +35,7 @@ import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,9 +52,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
                 @Override
                 public void run() {
-                    if (user.equals(editorManager.getFollowedUser())) {
-                        refreshAll();
-                    }
+                    refreshAll();
                 }
             });
         }
@@ -164,7 +163,11 @@ public class FollowModeAction extends AbstractSarosAction {
     }
 
     public List<User> getCurrentRemoteSessionUsers() {
+        if (session == null)
+            return new ArrayList<User>();
+
         return session.getRemoteUsers();
+
     }
 
     private User findUser(String userName) {

@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.SimpleButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
@@ -179,7 +179,7 @@ public class SarosToolbar {
     private void addNavigationButton(String action, String toolTipText,
         String iconPath, String altText) {
         //Create and initialize the button.
-        JButton button = new CommonButton(action, toolTipText, iconPath,
+        JButton button = new SimpleButton(action, toolTipText, iconPath,
             altText);
         toolbarButtons.put(button.getActionCommand(), button);
         jToolBar.add(button);
