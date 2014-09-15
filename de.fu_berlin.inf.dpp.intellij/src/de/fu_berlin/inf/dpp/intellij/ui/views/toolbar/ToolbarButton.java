@@ -34,7 +34,7 @@ import javax.swing.JButton;
 import java.net.URL;
 
 /**
- * Common class for Toolbar button implementations
+ * Common class for Toolbar button implementations.
  */
 public abstract class ToolbarButton extends JButton {
 
@@ -43,26 +43,22 @@ public abstract class ToolbarButton extends JButton {
     @Inject
     protected Saros saros;
 
-    protected ToolbarButton() {
+    protected ToolbarButton(String actionCommand, String tooltipText, String iconPath, String altText) {
         SarosPluginContext.initComponent(this);
+        setActionCommand(actionCommand);
+        setIcon(iconPath, altText);
+        setToolTipText(tooltipText);
     }
 
     protected void setIcon(String path, String altText) {
-        setButtonIcon(this, path, altText);
-    }
+        if (!path.startsWith("/"))
+            path = "/" + path;
 
-    public static void setButtonIcon(JButton button, String iconPath,
-        String altText) {
-        if (!iconPath.startsWith("/"))
-            iconPath = "/" + iconPath;
-
-        URL imageURL = ToolbarButton.class.getResource(iconPath);
+        URL imageURL = ToolbarButton.class.getResource(path);
         if (imageURL != null) {
-            //image found
-            button.setIcon(new ImageIcon(imageURL, altText));
+            setIcon(new ImageIcon(imageURL, altText));
         } else {
-            //no image found
-            button.setText(altText);
+            setText(altText);
             LOG.error("Resource not found: " + imageURL);
         }
     }

@@ -30,7 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Follow button implementation
+ * Button to follow a user. Displays a PopupMenu containing all session users to choose
+ * from.
  */
 public class FollowButton extends ToolbarButton
 {
@@ -50,18 +51,9 @@ public class FollowButton extends ToolbarButton
 
     public FollowButton()
     {
+        super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
         followModeAction = (FollowModeAction) SarosActionFactory.getAction(FollowModeAction.NAME);
         followModeAction.addRefreshListener(refreshListener);
-
-        createButton();
-    }
-
-    private void createButton()
-    {
-        setIcon(FOLLOW_ICON_PATH, "follow");
-        setActionCommand(FollowModeAction.NAME);
-
-        setToolTipText("Enter follow mode");
 
         createMenu();
         setEnabled(false);
@@ -75,7 +67,6 @@ public class FollowButton extends ToolbarButton
 
         });
     }
-
 
     public void createMenu()
     {

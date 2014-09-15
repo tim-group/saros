@@ -29,7 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Consistency check button implementation
+ * Button for triggering a {@link ConsistencyAction}. Displays a different symbol
+ * when state is inconsistent or not.
  */
 public class ConsistencyButton extends ToolbarButton
 {
@@ -52,12 +53,12 @@ public class ConsistencyButton extends ToolbarButton
 
     public ConsistencyButton()
     {
+        super(ConsistencyAction.NAME, "Recover inconsistencies",
+            IN_SYNC_ICON_PATH, "Files are consistent");
         action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.NAME);
         action.setConsistencyButton(this);
-        setActionCommand(action.getActionName());
-        // super.setEnabled(false);
         addActionListener(actionListener);
-        setInconsistent(false);
+        setEnabled(false);
     }
 
     public void setInconsistent(boolean isInconsistent)
@@ -66,16 +67,13 @@ public class ConsistencyButton extends ToolbarButton
 
         if (isInconsistent)
         {
+            setEnabled(true);
             setIcon(OUT_SYNC_ICON_PATH, "Files are NOT consistent");
         }
         else
         {
+            setEnabled(false);
             setIcon(IN_SYNC_ICON_PATH, "Files are consistent");
         }
-    }
-
-    public void setEnabled(boolean b)
-    {
-        super.setEnabled(b);
     }
 }

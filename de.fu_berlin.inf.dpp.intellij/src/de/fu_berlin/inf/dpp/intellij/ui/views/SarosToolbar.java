@@ -95,33 +95,20 @@ public class SarosToolbar {
         }
     };
 
-    /**
-     * @param mainPanel
-     */
     public SarosToolbar(SarosMainPanelView mainPanel) {
         SarosPluginContext.initComponent(this);
-        this.jToolBar = create(mainPanel);
-        mainPanel.getParent().add(this.jToolBar, BorderLayout.NORTH);
-
-    }
-
-    /**
-     * @param parent
-     * @return
-     */
-    private JToolBar create(SarosMainPanelView parent) {
-        sarosMainView = parent;
-
-        jToolBar = new JToolBar("Saros IntelliJ toolbar");
-        jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
-        addToolbarButtons();
-
-        parent.add(jToolBar, BorderLayout.PAGE_START);
+        sarosMainView = mainPanel;
+        createToolBar();
+        sarosMainView.add(jToolBar, BorderLayout.PAGE_START);
+        sarosMainView.getParent().add(jToolBar, BorderLayout.NORTH);
 
         initButtons();
 
-        return jToolBar;
+    }
+    private void createToolBar() {
+        jToolBar = new JToolBar("Saros IDEA toolbar");
+        jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        addToolbarButtons();
     }
 
     protected void addToolbarButtons() {
@@ -139,10 +126,10 @@ public class SarosToolbar {
             .addActionListener(toolbarActionListener);
 
         jToolBar.add(connectionButton);
-        toolbarButtons.put(connectionButton.getConnectAction().getActionName(),
+        toolbarButtons.put(ConnectServerAction.NAME,
             connectionButton);
         toolbarButtons
-            .put(connectionButton.getDisconnectAction().getActionName(),
+            .put(DisconnectServerAction.NAME,
                 connectionButton);
 
         //add contact button
@@ -185,17 +172,18 @@ public class SarosToolbar {
         jToolBar.add(button);
     }
 
+    /**
+     * Initializes all buttons as disabled, except the connect button
+     */
     private void initButtons() {
         Runnable action = new Runnable() {
             @Override
             public void run() {
+                for (JButton button : toolbarButtons.values()) {
+                    button.setEnabled(connectionService.isConnected());
+                }
                 JButton btnConnect = toolbarButtons
                     .get(ConnectServerAction.NAME);
-                for (JButton button : toolbarButtons.values()) {
-                    if (btnConnect != button) {
-                        button.setEnabled(connectionService.isConnected());
-                    }
-                }
                 btnConnect.setEnabled(true); //always enabled!
             }
         };

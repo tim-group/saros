@@ -52,7 +52,8 @@ public class ConnectButton extends ToolbarButton {
     private XMPPAccountStore accountStore;
 
     public ConnectButton() {
-        SarosPluginContext.initComponent(this);
+        super(ConnectServerAction.NAME, "Connect", CONNECT_ICON_PATH,
+            "Connect to XMPP/jabber server");
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
         connectAction = (ConnectServerAction)SarosActionFactory.getAction(ConnectServerAction.NAME);
         connectAction.addActionListener(new ActionListener() {
@@ -71,11 +72,6 @@ public class ConnectButton extends ToolbarButton {
     }
 
     private void createConnectButton() {
-        setIcon(CONNECT_ICON_PATH, "Connect");
-        setActionCommand(ConnectServerAction.NAME);
-
-        setToolTipText("Connect to XMPP/jabber server");
-
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 if (accountStore.isEmpty()) {

@@ -33,26 +33,16 @@ import java.awt.event.ActionListener;
  */
 public class SimpleButton extends ToolbarButton
 {
-    private String actionCommand;
     private AbstractSarosAction action;
 
     public SimpleButton(String actionCommand, String tooltipText, String iconPath, String altText) {
-        this.actionCommand = actionCommand;
+        super(actionCommand, tooltipText, iconPath, altText);
 
         action = SarosActionFactory.getAction(actionCommand);
-        setIcon(iconPath, altText);
-        setActionCommand(actionCommand);
-        setToolTipText(tooltipText);
         addActionListener(new ActionListener() {
             @Override public void actionPerformed(ActionEvent actionEvent) {
                 action.execute();
             }
         });
     }
-
-    public String getActionCommand()
-    {
-        return actionCommand;
-    }
-
 }
