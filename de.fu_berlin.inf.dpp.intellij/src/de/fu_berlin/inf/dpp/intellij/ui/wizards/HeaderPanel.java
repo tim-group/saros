@@ -22,10 +22,15 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import java.awt.Color;
+import java.awt.FlowLayout;
 
 /**
  * Class presents default header panel for wizard framework

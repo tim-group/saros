@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;

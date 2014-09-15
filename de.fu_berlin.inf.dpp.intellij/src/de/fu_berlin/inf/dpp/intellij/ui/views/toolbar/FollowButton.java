@@ -22,10 +22,24 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
-import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
+import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
+import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
+import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
+import de.fu_berlin.inf.dpp.util.ThreadUtils;
+import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -39,21 +53,59 @@ public class FollowButton extends ToolbarButton
     private JPopupMenu popupMenu;
     private final FollowModeAction followModeAction;
 
-    private UIRefreshListener refreshListener = new UIRefreshListener()
-    {
+    private final ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
-        public void refresh()
-        {
-            createMenu();
+        public void userLeft(final User user) {
+            updateMenu();
+        }
+
+        @Override
+        public void userJoined(final User user) {
+            updateMenu();
         }
     };
+
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+        @Override
+        public void sessionStarted(final ISarosSession session) {
+            session.addListener(userListener);
+            updateMenu();
+        }
+
+        @Override
+        public void sessionEnded(ISarosSession oldSarosSession) {
+            oldSarosSession.removeListener(userListener);
+            updateMenu();
+        }
+    };
+
+    private final ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
+        @Override
+        public void followModeChanged(final User user,
+            final boolean isFollowed) {
+            updateMenu();
+        }
+    };
+
     private String menuItemPrefix;
+
+    @Inject
+    public ISarosSessionManager sessionManager;
+
+    @Inject
+    public EditorManager editorManager;
+
+    private ISarosSession session;
+
 
     public FollowButton()
     {
         super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
         followModeAction = (FollowModeAction) SarosActionFactory.getAction(FollowModeAction.NAME);
-        followModeAction.addRefreshListener(refreshListener);
+
+        sessionManager.addSarosSessionListener(sessionListener);
+
+        editorManager.addSharedEditorListener(editorListener);
 
         createMenu();
         setEnabled(false);
@@ -118,13 +170,20 @@ public class FollowButton extends ToolbarButton
         }
 
         menuItem.setActionCommand(userName);
-        menuItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 followModeAction.execute(e.getActionCommand());
             }
         });
         return menuItem;
+    }
+
+    private void updateMenu() {
+        ThreadUtils.runSafeAsync(LOG, new Runnable() {
+            @Override
+            public void run() {
+                createMenu();
+            }
+        });
     }
 }

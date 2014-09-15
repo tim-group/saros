@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
-import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;

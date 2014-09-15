@@ -22,15 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
-import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
-import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
-import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
@@ -45,70 +41,27 @@ public class FollowModeAction extends AbstractSarosAction {
 
     public static final String NAME = "follow";
 
-    private final ISharedProjectListener userListener = new AbstractSharedProjectListener() {
-        @Override
-        public void userLeft(final User user) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
-                @Override
-                public void run() {
-                    refreshAll();
-                }
-            });
-        }
-
-        @Override
-        public void userJoined(final User user) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
-
-                @Override
-                public void run() {
-                    refreshAll();
-
-                }
-            });
-        }
-    };
 
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(final ISarosSession session) {
-
-            session.addListener(userListener);
-
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
                 public void run() {
                     FollowModeAction.this.session = session;
-                    refreshAll();
                 }
             });
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-            oldSarosSession.removeListener(userListener);
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
 
                 @Override
                 public void run() {
                     session = null;
-                    refreshAll();
-                }
-            });
-        }
-    };
-
-    private final ISharedEditorListener editorListener = new AbstractSharedEditorListener() {
-        @Override
-        public void followModeChanged(final User user,
-            final boolean isFollowed) {
-            ThreadUtils.runSafeAsync(LOG, new Runnable() {
-
-                @Override
-                public void run() {
-                    refreshAll();
                 }
             });
         }
@@ -128,14 +81,6 @@ public class FollowModeAction extends AbstractSarosAction {
         this.sessionManager = sessionManager;
 
         sessionManager.addSarosSessionListener(sessionListener);
-
-        editorManager.addSharedEditorListener(editorListener);
-
-        if (session != null) {
-            session.addListener(userListener);
-        }
-
-        refreshAll();
     }
 
     @Override

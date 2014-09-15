@@ -40,7 +40,7 @@ import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
-import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

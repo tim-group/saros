@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.resource;
+package de.fu_berlin.inf.dpp.intellij.ui.util;
 
 import org.apache.log4j.Logger;
 

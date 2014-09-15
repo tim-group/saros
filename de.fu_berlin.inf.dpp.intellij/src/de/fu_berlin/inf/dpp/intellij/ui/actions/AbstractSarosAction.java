@@ -42,7 +42,6 @@ public abstract class AbstractSarosAction {
     protected Saros saros;
 
     private final List<ActionListener> actionListeners = new ArrayList<ActionListener>();
-    private final List<UIRefreshListener> refreshListeners = new ArrayList<UIRefreshListener>();
 
     protected AbstractSarosAction() {
         SarosPluginContext.initComponent(this);
@@ -54,18 +53,8 @@ public abstract class AbstractSarosAction {
         }
     }
 
-    protected void refreshAll() {
-        for (UIRefreshListener refreshListener : refreshListeners) {
-            refreshListener.refresh();
-        }
-    }
-
     public void addActionListener(ActionListener actionListener) {
          actionListeners.add(actionListener);
-    }
-
-    public void addRefreshListener(UIRefreshListener refreshListener) {
-        refreshListeners.add(refreshListener);
     }
 
     public abstract String getActionName();
