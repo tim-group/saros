@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
@@ -61,7 +60,6 @@ public class ConnectButton extends ToolbarButton {
         connectAction.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent action) {
-                popupMenu.removeAll();
                 createMenuItems();
             }
         });
@@ -85,16 +83,21 @@ public class ConnectButton extends ToolbarButton {
     }
 
     private void createMenuItems() {
+        popupMenu.removeAll();
         for (XMPPAccount account : accountStore.getAllAccounts()) {
-            final String userName = account.getUsername() + "@" + account.getServer();
-            JMenuItem accountItem = createMenuItemForUser(userName);
-            popupMenu.add(accountItem);
+            createAccountMenuItem(account);
         }
 
         popupMenu.addSeparator();
         popupMenu.add(menuItemAdd);
         popupMenu.add(configure);
         popupMenu.add(disconnect);
+    }
+
+    private void createAccountMenuItem(XMPPAccount account) {
+        final String userName = account.getUsername() + "@" + account.getDomain();
+        JMenuItem accountItem = createMenuItemForUser(userName);
+        popupMenu.add(accountItem);
     }
 
     private JMenuItem createMenuItemForUser(final String userName) {
@@ -143,10 +146,10 @@ public class ConnectButton extends ToolbarButton {
      * Asks for Name, Password and server for a new XMPP account.
      */
     protected XMPPAccount createNewAccount() {
-        final String jabberID = SafeDialogUtils
-            .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
+        final String username = SafeDialogUtils
+            .showInputDialog("Your User-ID (e.g. 'dev1_alice_stf')",
                 "dev1_alice_stf", "Login");
-        if (jabberID.isEmpty()) {
+        if (username.isEmpty()) {
             return null;
         }
         final String password = SafeDialogUtils
@@ -154,19 +157,20 @@ public class ConnectButton extends ToolbarButton {
         if (password.isEmpty()) {
             return null;
         }
-        final String sarosServer = SafeDialogUtils
+        final String domain = SafeDialogUtils
             .showInputDialog("Saros server "
                     + "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
                 "localhost", "Server"
             );
-        if (sarosServer.isEmpty()) {
+        if (domain.isEmpty()) {
             return null;
         }
 
         try {
+            //FIXME: Add field to add server different from domain
             return accountStore
-                .createAccount(jabberID, password, Saros.NAMESPACE, sarosServer,
-                    80, false, false);
+                .createAccount(username, password, domain, "",
+                    0, false, false);
         } catch (IllegalArgumentException e) {
             SafeDialogUtils.showError(e.getMessage(), "Error");
         }
