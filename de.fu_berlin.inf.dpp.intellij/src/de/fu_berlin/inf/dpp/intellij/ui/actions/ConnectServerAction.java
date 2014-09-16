@@ -71,7 +71,7 @@ public class ConnectServerAction extends AbstractSarosAction {
      * Searches for user in account store
      */
     protected XMPPAccount locateAccount(String user) {
-        int index = user.indexOf("@");
+        int index = user.indexOf('@');
         String server = null;
         if (index > -1) {
             String[] pair = user.split("@");
@@ -108,6 +108,7 @@ public class ConnectServerAction extends AbstractSarosAction {
             .getServer() + "]");
 
         try {
+            //FIXME: This should use the ConnectionHandler instead
             connectionService
                 .connect(new ConnectionConfiguration(account.getServer()),
                     account.getUsername(), account.getPassword());

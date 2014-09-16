@@ -29,7 +29,6 @@ import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
@@ -127,12 +126,12 @@ public class SarosToolbar {
         connectionButton.setEnabled(true);
 
         addButton(
-            new SimpleButton(NotImplementedAction.actions.newContact.name(), "Add contact to session",
+            new SimpleButton(new NotImplementedAction("addContact"), "Add contact to session",
                 ADD_CONTACT_ICON_PATH, "addContact")
         );
 
         addButton(
-            new SimpleButton(NotImplementedAction.actions.preferences.name(),
+            new SimpleButton(new NotImplementedAction("preferences"),
                 "Open preferences", OPEN_REFS_ICON_PATH, "preferences")
         );
 
@@ -140,9 +139,8 @@ public class SarosToolbar {
 
         addButton(new ConsistencyButton());
 
-        AbstractSarosAction actionLeave = SarosActionFactory
-            .getAction(LeaveSessionAction.NAME);
-        addButton(new SimpleButton(actionLeave.getActionName(), "Leave session",
+        AbstractSarosAction actionLeave = new LeaveSessionAction();
+        addButton(new SimpleButton(actionLeave, "Leave session",
             LEAVE_SESSION_ICON_PATH, "leave"));
         actionLeave.addActionListener(treeActionListener);
         actionLeave.addActionListener(toolbarActionListener);

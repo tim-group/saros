@@ -32,7 +32,7 @@ import java.net.URL;
  */
 public class IconManager
 {
-    public static final Logger LOG = Logger.getLogger(IconManager.class);
+    private static final Logger LOG = Logger.getLogger(IconManager.class);
 
     public static final ImageIcon SESSIONS_ICON = getIcon("/icons/elcl16/project_share_tsk.png", "sessions");
     public static final ImageIcon CONTACT_ONLINE_ICON = getIcon("/icons/obj16/buddy_saros_obj.png", "contactOnLine");
@@ -43,6 +43,10 @@ public class IconManager
 
     public static final ImageIcon IN_SYNC_ICON = getIcon("/icons/etool16/in_sync.png", "Files are consistent");
     public static final ImageIcon OUT_OF_SYNC_ICON = getIcon("/icons/etool16/out_sync.png", "Files are NOT consistent");
+
+    private IconManager () {
+
+    }
 
     /**
      * Creates icon by image path. Path must start with a slash and be

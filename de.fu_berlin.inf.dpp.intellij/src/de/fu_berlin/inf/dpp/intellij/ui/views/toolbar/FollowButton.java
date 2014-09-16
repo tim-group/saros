@@ -29,7 +29,6 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.FollowModeAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -101,7 +100,7 @@ public class FollowButton extends ToolbarButton
     public FollowButton()
     {
         super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
-        followModeAction = (FollowModeAction) SarosActionFactory.getAction(FollowModeAction.NAME);
+        followModeAction = new FollowModeAction();
 
         sessionManager.addSarosSessionListener(sessionListener);
 

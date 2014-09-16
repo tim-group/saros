@@ -75,11 +75,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
     private ISarosSession session;
 
-    public FollowModeAction(EditorManager editorManager,
-        ISarosSessionManager sessionManager) {
-        this.editorManager = editorManager;
-        this.sessionManager = sessionManager;
-
+    public FollowModeAction() {
         sessionManager.addSarosSessionListener(sessionListener);
     }
 

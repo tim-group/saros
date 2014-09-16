@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import org.apache.log4j.Logger;
 
 import javax.swing.ImageIcon;
@@ -35,11 +34,9 @@ public abstract class AbstractTree extends DefaultMutableTreeNode {
     protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
 
     protected final DefaultMutableTreeNode parent;
-    protected IconManager iconManager;
 
     protected AbstractTree() {
         parent = this;
-        iconManager = new IconManager();
     }
 
     protected AbstractTree(DefaultMutableTreeNode parent) {

@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,13 +34,12 @@ public class SimpleButton extends ToolbarButton
 {
     private AbstractSarosAction action;
 
-    public SimpleButton(String actionCommand, String tooltipText, String iconPath, String altText) {
-        super(actionCommand, tooltipText, iconPath, altText);
-
-        action = SarosActionFactory.getAction(actionCommand);
+    public SimpleButton(AbstractSarosAction action, String tooltipText, String iconPath, String altText) {
+        super(action.getActionName(), tooltipText, iconPath, altText);
+        this.action = action;
         addActionListener(new ActionListener() {
             @Override public void actionPerformed(ActionEvent actionEvent) {
-                action.execute();
+                SimpleButton.this.action.execute();
             }
         });
     }

@@ -22,11 +22,26 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
+import com.intellij.openapi.application.ApplicationManager;
+import de.fu_berlin.inf.dpp.activities.SPath;
+import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
+import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
+import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
+import de.fu_berlin.inf.dpp.observables.ValueChangeListener;
+import de.fu_berlin.inf.dpp.session.ISarosSession;
+import org.picocontainer.annotations.Inject;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Button for triggering a {@link ConsistencyAction}. Displays a different symbol
@@ -37,13 +52,34 @@ public class ConsistencyButton extends ToolbarButton
 
     private static final String IN_SYNC_ICON_PATH = "icons/etool16/in_sync.png";
     private static final String OUT_SYNC_ICON_PATH = "icons/etool16/out_sync.png";
+
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (isEnabled() && isInconsistent) {
                 setEnabled(false);
+
+                final Set<SPath> paths = new HashSet<SPath>(
+                    watchdogClient.getPathsWithWrongChecksums());
+
+                String inconsistentFiles = createConfirmationMessage(paths);
+
+                if (!DialogUtils.showQuestion(null, inconsistentFiles,
+                    Messages.ConsistencyAction_confirm_dialog_title)) {
+                    setEnabled(true);
+                    return;
+                }
+
                 action.execute();
             }
+        }
+    };
+
+    private final ActionListener consistencyActionListener = new ActionListener() {
+
+        @Override public void actionPerformed(ActionEvent actionEvent) {
+            setInconsistent(
+                !watchdogClient.getPathsWithWrongChecksums().isEmpty());
         }
     };
 
@@ -51,12 +87,47 @@ public class ConsistencyButton extends ToolbarButton
 
     private ConsistencyAction action;
 
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+        @Override
+        public void sessionStarted(ISarosSession newSarosSession) {
+            setSarosSession(newSarosSession);
+        }
+
+        @Override
+        public void sessionEnded(ISarosSession oldSarosSession) {
+            setSarosSession(null);
+        }
+    };
+
+    private final ValueChangeListener<Boolean> isConsistencyListener = new ValueChangeListener<Boolean>() {
+
+        @Override
+        public void setValue(Boolean newValue) {
+            handleConsistencyChange(newValue);
+        }
+    };
+
+    @Inject
+    private ISarosSessionManager sessionManager;
+
+    @Inject
+    private ConsistencyWatchdogClient watchdogClient;
+
+    @Inject
+    private IsInconsistentObservable inconsistentObservable;
+
+    private ISarosSession sarosSession;
+
     public ConsistencyButton()
     {
         super(ConsistencyAction.NAME, "Recover inconsistencies",
             IN_SYNC_ICON_PATH, "Files are consistent");
-        action = (ConsistencyAction) SarosActionFactory.getAction(ConsistencyAction.NAME);
-        action.setConsistencyButton(this);
+        action = new ConsistencyAction();
+        action.addActionListener(consistencyActionListener);
+
+        setSarosSession(sessionManager.getSarosSession());
+        sessionManager.addSarosSessionListener(sessionListener);
+
         addActionListener(actionListener);
         setEnabled(false);
     }
@@ -75,5 +146,108 @@ public class ConsistencyButton extends ToolbarButton
             setEnabled(false);
             setIcon(IN_SYNC_ICON_PATH, "Files are consistent");
         }
+    }
+
+    private void setSarosSession(ISarosSession newSession) {
+        if (sarosSession != null) {
+            inconsistentObservable.remove(isConsistencyListener);
+        }
+
+        sarosSession = newSession;
+
+        if (sarosSession != null) {
+            inconsistentObservable.addAndNotify(isConsistencyListener);
+        }
+    }
+
+    /**
+     * This method activates the consistency recovery button, if an inconsistency
+     * was detected and displays a tooltip.
+     */
+    private void handleConsistencyChange(final Boolean isInconsistent) {
+
+        if (sarosSession.isHost() && isInconsistent) {
+            LOG.warn("No inconsistency should ever be reported"
+                + " to the host");
+            return;
+        }
+        LOG.debug("Inconsistency indicator goes: "
+            + (isInconsistent ? "on" : "off"));
+
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                setInconsistent(isInconsistent);
+            }
+        });
+
+        if (!isInconsistent) {
+            showNotification(
+                Messages.ConsistencyAction_tooltip_no_inconsistency);
+            return;
+        }
+
+        final Set<SPath> paths = new HashSet<SPath>(
+            watchdogClient.getPathsWithWrongChecksums());
+
+        final String files = createInconsistentPathsMessage(paths);
+
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // set tooltip
+                showNotification(MessageFormat.format(
+                    Messages.ConsistencyAction_tooltip_inconsistency_detected,
+                    files));
+
+                // TODO Balloon is too aggressive at the moment, when
+                // the host is slow in sending changes (for instance
+                // when refactoring)
+
+                // show balloon notification
+                NotificationPanel.showNotification(
+                    Messages.ConsistencyAction_title_inconsistency_detected,
+                    MessageFormat.format(
+                        Messages.ConsistencyAction_message_inconsistency_detected,
+                        files)
+                );
+            }
+        });
+    }
+
+    private String createConfirmationMessage(Set<SPath> paths) {
+        StringBuilder sbInconsistentFiles = new StringBuilder();
+        for (SPath path : paths) {
+            sbInconsistentFiles.append("project: ");
+            sbInconsistentFiles.append(path.getProject().getName());
+            sbInconsistentFiles.append(", file: ");
+            sbInconsistentFiles
+                .append(path.getProjectRelativePath().toOSString());
+            sbInconsistentFiles.append("\n");
+
+        }
+
+        sbInconsistentFiles.append("Please confirm project modifications.\n\n"
+            + "                + The recovery process will perform changes to files and folders of the current shared project(s).\n\n"
+            + "                + The affected files and folders may be either modified, created, or deleted.");
+        return sbInconsistentFiles.toString();
+    }
+
+    private String createInconsistentPathsMessage(Set<SPath> paths) {
+        StringBuilder sb = new StringBuilder();
+
+        for (SPath path : paths) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+
+            sb.append(path.getFullPath().toOSString());
+        }
+
+        return sb.toString();
+    }
+
+    private void showNotification(String text) {
+        NotificationPanel.showNotification(text, "Consistency warning");
     }
 }

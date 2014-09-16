@@ -28,7 +28,7 @@ import org.picocontainer.annotations.Inject;
 /**
  * Disconnects from XMPP/Jabber server
  */
-public class DisconnectServerAction extends AbstractSarosAction {
+public class    DisconnectServerAction extends AbstractSarosAction {
     public static final String NAME = "disconnect";
 
     @Inject

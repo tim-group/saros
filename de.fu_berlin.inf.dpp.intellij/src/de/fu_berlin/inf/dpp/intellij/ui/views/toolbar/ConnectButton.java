@@ -28,7 +28,6 @@ import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.SarosActionFactory;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.picocontainer.annotations.Inject;
 
@@ -57,8 +56,8 @@ public class ConnectButton extends ToolbarButton {
     public ConnectButton() {
         super(ConnectServerAction.NAME, "Connect", CONNECT_ICON_PATH,
             "Connect to XMPP/jabber server");
-        disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
-        connectAction = (ConnectServerAction)SarosActionFactory.getAction(ConnectServerAction.NAME);
+        disconnectAction = new DisconnectServerAction();
+        connectAction = new ConnectServerAction();
         connectAction.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent action) {
