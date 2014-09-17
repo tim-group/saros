@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
@@ -54,7 +55,6 @@ import java.util.Map;
 public class ProjectImp implements IProject {
     public static final String DEFAULT_CHARSET = "utf8";
 
-    public static final String INTELLI_J_IDEA = "IntelliJ IDEA";
     public static final String DEFAULT_MODULE_EXTENSION = ".iml";
     private static final Logger LOG = Logger.getLogger(ProjectImp.class);
 
@@ -229,7 +229,7 @@ public class ProjectImp implements IProject {
     public boolean isOpen() {
         String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
-        if (IDEAVersion.equals(INTELLI_J_IDEA)) {
+        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
             return ApplicationManager.getApplication().runReadAction(
                 new Computable<Boolean>() {
 
@@ -248,7 +248,7 @@ public class ProjectImp implements IProject {
     public void open() throws IOException {
         String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
-        if (IDEAVersion.equals(INTELLI_J_IDEA)) {
+        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
 
             //this is only called when the .iml file already exists on disk (after IPN)
             //TODO: Does not work with projects shared from Eclipse, would need

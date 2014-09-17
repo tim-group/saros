@@ -71,6 +71,7 @@ public class Saros {
      * //todo
      */
     public final static String RESOURCE = "Saros";
+    public static final String INTELLI_J_IDEA = "IntelliJ IDEA";
 
     private static Saros instance;
 
