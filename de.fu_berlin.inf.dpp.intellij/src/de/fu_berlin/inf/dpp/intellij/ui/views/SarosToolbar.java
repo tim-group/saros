@@ -39,7 +39,6 @@ import javax.swing.JButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,6 +56,11 @@ public class SarosToolbar {
     private final Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
     private final SarosMainPanelView sarosMainView;
+
+    public JToolBar getjToolBar() {
+        return jToolBar;
+    }
+
     private final JToolBar jToolBar;
 
     @Inject
@@ -100,8 +104,10 @@ public class SarosToolbar {
         jToolBar = new JToolBar("Saros IDEA toolbar");
         jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
         addToolbarButtons();
-        sarosMainView.getParent().add(jToolBar, BorderLayout.NORTH);
+        //sarosMainView.getParent().add(jToolBar, BorderLayout.NORTH);
     }
+
+
 
     private void addToolbarButtons() {
 

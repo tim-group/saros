@@ -37,14 +37,11 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import java.awt.Container;
 
 /**
  * Saros tree view for contacts and sessions.
  */
 public class SarosTreeView {
-
-    private Container parent;
 
     private RootTree rootTree;
     private SessionTree sessionTree;
@@ -56,10 +53,9 @@ public class SarosTreeView {
     @Inject
     private XMPPConnectionService connectionService;
 
-    public SarosTreeView(Container parent) {
-        this.parent = parent;
-        this.parent.add(create());
+    public SarosTreeView() {
         SarosPluginContext.initComponent(this);
+        create();
     }
 
     public JTree create() {

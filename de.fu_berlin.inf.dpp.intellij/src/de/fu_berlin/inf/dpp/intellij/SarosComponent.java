@@ -59,11 +59,11 @@ public class SarosComponent implements com.intellij.openapi.components.ProjectCo
 
     @Override
     public void projectOpened() {
-
+        //TODO: Update project
     }
 
     @Override
     public void projectClosed() {
-
+        //TODO: Update project
     }
 }

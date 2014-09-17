@@ -170,14 +170,6 @@ public class Saros {
         return project;
     }
 
-    public ToolWindow getToolWindow() {
-        return toolWindow;
-    }
-
-    public void setToolWindow(ToolWindow toolWindow) {
-        this.toolWindow = toolWindow;
-    }
-
     public IWorkspace getWorkspace() {
         return workspace;
     }
