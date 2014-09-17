@@ -42,9 +42,13 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
+import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
 import org.picocontainer.annotations.Inject;
 
 import java.io.File;
@@ -65,7 +69,8 @@ public class SarosFileShareGroup extends ActionGroup {
     @Inject
     private ISarosSessionManager sessionManager;
 
-
+    @Inject
+    private XMPPConnectionService connectionService;
 
     public void actionPerformed(AnActionEvent e) {
         //do nothing when menu pops-up
@@ -90,8 +95,13 @@ public class SarosFileShareGroup extends ActionGroup {
         }
 
         List<AnAction> list = new ArrayList<AnAction>();
-        for (JID user : saros.getMainPanel().getSarosTree().getContactTree().getOnLineUsers()) {
-            list.add(new ShareWithUserAction(user));
+        Roster roster = connectionService.getRoster();
+        for (RosterEntry rosterEntry : roster.getEntries()) {
+                Presence presence = roster.getPresence(rosterEntry.getUser());
+
+                if (presence.getType() == Presence.Type.available) {
+                    list.add(new ShareWithUserAction(new JID(rosterEntry.getUser())));
+                }
         }
 
         return list.toArray(new AnAction[]{});
@@ -123,7 +133,8 @@ public class SarosFileShareGroup extends ActionGroup {
                 if (module != null) {
                     moduleName = module.getName();
                 } else {
-                    //FIXME: Fix for non-module IDEAs
+                    //FIXME: Find way to select moduleName for non-module based IDEAs
+                    //(Webstorm)
                 }
                 ProjectImp project = new ProjectImp(e.getProject(), moduleName, file);
 

@@ -48,7 +48,6 @@ public class SarosMainPanelView extends JPanel {
 
     private final Container parent;
 
-    private SarosToolbar sarosToolbar;
     private SarosTreeView sarosTree;
 
     @Inject
@@ -77,7 +76,7 @@ public class SarosMainPanelView extends JPanel {
     private void createPanel() {
 
         sarosTree = new SarosTreeView();
-        sarosToolbar = new SarosToolbar(sarosTree);
+        SarosToolbar sarosToolbar = new SarosToolbar(sarosTree);
 
         JTree tree = sarosTree.create();
         JScrollPane treeView = new JBScrollPane(tree);
