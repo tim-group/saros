@@ -55,9 +55,10 @@ import javax.swing.JPopupMenu;
  * Session pop-up menu
  */
 class SessionPopMenu extends JPopupMenu {
+
     @Inject
     protected Saros saros;
-    private SessionTreeRootNode.SessionInfo sessionInfo;
+    private final SessionTreeRootNode.SessionInfo sessionInfo;
 
     public SessionPopMenu(SessionTreeRootNode.SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;

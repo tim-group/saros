@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import com.intellij.ui.components.JBScrollPane;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SarosTreeView;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 

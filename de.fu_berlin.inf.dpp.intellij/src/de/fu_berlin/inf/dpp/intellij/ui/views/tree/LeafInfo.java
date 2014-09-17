@@ -22,22 +22,41 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
+import javax.swing.ImageIcon;
+
 /**
- * Default class to keep item info
+ * Default class to keep item info in tree with key, title and icon.
  */
-public class LeafInfo extends CategoryInfo {
-    String key;
+public class LeafInfo  {
+    String title;
+    private ImageIcon icon;
 
-    LeafInfo(String key, String title) {
-        super(title);
-        this.key = key;
+    LeafInfo(String title) {
+        this(title, null);
     }
 
-    public String getKey() {
-        return key;
+    LeafInfo(String title, ImageIcon icon) {
+        this.title = title;
+        this.icon = icon;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public ImageIcon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(ImageIcon icon) {
+        this.icon = icon;
+    }
+
+    public String toString() {
+        return title;
     }
 }

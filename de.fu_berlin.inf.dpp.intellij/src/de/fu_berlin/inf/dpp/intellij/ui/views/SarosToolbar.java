@@ -31,6 +31,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.FollowButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.LeaveSessionButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.SimpleButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SarosTreeView;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 

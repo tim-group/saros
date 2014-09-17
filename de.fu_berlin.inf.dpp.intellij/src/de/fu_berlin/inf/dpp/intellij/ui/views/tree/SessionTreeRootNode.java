@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
@@ -31,14 +30,12 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.HashMap;
@@ -52,18 +49,15 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
-    private SarosTreeView treeView;
-    private Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
-    private Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
-    private DefaultTreeModel treeModel;
-
-    @Inject
-    private Saros saros;
+    private final SarosTreeView treeView;
+    private final Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
+    private final Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
+    private final DefaultTreeModel treeModel;
 
     @Inject
     private ISarosSessionManager sessionManager;
 
-    private ISharedProjectListener userListener = new AbstractSharedProjectListener() {
+    private final ISharedProjectListener userListener = new AbstractSharedProjectListener() {
         @Override
         public void userLeft(final User user) {
             UIUtil.invokeAndWaitIfNeeded(new Runnable() {
@@ -86,7 +80,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         }
     };
 
-    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(final ISarosSession newSarosSession) {
             UIUtil.invokeAndWaitIfNeeded(new Runnable() {
@@ -96,7 +90,6 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
                     createSessionNode(newSarosSession);
                 }
             });
-
         }
 
         @Override
@@ -109,7 +102,6 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
                     removeSessionNode(oldSarosSession);
                 }
             });
-
         }
 
         @Override
@@ -120,7 +112,6 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
                     addProjectNode(projectID);
                 }
             });
-
         }
     };
 
@@ -129,40 +120,31 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         SarosPluginContext.initComponent(this);
         this.treeView = treeView;
         treeModel = (DefaultTreeModel) this.treeView.getModel();
-        setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
+        setUserObject(TREE_TITLE_NO_SESSIONS);
 
         //register listener
         sessionManager.addSarosSessionListener(sessionListener);
     }
 
-    public CategoryInfo getUserObject() {
-        return (CategoryInfo) super.getUserObject();
-    }
-
-    public void setTitle(String title) {
-        getUserObject().title = title;
-    }
-
     private void createSessionNode(ISarosSession newSarosSession) {
 
-        DefaultMutableTreeNode nSession = new DefaultMutableTreeNode(
+        DefaultMutableTreeNode newSession = new DefaultMutableTreeNode(
             new SessionInfo(newSarosSession));
 
-        this.sessionNodeList.put(newSarosSession, nSession);
+        sessionNodeList.put(newSarosSession, newSession);
 
-        treeModel.insertNodeInto(nSession, this, this.getChildCount());
+        treeModel.insertNodeInto(newSession, this, getChildCount());
         treeModel.reload(this);
 
-        add(nSession);
+        add(newSession);
 
-        setTitle(TREE_TITLE);
+        setUserObject(TREE_TITLE);
 
         if (!newSarosSession.isHost()) {
             addUserNode(newSarosSession.getLocalUser());
         }
 
         treeView.expandRow(1);
-
     }
 
     private void removeSessionNode(ISarosSession oldSarosSession) {
@@ -175,7 +157,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         }
 
         if (sessionNodeList.size() == 0) {
-            setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
+            setUserObject(TREE_TITLE_NO_SESSIONS);
         }
 
         treeModel.reload(this);
@@ -214,7 +196,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         userNodeList.put(user, nUser);
         treeModel.insertNodeInto(nUser, this, this.getChildCount());
 
-        saros.getMainPanel().getSarosTree().getContactTreeRootNode()
+        treeView.getContactTreeRootNode()
             .hideContact(user.getJID().getBareJID().toString());
 
         treeModel.reload(this);
@@ -226,7 +208,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
             remove(nUser);
             userNodeList.remove(user);
 
-            saros.getMainPanel().getSarosTree().getContactTreeRootNode()
+            treeView.getContactTreeRootNode()
                 .showContact(user.getJID().getBareJID().toString());
 
             treeModel.reload();
@@ -242,19 +224,12 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         userNodeList.clear();
     }
 
-    /**
-     * Class to keep session information
-     */
     protected class SessionInfo extends LeafInfo {
-        private ISarosSession session;
+        private final ISarosSession session;
 
         private SessionInfo(ISarosSession session) {
-            super(session.getID(), session.getHost().getNickname());
+            super(session.getHost().getNickname(), IconManager.CONTACT_ONLINE_ICON);
             this.session = session;
-        }
-
-        public ImageIcon getIcon() {
-            return IconManager.CONTACT_ONLINE_ICON;
         }
 
         public ISarosSession getSession() {
@@ -268,43 +243,30 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
     }
 
     protected class UserInfo extends LeafInfo {
-        private User user;
-        private boolean isOnline = false;
+        private final User user;
 
         public UserInfo(User user) {
-            super(user.getNickname(), user.getNickname());
+            super(user.getNickname(), IconManager.CONTACT_ONLINE_ICON);
             this.user = user;
-            this.setIcon(IconManager.CONTACT_ONLINE_ICON);
         }
 
         public User getUser() {
             return user;
         }
-
-        public boolean isOnline() {
-            return isOnline;
-        }
-
-        public void setOnline(boolean isOnline) {
-            this.isOnline = isOnline;
-        }
     }
 
-    /**
-     *
-     */
     protected class ProjectInfo extends LeafInfo {
-        private IProject project;
+        private final IProject project;
         private List<IResource> resList;
 
         public ProjectInfo(IProject project) {
-            super(project.getFullPath().toString(), project.getName());
+            super(project.getName());
             this.project = project;
         }
 
         public ProjectInfo(IProject project, List<IResource> resources) {
             this(project);
-            this.resList = resources;
+            resList = resources;
 
         }
 

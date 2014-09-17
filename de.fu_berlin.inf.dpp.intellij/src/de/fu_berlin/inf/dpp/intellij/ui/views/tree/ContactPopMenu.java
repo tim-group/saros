@@ -23,15 +23,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
@@ -48,7 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Contact pop-up menu
+ * Contact pop-up menu for selecting a project to share.
  */
 class ContactPopMenu extends JPopupMenu {
 
@@ -64,107 +65,49 @@ class ContactPopMenu extends JPopupMenu {
     public ContactPopMenu(ContactTreeRootNode.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
         SarosPluginContext.initComponent(this);
-        this.moduleManager = ModuleManager.getInstance(saros.getProject());
 
         JMenu menuShareProject = new JMenu("Work together on...");
         menuShareProject.setIcon(IconManager.SESSIONS_ICON);
 
-        if (saros.getProject() != null) {
-            JMenuItem projectItem = new JMenuItem(saros.getProject().getName());
-            projectItem
-                .addActionListener(new ShareProjectAction(saros.getProject()));
+        if (saros.getProject() == null) {
+            return;
+        }
 
-            menuShareProject.add(projectItem);
+        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
-            //add sub-projects
-            Module[] modules = moduleManager.getModules();
-            //  if (modules.length > 0)
-            if (false) {
-                menuShareProject.addSeparator();
+        if (IDEAVersion.equals(ProjectImp.INTELLI_J_IDEA)) {
+            for (Module module : ModuleManager.getInstance(saros.getProject()).getModules()) {
 
-                for (Module module : modules) {
-
-                    if (saros.getProject().getName()
-                        .equalsIgnoreCase(module.getName())) {
-                        continue;
-                    }
-
-                    projectItem = new JMenuItem(module.getName());
-                    projectItem.addActionListener(
-                        new ShareProjectAction(saros.getProject(), module));
-
-                    menuShareProject.add(projectItem);
+                if (saros.getProject().getName()
+                    .equalsIgnoreCase(module.getName())) {
+                    continue;
                 }
 
-            } else {
-                //TODO: php mode: list of files and dirs
-                menuShareProject.addSeparator();
-                File dir = new File(saros.getProject().getBasePath());
-                for (File myDir : dir.listFiles()) {
-                    if (myDir.getName().startsWith(".") || myDir.isFile()) {
-                        continue;
-                    }
+                JMenuItem moduleItem = new JMenuItem(module.getName());
+                moduleItem.addActionListener(
+                    new ShareDirectoryAction(new File(module.getProject().getBasePath() + "/" + module.getName())));
 
-                    String name = myDir.isFile() ?
-                        myDir.getName() :
-                        "/" + myDir.getName();
-                    projectItem = new JMenuItem(name);
-                    projectItem
-                        .addActionListener(new ShareDirectoryAction(myDir));
-
-                    menuShareProject.add(projectItem);
-                }
+                menuShareProject.add(moduleItem);
             }
 
+        } else {
+            File dir = new File(saros.getProject().getBasePath());
+            for (File myDir : dir.listFiles()) {
+                if (myDir.getName().startsWith(".") || myDir.isFile()) {
+                    continue;
+                }
+
+                String name = myDir.isFile() ?
+                    myDir.getName() :
+                    "/" + myDir.getName();
+                JMenuItem directoryItem = new JMenuItem(name);
+                directoryItem.addActionListener(new ShareDirectoryAction(myDir));
+
+                menuShareProject.add(directoryItem);
+            }
         }
 
         add(menuShareProject);
-        addSeparator();
-
-        JMenuItem menuItemOpenChart = new JMenuItem("Open chart");
-        menuItemOpenChart.addActionListener(new OpenChartAction());
-        add(menuItemOpenChart);
-
-        JMenuItem menuItemDelete = new JMenuItem("Delete");
-        menuItemDelete.addActionListener(new DeleteContactAction());
-        add(menuItemDelete);
-
-    }
-
-    private class ShareProjectAction implements ActionListener {
-        private Project project;
-        private Module module;
-
-        private ShareProjectAction(Module module) {
-            this.module = module;
-        }
-
-        private ShareProjectAction(Project project) {
-            this.project = project;
-        }
-
-        private ShareProjectAction(Project project, Module module) {
-            this.project = project;
-            this.module = module;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String name = module == null ? project.getName() : module.getName();
-            //  String path = module == null ? project.getBasePath() : module.getModuleFile().getParent().getPath();    //todo
-            String path = module == null ?
-                project.getBasePath() + "/TestProject" :
-                module.getProject().getBasePath() + "/" + module.getName();
-
-            IResource proj = saros.getWorkspace().getProject(name);
-
-            List<IResource> resources = Arrays.asList(proj);
-            JID user = new JID(contactInfo.getRosterEntry().getUser());
-            List<JID> contacts = Arrays.asList(user);
-
-            CollaborationUtils.startSession(resources, contacts);
-
-        }
     }
 
     private class ShareDirectoryAction implements ActionListener {
@@ -204,19 +147,4 @@ class ContactPopMenu extends JPopupMenu {
             }
         }
     }
-
-    private class DeleteContactAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //todo: implement it
-        }
-    }
-
-    private class OpenChartAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //todo: implement it
-        }
-    }
-
 }

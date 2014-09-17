@@ -29,19 +29,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Tree click listener
+ * Tree click listener for showing {@link ContactPopMenu} or {@link SessionPopMenu}.
  */
 public class TreeClickListener extends MouseAdapter
 {
-    private TreePath sessionPath;
-    private TreePath contactPath;
     private JTree tree;
 
-    public TreeClickListener(ContactTreeRootNode contactsNode, SessionTreeRootNode sessionsNde)
+    public TreeClickListener(SarosTreeView treeView)
     {
-        this.tree = contactsNode.treeView;
-        this.contactPath = TreeHelper.getPath(contactsNode);
-        this.sessionPath = TreeHelper.getPath(sessionsNde);
+        tree = treeView;
     }
 
     public void mousePressed(MouseEvent e)
@@ -71,8 +67,6 @@ public class TreeClickListener extends MouseAdapter
         if (selPath.getLastPathComponent() instanceof DefaultMutableTreeNode)
         {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-            if (selPath.getParentPath().equals(contactPath))
-            {
                 if (node.getUserObject() instanceof ContactTreeRootNode.ContactInfo)
                 {
                     ContactTreeRootNode.ContactInfo contactInfo = (ContactTreeRootNode.ContactInfo) node.getUserObject();
@@ -82,9 +76,6 @@ public class TreeClickListener extends MouseAdapter
                         menu.show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
-            }
-            else if (selPath.getParentPath().equals(sessionPath))
-            {
 
                 if (node.getUserObject() instanceof SessionTreeRootNode.SessionInfo)
                 {
@@ -93,7 +84,6 @@ public class TreeClickListener extends MouseAdapter
                     menu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-            }
         }
     }
 }

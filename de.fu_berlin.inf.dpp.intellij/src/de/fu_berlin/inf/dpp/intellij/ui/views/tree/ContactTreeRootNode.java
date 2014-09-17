@@ -25,7 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
-import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.IRosterListener;
@@ -37,29 +36,34 @@ import org.picocontainer.annotations.Inject;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Contact tree
+ * Contact tree root node.
+ *
+ * It registers as {@link IRosterListener} and keeps the displayed
+ * contacts in sync with the server.
  */
 public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRosterListener {
     public static final String TREE_TITLE = "Contacts";
 
-    protected SarosTreeView treeView;
-    private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
+    private final SarosTreeView treeView;
+    private final Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
     private DefaultTreeModel treeModel;
 
-    @Inject XMPPConnectionService connectionService;
+    @Inject
+    private XMPPConnectionService connectionService;
 
     public ContactTreeRootNode(SarosTreeView treeView) {
         super(treeView);
         SarosPluginContext.initComponent(this);
 
         this.treeView = treeView;
-        this.treeModel = (DefaultTreeModel) this.treeView.getModel();
-        setUserObject(new CategoryInfo(TREE_TITLE));
+        treeModel = (DefaultTreeModel) this.treeView.getModel();
+        setUserObject(TREE_TITLE);
     }
 
     public void createContactNodes() {
@@ -82,7 +86,7 @@ public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRost
 
             add(node);
 
-            contactMap.put(contactInfo.getKey(), contactInfo);
+            contactMap.put(contactInfo.getTitle(), contactInfo);
         }
     }
 
@@ -93,7 +97,7 @@ public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRost
         }
 
         contactInfo.setHidden(false);
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(contactInfo);
+        MutableTreeNode node = new DefaultMutableTreeNode(contactInfo);
 
         add(node);
     }
@@ -164,7 +168,6 @@ public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRost
 
             UIUtil.invokeAndWaitIfNeeded(action);
         }
-
     }
 
     /**
@@ -178,9 +181,9 @@ public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRost
         private boolean isHidden = false;
 
         private ContactInfo(RosterEntry rosterEntry) {
-            super(rosterEntry.getUser(), rosterEntry.getUser());
+            super(rosterEntry.getUser());
             this.rosterEntry = rosterEntry;
-            this.status = rosterEntry.getStatus() == null ?
+            status = rosterEntry.getStatus() == null ?
                 null :
                 rosterEntry.getStatus().toString();
         }
@@ -215,7 +218,7 @@ public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRost
         }
 
         public String toString() {
-            return this.status == null ? title : title + " (" + status + ")";
+            return status == null ? title : title + " (" + status + ")";
         }
     }
 
