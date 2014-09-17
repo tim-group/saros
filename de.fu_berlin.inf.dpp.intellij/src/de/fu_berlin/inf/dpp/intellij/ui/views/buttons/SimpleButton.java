@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
+package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
 import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 

@@ -20,12 +20,13 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
+package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
 import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -56,22 +57,22 @@ public class ConsistencyButton extends ToolbarButton
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (isEnabled() && isInconsistent) {
-                setEnabled(false);
+        if (isEnabled() && isInconsistent) {
+            setEnabled(false);
 
-                final Set<SPath> paths = new HashSet<SPath>(
-                    watchdogClient.getPathsWithWrongChecksums());
+            final Set<SPath> paths = new HashSet<SPath>(
+                watchdogClient.getPathsWithWrongChecksums());
 
-                String inconsistentFiles = createConfirmationMessage(paths);
+            String inconsistentFiles = createConfirmationMessage(paths);
 
-                if (!DialogUtils.showQuestion(null, inconsistentFiles,
-                    Messages.ConsistencyAction_confirm_dialog_title)) {
-                    setEnabled(true);
-                    return;
-                }
-
-                action.execute();
+            if (!DialogUtils.showQuestion(null, inconsistentFiles,
+                Messages.ConsistencyAction_confirm_dialog_title)) {
+                setEnabled(true);
+                return;
             }
+
+            action.execute();
+        }
         }
     };
 
@@ -91,11 +92,13 @@ public class ConsistencyButton extends ToolbarButton
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
             setSarosSession(newSarosSession);
+            setEnabled(true);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
             setSarosSession(null);
+            setEnabled(false);
         }
     };
 
@@ -122,6 +125,7 @@ public class ConsistencyButton extends ToolbarButton
     {
         super(ConsistencyAction.NAME, "Recover inconsistencies",
             IN_SYNC_ICON_PATH, "Files are consistent");
+        SarosPluginContext.initComponent(this);
         action = new ConsistencyAction();
         action.addActionListener(consistencyActionListener);
 

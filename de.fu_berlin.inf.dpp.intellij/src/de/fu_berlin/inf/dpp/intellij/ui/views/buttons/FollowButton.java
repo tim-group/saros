@@ -20,8 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
+package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -69,12 +70,14 @@ public class FollowButton extends ToolbarButton
         public void sessionStarted(final ISarosSession session) {
             session.addListener(userListener);
             updateMenu();
+            setEnabled(true);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
             oldSarosSession.removeListener(userListener);
             updateMenu();
+            setEnabled(false);
         }
     };
 
@@ -100,6 +103,7 @@ public class FollowButton extends ToolbarButton
     public FollowButton()
     {
         super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
+        SarosPluginContext.initComponent(this);
         followModeAction = new FollowModeAction();
 
         sessionManager.addSarosSessionListener(sessionListener);

@@ -121,14 +121,11 @@ public class ConnectServerAction extends AbstractSarosAction {
                 JOptionPane.showMessageDialog(null,
                     "An unexpected error occured: " + e.getMessage(), "Connection Error",
                     JOptionPane.ERROR_MESSAGE);
-
             } else {
                 JOptionPane.showMessageDialog(null,
                     generateHumanReadableErrorMessage((XMPPException) e), "Connection Error",
                     JOptionPane.ERROR_MESSAGE);
-
             }
-
             LOG.error("Could not connect " + account, e);
         }
     }
@@ -158,7 +155,7 @@ public class ConnectServerAction extends AbstractSarosAction {
 
     private String generateHumanReadableErrorMessage(XMPPException e) {
         //FIXME: Copy from de.fu_berlin.inf.dpp.ui.eventhandler.ConnectingFailureHandler
-        //must be consolidated.
+        //must be consolidated together with ConnectionHandler.
 
         // as of Smack 3.3.1 this is always null for connection attemps
         // Throwable cause = e.getWrappedThrowable();

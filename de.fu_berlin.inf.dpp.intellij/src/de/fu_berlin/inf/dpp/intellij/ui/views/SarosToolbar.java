@@ -24,15 +24,14 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.SimpleButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.ConnectButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.ConsistencyButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.FollowButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.LeaveSessionButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.buttons.SimpleButton;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
 
@@ -53,7 +52,6 @@ import java.util.Map;
 public class SarosToolbar {
     public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
     public static final String OPEN_REFS_ICON_PATH = "icons/etool16/test_con.gif";
-    public static final String LEAVE_SESSION_ICON_PATH = "icons/elcl16/project_share_leave_tsk.png";
 
     //Convenience field for accessing buttons by action name.
     private final Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
@@ -63,14 +61,6 @@ public class SarosToolbar {
 
     @Inject
     private XMPPConnectionService connectionService;
-
-    private final ActionListener toolbarActionListener = new ActionListener() {
-
-        @Override
-        public void actionPerformed(ActionEvent action) {
-            updateButtonState();
-        }
-    };
 
     private final ActionListener treeActionListener = new ActionListener() {
 
@@ -117,21 +107,17 @@ public class SarosToolbar {
 
         ConnectButton connectionButton = new ConnectButton();
         connectionButton.addActionListenerToActions(treeActionListener);
-        connectionButton.addActionListenerToActions(toolbarActionListener);
         addButton(connectionButton);
         toolbarButtons
             .put(DisconnectServerAction.NAME,
                 connectionButton);
-        //Must be enabled after being disabled in addButton()
-        connectionButton.setEnabled(true);
 
         addButton(
-            new SimpleButton(new NotImplementedAction("addContact"), "Add contact to session",
+            new SimpleButton(new NotImplementedAction("addContact"), "Add contact to list",
                 ADD_CONTACT_ICON_PATH, "addContact")
         );
 
-        addButton(
-            new SimpleButton(new NotImplementedAction("preferences"),
+        addButton(new SimpleButton(new NotImplementedAction("preferences"),
                 "Open preferences", OPEN_REFS_ICON_PATH, "preferences")
         );
 
@@ -139,37 +125,14 @@ public class SarosToolbar {
 
         addButton(new ConsistencyButton());
 
-        AbstractSarosAction actionLeave = new LeaveSessionAction();
-        addButton(new SimpleButton(actionLeave, "Leave session",
-            LEAVE_SESSION_ICON_PATH, "leave"));
-        actionLeave.addActionListener(treeActionListener);
-        actionLeave.addActionListener(toolbarActionListener);
-
+        addButton(new LeaveSessionButton());
     }
 
     /**
-     * Adds a button and disables it.
+     * Adds a button to the jToolBar and to the toolbarButtons.
      */
     private void addButton(JButton button) {
         toolbarButtons.put(button.getActionCommand(), button);
         jToolBar.add(button);
-        button.setEnabled(false);
-    }
-
-    private void updateButtonState() {
-        Runnable action = new Runnable() {
-            @Override
-            //FIXME: Right now all buttons are enabled when connected, but
-            //some should be enabled only when in session.
-            public void run() {
-                for (JButton button : toolbarButtons.values()) {
-                        button.setEnabled(connectionService.isConnected());
-                }
-                JButton btnConnect = toolbarButtons
-                    .get(ConnectServerAction.NAME);
-                btnConnect.setEnabled(true);
-            }
-        };
-        UIUtil.invokeAndWaitIfNeeded(action);
     }
 }

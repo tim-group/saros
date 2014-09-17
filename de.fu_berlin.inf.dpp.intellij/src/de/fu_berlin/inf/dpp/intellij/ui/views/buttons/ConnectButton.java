@@ -20,13 +20,15 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
+package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
+import de.fu_berlin.inf.dpp.intellij.ui.actions.NotImplementedAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.picocontainer.annotations.Inject;
 
@@ -48,6 +50,7 @@ public class ConnectButton extends ToolbarButton {
 
     private final AbstractSarosAction disconnectAction;
     private final ConnectServerAction connectAction;
+    private final NotImplementedAction configureAccounts;
 
     @Inject
     private XMPPAccountStore accountStore;
@@ -55,6 +58,7 @@ public class ConnectButton extends ToolbarButton {
     public ConnectButton() {
         super(ConnectServerAction.NAME, "Connect", CONNECT_ICON_PATH,
             "Connect to XMPP/jabber server");
+        SarosPluginContext.initComponent(this);
         disconnectAction = new DisconnectServerAction();
         connectAction = new ConnectServerAction();
         connectAction.addActionListener(new ActionListener() {
@@ -63,6 +67,7 @@ public class ConnectButton extends ToolbarButton {
                 createMenuItems();
             }
         });
+        configureAccounts = new NotImplementedAction("configure accounts");
 
         createDisconnectMenuItem();
         createAddAccountMenuÍtem();
@@ -122,8 +127,8 @@ public class ConnectButton extends ToolbarButton {
     private void createConfigureAccountMenuItem() {
         configure = new JMenuItem("Configure accounts...");
         configure.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                configureAccounts();
+            @Override public void actionPerformed(ActionEvent actionEvent) {
+                configureAccounts.execute();
             }
         });
     }
@@ -177,21 +182,8 @@ public class ConnectButton extends ToolbarButton {
         return null;
     }
 
-    protected void configureAccounts() {
-
-        throw new IllegalStateException("Not implemented!");
-    }
-
     public void addActionListenerToActions(ActionListener listener) {
         disconnectAction.addActionListener(listener);
         connectAction.addActionListener(listener);
-    }
-
-    public AbstractSarosAction getDisconnectAction() {
-        return disconnectAction;
-    }
-
-    public ConnectServerAction getConnectAction() {
-        return connectAction;
     }
 }
