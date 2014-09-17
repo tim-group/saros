@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConnectServerAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.DisconnectServerAction;
@@ -37,8 +36,6 @@ import org.picocontainer.annotations.Inject;
 
 import javax.swing.JButton;
 import javax.swing.JToolBar;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,20 +45,14 @@ import java.util.Map;
 /**
  * Saros toolbar.
  */
-public class SarosToolbar {
+public class SarosToolbar extends JToolBar {
     public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
     public static final String OPEN_REFS_ICON_PATH = "icons/etool16/test_con.gif";
 
     //Convenience field for accessing buttons by action name.
     private final Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
-    private final SarosMainPanelView sarosMainView;
-
-    public JToolBar getjToolBar() {
-        return jToolBar;
-    }
-
-    private final JToolBar jToolBar;
+    private final SarosTreeView sarosTree;
 
     @Inject
     private XMPPConnectionService connectionService;
@@ -73,38 +64,21 @@ public class SarosToolbar {
             if (action.getSource() instanceof ConnectServerAction
                 || action.getSource() instanceof DisconnectServerAction) {
 
-                final SarosTreeView sarosTree = sarosMainView.getSarosTree();
                 if (connectionService.isConnected()) {
                     sarosTree.renderConnected();
                 } else {
                     sarosTree.renderDisconnected();
                 }
-
-                Runnable updateTreeModel = new Runnable() {
-                    @Override
-                    public void run() {
-                        JTree jTree = sarosTree.getRootTree().getJtree();
-                        DefaultTreeModel model = (DefaultTreeModel) (jTree
-                            .getModel());
-                        model.reload();
-
-                        jTree.expandRow(2);
-                    }
-                };
-
-                UIUtil.invokeAndWaitIfNeeded(updateTreeModel);
             }
         }
     };
 
-    public SarosToolbar(SarosMainPanelView mainPanel) {
+    public SarosToolbar(SarosTreeView sarosTree) {
+        super("Saros IDEA toolbar");
+        this.sarosTree = sarosTree;
         SarosPluginContext.initComponent(this);
-        sarosMainView = mainPanel;
-
-        jToolBar = new JToolBar("Saros IDEA toolbar");
-        jToolBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        setLayout(new FlowLayout(FlowLayout.RIGHT));
         addToolbarButtons();
-        //sarosMainView.getParent().add(jToolBar, BorderLayout.NORTH);
     }
 
 
@@ -139,6 +113,6 @@ public class SarosToolbar {
      */
     private void addButton(JButton button) {
         toolbarButtons.put(button.getActionCommand(), button);
-        jToolBar.add(button);
+        add(button);
     }
 }

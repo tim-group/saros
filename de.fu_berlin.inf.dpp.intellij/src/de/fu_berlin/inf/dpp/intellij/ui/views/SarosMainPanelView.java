@@ -22,15 +22,12 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
-import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.components.JBScrollPane;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -41,20 +38,15 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.io.File;
 
 /**
  * Saros main panel view
  */
-public class SarosMainPanelView extends JFrame {
+public class SarosMainPanelView extends JPanel {
     protected static final Logger LOG = Logger
         .getLogger(SarosMainPanelView.class);
 
     private final Container parent;
-
-    public SarosToolbar getSarosToolbar() {
-        return sarosToolbar;
-    }
 
     private SarosToolbar sarosToolbar;
     private SarosTreeView sarosTree;
@@ -72,30 +64,20 @@ public class SarosMainPanelView extends JFrame {
         }
     }
 
-    public SarosMainPanelView(ToolWindow toolWindow) throws HeadlessException {
-        SarosPluginContext.initComponent(this);
+    public SarosMainPanelView() throws HeadlessException {
+        super(new BorderLayout());
 
+        SarosPluginContext.initComponent(this);
         saros.setMainPanel(this);
 
-        if (toolWindow != null) {
-            parent = toolWindow.getComponent().getParent();
-        } else {
-            parent = this;
-            setTitle("Saros panel");
-        }
-        create();
+        parent = null;
+        createPanel();
     }
 
-    public JComponent create() {
-
-        LOG.info("Plugin started in [" + new File("").getAbsolutePath()
-            + "] directory");
+    private void createPanel() {
 
         sarosTree = new SarosTreeView();
-        this.add(sarosTree.getRootTree().getJtree());
-        sarosToolbar = new SarosToolbar(this);
-
-        Container sessionPane = new JPanel(new BorderLayout());
+        sarosToolbar = new SarosToolbar(sarosTree);
 
         JTree tree = sarosTree.create();
         JScrollPane treeView = new JBScrollPane(tree);
@@ -103,32 +85,26 @@ public class SarosMainPanelView extends JFrame {
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         treeView.setHorizontalScrollBarPolicy(
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        sessionPane.add(treeView);
 
+        //chartPane is empty at the moment
         Container chartPane = new JPanel(new BorderLayout());
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-            sessionPane, chartPane);
+            treeView, chartPane);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(350);
 
         //Provide minimum sizes for the two components in the split pane
         Dimension minimumSize = new Dimension(300, 50);
-        sessionPane.setMinimumSize(minimumSize);
+        tree.setMinimumSize(minimumSize);
         splitPane.setMinimumSize(minimumSize);
 
-        JPanel sarosPanel = new JPanel(new BorderLayout());
-        sarosPanel.add(splitPane, BorderLayout.CENTER);
-        sarosPanel.add(sarosToolbar.getjToolBar(), BorderLayout.NORTH);
-
-        return sarosPanel;
+        add(splitPane, BorderLayout.CENTER);
+        add(sarosToolbar, BorderLayout.NORTH);
     }
 
     public SarosTreeView getSarosTree() {
         return sarosTree;
     }
 
-    @Override public Container getParent() {
-        return parent;
-    }
 }

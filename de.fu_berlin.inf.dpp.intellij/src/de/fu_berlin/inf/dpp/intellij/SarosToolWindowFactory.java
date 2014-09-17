@@ -45,9 +45,9 @@ public class SarosToolWindowFactory implements ToolWindowFactory {
      */
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-        sarosMainPanelView = new SarosMainPanelView(toolWindow);
+        sarosMainPanelView = new SarosMainPanelView();
         Content content = toolWindow.getContentManager().getFactory().createContent(
-            sarosMainPanelView.create(), "Saros", false);
+            sarosMainPanelView, "Saros", false);
         toolWindow.getContentManager().addContent(content);
     }
 }

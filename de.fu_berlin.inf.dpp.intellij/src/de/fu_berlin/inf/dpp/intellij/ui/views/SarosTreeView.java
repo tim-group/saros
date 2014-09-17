@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
@@ -37,6 +38,7 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Saros tree view for contacts and sessions.
@@ -120,6 +122,8 @@ public class SarosTreeView {
 
         //add listener for on-line contacts
         connectionService.getRoster().addRosterListener(contactTree);
+
+        updateTree();
     }
 
     /**
@@ -130,6 +134,24 @@ public class SarosTreeView {
 
         contactTree.removeContacts();
         sessionTree.removeAllChildren();
+
+        updateTree();
+    }
+
+    private void updateTree() {
+        Runnable updateTreeModel = new Runnable() {
+            @Override
+            public void run() {
+                JTree jTree = getRootTree().getJtree();
+                DefaultTreeModel model = (DefaultTreeModel) (jTree
+                    .getModel());
+                model.reload();
+
+                jTree.expandRow(2);
+            }
+        };
+
+        UIUtil.invokeAndWaitIfNeeded(updateTreeModel);
     }
 
 }
