@@ -22,13 +22,16 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views;
 
+import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTree;
-import de.fu_berlin.inf.dpp.intellij.ui.views.tree.RootTree;
-import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTree;
+import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.ContactTreeRootNode;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.LeafInfo;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SarosTreeRootNode;
+import de.fu_berlin.inf.dpp.intellij.ui.views.tree.SessionTreeRootNode;
 import de.fu_berlin.inf.dpp.intellij.ui.views.tree.TreeClickListener;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import org.picocontainer.annotations.Inject;
@@ -38,16 +41,20 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.Component;
 
 /**
  * Saros tree view for contacts and sessions.
  */
-public class SarosTreeView {
+public class SarosTreeView extends Tree {
 
-    private RootTree rootTree;
-    private SessionTree sessionTree;
-    private ContactTree contactTree;
+    private SessionTreeRootNode sessionTreeRootNode;
+    private ContactTreeRootNode contactTreeRootNode;
 
     @Inject
     private XMPPAccountStore accountStore;
@@ -56,18 +63,20 @@ public class SarosTreeView {
     private XMPPConnectionService connectionService;
 
     public SarosTreeView() {
+        super(new SarosTreeRootNode());
         SarosPluginContext.initComponent(this);
         create();
     }
 
-    public JTree create() {
-        rootTree = new RootTree();
+    public void create() {
 
-        sessionTree = new SessionTree(rootTree);
-        contactTree = new ContactTree(rootTree);
+        sessionTreeRootNode = new SessionTreeRootNode(this);
+        ((SarosTreeRootNode)getModel().getRoot()).add(sessionTreeRootNode);
+        contactTreeRootNode = new ContactTreeRootNode(this);
+        ((SarosTreeRootNode)getModel().getRoot()).add(contactTreeRootNode);
 
-        this.rootTree.getJtree()
-            .addMouseListener(new TreeClickListener(contactTree, sessionTree));
+        addMouseListener(new TreeClickListener(contactTreeRootNode,
+            sessionTreeRootNode));
 
         //listeners
         TreeExpansionListener expansionListener = new TreeExpansionListener() {
@@ -81,7 +90,7 @@ public class SarosTreeView {
 
             }
         };
-        rootTree.getJtree().addTreeExpansionListener(expansionListener);
+        addTreeExpansionListener(expansionListener);
 
         TreeSelectionListener selectionListener = new TreeSelectionListener() {
             @Override
@@ -89,21 +98,73 @@ public class SarosTreeView {
 
             }
         };
-        rootTree.getJtree().addTreeSelectionListener(selectionListener);
+        addTreeSelectionListener(selectionListener);
 
-        return rootTree.getJtree();
+        getSelectionModel()
+            .setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        setTreeIcons();
     }
 
-    public RootTree getRootTree() {
-        return rootTree;
+    /**
+     * Starts listeners
+     *
+     */
+    protected void setTreeIcons() {
+
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer() {
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                Object value, boolean selected, boolean expanded,
+                boolean isLeaf, int row, boolean focused) {
+                Component c = super
+                    .getTreeCellRendererComponent(tree, value, selected,
+                        expanded, isLeaf, row, focused);
+
+                TreePath path = tree.getPathForRow(row);
+                if (path != null) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+                        .getLastPathComponent();
+
+                    if (node != null) {
+                        if (node instanceof SarosTreeRootNode) {
+                            setIcon(null);
+                        } else if (node instanceof SessionTreeRootNode) {
+                            setIcon(IconManager.SESSIONS_ICON);
+                        } else if (node instanceof ContactTreeRootNode) {
+                            setIcon(IconManager.CONTACTS_ICON);
+                        } else {
+                            if (node
+                                .getUserObject() instanceof LeafInfo) {
+                                LeafInfo info = (LeafInfo) node
+                                    .getUserObject();
+                                if (info.getIcon() != null) {
+                                    setIcon(info.getIcon());
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                return c;
+            }
+
+        };
+
+        setCellRenderer(renderer);
     }
 
-    public SessionTree getSessionTree() {
-        return sessionTree;
+    private SarosTreeRootNode getSarosTreeRootNode() {
+        return (SarosTreeRootNode)getModel().getRoot();
     }
 
-    public ContactTree getContactTree() {
-        return contactTree;
+    public SessionTreeRootNode getSessionTreeRootNode() {
+        return sessionTreeRootNode;
+    }
+
+    public ContactTreeRootNode getContactTreeRootNode() {
+        return contactTreeRootNode;
     }
 
     /**
@@ -115,13 +176,13 @@ public class SarosTreeView {
         String rootText =
             activeAccount.getUsername() + "@" + activeAccount.getServer()
                 + " (Connected)";
-        rootTree.setTitle(rootText);
+        getSarosTreeRootNode().setTitle(rootText);
 
         //add contacts
-        contactTree.createContactNodes();
+        contactTreeRootNode.createContactNodes();
 
         //add listener for on-line contacts
-        connectionService.getRoster().addRosterListener(contactTree);
+        connectionService.getRoster().addRosterListener(contactTreeRootNode);
 
         updateTree();
     }
@@ -130,10 +191,10 @@ public class SarosTreeView {
      * clears the contact list and title.
      */
     protected void renderDisconnected() {
-        rootTree.setTitleDefault();
+        getSarosTreeRootNode().setTitleDefault();
 
-        contactTree.removeContacts();
-        sessionTree.removeAllChildren();
+        contactTreeRootNode.removeContacts();
+        sessionTreeRootNode.removeAllChildren();
 
         updateTree();
     }
@@ -142,12 +203,10 @@ public class SarosTreeView {
         Runnable updateTreeModel = new Runnable() {
             @Override
             public void run() {
-                JTree jTree = getRootTree().getJtree();
-                DefaultTreeModel model = (DefaultTreeModel) (jTree
-                    .getModel());
+                DefaultTreeModel model = (DefaultTreeModel) (getModel());
                 model.reload();
 
-                jTree.expandRow(2);
+                expandRow(2);
             }
         };
 

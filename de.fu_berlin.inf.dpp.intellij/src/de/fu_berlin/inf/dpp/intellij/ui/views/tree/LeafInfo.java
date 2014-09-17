@@ -22,25 +22,22 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import org.apache.log4j.Logger;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-
 /**
- * Parent class for saros tree
+ * Default class to keep item info
  */
-public abstract class AbstractTree extends DefaultMutableTreeNode {
-    protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
+public class LeafInfo extends CategoryInfo {
+    String key;
 
-    protected final DefaultMutableTreeNode parent;
-
-    protected AbstractTree() {
-        parent = this;
+    LeafInfo(String key, String title) {
+        super(title);
+        this.key = key;
     }
 
-    protected AbstractTree(DefaultMutableTreeNode parent) {
-        this();
-        parent.add(this);
+    public String getKey() {
+        return key;
     }
 
+    public void setKey(String key) {
+        this.key = key;
+    }
 }

@@ -31,7 +31,6 @@ import org.picocontainer.annotations.Inject;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import java.awt.BorderLayout;
@@ -45,8 +44,6 @@ import java.awt.HeadlessException;
 public class SarosMainPanelView extends JPanel {
     protected static final Logger LOG = Logger
         .getLogger(SarosMainPanelView.class);
-
-    private final Container parent;
 
     private SarosTreeView sarosTree;
 
@@ -69,7 +66,6 @@ public class SarosMainPanelView extends JPanel {
         SarosPluginContext.initComponent(this);
         saros.setMainPanel(this);
 
-        parent = null;
         createPanel();
     }
 
@@ -78,24 +74,23 @@ public class SarosMainPanelView extends JPanel {
         sarosTree = new SarosTreeView();
         SarosToolbar sarosToolbar = new SarosToolbar(sarosTree);
 
-        JTree tree = sarosTree.create();
-        JScrollPane treeView = new JBScrollPane(tree);
-        treeView.setVerticalScrollBarPolicy(
+        JScrollPane treeScrollPane = new JBScrollPane(sarosTree);
+        treeScrollPane.setVerticalScrollBarPolicy(
             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        treeView.setHorizontalScrollBarPolicy(
+        treeScrollPane.setHorizontalScrollBarPolicy(
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         //chartPane is empty at the moment
         Container chartPane = new JPanel(new BorderLayout());
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-            treeView, chartPane);
+            treeScrollPane, chartPane);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(350);
 
         //Provide minimum sizes for the two components in the split pane
         Dimension minimumSize = new Dimension(300, 50);
-        tree.setMinimumSize(minimumSize);
+        treeScrollPane.setMinimumSize(minimumSize);
         splitPane.setMinimumSize(minimumSize);
 
         add(splitPane, BorderLayout.CENTER);

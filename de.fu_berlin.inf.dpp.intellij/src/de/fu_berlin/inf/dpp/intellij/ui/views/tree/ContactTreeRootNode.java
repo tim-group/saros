@@ -25,6 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.net.xmpp.XMPPConnectionService;
 import de.fu_berlin.inf.dpp.net.xmpp.roster.IRosterListener;
@@ -36,31 +37,29 @@ import org.picocontainer.annotations.Inject;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Contact tree
  */
-public class ContactTree extends AbstractTree implements IRosterListener {
+public class ContactTreeRootNode extends DefaultMutableTreeNode implements IRosterListener {
     public static final String TREE_TITLE = "Contacts";
 
-    protected RootTree rootTree;
+    protected SarosTreeView treeView;
     private Map<String, ContactInfo> contactMap = new HashMap<String, ContactInfo>();
     private DefaultTreeModel treeModel;
 
     @Inject XMPPConnectionService connectionService;
 
-    public ContactTree(RootTree parent) {
-        super(parent);
+    public ContactTreeRootNode(SarosTreeView treeView) {
+        super(treeView);
         SarosPluginContext.initComponent(this);
-        ;
-        this.rootTree = parent;
-        this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
-        setUserObject(new AbstractTree.CategoryInfo(TREE_TITLE));
+
+        this.treeView = treeView;
+        this.treeModel = (DefaultTreeModel) this.treeView.getModel();
+        setUserObject(new CategoryInfo(TREE_TITLE));
     }
 
     public void createContactNodes() {
@@ -143,17 +142,6 @@ public class ContactTree extends AbstractTree implements IRosterListener {
 
     }
 
-    public List<JID> getOnLineUsers() {
-        List<JID> userList = new ArrayList<JID>();
-        for (ContactInfo info : contactMap.values()) {
-            if (info.isOnline()) {
-                userList.add(new JID(info.getRosterEntry().getUser()));
-            }
-        }
-
-        return userList;
-    }
-
     @Override
     public void presenceChanged(Presence presence) {
         String sUser = new JID(presence.getFrom()).getBareJID().toString();
@@ -169,8 +157,8 @@ public class ContactTree extends AbstractTree implements IRosterListener {
             Runnable action = new Runnable() {
                 @Override
                 public void run() {
-                    rootTree.getJtree().collapseRow(2);
-                    rootTree.getJtree().expandRow(2);
+                    treeView.collapseRow(2);
+                    treeView.expandRow(2);
                 }
             };
 
@@ -195,10 +183,6 @@ public class ContactTree extends AbstractTree implements IRosterListener {
             this.status = rosterEntry.getStatus() == null ?
                 null :
                 rosterEntry.getStatus().toString();
-        }
-
-        public ContactInfo(String key, String title) {
-            super(key, title);
         }
 
         public RosterPacket.ItemStatus getStatus() {

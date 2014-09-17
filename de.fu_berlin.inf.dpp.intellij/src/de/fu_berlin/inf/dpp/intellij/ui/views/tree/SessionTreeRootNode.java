@@ -31,6 +31,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
+import de.fu_berlin.inf.dpp.intellij.ui.views.SarosTreeView;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
@@ -45,13 +46,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Session tree part
+ * Session tree root node.
  */
-public class SessionTree extends AbstractTree {
+public class SessionTreeRootNode extends DefaultMutableTreeNode {
     public static final String TREE_TITLE = "Sessions";
     public static final String TREE_TITLE_NO_SESSIONS = "No Sessions Running";
 
-    private RootTree rootTree;
+    private SarosTreeView treeView;
     private Map<ISarosSession, DefaultMutableTreeNode> sessionNodeList = new HashMap<ISarosSession, DefaultMutableTreeNode>();
     private Map<User, DefaultMutableTreeNode> userNodeList = new HashMap<User, DefaultMutableTreeNode>();
     private DefaultTreeModel treeModel;
@@ -123,24 +124,15 @@ public class SessionTree extends AbstractTree {
         }
     };
 
-    /**
-     * @param parent
-     */
-    public SessionTree(RootTree parent) {
-        super(parent);
+    public SessionTreeRootNode(SarosTreeView treeView) {
+        super(treeView);
         SarosPluginContext.initComponent(this);
-        this.rootTree = parent;
-        this.treeModel = (DefaultTreeModel) rootTree.getJtree().getModel();
+        this.treeView = treeView;
+        treeModel = (DefaultTreeModel) this.treeView.getModel();
         setUserObject(new CategoryInfo(TREE_TITLE_NO_SESSIONS));
-
-        create();
 
         //register listener
         sessionManager.addSarosSessionListener(sessionListener);
-    }
-
-    protected void create() {
-
     }
 
     public CategoryInfo getUserObject() {
@@ -169,7 +161,7 @@ public class SessionTree extends AbstractTree {
             addUserNode(newSarosSession.getLocalUser());
         }
 
-        rootTree.getJtree().expandRow(1);
+        treeView.expandRow(1);
 
     }
 
@@ -187,7 +179,7 @@ public class SessionTree extends AbstractTree {
         }
 
         treeModel.reload(this);
-        rootTree.getJtree().expandRow(2);
+        treeView.expandRow(2);
     }
 
     private void addProjectNode(String projectID) {
@@ -222,7 +214,7 @@ public class SessionTree extends AbstractTree {
         userNodeList.put(user, nUser);
         treeModel.insertNodeInto(nUser, this, this.getChildCount());
 
-        saros.getMainPanel().getSarosTree().getContactTree()
+        saros.getMainPanel().getSarosTree().getContactTreeRootNode()
             .hideContact(user.getJID().getBareJID().toString());
 
         treeModel.reload(this);
@@ -234,7 +226,7 @@ public class SessionTree extends AbstractTree {
             remove(nUser);
             userNodeList.remove(user);
 
-            saros.getMainPanel().getSarosTree().getContactTree()
+            saros.getMainPanel().getSarosTree().getContactTreeRootNode()
                 .showContact(user.getJID().getBareJID().toString());
 
             treeModel.reload();

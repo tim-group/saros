@@ -57,9 +57,9 @@ import javax.swing.JPopupMenu;
 class SessionPopMenu extends JPopupMenu {
     @Inject
     protected Saros saros;
-    private SessionTree.SessionInfo sessionInfo;
+    private SessionTreeRootNode.SessionInfo sessionInfo;
 
-    public SessionPopMenu(SessionTree.SessionInfo sessionInfo) {
+    public SessionPopMenu(SessionTreeRootNode.SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
         SarosPluginContext.initComponent(this);
         JMenuItem menuItemFollowParticipant = new JMenuItem("Follow participant");

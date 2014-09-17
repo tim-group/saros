@@ -22,25 +22,26 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import org.apache.log4j.Logger;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * Parent class for saros tree
+ * Root node of the tree.
  */
-public abstract class AbstractTree extends DefaultMutableTreeNode {
-    protected static final Logger LOG = Logger.getLogger(AbstractTree.class);
+public class SarosTreeRootNode extends DefaultMutableTreeNode {
+    public static final String SPACER = " ";
+    public static final String TITLE_JABBER_SERVER = "XMPP/jabber server (Not connected)";
 
-    protected final DefaultMutableTreeNode parent;
-
-    protected AbstractTree() {
-        parent = this;
+    public SarosTreeRootNode() {
+        super(SPACER + TITLE_JABBER_SERVER
+            + "                                                                    ");
     }
 
-    protected AbstractTree(DefaultMutableTreeNode parent) {
-        this();
-        parent.add(this);
+    public void setTitle(String title) {
+       setUserObject(SPACER + title);
+    }
+
+    public void setTitleDefault() {
+        setTitle(TITLE_JABBER_SERVER);
     }
 
 }

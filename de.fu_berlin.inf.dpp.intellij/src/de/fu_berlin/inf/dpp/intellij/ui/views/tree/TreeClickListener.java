@@ -22,7 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
@@ -37,9 +37,9 @@ public class TreeClickListener extends MouseAdapter
     private TreePath contactPath;
     private JTree tree;
 
-    public TreeClickListener(ContactTree contactsNode, SessionTree sessionsNde)
+    public TreeClickListener(ContactTreeRootNode contactsNode, SessionTreeRootNode sessionsNde)
     {
-        this.tree = contactsNode.rootTree.getJtree();
+        this.tree = contactsNode.treeView;
         this.contactPath = TreeHelper.getPath(contactsNode);
         this.sessionPath = TreeHelper.getPath(sessionsNde);
     }
@@ -73,9 +73,9 @@ public class TreeClickListener extends MouseAdapter
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
             if (selPath.getParentPath().equals(contactPath))
             {
-                if (node.getUserObject() instanceof ContactTree.ContactInfo)
+                if (node.getUserObject() instanceof ContactTreeRootNode.ContactInfo)
                 {
-                    ContactTree.ContactInfo contactInfo = (ContactTree.ContactInfo) node.getUserObject();
+                    ContactTreeRootNode.ContactInfo contactInfo = (ContactTreeRootNode.ContactInfo) node.getUserObject();
                     if (contactInfo.isOnline())
                     {
                         ContactPopMenu menu = new ContactPopMenu(contactInfo);
@@ -86,9 +86,9 @@ public class TreeClickListener extends MouseAdapter
             else if (selPath.getParentPath().equals(sessionPath))
             {
 
-                if (node.getUserObject() instanceof SessionTree.SessionInfo)
+                if (node.getUserObject() instanceof SessionTreeRootNode.SessionInfo)
                 {
-                    SessionTree.SessionInfo sessionInfo = (SessionTree.SessionInfo) node.getUserObject();
+                    SessionTreeRootNode.SessionInfo sessionInfo = (SessionTreeRootNode.SessionInfo) node.getUserObject();
                     SessionPopMenu menu = new SessionPopMenu(sessionInfo);
                     menu.show(e.getComponent(), e.getX(), e.getY());
                 }

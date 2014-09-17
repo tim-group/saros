@@ -57,11 +57,11 @@ class ContactPopMenu extends JPopupMenu {
     @Inject
     protected Saros saros;
 
-    private ContactTree.ContactInfo contactInfo;
+    private ContactTreeRootNode.ContactInfo contactInfo;
 
     private ModuleManager moduleManager;
 
-    public ContactPopMenu(ContactTree.ContactInfo contactInfo) {
+    public ContactPopMenu(ContactTreeRootNode.ContactInfo contactInfo) {
         this.contactInfo = contactInfo;
         SarosPluginContext.initComponent(this);
         this.moduleManager = ModuleManager.getInstance(saros.getProject());
