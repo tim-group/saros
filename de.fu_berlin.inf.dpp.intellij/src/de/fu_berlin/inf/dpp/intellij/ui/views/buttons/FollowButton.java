@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
+import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
@@ -33,7 +34,6 @@ import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.ISharedProjectListener;
 import de.fu_berlin.inf.dpp.session.User;
-import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.JButton;
@@ -48,7 +48,7 @@ import java.awt.event.ActionListener;
  */
 public class FollowButton extends ToolbarButton
 {
-    public static final String FOLLOW_ICON_PATH = "icons/ovr16/followmode.png";
+    private static final String FOLLOW_ICON_PATH = "icons/ovr16/followmode.png";
     private JPopupMenu popupMenu;
     private final FollowModeAction followModeAction;
 
@@ -69,14 +69,14 @@ public class FollowButton extends ToolbarButton
         public void sessionStarted(final ISarosSession session) {
             session.addListener(userListener);
             updateMenu();
-            setEnabled(true);
+            setEnabledFromUIThread(true);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
             oldSarosSession.removeListener(userListener);
             updateMenu();
-            setEnabled(false);
+            setEnabledFromUIThread(false);
         }
     };
 
@@ -91,14 +91,17 @@ public class FollowButton extends ToolbarButton
     private String menuItemPrefix;
 
     @Inject
-    public ISarosSessionManager sessionManager;
+    private ISarosSessionManager sessionManager;
 
     @Inject
-    public EditorManager editorManager;
+    private EditorManager editorManager;
 
-    private ISarosSession session;
-
-
+    /**
+     * Creates a Follow button with Popupmenu, registers sessionListeners and
+     * editorlisteners.
+     *
+     * The FollowButton is created as dissabled.
+     */
     public FollowButton()
     {
         super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
@@ -114,6 +117,7 @@ public class FollowButton extends ToolbarButton
 
         final JButton button = this;
         addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent ev) {
                 popupMenu.show(button, 0,
                     button.getBounds().y + button.getBounds().height);
@@ -122,7 +126,7 @@ public class FollowButton extends ToolbarButton
         });
     }
 
-    public void createMenu()
+    private void createMenu()
     {
         popupMenu = new JPopupMenu();
 
@@ -181,7 +185,7 @@ public class FollowButton extends ToolbarButton
     }
 
     private void updateMenu() {
-        ThreadUtils.runSafeAsync(LOG, new Runnable() {
+        UIUtil.invokeAndWaitIfNeeded(new Runnable() {
             @Override
             public void run() {
                 createMenu();

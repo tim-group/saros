@@ -36,6 +36,7 @@ import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.observables.ValueChangeListener;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
+import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
 import java.awt.event.ActionEvent;
@@ -50,6 +51,7 @@ import java.util.Set;
  */
 public class ConsistencyButton extends ToolbarButton
 {
+    private static final Logger LOG = Logger.getLogger(ConsistencyButton.class);
 
     private static final String IN_SYNC_ICON_PATH = "icons/etool16/in_sync.png";
     private static final String OUT_SYNC_ICON_PATH = "icons/etool16/out_sync.png";
@@ -58,7 +60,7 @@ public class ConsistencyButton extends ToolbarButton
         @Override
         public void actionPerformed(ActionEvent e) {
         if (isEnabled() && isInconsistent) {
-            setEnabled(false);
+            setEnabledFromUIThread(false);
 
             final Set<SPath> paths = new HashSet<SPath>(
                 watchdogClient.getPathsWithWrongChecksums());
@@ -67,7 +69,7 @@ public class ConsistencyButton extends ToolbarButton
 
             if (!DialogUtils.showQuestion(null, inconsistentFiles,
                 Messages.ConsistencyAction_confirm_dialog_title)) {
-                setEnabled(true);
+                setEnabledFromUIThread(true);
                 return;
             }
 
@@ -92,13 +94,13 @@ public class ConsistencyButton extends ToolbarButton
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
             setSarosSession(newSarosSession);
-            setEnabled(true);
+            setEnabledFromUIThread(true);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
             setSarosSession(null);
-            setEnabled(false);
+            setEnabledFromUIThread(false);
         }
     };
 
@@ -121,6 +123,9 @@ public class ConsistencyButton extends ToolbarButton
 
     private ISarosSession sarosSession;
 
+    /**
+     * Creates a Consistency button, adds a sessionListener and disables the button.
+     */
     public ConsistencyButton()
     {
         super(ConsistencyAction.NAME, "Recover inconsistencies",
@@ -142,12 +147,12 @@ public class ConsistencyButton extends ToolbarButton
 
         if (isInconsistent)
         {
-            setEnabled(true);
+            setEnabledFromUIThread(true);
             setIcon(OUT_SYNC_ICON_PATH, "Files are NOT consistent");
         }
         else
         {
-            setEnabled(false);
+            setEnabledFromUIThread(false);
             setIcon(IN_SYNC_ICON_PATH, "Files are consistent");
         }
     }
@@ -170,11 +175,6 @@ public class ConsistencyButton extends ToolbarButton
      */
     private void handleConsistencyChange(final Boolean isInconsistent) {
 
-        if (sarosSession.isHost() && isInconsistent) {
-            LOG.warn("No inconsistency should ever be reported"
-                + " to the host");
-            return;
-        }
         LOG.debug("Inconsistency indicator goes: "
             + (isInconsistent ? "on" : "off"));
 
@@ -208,7 +208,6 @@ public class ConsistencyButton extends ToolbarButton
                 // the host is slow in sending changes (for instance
                 // when refactoring)
 
-                // show balloon notification
                 NotificationPanel.showNotification(
                     Messages.ConsistencyAction_title_inconsistency_detected,
                     MessageFormat.format(

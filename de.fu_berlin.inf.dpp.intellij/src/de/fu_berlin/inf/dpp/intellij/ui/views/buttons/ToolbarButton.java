@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
+import com.intellij.util.ui.UIUtil;
 import org.apache.log4j.Logger;
 
 import javax.swing.ImageIcon;
@@ -33,14 +34,21 @@ import java.net.URL;
  */
 public abstract class ToolbarButton extends JButton {
 
-    protected static final Logger LOG = Logger.getLogger(ToolbarButton.class);
+    private static final Logger LOG = Logger.getLogger(ToolbarButton.class);
 
+    /**
+     * Creates a button with the specified actionCommand, Icon and toolTipText.
+     */
     protected ToolbarButton(String actionCommand, String tooltipText, String iconPath, String altText) {
         setActionCommand(actionCommand);
         setIcon(iconPath, altText);
         setToolTipText(tooltipText);
     }
 
+    /**
+     * Tries to load the icon from the specified path and sets only the altText
+     * if the loading fails.
+     */
     protected void setIcon(String path, String altText) {
         if (!path.startsWith("/"))
             path = "/" + path;
@@ -50,7 +58,19 @@ public abstract class ToolbarButton extends JButton {
             setIcon(new ImageIcon(imageURL, altText));
         } else {
             setText(altText);
-            LOG.error("Resource not found: " + imageURL);
+            LOG.error("Resource not found: " + path);
         }
     }
+
+    /**
+     * calls {@link #setEnabled(boolean)} from the UI thread.
+     */
+    protected void setEnabledFromUIThread(final boolean enabled) {
+        UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+            @Override public void run() {
+                setEnabled(enabled);
+            }
+        });
+    }
+
 }

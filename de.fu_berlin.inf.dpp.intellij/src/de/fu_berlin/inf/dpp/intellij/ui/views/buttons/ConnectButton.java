@@ -152,20 +152,20 @@ public class ConnectButton extends ToolbarButton {
      */
     protected XMPPAccount createNewAccount() {
         final String username = SafeDialogUtils
-            .showInputDialog("Your User-ID (e.g. 'dev1_alice_stf')",
-                "dev1_alice_stf", "Login");
+            .showInputDialog("Your User-ID",
+                "", "Login");
         if (username.isEmpty()) {
             return null;
         }
         final String password = SafeDialogUtils
-            .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+            .showInputDialog("Password", "", "Login");
         if (password.isEmpty()) {
             return null;
         }
         final String domain = SafeDialogUtils
             .showInputDialog("Saros server "
-                    + "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
-                "localhost", "Server"
+                    + "(e.g. 'saros-con.imp.fu-berlin.de')",
+                "saros-con.imp.fu-berlin.de", "Server"
             );
         if (domain.isEmpty()) {
             return null;

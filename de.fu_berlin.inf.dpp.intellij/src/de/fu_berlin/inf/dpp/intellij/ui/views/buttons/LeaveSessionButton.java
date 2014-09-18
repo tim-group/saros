@@ -48,14 +48,10 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
-import de.fu_berlin.inf.dpp.intellij.ui.actions.AbstractSarosAction;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.picocontainer.annotations.Inject;
 
-/**
- * Simple button used to create actions that just call {@link AbstractSarosAction#execute()}.
- */
 public class LeaveSessionButton extends SimpleButton
 {
 
@@ -64,18 +60,23 @@ public class LeaveSessionButton extends SimpleButton
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
-            setEnabled(true);
+            setEnabledFromUIThread(true);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-            setEnabled(false);
+            setEnabledFromUIThread(false);
         }
     };
 
     @Inject
     private ISarosSessionManager sessionManager;
 
+    /**
+     * Creates a LeaveSessionButton and registers the sessionListener.
+     *
+     * LeaveSessionButton is created as disabled.
+     */
     public LeaveSessionButton() {
         super(new LeaveSessionAction(), "Leave session",
             LEAVE_SESSION_ICON_PATH, "leave");

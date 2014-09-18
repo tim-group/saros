@@ -34,6 +34,9 @@ public class SimpleButton extends ToolbarButton
 {
     private AbstractSarosAction action;
 
+    /**
+     * Creates a button that exectures action.execute() when clicked.
+     */
     public SimpleButton(AbstractSarosAction action, String tooltipText, String iconPath, String altText) {
         super(action.getActionName(), tooltipText, iconPath, altText);
         this.action = action;
