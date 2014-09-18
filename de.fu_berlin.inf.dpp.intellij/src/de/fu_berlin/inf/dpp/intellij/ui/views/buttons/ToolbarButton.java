@@ -50,10 +50,7 @@ public abstract class ToolbarButton extends JButton {
      * if the loading fails.
      */
     protected void setIcon(String path, String altText) {
-        if (!path.startsWith("/"))
-            path = "/" + path;
-
-        URL imageURL = ToolbarButton.class.getResource(path);
+        URL imageURL = ToolbarButton.class.getClassLoader().getResource(path);
         if (imageURL != null) {
             setIcon(new ImageIcon(imageURL, altText));
         } else {

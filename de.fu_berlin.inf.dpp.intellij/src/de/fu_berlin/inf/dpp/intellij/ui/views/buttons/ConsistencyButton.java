@@ -80,7 +80,8 @@ public class ConsistencyButton extends ToolbarButton
 
     private final ActionListener consistencyActionListener = new ActionListener() {
 
-        @Override public void actionPerformed(ActionEvent actionEvent) {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
             setInconsistent(
                 !watchdogClient.getPathsWithWrongChecksums().isEmpty());
         }
