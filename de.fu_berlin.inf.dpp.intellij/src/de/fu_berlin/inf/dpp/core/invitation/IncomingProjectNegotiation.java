@@ -4,10 +4,7 @@ import de.fu_berlin.inf.dpp.ISarosContext;
 import de.fu_berlin.inf.dpp.communication.extensions.ProjectNegotiationMissingFilesExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingRequest;
 import de.fu_berlin.inf.dpp.communication.extensions.StartActivityQueuingResponse;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.exceptions.OperationCanceledException;
-import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.preferences.PreferenceUtils;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.util.FileUtils;
 import de.fu_berlin.inf.dpp.exceptions.LocalCancellationException;
@@ -30,7 +27,6 @@ import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import de.fu_berlin.inf.dpp.observables.FileReplacementInProgressObservable;
-import de.fu_berlin.inf.dpp.observables.SarosSessionObservable;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.CoreUtils;
 import de.fu_berlin.inf.dpp.vcs.VCSProvider;
@@ -63,24 +59,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private final ISarosSession session;
 
-    private IProgressMonitor monitor;
-
     private AddProjectToSessionWizard addIncomingProjectUI;
 
     private final List<ProjectNegotiationData> projectInfos;
 
     @Inject
-    private PreferenceUtils preferenceUtils;
-    @Inject
-    private SarosSessionObservable sarosSessionObservable;
-    @Inject
-    private RemoteProgressManager rpm;
-    @Inject
     private IChecksumCache checksumCache;
     @Inject
     private IWorkspace workspace;
-    @Inject
-    private Saros saros;
     @Inject
     private FileReplacementInProgressObservable fileReplacementInProgressObservable;
     /**
@@ -160,9 +146,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             running = true;
         }
 
-        this.monitor = monitor;
-        monitor.beginTask("Initializing shared project", 100);
-
         observeMonitor(monitor);
 
         //TODO: By default IDEA does not autobuild, but we should add a check for that
@@ -235,29 +218,26 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 acceptArchive(archiveTransferListener, monitor);
             }
 
-            /*
-             * We are finished with the exchanging process. Add all projects
-             * resources to the session.
-             */
-            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
-
-                final String projectID = entry.getKey();
-                final IProject project = entry.getValue();
-
-                List<IResource> resources = null;
-
+            // We are finished with the exchanging process. Add all projects
+            // resources to the session.
+            for (String projectID : localProjectMapping.keySet()) {
+                IProject iProject = localProjectMapping.get(projectID);
                 if (isPartialRemoteProject(projectID)) {
-
-                    final List<String> paths = getRemoteFileList(projectID)
+                    List<String> paths = getRemoteFileList(projectID)
                         .getPaths();
+                    List<IResource> dependentResources = new ArrayList<IResource>();
 
-                    resources = new ArrayList<IResource>(paths.size());
+                    for (String path : paths) {
 
-                    for (final String path : paths)
-                        resources.add(getResource(project, path));
+                        dependentResources.add(iProject.getFile(path));
+                    }
+
+                    session.addSharedResources(iProject, projectID,
+                        dependentResources);
+                } else {
+                    session.addSharedResources(iProject, projectID, null);
                 }
 
-                session.addSharedResources(project, projectID, resources);
                 sessionManager.projectAdded(projectID);
             }
         } catch (Exception e) {
