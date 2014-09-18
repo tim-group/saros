@@ -34,10 +34,7 @@ import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
-import de.fu_berlin.inf.dpp.filesystem.IFolder;
-import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
@@ -64,14 +61,12 @@ public class SarosFileShareGroup extends ActionGroup {
     private static final Logger LOG = Logger.getLogger(SarosFileShareGroup.class);
 
     @Inject
-    private Saros saros;
-
-    @Inject
     private ISarosSessionManager sessionManager;
 
     @Inject
     private XMPPConnectionService connectionService;
 
+    @Override
     public void actionPerformed(AnActionEvent e) {
         //do nothing when menu pops-up
     }
@@ -81,7 +76,9 @@ public class SarosFileShareGroup extends ActionGroup {
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
         //the object has to be initialized here, because it is created before
         //{@link de.fu_berlin.inf.dpp.core.Saros}.
-        SarosPluginContext.initComponent(this);
+        if (sessionManager == null && connectionService == null) {
+            SarosPluginContext.initComponent(this);
+        }
 
         if (e == null || !Saros.isInitialized()
                 || sessionManager.getSarosSession() != null) {
@@ -98,7 +95,7 @@ public class SarosFileShareGroup extends ActionGroup {
             return new AnAction[0];
         }
 
-        ProjectImp project = getProjectFromVirtFile(e);
+        ProjectImp project = getProjectFromVirtFile(virtualFile, ideaProject);
         FolderImp resFolder = new FolderImp(project, new File(virtualFile.getPath()));
         //Holger: Disable partial sharing for the moment, until the need arises
         if (!isCompletelyShared(project, resFolder)) {
@@ -138,7 +135,7 @@ public class SarosFileShareGroup extends ActionGroup {
             }
 
             try {
-                ProjectImp project = getProjectFromVirtFile(e);
+                ProjectImp project = getProjectFromVirtFile(virtFile, e.getProject());
 
                 List<IResource> resources = new ArrayList<IResource>();
                 //We allow only completely shared projects, so no need to check
@@ -154,54 +151,13 @@ public class SarosFileShareGroup extends ActionGroup {
             }
         }
 
-
-        /**
-         * Loads all resources under file into resources by traversing the
-         * directory tree..
-         *
-         */
-        private void loadChildResources(ProjectImp project, @NotNull File file, List<IResource> resources) {
-            if (file.isDirectory()) {
-                resources.add(new FolderImp(project, file));
-                for (File f : getSafeFileList(file)) {
-                    loadChildResources(project, f, resources);
-                }
-            } else {
-                resources.add(new FileImp(project, file));
-            }
-        }
-
-        private File[] getSafeFileList(File file) {
-            File[] files = file.listFiles();
-            return files != null ? files : new File[0];
-        }
-
-        /**
-         * Load parent folders of file, for partially shared files.
-         */
-        private List<IResource> getParentFolders(ProjectImp project, IPath top, IPath bottom) {
-            List<IResource> folders = new ArrayList<IResource>();
-            File base = top.toFile();
-            StringBuilder sbPath = new StringBuilder(base.getAbsolutePath());
-            String[] segments = bottom.segments();
-            for (int i = top.segmentCount(); i < segments.length - 1; i++) {
-                sbPath.append(File.separator);
-                sbPath.append(segments[i]);
-                IFolder folder = new FolderImp(project, new File(sbPath.toString()));
-                folders.add(folder);
-            }
-
-            return folders;
-        }
-
         public String toString() {
             return super.toString() + " " + title;
         }
     }
 
-    private ProjectImp getProjectFromVirtFile(AnActionEvent e) {
-        VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
-        Module module = ProjectFileIndex.SERVICE.getInstance(e.getProject()).getModuleForFile(virtFile);
+    private ProjectImp getProjectFromVirtFile(VirtualFile virtFile, Project project) {
+        Module module = ProjectFileIndex.SERVICE.getInstance(project).getModuleForFile(virtFile);
         String moduleName = null;
         if (module != null) {
             moduleName = module.getName();
@@ -209,7 +165,7 @@ public class SarosFileShareGroup extends ActionGroup {
             //FIXME: Find way to select moduleName for non-module based IDEAs
             //(Webstorm)
         }
-        return new ProjectImp(e.getProject(), moduleName, new File(e.getProject().getBasePath() + "/" + moduleName));
+        return new ProjectImp(project, moduleName, new File(project.getBasePath() + "/" + moduleName));
     }
 
     private boolean isCompletelyShared(ProjectImp project,

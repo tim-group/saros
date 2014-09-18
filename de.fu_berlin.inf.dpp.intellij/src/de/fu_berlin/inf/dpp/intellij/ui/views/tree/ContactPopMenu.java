@@ -23,7 +23,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import de.fu_berlin.inf.dpp.core.Saros;
@@ -31,7 +30,6 @@ import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
-import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
@@ -72,10 +70,9 @@ class ContactPopMenu extends JPopupMenu {
             return;
         }
 
-        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
-
-        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
-            for (Module module : ModuleManager.getInstance(saros.getProject()).getModules()) {
+        ModuleManager moduleManager = ModuleManager.getInstance(saros.getProject());
+        if (moduleManager != null) {
+            for (Module module : moduleManager.getModules()) {
 
                 if (saros.getProject().getName()
                     .equalsIgnoreCase(module.getName())) {
@@ -96,12 +93,8 @@ class ContactPopMenu extends JPopupMenu {
                     continue;
                 }
 
-                String name = myDir.isFile() ?
-                    myDir.getName() :
-                    "/" + myDir.getName();
-                JMenuItem directoryItem = new JMenuItem(name);
+                JMenuItem directoryItem = new JMenuItem(myDir.getName());
                 directoryItem.addActionListener(new ShareDirectoryAction(myDir));
-
                 menuShareProject.add(directoryItem);
             }
         }
@@ -122,20 +115,11 @@ class ContactPopMenu extends JPopupMenu {
             try {
                 List<IResource> resources;
 
-                if (dir.isDirectory()) {
+                IProject proj = saros.getWorkspace()
+                    .getProject(dir.getName());
+                proj.refreshLocal();
 
-                    IProject proj = saros.getWorkspace()
-                        .getProject(dir.getName());
-                    proj.refreshLocal();
-
-                    resources = Arrays.asList((IResource) proj);
-                } else {
-                    //todo: not working properly after sharing
-                    IProject proj = saros.getWorkspace()
-                        .getProject(dir.getName());
-                    IResource prjFile = proj.getFile(new PathImp(dir));
-                    resources = Arrays.asList(prjFile);
-                }
+                resources = Arrays.asList((IResource) proj);
 
                 JID user = new JID(contactInfo.getRosterEntry().getUser());
                 List<JID> contacts = Arrays.asList(user);
