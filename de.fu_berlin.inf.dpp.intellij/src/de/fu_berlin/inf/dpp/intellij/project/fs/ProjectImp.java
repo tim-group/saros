@@ -268,6 +268,15 @@ public class ProjectImp implements IProject {
         }
     }
 
+    public void create() throws IOException {
+        if (!exists()) {
+            if (!getFullPath().toFile().mkdirs()) {
+                LOG.error("Could not open project: " + getName());
+                throw new IOException("Could not open project");
+            }
+        }
+    }
+
     @Override
     public boolean exists(IPath path) {
         return resourceMap.containsKey(path);

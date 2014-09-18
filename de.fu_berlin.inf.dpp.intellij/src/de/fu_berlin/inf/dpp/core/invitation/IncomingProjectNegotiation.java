@@ -17,9 +17,6 @@ import de.fu_berlin.inf.dpp.filesystem.IFolder;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
-import de.fu_berlin.inf.dpp.filesystem.IWorkspaceRunnable;
-import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
-import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
@@ -48,6 +45,7 @@ import org.picocontainer.annotations.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +58,15 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
     private static final Logger LOG = Logger
         .getLogger(IncomingProjectNegotiation.class);
-    private final ISarosSession sarosSession;
+
+    private static int MONITOR_WORK_SCALE = 1000;
+
+    private final ISarosSession session;
+
     private IProgressMonitor monitor;
+
     private AddProjectToSessionWizard addIncomingProjectUI;
+
     private final List<ProjectNegotiationData> projectInfos;
 
     @Inject
@@ -82,7 +86,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     /**
      * Maps the projectID to the project in workspace
      */
-    private final Map<String, IProject> localProjects;
+    private final Map<String, IProject> localProjectMapping;
     private boolean running;
 
     private PacketCollector startActivityQueuingRequestCollector;
@@ -91,15 +95,15 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     @Inject
     private ISarosSessionManager sessionManager;
 
-    public IncomingProjectNegotiation(ISarosSession sarosSession, JID peer,
+    public IncomingProjectNegotiation(ISarosSession session, JID peer,
         String processID, List<ProjectNegotiationData> projectInfos,
         ISarosContext sarosContext) {
-        super(peer, sarosSession.getID(), sarosContext);
+        super(peer, session.getID(), sarosContext);
 
-        this.sarosSession = sarosSession;
+        this.session = session;
         this.processID = processID;
         this.projectInfos = projectInfos;
-        localProjects = new HashMap<String, IProject>();
+        localProjectMapping = new HashMap<String, IProject>();
     }
 
     @Override
@@ -133,13 +137,24 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     }
 
     /**
-     * @param projectNames In this parameter the names of the projects are stored. They
-     *                     key is the session wide <code><b>projectID</b></code> and the
-     *                     value is the name of the project in the workspace of the local
-     *                     user (given from the {@link EnterProjectNamePage})
+     * Starts the negotiation. The negotiation can be aborted by canceling the
+     * given monitor. The execution of this method perform changes to the file
+     * system! It is the responsibility of the caller to ensure that appropriate
+     * actions are performed to avoid unintended data loss, i.e this method will
+     * do a best effort to backup altered data but no guarantee can be made in
+     * doing so!
+     *
+     * @param projectMapping
+     *            mapping from remote project ids to the target local projects
+     *
+     * @throws IllegalArgumentException
+     *             if either a project id is not valid or the referenced project
+     *             for that id does not exist
      */
-    public Status accept(Map<String, String> projectNames,
+    public Status run(Map<String, IProject> projectMapping,
         IProgressMonitor monitor, boolean useVersionControl) {
+
+        checkProjectMapping(projectMapping);
 
         synchronized (this) {
             running = true;
@@ -173,25 +188,24 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             fileTransferManager
                 .addFileTransferListener(archiveTransferListener);
 
-            createLocalProjects(projectNames);
-
-            List<FileList> missingFiles = calculateMissingFiles(projectNames,
-                useVersionControl, new SubProgressMonitor(monitor, 10));
+            List<FileList> missingFiles = calculateMissingFiles(projectMapping,
+                useVersionControl, monitor);
 
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                 ProjectNegotiationMissingFilesExtension.PROVIDER.create(
                     new ProjectNegotiationMissingFilesExtension(sessionID,
                         processID, missingFiles)));
 
-            awaitActivityQueueingActivation(
-                new SubProgressMonitor(monitor, 10));
+            awaitActivityQueueingActivation(monitor);
+            monitor.setTaskName("");
 
             /*
              * the user who sends this ProjectNegotiation is now responsible for
              * the resources of the contained projects
              */
-            for (Entry<String, IProject> entry : localProjects.entrySet()) {
-                IProject project = entry.getValue();
+            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+                final String projectID = entry.getKey();
+                final IProject project = entry.getValue();
 
                 /*
                  * TODO Move enable (and disable) queuing responsibility to
@@ -199,13 +213,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                  * and the first one is never done without the second. (See also
                  * finally block below.)
                  */
-                sarosSession.addProjectMapping(entry.getKey(), project, peer);
-                sarosSession.enableQueuing(project);
+                session.addProjectMapping(projectID, project, peer);
+                session.enableQueuing(project);
             }
 
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
-                StartActivityQueuingResponse.PROVIDER.create(
-                    new StartActivityQueuingResponse(sessionID, processID)));
+                    StartActivityQueuingResponse.PROVIDER.create(
+                            new StartActivityQueuingResponse(sessionID, processID))
+            );
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
@@ -218,31 +233,35 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing) {
                 acceptArchive(archiveTransferListener,
-                    new SubProgressMonitor(monitor, 80));
+                    monitor);
             }
 
-            openProjects();
+            //openProjects();
 
-            // We are finished with the exchanging process. Add all projects
-            // resources to the session.
-            for (String projectID : localProjects.keySet()) {
-                IProject iProject = localProjects.get(projectID);
+
+            /*
+             * We are finished with the exchanging process. Add all projects
+             * resources to the session.
+             */
+            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+
+                final String projectID = entry.getKey();
+                final IProject project = entry.getValue();
+
+                List<IResource> resources = null;
+
                 if (isPartialRemoteProject(projectID)) {
-                    List<String> paths = getRemoteFileList(projectID)
+
+                    final List<String> paths = getRemoteFileList(projectID)
                         .getPaths();
-                    List<IResource> dependentResources = new ArrayList<IResource>();
 
-                    for (String path : paths) {
+                    resources = new ArrayList<IResource>(paths.size());
 
-                        dependentResources.add(iProject.getFile(path));
-                    }
-
-                    sarosSession.addSharedResources(iProject, projectID,
-                        dependentResources);
-                } else {
-                    sarosSession.addSharedResources(iProject, projectID, null);
+                    for (final String path : paths)
+                        resources.add(getResource(project, path));
                 }
 
+                session.addSharedResources(project, projectID, resources);
                 sessionManager.projectAdded(projectID);
             }
         } catch (Exception e) {
@@ -252,7 +271,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
              * TODO Move disable queuing responsibility to SarosSession (see
              * todo above in for loop).
              */
-            sarosSession.disableQueuing();
+            session.disableQueuing();
 
             if (fileTransferManager != null) {
                 fileTransferManager
@@ -269,7 +288,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     }
 
     private void openProjects() {
-        for (IProject project : localProjects.values()) {
+        for (IProject project : localProjectMapping.values()) {
             if (!project.isOpen()) {
                 try {
                     project.open();
@@ -287,20 +306,15 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             String projectID = entry.getKey();
             String projectName = entry.getValue();
 
-            File projectFolder = new File(
-                saros.getProject().getBasePath() + File.separator
-                    + projectName);
-
+            IProject project = saros.getWorkspace().getProject(projectName);
+            File projectFolder = project.getFullPath().toFile();
             if (!projectFolder.exists()) {
                 if (!projectFolder.mkdir()) {
                     LOG.error(
                         "could not create project folder " + projectFolder);
                 }
             }
-
-            IProject project = new ProjectImp(saros.getProject(), projectName,
-                projectFolder);
-            localProjects.put(projectID, project);
+            localProjectMapping.put(projectID, project);
         }
     }
 
@@ -322,7 +336,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         // waiting for the big archive to come in
 
-        monitor.beginTask("Receiving project files...", 100);
+        monitor.beginTask(null, 100);
 
         File archiveFile = receiveArchive(archiveTransferListener, processID,
             new SubProgressMonitor(monitor, 50));
@@ -349,29 +363,29 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     /**
      * calculates all the files the host/inviter has to send for synchronization
      *
-     * @param projectNames projectID => projectName (in local workspace)
+     * @param projectMapping projectID => projectName (in local workspace)
      */
     private List<FileList> calculateMissingFiles(
-        Map<String, String> projectNames, boolean useVersionControl,
-        IProgressMonitor subMonitor)
+        Map<String, IProject> projectMapping, boolean useVersionControl,
+        IProgressMonitor monitor)
         throws SarosCancellationException, IOException {
 
-        subMonitor.beginTask(null, 100);
-        int numberOfLoops = projectNames.size();
+        monitor.beginTask(null, projectMapping.size() * MONITOR_WORK_SCALE);
+        int numberOfLoops = projectMapping.size();
         List<FileList> missingFiles = new ArrayList<FileList>();
 
         /*
          * this for loop sets up all the projects needed for the session and
          * computes the missing files.
          */
-        for (Entry<String, String> entry : projectNames.entrySet()) {
-            SubProgressMonitor lMonitor = new SubProgressMonitor(subMonitor,
+        for (Entry<String, IProject> entry : projectMapping.entrySet()) {
+            SubProgressMonitor lMonitor = new SubProgressMonitor(monitor,
                 100 / numberOfLoops);
 
             checkCancellation(CancelOption.NOTIFY_PEER);
 
             final String projectID = entry.getKey();
-            final String projectName = entry.getValue();
+            final IProject project = entry.getValue();
 
             ProjectNegotiationData projectInfo = null;
 
@@ -391,16 +405,16 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             VCSProvider vcs = null;
 
+            localProjectMapping.put(projectID, project);
+
             checkCancellation(CancelOption.NOTIFY_PEER);
 
-            LOG.debug("compute required Files for project " + projectName
+            LOG.debug("compute required Files for project " + project.getName()
                 + " with ID: " + projectID);
-
-            IProject project = localProjects.get(projectID);
 
             FileList requiredFiles = computeRequiredFiles(project,
                 projectInfo.getFileList(), projectID, vcs,
-                new SubProgressMonitor(lMonitor, 30));
+                new SubProgressMonitor(lMonitor, MONITOR_WORK_SCALE));
 
             requiredFiles.setProjectID(projectID);
             checkCancellation(CancelOption.NOTIFY_PEER);
@@ -409,6 +423,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             lMonitor.done();
         }
 
+        monitor.done();
         return missingFiles;
     }
 
@@ -424,14 +439,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          * currently NOT support cancellation of the project negotiation
          * properly !
          */
-        for (Entry<String, IProject> entry : localProjects.entrySet()) {
-            sarosSession
+        for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+            session
                 .removeProjectMapping(entry.getKey(), entry.getValue(), peer);
         }
 
         // The session might have been stopped already, if not we will stop it.
-        if (sarosSession.getProjectResourcesMapping().keySet().isEmpty()
-            || sarosSession.getRemoteUsers().isEmpty()) {
+        if (session.getProjectResourcesMapping().keySet().isEmpty()
+            || session.getRemoteUsers().isEmpty()) {
             sessionManager.stopSarosSession();
         }
     }
@@ -478,28 +493,27 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * If a VCS is used, update files if needed, and remove them from the list
      * of requested files if that's possible.
      *
-     * @param currentLocalProject
+     * @param project
      * @param remoteFileList
-     * @param vcs                 The VCS adapter of the local project.
      * @param monitor
      * @return The list of files that we need from the host.
      * @throws LocalCancellationException If the user requested a cancel.
      * @throws IOException
      */
-    private FileList computeRequiredFiles(IProject currentLocalProject,
+    private FileList computeRequiredFiles(IProject project,
         FileList remoteFileList, String projectID, VCSProvider provider,
         IProgressMonitor monitor)
         throws LocalCancellationException, IOException {
 
-        //Compute required Files
-        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
+        monitor.beginTask("Compute required Files...", 1 * MONITOR_WORK_SCALE);
 
         FileList localFileList = FileListFactory
-            .createFileList(currentLocalProject, null, checksumCache, provider,
-                new SubProgressMonitor(monitor, 1));
+            .createFileList(project, null, checksumCache, provider,
+                new SubProgressMonitor(monitor,
+                    1 * MONITOR_WORK_SCALE, SubProgressMonitor.SUPPRESS_BEGINTASK));
 
         FileListDiff filesToSynchronize = computeDiff(localFileList,
-            remoteFileList, currentLocalProject, projectID);
+            remoteFileList, project, projectID);
 
         List<String> missingFiles = new ArrayList<String>();
         missingFiles.addAll(filesToSynchronize.getAddedPaths());
@@ -510,13 +524,14 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          * not need any files.
          */
 
+        monitor.done();
+
         if (missingFiles.isEmpty()) {
             LOG.debug(this + " : there are no files to synchronize.");
-            subMonitor.done();
             return FileListFactory.createEmptyFileList();
         }
 
-        subMonitor.done();
+
         return FileListFactory.createFileList(missingFiles);
     }
 
@@ -531,6 +546,10 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * @return A modified FileListDiff which doesn't contain any directories or
      * files to remove, but just added and altered files.
      */
+     /*
+     * FIXME it is not very obviously that a computeDiff method also
+     * manipulates/DELETES files !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     */
     private FileListDiff computeDiff(FileList localFileList,
         FileList remoteFileList, final IProject currentLocalProject,
         String projectID) throws IOException {
@@ -538,52 +557,39 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         FileListDiff diff = FileListDiff.diff(localFileList, remoteFileList);
 
-        try {
-            if (!isPartialRemoteProject(projectID)) {
-                final List<String> toDelete = diff.getRemovedPathsSanitized();
+        if (!isPartialRemoteProject(projectID)) {
 
-                /*
-                 * WTF !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS IS DELETING
-                 * FILES !!!!!!!
-                 */
+            deleteResources(currentLocalProject, diff.getRemovedPathsSanitized());
 
-                workspace.run(new IWorkspaceRunnable() {
-                    @Override
-                    public void run(IProgressMonitor progress)
-                        throws IOException {
-                        for (String path : toDelete) {
-                            IResource resource = path
-                                .endsWith(PathImp.FILE_SEPARATOR) ?
-                                currentLocalProject.getFolder(path) :
-                                currentLocalProject.getFile(path);
+            diff.clearRemovedPaths();
+        }
 
-                            /*
-                             * Check if resource exists because it might have
-                             * already been deleted when deleting its folder
-                             */
-                            if (resource.exists()) {
-                                resource.delete(
-                                    IResource.FORCE | IResource.KEEP_HISTORY);
-                            }
-                        }
-                    }
-                });
-
-                diff.clearRemovedPaths();
+        for (String path : diff.getAddedFolders()) {
+            IFolder folder = currentLocalProject.getFolder(path);
+            if (!folder.exists()) {
+                FileUtils.create(folder);
             }
+        }
 
-            for (String path : diff.getAddedFolders()) {
-                IFolder folder = currentLocalProject.getFolder(path);
-                if (!folder.exists()) {
-                    FileUtils.create(folder);
-                }
-            }
+        diff.clearAddedFolders();
 
-            diff.clearAddedFolders();
+        return diff;
+    }
 
-            return diff;
-        } catch (IOException e) {
-            throw new IOException(e.getMessage(), e.getCause());
+    /**
+     * Deletes the resources denoted by the given paths for the given project.
+     * This method manipulates the order of the list!
+     */
+    private void deleteResources(final IProject project,
+        final List<String> paths) throws IOException {
+
+        Collections.sort(paths, Collections.reverseOrder());
+
+        for (final String path : paths) {
+            final IResource resource = getResource(project, path);
+
+            if (resource.exists())
+                resource.delete(IResource.KEEP_HISTORY);
         }
     }
 
@@ -591,8 +597,13 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         final IProgressMonitor monitor)
         throws LocalCancellationException, IOException {
 
+        final Map<String, de.fu_berlin.inf.dpp.filesystem.IProject> projectMapping = new HashMap<String, de.fu_berlin.inf.dpp.filesystem.IProject>();
+
+        for (Entry<String, IProject> entry : localProjectMapping.entrySet())
+            projectMapping.put(entry.getKey(), entry.getValue());
+
         final DecompressArchiveTask decompressTask = new DecompressArchiveTask(
-            archiveFile, localProjects, PATH_DELIMITER, monitor);
+            archiveFile, projectMapping, PATH_DELIMITER, monitor);
 
         long startTime = System.currentTimeMillis();
 
@@ -605,7 +616,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
          * the IResourceChangeListener updates inside the WorkspaceRunnable or
          * after it finished!
          */
-
         try {
             workspace.run(decompressTask);
         } catch (OperationCanceledException e) {
@@ -716,6 +726,27 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 + ", size: " + CoreUtils.formatByte(archiveFile.length()));
 
         return archiveFile;
+    }
+
+    private void checkProjectMapping(final Map<String, IProject> mapping) {
+        for (final Entry<String, IProject> entry : mapping.entrySet()) {
+
+            if (getRemoteFileList(entry.getKey()) == null)
+                throw new IllegalArgumentException("invalid project id: "
+                    + entry.getKey());
+
+            if (!entry.getValue().exists())
+                throw new IllegalArgumentException("project does not exist: "
+                    + entry.getValue());
+        }
+    }
+
+    private IResource getResource(IProject project, String path) {
+        //Should be FileList.DIR_SEPARATOR, but is not visible from here
+        if (path.endsWith(File.separator))
+            return project.getFolder(path);
+        else
+            return project.getFile(path);
     }
 
     @Override
