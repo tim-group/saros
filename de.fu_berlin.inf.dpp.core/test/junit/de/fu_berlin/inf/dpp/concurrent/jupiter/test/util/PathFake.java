@@ -1,8 +1,8 @@
 package de.fu_berlin.inf.dpp.concurrent.jupiter.test.util;
 
-import java.io.File;
-
 import de.fu_berlin.inf.dpp.filesystem.IPath;
+
+import java.io.File;
 
 public class PathFake implements IPath {
 
@@ -89,10 +89,6 @@ public class PathFake implements IPath {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override public String segment(int index) {
         throw new UnsupportedOperationException();
     }
 

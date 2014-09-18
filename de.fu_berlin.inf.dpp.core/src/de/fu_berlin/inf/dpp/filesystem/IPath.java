@@ -47,8 +47,6 @@ public interface IPath {
 
     public boolean isEmpty();
 
-    public String segment(int index);
-
     public String[] segments();
 
     public IPath append(String path);

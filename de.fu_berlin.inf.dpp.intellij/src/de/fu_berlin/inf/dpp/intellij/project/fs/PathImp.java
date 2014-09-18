@@ -25,9 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class PathImp implements IPath {
     public static final String FILE_SEPARATOR = "/";
@@ -101,13 +99,6 @@ public class PathImp implements IPath {
     @Override
     public boolean isEmpty() {
         return new File(path).exists();
-    }
-
-    @Override
-    public String segment(int index) {
-        if (index >= segments.length)
-            return null;
-        return segments[index];
     }
 
     @Override

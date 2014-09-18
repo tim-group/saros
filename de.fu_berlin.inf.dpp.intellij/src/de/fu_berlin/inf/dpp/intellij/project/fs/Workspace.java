@@ -71,7 +71,7 @@ public class Workspace implements IWorkspace {
             relativePath = relativePath.substring(1);
         }
 
-        String projectName = new PathImp(relativePath).segment(0);
+        String projectName = new PathImp(relativePath).segments()[0];
         return new ProjectImp(project, projectName);
     }
 
