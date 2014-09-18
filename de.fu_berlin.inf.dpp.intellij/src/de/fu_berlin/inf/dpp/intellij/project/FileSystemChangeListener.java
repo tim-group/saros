@@ -176,6 +176,10 @@ public class FileSystemChangeListener extends AbstractStoppableListener
     public void contentsChanged(@NotNull VirtualFileEvent virtualFileEvent) {
         VirtualFile virtualFile = virtualFileEvent.getFile();
         ProjectImp project = workspace.getProjectForPath(virtualFile.getPath());
+
+        if (project == null)
+            return;
+
         IFile file = new FileImp(project, new File(virtualFile.getPath()));
 
         if (resourceManager.getSession().isShared(file) && newFiles

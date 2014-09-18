@@ -63,11 +63,9 @@ public class Workspace implements IWorkspace {
     public ProjectImp getProjectForPath(String path) {
 
         if (!path.startsWith(project.getBasePath())) {
-            LOG.error("tried to access project outside workspace: " + path);
             return null;
         }
 
-        LOG.info("STARTS WITH SEPARATOR OR NOT?: " + project.getBasePath());
         String relativePath = path.substring(project.getBasePath().length()).toLowerCase();
         if (relativePath.startsWith(File.separator)) {
             relativePath = relativePath.substring(1);
