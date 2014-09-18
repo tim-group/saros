@@ -2,9 +2,9 @@ package de.fu_berlin.inf.dpp.core.net.business;
 
 import de.fu_berlin.inf.dpp.communication.extensions.KickUserExtension;
 import de.fu_berlin.inf.dpp.communication.extensions.LeaveSessionExtension;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -40,7 +40,7 @@ public class LeaveAndKickHandler {
             kickReceived(new JID(packet.getFrom()));
         }
     };
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
 
         @Override
         public void sessionStarted(ISarosSession session) {

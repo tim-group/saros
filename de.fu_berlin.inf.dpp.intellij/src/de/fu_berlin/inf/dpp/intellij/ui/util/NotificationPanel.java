@@ -42,7 +42,7 @@ public class NotificationPanel {
      * @param title
      */
     public static void showNotification(String message, String title) {
-        LOG.info("Notification: " + title + ", " + message);
+        DialogUtils.showInfo(message, title);
     }
 
     /**

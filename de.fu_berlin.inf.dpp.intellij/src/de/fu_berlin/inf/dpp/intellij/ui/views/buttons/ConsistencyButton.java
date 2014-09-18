@@ -27,9 +27,9 @@ import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
@@ -90,7 +90,7 @@ public class ConsistencyButton extends ToolbarButton
 
     private ConsistencyAction action;
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
             setSarosSession(newSarosSession);

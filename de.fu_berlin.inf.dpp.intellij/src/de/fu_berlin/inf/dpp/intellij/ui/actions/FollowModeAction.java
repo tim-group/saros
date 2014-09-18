@@ -22,9 +22,9 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.session.User;
@@ -43,7 +43,7 @@ public class FollowModeAction extends AbstractSarosAction {
 
 
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         @Override
         public void sessionStarted(final ISarosSession session) {
             ThreadUtils.runSafeAsync(LOG, new Runnable() {

@@ -45,9 +45,9 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.LeaveSessionAction;
 import de.fu_berlin.inf.dpp.session.ISarosSession;
 import org.picocontainer.annotations.Inject;
@@ -57,7 +57,7 @@ public class LeaveSessionButton extends SimpleButton
 
     public static final String LEAVE_SESSION_ICON_PATH = "icons/elcl16/project_share_leave_tsk.png";
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
             setEnabledFromUIThread(true);

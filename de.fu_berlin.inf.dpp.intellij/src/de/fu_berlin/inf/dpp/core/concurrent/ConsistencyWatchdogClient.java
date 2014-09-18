@@ -30,9 +30,9 @@ import de.fu_berlin.inf.dpp.activities.TextEditActivity;
 import de.fu_berlin.inf.dpp.core.editor.adapter.DocumentFactory;
 import de.fu_berlin.inf.dpp.core.editor.adapter.IDocument;
 import de.fu_berlin.inf.dpp.core.monitoring.remote.RemoteProgressManager;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.intellij.editor.LocalEditorHandler;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.ConsistencyAction;
@@ -180,7 +180,7 @@ public class ConsistencyWatchdogClient extends AbstractActivityProducer {
         }
     };
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         private final ISharedProjectListener sharedProjectListener = new AbstractSharedProjectListener() {
 
             @Override

@@ -37,12 +37,6 @@ public class SarosToolWindowFactory implements ToolWindowFactory {
 
     private SarosMainPanelView sarosMainPanelView;
 
-    /**
-     * Plugin starting point via IntelliJ
-     *
-     * @param project
-     * @param toolWindow
-     */
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         sarosMainPanelView = new SarosMainPanelView();

@@ -38,9 +38,9 @@ import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.RemoteEditorManager;
 import de.fu_berlin.inf.dpp.core.editor.RemoteWriteAccessManager;
 import de.fu_berlin.inf.dpp.core.editor.SharedEditorListenerDispatch;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorManager;
 import de.fu_berlin.inf.dpp.intellij.editor.colorstorage.ColorModel;
 import de.fu_berlin.inf.dpp.intellij.editor.text.LineRange;
@@ -296,7 +296,7 @@ public class EditorManager extends AbstractActivityProducer {
             remoteEditorManager.removeUser(user);
         }
     };
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
 
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {

@@ -32,7 +32,6 @@ import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
-import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
 import org.apache.log4j.Logger;
@@ -75,7 +74,7 @@ class ContactPopMenu extends JPopupMenu {
 
         String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
 
-        if (IDEAVersion.equals(ProjectImp.INTELLI_J_IDEA)) {
+        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
             for (Module module : ModuleManager.getInstance(saros.getProject()).getModules()) {
 
                 if (saros.getProject().getName()

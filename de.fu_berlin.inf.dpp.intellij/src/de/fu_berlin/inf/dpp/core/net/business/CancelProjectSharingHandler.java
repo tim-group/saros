@@ -1,9 +1,9 @@
 package de.fu_berlin.inf.dpp.core.net.business;
 
 import de.fu_berlin.inf.dpp.communication.extensions.CancelProjectNegotiationExtension;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.net.IReceiver;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -37,7 +37,7 @@ public class CancelProjectSharingHandler {
                 extension.getErrorMessage());
         }
     };
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
 
         @Override
         public void sessionStarted(ISarosSession session) {

@@ -32,7 +32,7 @@ import de.fu_berlin.inf.dpp.session.User;
  * @author bkahlert
  */
 //todo: copy from eclipse
-public class AbstractSarosSessionListener implements ISarosSessionListener {
+public class NullSarosSessionListener implements ISarosSessionListener {
 
 
     @Override

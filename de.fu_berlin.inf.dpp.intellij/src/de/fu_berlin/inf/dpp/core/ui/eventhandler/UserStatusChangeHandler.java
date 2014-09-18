@@ -22,9 +22,9 @@
 
 package de.fu_berlin.inf.dpp.core.ui.eventhandler;
 
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.NotificationPanel;
 import de.fu_berlin.inf.dpp.session.AbstractSharedProjectListener;
@@ -90,7 +90,7 @@ public class UserStatusChangeHandler {
                 );
         }
     };
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         @Override
         public void sessionStarting(ISarosSession session) {
             session.addListener(userStatusListener);

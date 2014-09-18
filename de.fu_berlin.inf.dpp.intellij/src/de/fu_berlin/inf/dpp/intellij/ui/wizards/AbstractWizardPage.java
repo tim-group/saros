@@ -22,14 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 
 /**
  * Top class for wizard pages
  *
  */
-
 public abstract class AbstractWizardPage extends JPanel
 {
     protected Wizard wizard;

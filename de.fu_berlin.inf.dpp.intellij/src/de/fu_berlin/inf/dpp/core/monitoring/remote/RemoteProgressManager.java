@@ -24,9 +24,9 @@ package de.fu_berlin.inf.dpp.core.monitoring.remote;
 
 import de.fu_berlin.inf.dpp.activities.ProgressActivity;
 import de.fu_berlin.inf.dpp.annotations.Component;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.monitoring.NullProgressMonitor;
 import de.fu_berlin.inf.dpp.session.AbstractActivityConsumer;
@@ -106,7 +106,7 @@ public class RemoteProgressManager extends AbstractActivityProducer {
         }
     };
 
-    private ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private ISarosSessionListener sessionListener = new NullSarosSessionListener() {
 
         @Override
         public void sessionStarted(ISarosSession session) {

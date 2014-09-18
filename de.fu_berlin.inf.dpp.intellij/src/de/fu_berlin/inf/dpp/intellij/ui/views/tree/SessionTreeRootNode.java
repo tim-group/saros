@@ -24,9 +24,9 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.core.project.NullSarosSessionListener;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
@@ -80,7 +80,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
         }
     };
 
-    private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
+    private final ISarosSessionListener sessionListener = new NullSarosSessionListener() {
         @Override
         public void sessionStarted(final ISarosSession newSarosSession) {
             UIUtil.invokeAndWaitIfNeeded(new Runnable() {
