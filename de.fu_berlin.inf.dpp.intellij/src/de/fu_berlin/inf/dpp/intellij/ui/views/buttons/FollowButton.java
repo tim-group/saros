@@ -23,6 +23,7 @@
 package de.fu_berlin.inf.dpp.intellij.ui.views.buttons;
 
 import com.intellij.util.ui.UIUtil;
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.editor.AbstractSharedEditorListener;
 import de.fu_berlin.inf.dpp.core.editor.ISharedEditorListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
@@ -100,11 +101,12 @@ public class FollowButton extends ToolbarButton
      * Creates a Follow button with Popupmenu, registers sessionListeners and
      * editorlisteners.
      *
-     * The FollowButton is created as dissabled.
+     * The FollowButton is created as disabled.
      */
     public FollowButton()
     {
         super(FollowModeAction.NAME, "Follow", FOLLOW_ICON_PATH, "Enter follow mode");
+        SarosPluginContext.initComponent(this);
 
         followModeAction = new FollowModeAction();
 
