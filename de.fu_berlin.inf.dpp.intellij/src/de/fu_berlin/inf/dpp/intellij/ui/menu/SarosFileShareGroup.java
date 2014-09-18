@@ -89,8 +89,19 @@ public class SarosFileShareGroup extends ActionGroup {
         }
 
         VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
-        Project project = e.getData(CommonDataKeys.PROJECT);
-        if (virtualFile == null || project == null) {
+        Project ideaProject = e.getData(CommonDataKeys.PROJECT);
+        if (virtualFile == null || ideaProject == null) {
+            return new AnAction[0];
+        }
+
+        if (!virtualFile.isDirectory()) {
+            return new AnAction[0];
+        }
+
+        ProjectImp project = getProjectFromVirtFile(e);
+        FolderImp resFolder = new FolderImp(project, new File(virtualFile.getPath()));
+        //Holger: Disable partial sharing for the moment, until the need arises
+        if (!isCompletelyShared(project, resFolder)) {
             return new AnAction[0];
         }
 
@@ -126,38 +137,14 @@ public class SarosFileShareGroup extends ActionGroup {
                 return;
             }
 
-            File file = new File(virtFile.getPath());
             try {
-                Module module = ProjectFileIndex.SERVICE.getInstance(e.getProject()).getModuleForFile(virtFile);
-                String moduleName = null;
-                if (module != null) {
-                    moduleName = module.getName();
-                } else {
-                    //FIXME: Find way to select moduleName for non-module based IDEAs
-                    //(Webstorm)
-                }
-                ProjectImp project = new ProjectImp(e.getProject(), moduleName, file);
+                ProjectImp project = getProjectFromVirtFile(e);
 
                 List<IResource> resources = new ArrayList<IResource>();
-
-                if (virtFile.isDirectory()) {
-                    //check if it is a completely shared project
-                    FolderImp resFolder = new FolderImp(project, file);
-                    if (resFolder.getFullPath().segmentCount() == project.getFullPath().segmentCount()) {
-                        //fully shared
-                        project.refreshLocal();
-                        resources.add(project);
-                    } else {
-                        //partially shared
-                        resources.addAll(getParentFolders(project, project.getFullPath(), resFolder.getFullPath()));
-                        loadChildResources(project, resFolder.toFile(), resources);
-                    }
-
-                } else {
-                    FileImp resFile = new FileImp(project, file);
-                    resources.addAll(getParentFolders(project, project.getFullPath(), resFile.getFullPath()));
-                    resources.add(resFile);
-                }
+                //We allow only completely shared projects, so no need to check
+                //for partially shared ones.
+                project.refreshLocal();
+                resources.add(project);
 
                 List<JID> contacts = Arrays.asList(userJID);
 
@@ -210,5 +197,24 @@ public class SarosFileShareGroup extends ActionGroup {
         public String toString() {
             return super.toString() + " " + title;
         }
+    }
+
+    private ProjectImp getProjectFromVirtFile(AnActionEvent e) {
+        VirtualFile virtFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        Module module = ProjectFileIndex.SERVICE.getInstance(e.getProject()).getModuleForFile(virtFile);
+        String moduleName = null;
+        if (module != null) {
+            moduleName = module.getName();
+        } else {
+            //FIXME: Find way to select moduleName for non-module based IDEAs
+            //(Webstorm)
+        }
+        return new ProjectImp(e.getProject(), moduleName, new File(e.getProject().getBasePath() + "/" + moduleName));
+    }
+
+    private boolean isCompletelyShared(ProjectImp project,
+        FolderImp resFolder) {
+        return
+            resFolder.getFullPath().equals(project.getFullPath());
     }
 }
