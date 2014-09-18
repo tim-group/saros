@@ -36,9 +36,7 @@ public class NewContactAction extends AbstractSarosAction {
     }
 
     @Override
-    public void run() {
-        actionStarted();
-
+    public void execute() {
         LOG.info("Not implemented action [" + NAME + "]");
 
         SafeDialogUtils.showError(

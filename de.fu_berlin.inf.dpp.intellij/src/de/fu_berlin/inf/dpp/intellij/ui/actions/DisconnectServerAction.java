@@ -35,19 +35,13 @@ public class DisconnectServerAction extends AbstractSarosAction {
     @Inject
     private XMPPConnectionService connectionService;
 
-    public DisconnectServerAction() {
-        SarosPluginContext.initComponent(this);
-    }
-
     @Override
     public String getActionName() {
         return NAME;
     }
 
     @Override
-    public void run() {
-        actionStarted();
-
+    public void execute() {
         connectionService.disconnect();
 
         actionFinished();

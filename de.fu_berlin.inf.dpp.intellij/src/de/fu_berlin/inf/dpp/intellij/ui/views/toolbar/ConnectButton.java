@@ -24,21 +24,26 @@ package de.fu_berlin.inf.dpp.intellij.ui.views.toolbar;
 
 import de.fu_berlin.inf.dpp.account.XMPPAccount;
 import de.fu_berlin.inf.dpp.account.XMPPAccountStore;
+import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
+import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import org.picocontainer.annotations.Inject;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 /**
  * Implementation of connect XMPP/jabber server button
  */
-public class ConnectButton extends ToolbarButton implements SarosActionListener {
+public class ConnectButton extends ToolbarButton {
     public static final String CONNECT_ICON_PATH = "icons/elcl16/connect.png";
+
     private JPopupMenu popupMenu = new JPopupMenu();
+    private JMenuItem menuItemAdd;
+    private JMenuItem configure;
+    private JMenuItem disconnect;
 
     private final AbstractSarosAction disconnectAction;
     private final ConnectServerAction connectAction;
@@ -50,113 +55,135 @@ public class ConnectButton extends ToolbarButton implements SarosActionListener 
         SarosPluginContext.initComponent(this);
         disconnectAction = SarosActionFactory.getAction(DisconnectServerAction.NAME);
         connectAction = (ConnectServerAction)SarosActionFactory.getAction(ConnectServerAction.NAME);
-        createButton();
+        connectAction.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent action) {
+                popupMenu.removeAll();
+                createMenuItems();
+            }
+        });
+
+        createDisconnectMenuItem();
+        createAddAccountMenuÍtem();
+        createConfigureAccountMenuItem();
+        createMenuItems();
+        createConnectButton();
     }
 
-    private void createButton() {
+    private void createConnectButton() {
         setIcon(CONNECT_ICON_PATH, "Connect");
         setActionCommand(ConnectServerAction.NAME);
 
         setToolTipText("Connect to XMPP/jabber server");
 
-        createMenu();
-        connectAction.addActionListener(this);   //register listener
-
-        disconnectAction.setGuiFrame(this);
-        connectAction.setGuiFrame(this);
-
-        final JButton button = this;
-        this.addActionListener(new ActionListener() {
+        addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
-
                 if (accountStore.isEmpty()) {
-                    button.setEnabled(false);
-                    startAction(connectAction);
+                    //setEnabled(false);
+                    XMPPAccount account = createNewAccount();
+                    connectAction.executeWithUser(account.getUsername());
                 } else {
-                    popupMenu.show(button, 0, button.getBounds().y + button.getBounds().height);
+                    popupMenu.show(ConnectButton.this, 0,
+                        getBounds().y + getBounds().height);
                 }
             }
         });
     }
 
-    private JPopupMenu createMenu() {
-
-        final JButton button = this;
-        //set accounts
-        final List<XMPPAccount> accounts = accountStore.getAllAccounts();
-        for (XMPPAccount account : accounts) {
-            // final String userName = account.getUsername();
-            // JMenuItem accountItem = new JMenuItem(account.getUsername() + "@" + account.getServer());
+    private void createMenuItems() {
+        for (XMPPAccount account : accountStore.getAllAccounts()) {
             final String userName = account.getUsername() + "@" + account.getServer();
-            JMenuItem accountItem = new JMenuItem(userName);
-            accountItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    button.setEnabled(false);
-                    connectAction.setActiveUser(userName);
-                    startAction(connectAction);
-                }
-            });
+            JMenuItem accountItem = createMenuItemForUser(userName);
             popupMenu.add(accountItem);
         }
 
         popupMenu.addSeparator();
+        popupMenu.add(menuItemAdd);
+        popupMenu.add(configure);
+        popupMenu.add(disconnect);
+    }
 
-        JMenuItem menuItemAdd = new JMenuItem("Add account...");
-        menuItemAdd.addActionListener(new ActionListener() {
+    private JMenuItem createMenuItemForUser(final String userName) {
+        JMenuItem accountItem = new JMenuItem(userName);
+        accountItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                button.setEnabled(false);
-                createNewAccount();
+                //button.setEnabled(false);
+                connectAction.executeWithUser(userName);
             }
         });
-        popupMenu.add(menuItemAdd);
+        return accountItem;
+    }
 
-        JMenuItem configure = new JMenuItem("Configure accounts...");
+    private void createDisconnectMenuItem() {
+        disconnect = new JMenuItem("Disconnect server");
+        disconnect.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //button.setEnabled(false);
+                disconnectAction.execute();
+            }
+        });
+    }
+
+    private void createConfigureAccountMenuItem() {
+        configure = new JMenuItem("Configure accounts...");
         configure.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 configureAccounts();
             }
         });
-        popupMenu.add(configure);
+    }
 
-        JMenuItem disconnect = new JMenuItem("Disconnect server");
-        disconnect.addActionListener(new ActionListener() {
+    private void createAddAccountMenuÍtem() {
+        menuItemAdd = new JMenuItem("Add account...");
+        menuItemAdd.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                button.setEnabled(false);
-                startAction(disconnectAction);
+                XMPPAccount account = createNewAccount();
+                if (account == null) {
+                    SafeDialogUtils
+                        .showError("Account could not be created", "Error");
+                }
+                createMenuItems();
             }
         });
-        popupMenu.add(disconnect);
-
-        return popupMenu;
-
     }
 
     /**
-     *
+     * Asks for Name, Password and server for a new XMPP account.
      */
-    protected void createNewAccount() {
-        connectAction.setCreateNew(true);
-        startAction(connectAction);
+    protected XMPPAccount createNewAccount() {
+        final String jabberID = SafeDialogUtils
+            .showInputDialog("Your Jabber-ID (e.g. 'dev1_alice_stf')",
+                "dev1_alice_stf", "Login");
+        if (jabberID.isEmpty()) {
+            return null;
+        }
+        final String password = SafeDialogUtils
+            .showInputDialog("Password (e.g. 'dev')", "dev", "Login");
+        if (password.isEmpty()) {
+            return null;
+        }
+        final String sarosServer = SafeDialogUtils
+            .showInputDialog("Saros server "
+                    + "(e.g. 'localhost', 'saros-con.imp.fu-berlin.de')",
+                "localhost", "Server"
+            );
+        if (sarosServer.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return accountStore
+                .createAccount(jabberID, password, Saros.NAMESPACE, sarosServer,
+                    80, false, false);
+        } catch (IllegalArgumentException e) {
+            SafeDialogUtils.showError(e.getMessage(), "Error");
+        }
+        return null;
     }
 
-    /**
-     *
-     */
     protected void configureAccounts() {
-        LOG.debug("ConnectButton.actionPerformed CONFIGURE");
 
         throw new IllegalStateException("Not implemented!");
-    }
-
-    @Override
-    public void actionStarted(AbstractSarosAction action) {
-
-    }
-
-    @Override
-    public void actionFinished(AbstractSarosAction action) {
-        popupMenu.removeAll();
-        createMenu();
     }
 
     public AbstractSarosAction getDisconnectAction() {

@@ -17,17 +17,28 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * /
+ *
  */
 
 package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 /**
- * Saros action listener
+ * Action to open a whiteboard chart.
  */
-public interface SarosActionListener
+public class OpenWhiteboardAction extends AbstractSarosAction
 {
-    void actionStarted(AbstractSarosAction action);
+    public static final String NAME = "openChart";
 
-    void actionFinished(AbstractSarosAction action);
+    @Override
+    public String getActionName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public void execute()
+    {
+        //todo
+        actionFinished();
+    }
 }

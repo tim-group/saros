@@ -34,6 +34,7 @@ public class LeaveSessionAction extends AbstractSarosAction {
     private ISarosSessionManager sessionManager;
 
     public LeaveSessionAction(ISarosSessionManager sessionManager) {
+        super();
         this.sessionManager = sessionManager;
     }
 
@@ -42,8 +43,7 @@ public class LeaveSessionAction extends AbstractSarosAction {
         return NAME;
     }
 
-    public void run() {
-        actionStarted();
+    public void execute() {
         CollaborationUtils.leaveSession();
         actionFinished();
     }

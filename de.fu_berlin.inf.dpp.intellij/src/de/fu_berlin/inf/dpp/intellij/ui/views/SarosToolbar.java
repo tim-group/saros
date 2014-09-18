@@ -25,7 +25,7 @@ package de.fu_berlin.inf.dpp.intellij.ui.views;
 import com.intellij.util.ui.UIUtil;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.intellij.ui.actions.*;
-import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.CommonButton;
+import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.SimpleButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConnectButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.ConsistencyButton;
 import de.fu_berlin.inf.dpp.intellij.ui.views.toolbar.FollowButton;
@@ -35,6 +35,8 @@ import org.picocontainer.annotations.Inject;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,28 +56,20 @@ public class SarosToolbar {
     @Inject
     private XMPPConnectionService connectionService;
 
-    private SarosActionListener toolbarActionListener = new SarosActionListener() {
-        @Override
-        public void actionStarted(AbstractSarosAction action) {
-
-        }
+    private ActionListener toolbarActionListener = new ActionListener() {
 
         @Override
-        public void actionFinished(AbstractSarosAction action) {
+        public void actionPerformed(ActionEvent action) {
             initButtons();
         }
     };
 
-    private SarosActionListener treeActionListener = new SarosActionListener() {
-        @Override
-        public void actionStarted(AbstractSarosAction action) {
-
-        }
+    private ActionListener treeActionListener = new ActionListener() {
 
         @Override
-        public void actionFinished(AbstractSarosAction action) {
-            if (action instanceof ConnectServerAction
-                || action instanceof DisconnectServerAction) {
+        public void actionPerformed(ActionEvent action) {
+            if (action.getSource() instanceof ConnectServerAction
+                || action.getSource() instanceof DisconnectServerAction) {
 
                 final SarosTreeView sarosTree = sarosMainView.getSarosTree();
                 if (connectionService.isConnected()) {
@@ -185,7 +179,7 @@ public class SarosToolbar {
     private void addNavigationButton(String action, String toolTipText,
         String iconPath, String altText) {
         //Create and initialize the button.
-        JButton button = new CommonButton(action, toolTipText, iconPath,
+        JButton button = new SimpleButton(action, toolTipText, iconPath,
             altText);
         toolbarButtons.put(button.getActionCommand(), button);
         jToolBar.add(button);

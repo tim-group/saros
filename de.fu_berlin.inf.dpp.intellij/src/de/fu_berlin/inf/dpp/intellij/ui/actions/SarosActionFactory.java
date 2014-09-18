@@ -24,7 +24,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.actions;
 
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
-import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
 import java.util.HashMap;
@@ -54,7 +53,7 @@ public class SarosActionFactory {
         registerAction(leaveSessionAction);
         registerAction(new ConsistencyAction());
         registerAction(new NewContactAction());
-        registerAction(new OpenChartAction());
+        registerAction(new OpenWhiteboardAction());
 
         for (NotImplementedAction.actions enAction : NotImplementedAction.actions.values()) {
             registerAction(new NotImplementedAction(enAction));
@@ -66,10 +65,6 @@ public class SarosActionFactory {
         registeredActions.put(action.getActionName(), action);
     }
 
-    /**
-     * @param actionName
-     * @return
-     */
     public static AbstractSarosAction getAction(String actionName) {
         AbstractSarosAction action = registeredActions.get(actionName);
         if (action == null) {
@@ -77,9 +72,5 @@ public class SarosActionFactory {
         }
 
         return action;
-    }
-
-    public static void startAction(AbstractSarosAction action) {
-        action.run();
     }
 }

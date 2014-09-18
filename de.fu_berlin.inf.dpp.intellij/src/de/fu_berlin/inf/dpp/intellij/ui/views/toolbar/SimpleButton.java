@@ -29,28 +29,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * General button used to create any common button
+ * Simple button used to create actions that just call {@link AbstractSarosAction#execute()}.
  */
-public class CommonButton extends ToolbarButton implements ActionListener
+public class SimpleButton extends ToolbarButton
 {
     private String actionCommand;
     private AbstractSarosAction action;
 
-    /**
-     * @param actionCommand
-     * @param tooltipText
-     * @param iconPath
-     * @param altText
-     */
-    public CommonButton(String actionCommand, String tooltipText, String iconPath, String altText) {
+    public SimpleButton(String actionCommand, String tooltipText, String iconPath, String altText) {
         this.actionCommand = actionCommand;
 
         action = SarosActionFactory.getAction(actionCommand);
-        action.setGuiFrame(this);
         setIcon(iconPath, altText);
         setActionCommand(actionCommand);
         setToolTipText(tooltipText);
-        addActionListener(this);
+        addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent actionEvent) {
+                action.execute();
+            }
+        });
     }
 
     public String getActionCommand()
@@ -58,9 +55,4 @@ public class CommonButton extends ToolbarButton implements ActionListener
         return actionCommand;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        startAction(action);
-    }
 }

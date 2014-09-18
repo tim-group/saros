@@ -66,8 +66,4 @@ public abstract class ToolbarButton extends JButton {
             LOG.error("Resource not found: " + imageURL);
         }
     }
-
-    protected void startAction(AbstractSarosAction action) {
-        action.run();
-    }
 }

@@ -26,7 +26,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.concurrent.ConsistencyWatchdogClient;
 import de.fu_berlin.inf.dpp.core.concurrent.IsInconsistentObservable;
-import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.project.AbstractSarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionListener;
 import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
@@ -42,7 +41,6 @@ import de.fu_berlin.inf.dpp.session.ISarosSession;
 import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.picocontainer.annotations.Inject;
 
-import javax.swing.*;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,22 +49,22 @@ import java.util.Set;
  * Performs project recovery, when inconsistency was detected.
  */
 public class ConsistencyAction extends AbstractSarosAction {
-    public static final String ACTION_NAME = "consistency";
+    public static final String NAME = "consistency";
 
     @Override
     public String getActionName() {
-        return ACTION_NAME;
+        return NAME;
     }
 
     private final ISarosSessionListener sessionListener = new AbstractSarosSessionListener() {
         @Override
         public void sessionStarted(ISarosSession newSarosSession) {
-            setSharedProject(newSarosSession);
+            setSarosSession(newSarosSession);
         }
 
         @Override
         public void sessionEnded(ISarosSession oldSarosSession) {
-            setSharedProject(null);
+            setSarosSession(null);
         }
     };
 
@@ -78,38 +76,33 @@ public class ConsistencyAction extends AbstractSarosAction {
         }
     };
 
-    @Inject
-    protected ISarosSessionManager sessionManager;
+    @Inject private ISarosSessionManager sessionManager;
 
-    @Inject
-    protected ConsistencyWatchdogClient watchdogClient;
+    @Inject private ConsistencyWatchdogClient watchdogClient;
 
-    @Inject
-    protected IsInconsistentObservable inconsistentObservable;
+    @Inject private IsInconsistentObservable inconsistentObservable;
 
     private ConsistencyButton consistencyButton;
     private ISarosSession sarosSession;
 
     public ConsistencyAction() {
-        SarosPluginContext.initComponent(this);
-
-        setSharedProject(sessionManager.getSarosSession());
+        super();
+        setSarosSession(sessionManager.getSarosSession());
         sessionManager.addSarosSessionListener(sessionListener);
     }
 
-    private void setSharedProject(ISarosSession newSharedProject) {
+    private void setSarosSession(ISarosSession newSession) {
 
-        // Unregister from previous project
+        // Unregister from previous session
         if (sarosSession != null) {
             inconsistentObservable.remove(isConsistencyListener);
         }
 
-        sarosSession = newSharedProject;
+        sarosSession = newSession;
 
         if (sarosSession != null) {
             inconsistentObservable.addAndNotify(isConsistencyListener);
         }
-
     }
 
     /**
@@ -142,22 +135,11 @@ public class ConsistencyAction extends AbstractSarosAction {
         final Set<SPath> paths = new HashSet<SPath>(
             watchdogClient.getPathsWithWrongChecksums());
 
+        final String files = createInconsistentPathsMessage(paths);
+
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-
-                StringBuilder sb = new StringBuilder();
-
-                for (SPath path : paths) {
-                    if (sb.length() > 0) {
-                        sb.append(", ");
-                    }
-
-                    sb.append(path.getFullPath().toOSString());
-                }
-
-                String files = sb.toString();
-
                 // set tooltip
                 setToolTipText(MessageFormat.format(
                     Messages.ConsistencyAction_tooltip_inconsistency_detected,
@@ -178,6 +160,20 @@ public class ConsistencyAction extends AbstractSarosAction {
         });
     }
 
+    private String createInconsistentPathsMessage(Set<SPath> paths) {
+        StringBuilder sb = new StringBuilder();
+
+        for (SPath path : paths) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+
+            sb.append(path.getFullPath().toOSString());
+        }
+
+        return sb.toString();
+    }
+
     private void setToolTipText(String text) {
         NotificationPanel.showNotification(text, "Consistency warning");
     }
@@ -187,28 +183,15 @@ public class ConsistencyAction extends AbstractSarosAction {
      * {@link ConsistencyWatchdogClient#runRecovery(IProgressMonitor)}.
      */
     @Override
-    public void run() {
+    public void execute() {
         LOG.debug("user activated CW recovery.");
 
         final Set<SPath> paths = new HashSet<SPath>(
             watchdogClient.getPathsWithWrongChecksums());
 
-        StringBuilder sbInconsistentFiles = new StringBuilder();
-        for (SPath path : paths) {
-            sbInconsistentFiles.append("project: ");
-            sbInconsistentFiles.append(path.getProject().getName());
-            sbInconsistentFiles.append(", file: ");
-            sbInconsistentFiles
-                .append(path.getProjectRelativePath().toOSString());
-            sbInconsistentFiles.append("\n");
+        String inconsistentFiles = createConfirmationMessage(paths);
 
-        }
-
-        sbInconsistentFiles.append("Please confirm project modifications.\n\n"
-            + "                + The recovery process will perform changes to files and folders of the current shared project(s).\n\n"
-            + "                + The affected files and folders may be either modified, created, or deleted.");
-
-        if (!DialogUtils.showQuestion(guiFrame, sbInconsistentFiles.toString(),
+        if (!DialogUtils.showQuestion(null, inconsistentFiles,
             Messages.ConsistencyAction_confirm_dialog_title)) {
             consistencyButton.setEnabled(true);
 
@@ -240,6 +223,24 @@ public class ConsistencyAction extends AbstractSarosAction {
                 watchdogClient.runRecovery(progress);
             }
         });
+    }
+
+    private String createConfirmationMessage(Set<SPath> paths) {
+        StringBuilder sbInconsistentFiles = new StringBuilder();
+        for (SPath path : paths) {
+            sbInconsistentFiles.append("project: ");
+            sbInconsistentFiles.append(path.getProject().getName());
+            sbInconsistentFiles.append(", file: ");
+            sbInconsistentFiles
+                .append(path.getProjectRelativePath().toOSString());
+            sbInconsistentFiles.append("\n");
+
+        }
+
+        sbInconsistentFiles.append("Please confirm project modifications.\n\n"
+            + "                + The recovery process will perform changes to files and folders of the current shared project(s).\n\n"
+            + "                + The affected files and folders may be either modified, created, or deleted.");
+        return sbInconsistentFiles.toString();
     }
 
     public void setConsistencyButton(ConsistencyButton consistencyButton) {
