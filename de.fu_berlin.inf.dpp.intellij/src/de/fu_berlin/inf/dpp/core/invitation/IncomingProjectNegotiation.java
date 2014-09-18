@@ -232,12 +232,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
             // Host/Inviter decided to transmit files with one big archive
             if (filesMissing) {
-                acceptArchive(archiveTransferListener,
-                    monitor);
+                acceptArchive(archiveTransferListener, monitor);
             }
-
-            //openProjects();
-
 
             /*
              * We are finished with the exchanging process. Add all projects
@@ -285,37 +281,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
 
         return terminateProcess(exception);
-    }
-
-    private void openProjects() {
-        for (IProject project : localProjectMapping.values()) {
-            if (!project.isOpen()) {
-                try {
-                    project.open();
-                } catch (IOException e) {
-                    LOG.error("unable to create project " + project.getName(),
-                        e);
-                }
-            }
-        }
-    }
-
-    private void createLocalProjects(Map<String, String> projectNames)
-        throws LocalCancellationException, IOException {
-        for (Entry<String, String> entry : projectNames.entrySet()) {
-            String projectID = entry.getKey();
-            String projectName = entry.getValue();
-
-            IProject project = saros.getWorkspace().getProject(projectName);
-            File projectFolder = project.getFullPath().toFile();
-            if (!projectFolder.exists()) {
-                if (!projectFolder.mkdir()) {
-                    LOG.error(
-                        "could not create project folder " + projectFolder);
-                }
-            }
-            localProjectMapping.put(projectID, project);
-        }
     }
 
     public boolean isPartialRemoteProject(String projectID) {

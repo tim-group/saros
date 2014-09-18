@@ -25,8 +25,17 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -66,7 +75,7 @@ public class SelectProjectPage extends AbstractWizardPage
      *
      * @param id identification
      */
-    public SelectProjectPage(Object id)
+    public SelectProjectPage(String id)
     {
         super(id);
     }

@@ -33,6 +33,7 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
 import de.fu_berlin.inf.dpp.intellij.editor.EditorManager;
+import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
@@ -70,6 +71,8 @@ public class AddProjectToSessionWizard {
     public static final String FILE_LIST_PAGE_ID = "fileListPage";
     public static final String PROGRESS_PAGE_ID = "progressPage";
 
+    private final Map<String, String> remoteProjectNames;
+
     protected IncomingProjectNegotiation process;
     protected JID peer;
     protected List<FileList> fileLists;
@@ -77,7 +80,7 @@ public class AddProjectToSessionWizard {
     /**
      * projectID => projectName
      */
-    protected Map<String, String> remoteProjectNames;
+    protected Map<String, IProject> remoteProjects;
 
     @Inject
     private IChecksumCache checksumCache;
@@ -122,16 +125,23 @@ public class AddProjectToSessionWizard {
                 wizard.getWizardModel().setNextPage(progressPage);
             }
 
-            String key = remoteProjectNames.keySet().iterator().next();
-            remoteProjectNames.put(key, newName);
+            for (Map.Entry<String, String> entry : remoteProjectNames.entrySet()) {
+                final String projectID = entry.getKey();
+                final String projectName = entry.getValue();
+                IProject project = saros.getWorkspace().getProject(projectName);
+
+                remoteProjects.put(projectID, project);
+            }
 
             final boolean checkFiles = isExisting;
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
                     if (checkFiles) {
-                        runCalculateChangedFiles();
+                        createAndOpenProjects(remoteProjects);
+                        runCalculateChangedFiles(remoteProjects);
                     } else {
+                        createAndOpenProjects(remoteProjects);
                         runAddProject();
                     }
                 }
@@ -192,6 +202,7 @@ public class AddProjectToSessionWizard {
         this.peer = peer;
         this.fileLists = fileLists;
         this.remoteProjectNames = projectNames;
+        this.remoteProjects = new HashMap<String, IProject>();
 
         String prjName = projectNames.values().iterator().next();
 
@@ -224,7 +235,7 @@ public class AddProjectToSessionWizard {
 
     }
 
-    private void runCalculateChangedFiles() {
+    private void runCalculateChangedFiles(Map<String, IProject> projectMapping) {
 
         IProgressMonitor monitor = fileListPage.getProgressMonitor(true, false);
         monitor.setTaskName("Calculating changed files...");
@@ -234,9 +245,8 @@ public class AddProjectToSessionWizard {
 
         final Map<String, IProject> sources = new HashMap<String, IProject>();
         for (FileList fList : fileLists) {
-            String localProjectName = remoteProjectNames
+            IProject localProject = projectMapping
                 .get(fList.getProjectID());
-            IProject localProject = workspace.getProject(localProjectName);
             try {
                 localProject.refreshLocal();
             } catch (IOException e) {
@@ -247,7 +257,7 @@ public class AddProjectToSessionWizard {
         modifiedProjects.putAll(getModifiedProjects(sources));
         try {
             modifiedResources
-                .putAll(calculateModifiedResources(modifiedProjects, monitor));
+                .putAll(getModifiedResources(modifiedProjects, monitor));
         } catch (IOException e) {
             LOG.error(e);
             DialogUtils.showError(wizard.getWizard(), "Calculation error",
@@ -259,7 +269,7 @@ public class AddProjectToSessionWizard {
 
         int writeOverCount = 0;
         for (String key : modifiedResources.keySet()) {
-            // String prjName = remoteProjectNames.get(key);
+            // String prjName = remoteProjects.get(key);
             fileListPage.addLine("Project [" + key + "]:");
             FileListDiff diff = modifiedResources.get(key);
             for (String path : diff.getAlteredPaths()) {
@@ -292,7 +302,7 @@ public class AddProjectToSessionWizard {
     public void runAddProject() {
         final IProgressMonitor monitor = progressPage
             .getProgressMonitor(true, true);
-        process.accept(remoteProjectNames, monitor, false);
+        process.run(remoteProjects, monitor, false);
     }
 
     protected Component getShell() {
@@ -340,11 +350,33 @@ public class AddProjectToSessionWizard {
         return modifiedProjects;
     }
 
+    public void createAndOpenProjects(Map<String, IProject> projectMapping) {
+
+        for (Map.Entry<String, IProject> entry : projectMapping.entrySet()) {
+            IProject project = entry.getValue();
+            try {
+                if (!project.exists()) {
+                    ((ProjectImp) project).create();
+                }
+
+                if (!project.isOpen()) {
+                    project.open();
+                }
+
+            } catch (IOException e) {
+                LOG.error("Could not create project", e);
+                DialogUtils
+                    .showError(wizard.getWizard(), "Could not create project.",
+                        "Error");
+            }
+        }
+    }
+
     /**
      * Returns all modified resources (either changed or deleted) for the
      * current project mapping.
      */
-    private Map<String, FileListDiff> calculateModifiedResources(
+    private Map<String, FileListDiff> getModifiedResources(
         Map<String, IProject> projectMapping, IProgressMonitor monitor)
         throws IOException {
         Map<String, FileListDiff> modifiedResources = new HashMap<String, FileListDiff>();
@@ -367,18 +399,8 @@ public class AddProjectToSessionWizard {
 
             String projectID = entry.getKey();
             IProject project = entry.getValue();
-            //In Eclipse this creates the handle and opens the project - not necessary here, because we just use the folder
-            //on disk -- opening happens later in IPN
 
             FileListDiff diff;
-
-            try {
-                if (!project.isOpen()) {
-                    project.open();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             FileList remoteFileList = process.getRemoteFileList(projectID);
 

@@ -26,8 +26,12 @@ import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 
 /**
  * Standard progress bar panel
@@ -44,7 +48,7 @@ public class ProgressPage extends AbstractWizardPage
      *
      * @param id identifier
      */
-    public ProgressPage(Object id)
+    public ProgressPage(String id)
     {
         super(id);
         create();

@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 public abstract class AbstractWizardPage extends JPanel
 {
     protected Wizard wizard;
-    private Object id;
+    private String id;
     private PageActionListener actionListener;
 
     /**
@@ -41,7 +41,7 @@ public abstract class AbstractWizardPage extends JPanel
      *
      * @param id identification
      */
-    public AbstractWizardPage(Object id)
+    public AbstractWizardPage(String id)
     {
         this.id = id;
     }
@@ -60,7 +60,7 @@ public abstract class AbstractWizardPage extends JPanel
      *
      * @return id
      */
-    public Object getId()
+    public String getId()
     {
         return id;
     }
