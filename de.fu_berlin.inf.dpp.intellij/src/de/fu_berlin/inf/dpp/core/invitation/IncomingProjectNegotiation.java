@@ -28,6 +28,7 @@ import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiation;
 import de.fu_berlin.inf.dpp.invitation.ProjectNegotiationData;
+import de.fu_berlin.inf.dpp.intellij.project.fs.VcsIgnore;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 import de.fu_berlin.inf.dpp.monitoring.SubProgressMonitor;
 import de.fu_berlin.inf.dpp.net.PacketCollector;
@@ -299,7 +300,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             }
 
             IProject project = new ProjectImp(saros.getProject(), projectName,
-                projectFolder);
+                projectFolder, VcsIgnore.NOTHING_IS_IGNORED);
             localProjects.put(projectID, project);
         }
     }

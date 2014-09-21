@@ -54,7 +54,7 @@ public class Workspace implements IWorkspace {
 
     @Override
     public IProject getProject(String projectName) {
-        return new ProjectImp(project, projectName);
+        return new ProjectImp(project, projectName, VcsIgnore.NOTHING_IS_IGNORED);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Workspace implements IWorkspace {
         }
 
         String projectName = new PathImp(relativePath).segment(0);
-        return new ProjectImp(project, projectName);
+        return new ProjectImp(project, projectName, VcsIgnore.NOTHING_IS_IGNORED);
     }
 
     @Override

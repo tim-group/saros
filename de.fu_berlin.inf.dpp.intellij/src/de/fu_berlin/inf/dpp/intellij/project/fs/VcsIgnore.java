@@ -20,10 +20,17 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.invitation;
+package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 
 public interface VcsIgnore {
+
     boolean isIgnored(IResource resource);
+
+    VcsIgnore NOTHING_IS_IGNORED = new VcsIgnore() {
+        @Override public boolean isIgnored(IResource resource) {
+            return false;
+        }
+    };
 }

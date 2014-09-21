@@ -56,6 +56,7 @@ public class ProjectImp implements IProject {
 
     private Project project;
     private String name;
+    private final VcsIgnore vcsIgnore;
     private File path;
 
     // TODO consider caching
@@ -71,17 +72,15 @@ public class ProjectImp implements IProject {
     private IResourceAttributes attributes;
 
 
-    public ProjectImp(Project project, String name) {
-        this.project = project;
-        this.name = name;
-        setPath(new File(project.getBasePath()));
-        scan(path);
+    public ProjectImp(Project project, String name, VcsIgnore vcsIgnore) {
+        this(project, name, new File(project.getBasePath()), vcsIgnore);
     }
 
 
-    public ProjectImp(Project project, String name, File path) {
+    public ProjectImp(Project project, String name, File path, VcsIgnore vcsIgnore) {
         this.project = project;
         this.name = name;
+        this.vcsIgnore = vcsIgnore;
         setPath(path);
 
         scan(path);
@@ -427,6 +426,10 @@ public class ProjectImp implements IProject {
         }
 
         return getClass().getName() + sb;
+    }
+
+    public boolean isMemberDerived(IResource resource) {
+        return vcsIgnore.isIgnored(resource);
     }
 
     private class LoadModuleRunnable implements Runnable {

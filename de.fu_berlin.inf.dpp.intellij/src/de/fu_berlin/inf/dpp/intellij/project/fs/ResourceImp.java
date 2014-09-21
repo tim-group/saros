@@ -135,7 +135,7 @@ public abstract class ResourceImp implements IResource {
 
     @Override
     public boolean isDerived() {
-        return isDerived;
+        return project.isMemberDerived(this);
     }
 
     public void setDerived(boolean derived) {
