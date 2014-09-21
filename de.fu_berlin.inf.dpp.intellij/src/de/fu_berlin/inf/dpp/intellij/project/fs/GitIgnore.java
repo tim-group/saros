@@ -113,6 +113,7 @@ public final class GitIgnore implements IVcsIgnore {
         try {
             InputStream in = currentGitIgnore.getContents();
             IgnoreNode ignoreNode = new IgnoreNode();
+            //FIXME: If this is slow, consider caching here
             ignoreNode.parse(in);
             String path = fileToCheck.getProjectRelativePath().toPortableString();
             boolean isDirectory = fileToCheck.getType() == IResource.FOLDER;

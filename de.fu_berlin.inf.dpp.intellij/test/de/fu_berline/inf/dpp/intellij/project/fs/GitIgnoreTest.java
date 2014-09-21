@@ -23,12 +23,14 @@
 package de.fu_berline.inf.dpp.intellij.project.fs;
 
 import com.google.common.io.Files;
+import com.intellij.openapi.project.Project;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IVcsIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.GitIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import org.apache.commons.codec.Charsets;
+import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -54,38 +56,52 @@ public class GitIgnoreTest {
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
+    public static final String TEST_PROJECT_NAME = "Test-project";
+
     @Test public void honoursGitIgnoreConfig() throws Exception {
         ensureIgnoredFilesExist();
-
+        Project project = getMockIdeaProject();
         IVcsIgnore gitIgnores = new GitIgnore();
+
         VcsIgnoredMatcher ignored = ignoredBy(gitIgnores,
-            new ProjectImp(null, "Test-Project", folder.getRoot(), gitIgnores));
+            new ProjectImp(project, TEST_PROJECT_NAME, gitIgnores));
 
         assertExpectedIgnores(ignored);
     }
 
     @Test public void returnsFalseWhenNoGitIgnoreFileExistsAnywhere() throws Exception {
         folder.create();
-        File projectFolder = folder.newFolder("not-a-git-project");
-        folder.newFile("not-a-git-project/some-file.txt");
+        createTestProject();
+        Project project = getMockIdeaProject();
+        folder.newFile(TEST_PROJECT_NAME + "/some-file.txt");
 
         IVcsIgnore gitIgnores = new GitIgnore();
 
-        assertThat("not-a-git-project/some-file.txt", is(not(ignoredBy(gitIgnores, new ProjectImp(null, "Test-Project", projectFolder, gitIgnores)))));
+        assertThat(TEST_PROJECT_NAME + "/some-file.txt", is(not(
+            ignoredBy(gitIgnores,
+                new ProjectImp(project, "Test-Project", gitIgnores)))));
     }
 
     @Test public void ignoresTheDotGitDirectory() throws Exception {
         folder.create();
-        File rootDir = folder.getRoot();
-        initGitRepoIn(rootDir);
+        createTestProject();
+        Project project = getMockIdeaProject();
 
         IVcsIgnore gitIgnores = new GitIgnore();
 
         VcsIgnoredMatcher ignoredBy = ignoredBy(gitIgnores,
-            new ProjectImp(null, "Test-Project", folder.getRoot(), gitIgnores));
+            new ProjectImp(project, TEST_PROJECT_NAME, gitIgnores));
 
         assertThat(".git/", is(ignoredBy));
         assertThat(".git/config", is(ignoredBy));
+    }
+
+    private Project getMockIdeaProject() {
+        Project project = EasyMock.createNiceMock(Project.class);
+        EasyMock.expect(project.getBasePath())
+            .andReturn(folder.getRoot().getAbsolutePath());
+        EasyMock.replay(project);
+        return project;
     }
 
     private void assertExpectedIgnores(Matcher<String> ignored) {
@@ -93,58 +109,70 @@ public class GitIgnoreTest {
         assertThat("not-ignored.txt", is(not(ignored)));
 
         assertThat("ignored-directory", is(ignored));
-        assertThat("ignored-directory/ignored-file-in-ignored-dir.txt", is(ignored));
-        assertThat("ignored-directory/not-ignored-file-in-ignored-dir.txt", is(ignored));
+        assertThat("ignored-directory/ignored-file-in-ignored-dir.txt",
+            is(ignored));
+        assertThat("ignored-directory/not-ignored-file-in-ignored-dir.txt",
+            is(ignored));
         assertThat("ignored-with-wildcard.txt", is(ignored));
-        assertThat("not-ignored-directory/ignored-in-not-ignored-dir.txt", is(ignored));
-        assertThat("not-ignored-directory/not-ignored-in-not-ignored-dir.txt", is(not(ignored)));
+        assertThat("not-ignored-directory/ignored-in-not-ignored-dir.txt",
+            is(ignored));
+        assertThat("not-ignored-directory/not-ignored-in-not-ignored-dir.txt",
+            is(not(ignored)));
     }
 
     private void ensureIgnoredFilesExist() throws Exception {
         folder.create();
-        File rootDir = folder.getRoot();
+        File testProjectDir = createTestProject();
 
-        initGitRepoIn(rootDir);
+        initGitRepoIn(testProjectDir);
 
-        mkdirIn(rootDir, "ignored-directory");
-        mkdirIn(rootDir, "not-ignored-directory");
-        mkFileIn(rootDir, "ignored.txt");
-        mkFileIn(rootDir, "not-ignored.txt");
-        mkFileIn(rootDir, "ignored-with-wildcard.txt");
-        mkFileIn(rootDir, "ignored-directory/ignored-file-in-ignored-dir.txt");
-        mkFileIn(rootDir, "ignored-directory/not-ignored-file-in-ignored-dir.txt");
-        mkFileIn(rootDir,
+        mkdirIn(testProjectDir, "ignored-directory");
+        mkdirIn(testProjectDir, "not-ignored-directory");
+        mkFileIn(testProjectDir, "ignored.txt");
+        mkFileIn(testProjectDir, "not-ignored.txt");
+        mkFileIn(testProjectDir, "ignored-with-wildcard.txt");
+        mkFileIn(testProjectDir,
+            "ignored-directory/ignored-file-in-ignored-dir.txt");
+        mkFileIn(testProjectDir,
+            "ignored-directory/not-ignored-file-in-ignored-dir.txt");
+        mkFileIn(testProjectDir,
             "not-ignored-directory/ignored-in-not-ignored-dir.txt");
 
-        writeGitignoreIn(rootDir,
+        writeGitignoreIn(testProjectDir,
             "ignored-directory/\n" +
             "ignored-directory/ignored-file-in-ignored-dir.txt\n" +
             "ignored.txt\n" +
             "ignored-*.txt\n");
 
-        writeGitignoreIn(rootDir, "ignored-in-not-ignored-dir.txt\n");
+        writeGitignoreIn(testProjectDir, "ignored-in-not-ignored-dir.txt\n");
     }
 
-    private void writeGitignoreIn(File rootDir, String gitignoreContent)
+    private File createTestProject() {
+        File testProjectDir = new File(folder.getRoot(), TEST_PROJECT_NAME);
+        testProjectDir.mkdir();
+        return testProjectDir;
+    }
+
+    private void writeGitignoreIn(File projectDir, String gitignoreContent)
         throws IOException {
         Files.append(gitignoreContent,
-            new File(rootDir, Constants.GITIGNORE_FILENAME), Charsets.UTF_8);
+            new File(projectDir, Constants.GITIGNORE_FILENAME), Charsets.UTF_8);
     }
 
-    private void initGitRepoIn(File rootDir)
+    private void initGitRepoIn(File projectDir)
         throws GitAPIException, IOException {
-        Git.init().setDirectory(rootDir).setBare(false).call();
+        Git.init().setDirectory(projectDir).setBare(false).call();
         Repository repository = FileRepositoryBuilder
-            .create(new File(rootDir.getAbsolutePath(), ".git"));
+            .create(new File(projectDir.getAbsolutePath(), ".git"));
         repository.close();
     }
 
-    private void mkFileIn(File rootDir, String file) throws IOException {
-        assertTrue(new File(rootDir, file).createNewFile());
+    private void mkFileIn(File projectDir, String file) throws IOException {
+        assertTrue(new File(projectDir, file).createNewFile());
     }
 
-    private void mkdirIn(File rootDir, String directory) {
-        assertTrue(new File(rootDir, directory).mkdir());
+    private void mkdirIn(File projectDir, String directory) {
+        assertTrue(new File(projectDir, directory).mkdir());
     }
 
     public static class VcsIgnoredMatcher

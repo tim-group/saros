@@ -18,6 +18,7 @@
     <orderEntry type="library" exported="" name="xpp3-1.1.4c" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="log4j-1.2.15" level="project" />
     <orderEntry type="library" exported="" name="xstream-1.4-20101008.163445-1" level="project" />
+    <orderEntry type="library" exported="" name="org.eclipse.jgit-3.4.1.201406201815-r" level="project" />
     <orderEntry type="module-library" exported="" scope="TEST">
       <library name="cglib-nodep-2.2.2">
         <CLASSES>
@@ -54,7 +55,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
+    <orderEntry type="module-library" exported="" scope="TEST">
       <library name="powermock-easymock-1.5.1-full">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/test/lib/powermock-easymock-1.5.1-full.jar!/" />
