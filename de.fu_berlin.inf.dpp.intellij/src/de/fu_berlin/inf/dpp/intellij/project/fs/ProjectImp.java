@@ -37,6 +37,7 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IResourceAttributes;
+import de.fu_berlin.inf.dpp.filesystem.IVcsIgnore;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -60,6 +61,7 @@ public class ProjectImp implements IProject {
 
     private Project project;
     private String name;
+    private final IVcsIgnore vcsIgnore;
     private File path;
 
     // TODO consider caching
@@ -74,26 +76,15 @@ public class ProjectImp implements IProject {
     private boolean isAccessible;
     private IResourceAttributes attributes;
 
+    public ProjectImp(Project project, String name, IVcsIgnore vcsIgnore) {
 
-    public ProjectImp(Project project, String name) {
-
-        File path = new File(
-            project.getBasePath() + File.separator
-                + name
+        File path = new File(project.getBasePath() + File.separator + name
         );
 
         this.project = project;
         this.name = name;
+        this.vcsIgnore = vcsIgnore;
         setPath(path);
-        scan(path);
-    }
-
-
-    public ProjectImp(Project project, String name, File path) {
-        this.project = project;
-        this.name = name;
-        setPath(path);
-
         scan(path);
     }
 
@@ -367,12 +358,12 @@ public class ProjectImp implements IProject {
 
     @Override
     public boolean isDerived(boolean checkAncestors) {
-        return isDerived();
+        return false;
     }
 
     @Override
     public boolean isDerived() {
-        return parent != null;
+        return false;
     }
 
     @Override
@@ -445,6 +436,10 @@ public class ProjectImp implements IProject {
         }
 
         return getClass().getName() + sb;
+    }
+
+    public boolean isMemberDerived(IResource resource) {
+        return vcsIgnore.isIgnored(resource);
     }
 
     private class LoadModuleRunnable implements Runnable {

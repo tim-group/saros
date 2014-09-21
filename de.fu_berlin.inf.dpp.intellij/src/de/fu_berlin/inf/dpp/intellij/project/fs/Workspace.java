@@ -24,6 +24,7 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import de.fu_berlin.inf.dpp.filesystem.IVcsIgnore;
 import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
@@ -41,6 +42,7 @@ public class Workspace implements IWorkspace {
     private LocalFileSystem fileSystem;
 
     private Project project;
+    private final IVcsIgnore vcsIgnore = new GitIgnore();
 
     public Workspace(Project project) {
         this.project = project;
@@ -54,7 +56,7 @@ public class Workspace implements IWorkspace {
 
     @Override
     public IProject getProject(String projectName) {
-        return new ProjectImp(project, projectName);
+        return new ProjectImp(project, projectName, vcsIgnore);
     }
 
     /**
@@ -72,7 +74,7 @@ public class Workspace implements IWorkspace {
         }
 
         String projectName = new PathImp(relativePath).segments()[0];
-        return new ProjectImp(project, projectName);
+        return new ProjectImp(project, projectName, new GitIgnore());
     }
 
     @Override

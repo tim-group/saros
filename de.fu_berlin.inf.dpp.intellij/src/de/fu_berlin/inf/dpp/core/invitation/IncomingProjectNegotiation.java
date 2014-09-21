@@ -130,12 +130,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
      * do a best effort to backup altered data but no guarantee can be made in
      * doing so!
      *
-     * @param projectMapping
-     *            mapping from remote project ids to the target local projects
-     *
-     * @throws IllegalArgumentException
-     *             if either a project id is not valid or the referenced project
-     *             for that id does not exist
+     * @param projectMapping mapping from remote project ids to the target local projects
+     * @throws IllegalArgumentException if either a project id is not valid or the referenced project
+     *                                  for that id does not exist
      */
     public Status run(Map<String, IProject> projectMapping,
         IProgressMonitor monitor, boolean useVersionControl) {
@@ -177,7 +174,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
                 ProjectNegotiationMissingFilesExtension.PROVIDER.create(
                     new ProjectNegotiationMissingFilesExtension(sessionID,
-                        processID, missingFiles)));
+                        processID, missingFiles)
+                )
+            );
 
             awaitActivityQueueingActivation(monitor);
             monitor.setTaskName("");
@@ -186,7 +185,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
              * the user who sends this ProjectNegotiation is now responsible for
              * the resources of the contained projects
              */
-            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+            for (Entry<String, IProject> entry : localProjectMapping
+                .entrySet()) {
                 final String projectID = entry.getKey();
                 final IProject project = entry.getValue();
 
@@ -201,8 +201,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             }
 
             transmitter.send(ISarosSession.SESSION_CONNECTION_ID, peer,
-                    StartActivityQueuingResponse.PROVIDER.create(
-                            new StartActivityQueuingResponse(sessionID, processID))
+                StartActivityQueuingResponse.PROVIDER.create(
+                    new StartActivityQueuingResponse(sessionID, processID))
             );
 
             checkCancellation(CancelOption.NOTIFY_PEER);
@@ -222,7 +222,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
              * We are finished with the exchanging process. Add all projects
              * resources to the session.
              */
-            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+            for (Entry<String, IProject> entry : localProjectMapping
+                .entrySet()) {
 
                 final String projectID = entry.getKey();
                 final IProject project = entry.getValue();
@@ -348,7 +349,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             {
                 throw new RuntimeException(
                     "cannot add project with id " + projectID
-                        + ", this id is unknown");
+                        + ", this id is unknown"
+                );
             }
 
             VCSProvider vcs = null;
@@ -393,8 +395,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         }
 
         // The session might have been stopped already, if not we will stop it.
-        if (session.getProjectResourcesMapping().keySet().isEmpty()
-            || session.getRemoteUsers().isEmpty()) {
+        if (session.getProjectResourcesMapping().keySet().isEmpty() || session
+            .getRemoteUsers().isEmpty()) {
             sessionManager.stopSarosSession();
         }
     }
@@ -457,8 +459,9 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         FileList localFileList = FileListFactory
             .createFileList(project, null, checksumCache, provider,
-                new SubProgressMonitor(monitor,
-                    1 * MONITOR_WORK_SCALE, SubProgressMonitor.SUPPRESS_BEGINTASK));
+                new SubProgressMonitor(monitor, 1 * MONITOR_WORK_SCALE,
+                    SubProgressMonitor.SUPPRESS_BEGINTASK)
+            );
 
         FileListDiff filesToSynchronize = computeDiff(localFileList,
             remoteFileList, project, projectID);
@@ -478,7 +481,6 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             LOG.debug(this + " : there are no files to synchronize.");
             return FileListFactory.createEmptyFileList();
         }
-
 
         return FileListFactory.createFileList(missingFiles);
     }
@@ -507,7 +509,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         if (!isPartialRemoteProject(projectID)) {
 
-            deleteResources(currentLocalProject, diff.getRemovedPathsSanitized());
+            deleteResources(currentLocalProject,
+                diff.getRemovedPathsSanitized());
 
             diff.clearRemovedPaths();
         }
@@ -591,7 +594,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         monitor.beginTask("Waiting for " + peer.getName()
                 + " to continue the project negotiation...",
-            IProgressMonitor.UNKNOWN);
+            IProgressMonitor.UNKNOWN
+        );
 
         Packet packet = collectPacket(startActivityQueuingRequestCollector,
             PACKET_TIMEOUT);
@@ -600,7 +604,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             throw new LocalCancellationException(
                 "received no response from " + peer
                     + " while waiting to continue the project negotiation",
-                CancelOption.DO_NOT_NOTIFY_PEER);
+                CancelOption.DO_NOT_NOTIFY_PEER
+            );
         }
 
         monitor.done();
@@ -609,7 +614,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     private void createCollectors() {
         startActivityQueuingRequestCollector = xmppReceiver.createCollector(
             StartActivityQueuingRequest.PROVIDER
-                .getPacketFilter(sessionID, processID));
+                .getPacketFilter(sessionID, processID)
+        );
     }
 
     private void deleteCollectors() {
@@ -671,7 +677,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
 
         LOG.debug(
             this + " : stored archive in file " + archiveFile.getAbsolutePath()
-                + ", size: " + CoreUtils.formatByte(archiveFile.length()));
+                + ", size: " + CoreUtils.formatByte(archiveFile.length())
+        );
 
         return archiveFile;
     }
@@ -680,12 +687,12 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
         for (final Entry<String, IProject> entry : mapping.entrySet()) {
 
             if (getRemoteFileList(entry.getKey()) == null)
-                throw new IllegalArgumentException("invalid project id: "
-                    + entry.getKey());
+                throw new IllegalArgumentException(
+                    "invalid project id: " + entry.getKey());
 
             if (!entry.getValue().exists())
-                throw new IllegalArgumentException("project does not exist: "
-                    + entry.getValue());
+                throw new IllegalArgumentException(
+                    "project does not exist: " + entry.getValue());
         }
     }
 

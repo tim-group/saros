@@ -36,6 +36,7 @@ import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
 import de.fu_berlin.inf.dpp.core.ui.util.CollaborationUtils;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.GitIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 import de.fu_berlin.inf.dpp.net.xmpp.JID;
@@ -165,7 +166,7 @@ public class SarosFileShareGroup extends ActionGroup {
             //FIXME: Find way to select moduleName for non-module based IDEAs
             //(Webstorm)
         }
-        return new ProjectImp(project, moduleName, new File(project.getBasePath() + "/" + moduleName));
+        return new ProjectImp(project, moduleName, new GitIgnore());
     }
 
     private boolean isCompletelyShared(ProjectImp project,
