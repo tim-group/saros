@@ -44,7 +44,7 @@ import java.util.Set;
 @XStreamAlias("FILELIST")
 public class FileList {
 
-    static final String DIR_SEPARATOR = "/";
+    public static final String DIR_SEPARATOR = "/";
 
     @XStreamAlias("f")
     private static class File {

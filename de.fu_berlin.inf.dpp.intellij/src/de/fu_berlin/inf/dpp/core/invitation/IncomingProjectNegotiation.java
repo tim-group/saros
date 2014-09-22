@@ -218,26 +218,29 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
                 acceptArchive(archiveTransferListener, monitor);
             }
 
-            // We are finished with the exchanging process. Add all projects
-            // resources to the session.
-            for (String projectID : localProjectMapping.keySet()) {
-                IProject iProject = localProjectMapping.get(projectID);
+            /*
+             * We are finished with the exchanging process. Add all projects
+             * resources to the session.
+             */
+            for (Entry<String, IProject> entry : localProjectMapping.entrySet()) {
+
+                final String projectID = entry.getKey();
+                final IProject project = entry.getValue();
+
+                List<IResource> resources = null;
+
                 if (isPartialRemoteProject(projectID)) {
-                    List<String> paths = getRemoteFileList(projectID)
+
+                    final List<String> paths = getRemoteFileList(projectID)
                         .getPaths();
-                    List<IResource> dependentResources = new ArrayList<IResource>();
 
-                    for (String path : paths) {
+                    resources = new ArrayList<IResource>(paths.size());
 
-                        dependentResources.add(iProject.getFile(path));
-                    }
-
-                    session.addSharedResources(iProject, projectID,
-                        dependentResources);
-                } else {
-                    session.addSharedResources(iProject, projectID, null);
+                    for (final String path : paths)
+                        resources.add(getResource(project, path));
                 }
 
+                session.addSharedResources(project, projectID, resources);
                 sessionManager.projectAdded(projectID);
             }
         } catch (Exception e) {
@@ -687,8 +690,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     }
 
     private IResource getResource(IProject project, String path) {
-        //Should be FileList.DIR_SEPARATOR, but is not visible from here
-        if (path.endsWith(File.separator))
+        if (path.endsWith(FileList.DIR_SEPARATOR))
             return project.getFolder(path);
         else
             return project.getFile(path);
