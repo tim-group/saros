@@ -22,32 +22,29 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
-
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import java.awt.FlowLayout;
 
 /**
- * Standard information page panel. Creates information page with arbitrary number of paragraphs.
- *
+ * Wizard page for displaying text information.
  */
-
 public class InfoPage extends AbstractWizardPage
 {
     private String nextButtonTitle = "Accept";
     private JPanel infoPanel;
 
-    public InfoPage(String id)
+    public InfoPage(String id, String nextButtonTitle)
     {
         super(id);
+        this.nextButtonTitle = nextButtonTitle;
         create();
     }
 
-    protected void create()
+    private void create()
     {
-        this.infoPanel = new JPanel();
+        infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         add(infoPanel);
     }
@@ -71,15 +68,6 @@ public class InfoPage extends AbstractWizardPage
         itemPanel.add(textItem);
 
         infoPanel.add(itemPanel);
-    }
-
-    /**
-     *
-     * @param nextButtonTitle
-     */
-    public void setNextButtonTitle(String nextButtonTitle)
-    {
-        this.nextButtonTitle = nextButtonTitle;
     }
 
     @Override

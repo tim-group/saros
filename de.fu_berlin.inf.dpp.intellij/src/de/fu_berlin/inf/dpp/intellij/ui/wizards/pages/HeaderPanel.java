@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import de.fu_berlin.inf.dpp.intellij.ui.util.IconManager;
 

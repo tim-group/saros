@@ -22,8 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
+import com.intellij.ui.components.JBScrollPane;
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 
 import javax.swing.BoxLayout;
@@ -41,7 +41,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 
 /**
- * Standard progress bar panel
+ * Wizard page with progress bar and info text area.
  */
 
 public class InfoWithProgressPage extends AbstractWizardPage
@@ -58,29 +58,18 @@ public class InfoWithProgressPage extends AbstractWizardPage
     /**
      * Constructor with custom ID
      *
-     * @param id identifier
+     * @param fileListPageId
+     * @param title identifier
      */
-    public InfoWithProgressPage(String id)
+    public InfoWithProgressPage(String fileListPageId, String title)
     {
-        super(id);
-
+        super(fileListPageId);
+        this.title = title;
+        create();
     }
 
-    /**
-     * Constructor with default ID
-     */
-    public InfoWithProgressPage()
+    private void create()
     {
-        super("InfoWithProgress");
-
-    }
-
-    /**
-     * Creates UI
-     */
-    public void create()
-    {
-
         setLayout(new BorderLayout());
 
         JPanel middlePanel = new JPanel();
@@ -90,13 +79,12 @@ public class InfoWithProgressPage extends AbstractWizardPage
         display.setEditable(false);
         display.setForeground(fontColor);
 
-        JScrollPane scroll = new JScrollPane(display);
+        JScrollPane scroll = new JBScrollPane(display);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         middlePanel.add(scroll);
 
         add(middlePanel, BorderLayout.CENTER);
 
-        //progress panel
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
 
@@ -111,7 +99,6 @@ public class InfoWithProgressPage extends AbstractWizardPage
         progressPanel.add(titlePanel);
         progressPanel.add(progressBar);
         progressPanel.add(new JLabel(" "));
-
 
         add(progressPanel, BorderLayout.SOUTH);
     }
@@ -131,10 +118,8 @@ public class InfoWithProgressPage extends AbstractWizardPage
     @Override
     public void displayingPanel()
     {
-
         wizard.getNavigationPanel().setVisibleBack(true);
         wizard.getNavigationPanel().setVisibleNext(true);
-
     }
 
     /**
@@ -152,30 +137,7 @@ public class InfoWithProgressPage extends AbstractWizardPage
                 display.append(text + "\n\r");
             }
         });
-
-
     }
-
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-
-    public void setFontColor(Color fontColor)
-    {
-        this.fontColor = fontColor;
-    }
-
-    public JProgressBar getProgressBar()
-    {
-        return progressBar;
-    }
-
-    public JLabel getProgressInfo()
-    {
-        return progressInfo;
-    }
-
 
     /**
      * Creates Progress monitor.
@@ -188,7 +150,7 @@ public class InfoWithProgressPage extends AbstractWizardPage
     {
         if (progressMonitor == null)
         {
-            MonitorProgressBar progress = new MonitorProgressBar(getProgressBar(), getProgressInfo());
+            MonitorProgressBar progress = new MonitorProgressBar(progressBar, progressInfo);
             if (indeterminate)
             {
                 progress.beginTask("starting", IProgressMonitor.UNKNOWN);

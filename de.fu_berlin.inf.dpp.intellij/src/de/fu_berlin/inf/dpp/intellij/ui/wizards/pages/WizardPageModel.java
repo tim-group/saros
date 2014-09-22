@@ -20,7 +20,7 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ import java.util.Map;
  * Default wizard model. Class keeps information about
  * wizard position, acts as container for
  */
-public class WizardModel
+public class WizardPageModel
 {
     private Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();
     private List<AbstractWizardPage> pageList = new ArrayList<AbstractWizardPage>();
@@ -40,13 +40,7 @@ public class WizardModel
     private AbstractWizardPage currentPage;
     private AbstractWizardPage nextPage;
 
-    /**
-     * Method called internally by framework to add page to container
-     *
-     * @param id
-     * @param panel
-     */
-    protected void registerPanel(Object id, AbstractWizardPage panel)
+    public void registerPage(Object id, AbstractWizardPage panel)
     {
         pageMap.put(id, panel);
         pageList.add(panel);
@@ -127,7 +121,7 @@ public class WizardModel
     /**
      * @param index
      */
-    protected void setCurrentPositionIndex(int index)
+    public void setCurrentPositionIndex(int index)
     {
         setCurrentPagePosition(getPageByIndex(index));
     }
@@ -137,9 +131,9 @@ public class WizardModel
      *
      * @param page AbstractWizardPage
      */
-    protected void setCurrentPagePosition(AbstractWizardPage page)
+    public void setCurrentPagePosition(AbstractWizardPage page)
     {
-        this.currentPage = page;
+        currentPage = page;
 
         if (currentPage == null)
         {

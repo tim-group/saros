@@ -20,11 +20,16 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 
 /**
@@ -154,7 +159,7 @@ public class NavigationPanel extends JPanel
      *
      * @param enabled
      */
-    protected void setButtonsEnabled(boolean enabled)
+    public void setButtonsEnabled(boolean enabled)
     {
         if (backButton != null)
         {
@@ -197,7 +202,7 @@ public class NavigationPanel extends JPanel
      *
      * @param position page position in the list
      */
-    protected void setPosition(Position position)
+    public void setPosition(Position position)
     {
         switch (position)
         {

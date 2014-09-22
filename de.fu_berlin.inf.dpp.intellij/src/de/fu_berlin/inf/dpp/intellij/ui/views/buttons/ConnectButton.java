@@ -140,7 +140,7 @@ public class ConnectButton extends ToolbarButton {
                 XMPPAccount account = createNewAccount();
                 if (account == null) {
                     SafeDialogUtils
-                        .showError("Account could not be created", "Error");
+                        .showError("Account was not created.", "Error");
                 }
                 createMenuItems();
             }
@@ -148,7 +148,7 @@ public class ConnectButton extends ToolbarButton {
     }
 
     /**
-     * Asks for Name, Password and server for a new XMPP account.
+     * Asks for Name, Password and domain and server for a new XMPP account.
      */
     protected XMPPAccount createNewAccount() {
         final String username = SafeDialogUtils
@@ -162,22 +162,21 @@ public class ConnectButton extends ToolbarButton {
         if (password.isEmpty()) {
             return null;
         }
-        final String domain = SafeDialogUtils
-            .showInputDialog("Saros server "
-                    + "(e.g. 'saros-con.imp.fu-berlin.de')",
-                "saros-con.imp.fu-berlin.de", "Server"
-            );
+        final String domain = SafeDialogUtils.showInputDialog(
+            "XMPP domain " + "(e.g. 'saros-con.imp.fu-berlin.de')",
+            "saros-con.imp.fu-berlin.de", "Server");
         if (domain.isEmpty()) {
             return null;
         }
+        String server = SafeDialogUtils.showInputDialog(
+            "XMPP server (optional, not necessary in most cases)",
+            "", "Server");
 
         try {
-            //FIXME: Add field to add server different from domain
             return accountStore
-                .createAccount(username, password, domain, "",
-                    0, false, false);
+                .createAccount(username, password, domain, server, 0, false, false);
         } catch (IllegalArgumentException e) {
-            SafeDialogUtils.showError(e.getMessage(), "Error");
+            SafeDialogUtils.showError("There was an error creating the account.\n Details:\n\n" + e.getMessage(), "Error");
         }
         return null;
     }

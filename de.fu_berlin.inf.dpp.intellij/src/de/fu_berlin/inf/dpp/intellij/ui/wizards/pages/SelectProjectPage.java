@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -74,13 +73,21 @@ public class SelectProjectPage extends AbstractWizardPage
      * Creates new wizard page with new identification ID
      *
      * @param id identification
+     * @param projectName
+     * @param newProjectName
+     * @param projectBase
      */
-    public SelectProjectPage(String id)
+    public SelectProjectPage(String id, String projectName, String newProjectName,
+        String projectBase)
     {
         super(id);
+        this.projectName = projectName;
+        this.newProjectName = newProjectName;
+        this.projectBase = projectBase;
+        create();
     }
 
-    public void create()
+    private void create()
     {
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -264,21 +271,4 @@ public class SelectProjectPage extends AbstractWizardPage
     {
         return fldExistingProjectName.isEnabled() ? new File(getExistingProjectPath()).getName() : null;
     }
-
-    public void setProjectName(String projectName)
-    {
-        this.projectName = projectName;
-    }
-
-    public void setNewProjectName(String newProjectName)
-    {
-        this.newProjectName = newProjectName;
-    }
-
-    public void setProjectBase(String projectBase)
-    {
-        this.projectBase = projectBase;
-    }
-
-
 }

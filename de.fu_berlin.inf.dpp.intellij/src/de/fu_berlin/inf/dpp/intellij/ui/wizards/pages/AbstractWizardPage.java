@@ -20,15 +20,15 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
-import javax.swing.JLabel;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.Wizard;
+
 import javax.swing.JPanel;
 
 
 /**
- * Top class for wizard pages
- *
+ * Abstract base class for wizard pages.
  */
 public abstract class AbstractWizardPage extends JPanel
 {
@@ -47,15 +47,6 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Creates UI. Should be overwritten in inherited calss
-     *
-     */
-    protected void create()
-    {
-        add(new JLabel("Wizard page " + id));
-    }
-
-    /**
      *  Returns unique identifier within wizard
      *
      * @return id
@@ -66,7 +57,7 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Method started before hiding panel
+     * Method called before hiding panel
      */
     public void aboutToHidePanel()
     {
@@ -74,7 +65,7 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Method started before displaying panel
+     * Method called before displaying panel
      */
     public void aboutToDisplayPanel()
     {
@@ -82,7 +73,7 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Method started after displaying panel
+     * Method called after displaying panel
      */
     public void displayingPanel()
     {
@@ -102,7 +93,7 @@ public abstract class AbstractWizardPage extends JPanel
      *
      * @param wizard
      */
-    protected void setWizard(Wizard wizard)
+    public void setWizard(Wizard wizard)
     {
         this.wizard = wizard;
     }

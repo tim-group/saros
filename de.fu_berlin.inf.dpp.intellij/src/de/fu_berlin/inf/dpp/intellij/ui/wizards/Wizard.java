@@ -22,12 +22,23 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import javax.swing.*;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.AbstractWizardPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.HeaderPanel;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.NavigationPanel;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.WizardController;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.WizardPageModel;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Insets;
 
 /**
- * Class represents default wizard container.
+ * Class represents a wizard container.
  * Usage:
  * <p/>
  * Wizard wiz = new Wizard("title");
@@ -40,7 +51,7 @@ public class Wizard
     public static final String BACK_ACTION = "back";
     public static final String CANCEL_ACTION = "cancel";
 
-    private WizardModel wizardModel;
+    private WizardPageModel wizardPageModel;
     private WizardController wizardController;
 
     private JDialog wizard;
@@ -64,7 +75,7 @@ public class Wizard
         JFrame frame = new JFrame();
         frame.setLocationRelativeTo(parent);
 
-        wizardModel = new WizardModel();
+        wizardPageModel = new WizardPageModel();
         wizard = new JDialog(frame, title);
 
         wizard.setSize(600, 400);
@@ -101,10 +112,10 @@ public class Wizard
         wizard.getContentPane().add(navigationPanel, BorderLayout.SOUTH);
 
 
-        if (wizardModel.getSize() > 0)
+        if (wizardPageModel.getSize() > 0)
         {
-            wizardModel.setCurrentPositionIndex(0);
-            setCurrentPage(wizardModel.getCurrentPage());
+            wizardPageModel.setCurrentPositionIndex(0);
+            setCurrentPage(wizardPageModel.getCurrentPage());
         }
         else
         {
@@ -126,7 +137,7 @@ public class Wizard
         page.setWizard(this);
         cardPanel.add(page, page.getId());
         cardLayout.addLayoutComponent(page, page.getId());
-        wizardModel.registerPanel(page.getId().toString(), page);
+        wizardPageModel.registerPage(page.getId().toString(), page);
     }
 
     /**
@@ -138,24 +149,24 @@ public class Wizard
     {
         navigationPanel.setButtonsEnabled(false);
 
-        AbstractWizardPage oldPanel = wizardModel.getCurrentPage();
+        AbstractWizardPage oldPanel = wizardPageModel.getCurrentPage();
 
         if (oldPanel != null)
         {
             oldPanel.aboutToHidePanel();
         }
 
-        wizardModel.setCurrentPagePosition(page);
+        wizardPageModel.setCurrentPagePosition(page);
 
         if (page != null)
         {
-            wizardModel.getCurrentPage().aboutToDisplayPanel();
+            wizardPageModel.getCurrentPage().aboutToDisplayPanel();
 
-            if (wizardModel.getNextPage() == null)
+            if (wizardPageModel.getNextPage() == null)
             {
                 navigationPanel.setPosition(NavigationPanel.Position.last);
             }
-            else if (wizardModel.getBackPage() == null)
+            else if (wizardPageModel.getBackPage() == null)
             {
                 navigationPanel.setPosition(NavigationPanel.Position.first);
             }
@@ -177,7 +188,7 @@ public class Wizard
 
             navigationPanel.setButtonsEnabled(true);
 
-            wizardModel.getCurrentPage().displayingPanel();
+            wizardPageModel.getCurrentPage().displayingPanel();
         }
 
     }
@@ -187,9 +198,9 @@ public class Wizard
         return headPanel;
     }
 
-    public WizardModel getWizardModel()
+    public WizardPageModel getWizardPageModel()
     {
-        return wizardModel;
+        return wizardPageModel;
     }
 
     public void setWizardController(WizardController wizardController)

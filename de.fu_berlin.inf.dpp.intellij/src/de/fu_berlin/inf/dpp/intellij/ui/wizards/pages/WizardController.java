@@ -20,7 +20,9 @@
  * /
  */
 
-package de.fu_berlin.inf.dpp.intellij.ui.wizards;
+package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
+
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.Wizard;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,18 +43,18 @@ public class WizardController implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
 
-        if (wizard.getWizardModel().getCurrentPage() == null)
+        if (wizard.getWizardPageModel().getCurrentPage() == null)
         {
             return;
         }
 
         if (Wizard.NEXT_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPage().actionNext();
-            AbstractWizardPage nextPage = wizard.getWizardModel().getNextPage();
+            wizard.getWizardPageModel().getCurrentPage().actionNext();
+            AbstractWizardPage nextPage = wizard.getWizardPageModel().getNextPage();
             if (nextPage == null)
             {
-                wizard.getWizardModel().getCurrentPage().aboutToHidePanel();
+                wizard.getWizardPageModel().getCurrentPage().aboutToHidePanel();
                 wizard.close();
             }
             else
@@ -63,12 +65,12 @@ public class WizardController implements ActionListener
         }
         else if (Wizard.BACK_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPage().actionBack();
-            wizard.setCurrentPage(wizard.getWizardModel().getBackPage());
+            wizard.getWizardPageModel().getCurrentPage().actionBack();
+            wizard.setCurrentPage(wizard.getWizardPageModel().getBackPage());
         }
         else if (Wizard.CANCEL_ACTION.equalsIgnoreCase(e.getActionCommand()))
         {
-            wizard.getWizardModel().getCurrentPage().actionCancel();
+            wizard.getWizardPageModel().getCurrentPage().actionCancel();
             this.wizard.close();
         }
 

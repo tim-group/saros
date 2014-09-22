@@ -23,7 +23,6 @@
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
 import de.fu_berlin.inf.dpp.intellij.ui.widgets.progress.MonitorProgressBar;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.AbstractWizardPage;
 import de.fu_berlin.inf.dpp.monitoring.IProgressMonitor;
 
 import javax.swing.BoxLayout;
@@ -34,8 +33,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
 /**
- * Standard progress bar panel
- *
+ * Wizard page with progress bar.
  */
 public class ProgressPage extends AbstractWizardPage
 {
@@ -54,30 +52,18 @@ public class ProgressPage extends AbstractWizardPage
         create();
     }
 
-    /**
-     * Constructor with default ID
-     */
-    public ProgressPage()
-    {
-        super("Progress");
-        create();
-    }
-
-    /**
-     * Creates UI
-     */
-    protected void create()
+    private void create()
     {
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
 
-        this.progressBar = new JProgressBar();
+        progressBar = new JProgressBar();
 
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        this.progressInfo = new JLabel("Starting");
-        titlePanel.add(this.progressInfo);
+        progressInfo = new JLabel("Starting");
+        titlePanel.add(progressInfo);
 
         progressPanel.add(titlePanel);
         progressPanel.add(progressBar);
@@ -87,21 +73,10 @@ public class ProgressPage extends AbstractWizardPage
         add(progressPanel, BorderLayout.SOUTH);
     }
 
-
-    public JProgressBar getProgressBar()
-    {
-        return progressBar;
-    }
-
-    public JLabel getProgressInfo()
-    {
-        return progressInfo;
-    }
-
     @Override
     public String getNextButtonTitle()
     {
-        return null;
+        return "";
     }
 
     @Override
@@ -122,7 +97,7 @@ public class ProgressPage extends AbstractWizardPage
     {
         if (progressMonitor == null)
         {
-            MonitorProgressBar progress = new MonitorProgressBar(getProgressBar(), getProgressInfo());
+            MonitorProgressBar progress = new MonitorProgressBar(progressBar, progressInfo);
 
             if(indeterminate)
             progress.beginTask("starting", de.fu_berlin.inf.dpp.monitoring.IProgressMonitor.UNKNOWN);

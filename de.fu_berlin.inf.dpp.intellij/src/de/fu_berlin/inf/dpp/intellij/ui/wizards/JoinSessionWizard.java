@@ -22,19 +22,14 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-/**
- * Created by:  r.kvietkauskas@uniplicity.com
- * <p/>
- * Date: 14.3.27
- * Time: 08.51
- */
-
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingSessionNegotiation;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelLocation;
 import de.fu_berlin.inf.dpp.invitation.ProcessTools.CancelOption;
@@ -45,25 +40,27 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.*;
+import java.awt.Container;
 import java.text.MessageFormat;
 
 /**
  * A wizard that guides the user through an incoming invitation process.
  * <p/>
- * more nicely: Long-Running Operation after each step, cancellation by a remote
- * party, auto-advance.
+ * FIXME:
+ *  Long-Running Operation after each step
+ *  cancellation by a remote party
+ *  auto-advance.
  */
 public class JoinSessionWizard {
     public static final String PAGE_INFO_ID = "JoinSessionInfo";
     public static final String PAGE_PROGRESS_ID = "JoinSessionProgress";
 
+    private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
+
     private Container parent;
 
     @Inject
-    private static Saros saros;
-
-    private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
+    private Saros saros;
 
     private boolean accepted = false;
 
@@ -107,12 +104,11 @@ public class JoinSessionWizard {
         wizard.setHeadPanel(new HeaderPanel(Messages.ShowDescriptionPage_title2,
             Messages.ShowDescriptionPage_description));
 
-        InfoPage infoPage = new InfoPage(PAGE_INFO_ID);
+        InfoPage infoPage = new InfoPage(PAGE_INFO_ID, Messages.JoinSessionWizard_accept);
         infoPage.addText(process.getPeer().getName() + " "
             + Messages.JoinSessionWizard_info);
         infoPage.addText(process.getDescription());
         infoPage.addPageListener(actionListener);
-        infoPage.setNextButtonTitle(Messages.JoinSessionWizard_accept);
 
         wizard.registerPage(infoPage);
 

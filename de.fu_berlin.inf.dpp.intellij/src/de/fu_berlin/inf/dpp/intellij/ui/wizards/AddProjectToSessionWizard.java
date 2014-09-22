@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 
-import de.fu_berlin.inf.dpp.activities.SPath;
 import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
 import de.fu_berlin.inf.dpp.core.invitation.IncomingProjectNegotiation;
@@ -37,7 +36,9 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoWithProgressPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.SelectProjectPage;
 import de.fu_berlin.inf.dpp.invitation.FileList;
@@ -53,9 +54,7 @@ import de.fu_berlin.inf.dpp.util.ThreadUtils;
 import org.apache.log4j.Logger;
 import org.picocontainer.annotations.Inject;
 
-import java.awt.Component;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +77,7 @@ public class AddProjectToSessionWizard {
     protected List<FileList> fileLists;
 
     /**
-     * projectID => projectName
+     * projectID => Project
      */
     protected Map<String, IProject> remoteProjects;
 
@@ -122,7 +121,7 @@ public class AddProjectToSessionWizard {
                 newName = infoPage.getExistingProjectName();
                 isExisting = true;
             } else {
-                wizard.getWizardModel().setNextPage(progressPage);
+                wizard.getWizardPageModel().setNextPage(progressPage);
             }
 
             for (Map.Entry<String, String> entry : remoteProjectNames.entrySet()) {
@@ -211,19 +210,13 @@ public class AddProjectToSessionWizard {
         wizard.setHeadPanel(
             new HeaderPanel(Messages.EnterProjectNamePage_title2, ""));
 
-        infoPage = new SelectProjectPage(INFO_PAGE_ID);
-        infoPage.setNewProjectName(prjName); //todo
-        infoPage.setProjectName(prjName);
-        infoPage.setProjectBase(workspace.getLocation().toOSString());
+        infoPage = new SelectProjectPage(INFO_PAGE_ID,
+            prjName, prjName, workspace.getLocation().toOSString());
         infoPage.addPageListener(infoPageListener);
-        infoPage.create();
         wizard.registerPage(infoPage);
 
-        fileListPage = new InfoWithProgressPage(FILE_LIST_PAGE_ID);
-        fileListPage.setTitle("Local file changes:");
-        fileListPage.create();
+        fileListPage = new InfoWithProgressPage(FILE_LIST_PAGE_ID, "Local file changes:");
         fileListPage.addPageListener(fileListPageListener);
-
         wizard.registerPage(fileListPage);
 
         progressPage = new ProgressPage(PROGRESS_PAGE_ID);
@@ -232,7 +225,6 @@ public class AddProjectToSessionWizard {
         wizard.create();
 
         process.setProjectInvitationUI(this);
-
     }
 
     private void runCalculateChangedFiles(Map<String, IProject> projectMapping) {
@@ -304,18 +296,6 @@ public class AddProjectToSessionWizard {
             .getProgressMonitor(true, true);
         process.run(remoteProjects, monitor, false);
     }
-
-    protected Component getShell() {
-        return saros.getMainPanel();
-    }
-
-    private Collection<SPath> getOpenEditorsForSharedProjects(
-        Collection<IProject> projects) {
-
-        //todo: filter by project
-        return editorManager.getLocallyOpenEditors();
-    }
-
     //todo: implementation needed
     public void cancelWizard(JID peer, String errorMsg,
         ProcessTools.CancelLocation type) {
