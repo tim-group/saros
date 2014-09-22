@@ -65,24 +65,9 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Method called before displaying panel
-     */
-    public void aboutToDisplayPanel()
-    {
-
-    }
-
-    /**
-     * Method called after displaying panel
-     */
-    public void displayingPanel()
-    {
-
-    }
-
-    /**
+     * TItle of the next button for this page (e.g. next or accept).
      *
-     * @return
+     * @return {@link NavigationPanel#TITLE_NEXT}.
      */
     public String getNextButtonTitle()
     {
@@ -101,7 +86,7 @@ public abstract class AbstractWizardPage extends JPanel
     /**
      * Action performed when user clicks on on Back button
      */
-    protected void actionBack()
+    public void actionBack()
     {
         if (actionListener != null)
         {
@@ -133,11 +118,19 @@ public abstract class AbstractWizardPage extends JPanel
     /**
      * Action performed when user clicks on Next button
      */
-    protected void actionNext()
+    public void actionNext()
     {
         if (actionListener != null)
         {
             actionListener.next();
         }
+    }
+
+    public boolean isBackButtonVisible() {
+        return true;
+    }
+
+    public boolean isNextButtonVisible() {
+        return true;
     }
 }

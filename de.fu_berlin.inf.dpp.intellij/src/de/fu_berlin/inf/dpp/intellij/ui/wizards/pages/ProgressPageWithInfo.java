@@ -44,7 +44,7 @@ import java.awt.FlowLayout;
  * Wizard page with progress bar and info text area.
  */
 
-public class InfoWithProgressPage extends AbstractWizardPage
+public class ProgressPageWithInfo extends AbstractWizardPage
 {
     private JProgressBar progressBar;
     private JLabel progressInfo;
@@ -61,7 +61,7 @@ public class InfoWithProgressPage extends AbstractWizardPage
      * @param fileListPageId
      * @param title identifier
      */
-    public InfoWithProgressPage(String fileListPageId, String title)
+    public ProgressPageWithInfo(String fileListPageId, String title)
     {
         super(fileListPageId);
         this.title = title;
@@ -88,13 +88,13 @@ public class InfoWithProgressPage extends AbstractWizardPage
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
 
-        this.progressBar = new JProgressBar();
+        progressBar = new JProgressBar();
 
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        this.progressInfo = new JLabel("Starting");
-        titlePanel.add(this.progressInfo);
+        progressInfo = new JLabel("Starting");
+        titlePanel.add(progressInfo);
 
         progressPanel.add(titlePanel);
         progressPanel.add(progressBar);
@@ -113,13 +113,6 @@ public class InfoWithProgressPage extends AbstractWizardPage
             progressMonitor.done();
             progressMonitor = null;
         }
-    }
-
-    @Override
-    public void displayingPanel()
-    {
-        wizard.getNavigationPanel().setVisibleBack(true);
-        wizard.getNavigationPanel().setVisibleNext(true);
     }
 
     /**
@@ -173,5 +166,15 @@ public class InfoWithProgressPage extends AbstractWizardPage
         }
 
         return progressMonitor;
+    }
+
+    @Override
+    public boolean isBackButtonVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean isNextButtonVisible() {
+        return false;
     }
 }

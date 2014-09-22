@@ -79,13 +79,6 @@ public class ProgressPage extends AbstractWizardPage
         return "";
     }
 
-    @Override
-    public void displayingPanel()
-    {
-        wizard.getNavigationPanel().setVisibleBack(false);
-        wizard.getNavigationPanel().setVisibleNext(false);
-    }
-
     /**
      * Creates Progress monitor.
      *
@@ -118,5 +111,15 @@ public class ProgressPage extends AbstractWizardPage
         }
 
         return progressMonitor;
+    }
+
+    @Override
+    public boolean isBackButtonVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean isNextButtonVisible() {
+        return false;
     }
 }

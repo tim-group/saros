@@ -250,25 +250,27 @@ public class SelectProjectPage extends AbstractWizardPage
     }
 
     @Override
-    public void displayingPanel()
-    {
-        wizard.getNavigationPanel().setVisibleBack(false);
-        wizard.getNavigationPanel().setVisibleNext(true);
+    public boolean isBackButtonVisible() {
+        return false;
     }
 
+    @Override
+    public boolean isNextButtonVisible() {
+        return true;
+    }
 
     public String getNewProjectName()
     {
-        return fldNewProjectName.isEnabled() ? fldNewProjectName.getText() : null;
+        return fldNewProjectName.isEnabled() ? fldNewProjectName.getText() : "";
     }
 
     public String getExistingProjectPath()
     {
-        return fldExistingProjectName.isEnabled() ? fldExistingProjectName.getText() : null;
+        return fldExistingProjectName.isEnabled() ? fldExistingProjectName.getText() : "";
     }
 
     public String getExistingProjectName()
     {
-        return fldExistingProjectName.isEnabled() ? new File(getExistingProjectPath()).getName() : null;
+        return fldExistingProjectName.isEnabled() ? new File(getExistingProjectPath()).getName() : "";
     }
 }

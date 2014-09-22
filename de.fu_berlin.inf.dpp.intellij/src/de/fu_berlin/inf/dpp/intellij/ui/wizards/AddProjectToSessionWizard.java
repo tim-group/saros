@@ -37,9 +37,9 @@ import de.fu_berlin.inf.dpp.intellij.ui.Messages;
 import de.fu_berlin.inf.dpp.intellij.ui.util.DialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.util.SafeDialogUtils;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.HeaderPanel;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.InfoWithProgressPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.PageActionListener;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPage;
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.ProgressPageWithInfo;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.SelectProjectPage;
 import de.fu_berlin.inf.dpp.invitation.FileList;
 import de.fu_berlin.inf.dpp.invitation.FileListDiff;
@@ -105,7 +105,7 @@ public class AddProjectToSessionWizard {
     private Wizard wizard;
     private SelectProjectPage infoPage;
     private ProgressPage progressPage;
-    private InfoWithProgressPage fileListPage;
+    private ProgressPageWithInfo fileListPage;
 
     private PageActionListener infoPageListener = new PageActionListener() {
         @Override
@@ -117,11 +117,11 @@ public class AddProjectToSessionWizard {
         public void next() {
             String newName = infoPage.getNewProjectName();
             boolean isExisting = false;
-            if (newName == null) {
+            if (newName.isEmpty()) {
                 newName = infoPage.getExistingProjectName();
                 isExisting = true;
             } else {
-                wizard.getWizardPageModel().setNextPage(progressPage);
+                wizard.setNextPage(progressPage);
             }
 
             for (Map.Entry<String, String> entry : remoteProjectNames.entrySet()) {
@@ -207,7 +207,7 @@ public class AddProjectToSessionWizard {
 
         wizard = new Wizard(Messages.AddProjectToSessionWizard_title);
 
-        wizard.setHeadPanel(
+        wizard.setHeaderPanel(
             new HeaderPanel(Messages.EnterProjectNamePage_title2, ""));
 
         infoPage = new SelectProjectPage(INFO_PAGE_ID,
@@ -215,7 +215,7 @@ public class AddProjectToSessionWizard {
         infoPage.addPageListener(infoPageListener);
         wizard.registerPage(infoPage);
 
-        fileListPage = new InfoWithProgressPage(FILE_LIST_PAGE_ID, "Local file changes:");
+        fileListPage = new ProgressPageWithInfo(FILE_LIST_PAGE_ID, "Local file changes:");
         fileListPage.addPageListener(fileListPageListener);
         wizard.registerPage(fileListPage);
 
@@ -252,7 +252,7 @@ public class AddProjectToSessionWizard {
                 .putAll(getModifiedResources(modifiedProjects, monitor));
         } catch (IOException e) {
             LOG.error(e);
-            DialogUtils.showError(wizard.getWizard(), "Calculation error",
+            DialogUtils.showError(wizard, "Calculation error",
                 "Error while calculating modified resources: " + e
                     .getMessage());
             wizard.close();
@@ -346,7 +346,7 @@ public class AddProjectToSessionWizard {
             } catch (IOException e) {
                 LOG.error("Could not create project", e);
                 DialogUtils
-                    .showError(wizard.getWizard(), "Could not create project.",
+                    .showError(wizard, "Could not create project.",
                         "Error");
             }
         }

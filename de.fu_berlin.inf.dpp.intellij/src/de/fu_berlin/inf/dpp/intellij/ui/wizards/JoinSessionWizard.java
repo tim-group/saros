@@ -99,10 +99,9 @@ public class JoinSessionWizard {
         parent = saros.getMainPanel();
 
         wizard = new Wizard(Messages.JoinSessionWizard_title);
-        wizard.getNavigationPanel().setBackButton(null);
-
-        wizard.setHeadPanel(new HeaderPanel(Messages.ShowDescriptionPage_title2,
-            Messages.ShowDescriptionPage_description));
+        wizard.setHeaderPanel(
+            new HeaderPanel(Messages.ShowDescriptionPage_title2,
+                Messages.ShowDescriptionPage_description));
 
         InfoPage infoPage = new InfoPage(PAGE_INFO_ID, Messages.JoinSessionWizard_accept);
         infoPage.addText(process.getPeer().getName() + " "
@@ -112,7 +111,7 @@ public class JoinSessionWizard {
 
         wizard.registerPage(infoPage);
 
-        this.progressPage = new ProgressPage(PAGE_PROGRESS_ID);
+        progressPage = new ProgressPage(PAGE_PROGRESS_ID);
         wizard.registerPage(progressPage);
 
         wizard.create();

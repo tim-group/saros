@@ -25,8 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.ui.wizards;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.AbstractWizardPage;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.HeaderPanel;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.NavigationPanel;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.WizardController;
-import de.fu_berlin.inf.dpp.intellij.ui.wizards.pages.WizardPageModel;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,8 +32,13 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class represents a wizard container.
@@ -45,25 +48,55 @@ import java.awt.Insets;
  * wiz.registerPage();
  * wiz.create();
  */
-public class Wizard
+public class Wizard extends JDialog
 {
-    public static final String NEXT_ACTION = "next";
-    public static final String BACK_ACTION = "back";
-    public static final String CANCEL_ACTION = "cancel";
+    private final WizardPageModel wizardPageModel;
 
-    private WizardPageModel wizardPageModel;
-    private WizardController wizardController;
+    private final ActionListener navigationListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
 
-    private JDialog wizard;
+            if (wizardPageModel.getCurrentPage() == null)
+            {
+                return;
+            }
+
+            if (NavigationPanel.NEXT_ACTION.equalsIgnoreCase(e.getActionCommand()))
+            {
+                wizardPageModel.getCurrentPage().actionNext();
+                AbstractWizardPage nextPage = wizardPageModel.getNextPage();
+                if (nextPage == null)
+                {
+                    wizardPageModel.getCurrentPage().aboutToHidePanel();
+                    close();
+                }
+                else
+                {
+                    goToPage(nextPage);
+                }
+
+            }
+            else if (NavigationPanel.BACK_ACTION.equalsIgnoreCase(e.getActionCommand()))
+            {
+                wizardPageModel.getCurrentPage().actionBack();
+                goToPage(wizardPageModel.getBackPage());
+            }
+            else if (NavigationPanel.CANCEL_ACTION.equalsIgnoreCase(e.getActionCommand()))
+            {
+                wizardPageModel.getCurrentPage().actionCancel();
+                close();
+            }
+
+        }
+    };
 
     private JPanel cardPanel;
-    private HeaderPanel headPanel;
+    private HeaderPanel headerPanel;
 
     private CardLayout cardLayout;
 
     private NavigationPanel navigationPanel;
-
-    private Component parent = null;//Saros.instance().getMainPanel();
 
     /**
      * Constructor creates wizard structure.
@@ -72,63 +105,48 @@ public class Wizard
      */
     public Wizard(String title)
     {
-        JFrame frame = new JFrame();
-        frame.setLocationRelativeTo(parent);
+        super(new JFrame(), title);
 
         wizardPageModel = new WizardPageModel();
-        wizard = new JDialog(frame, title);
 
-        wizard.setSize(600, 400);
-        wizard.setResizable(false);
-
-        wizardController = new WizardController(this);
+        setSize(600, 400);
+        setResizable(false);
 
         navigationPanel = new NavigationPanel();
-        navigationPanel.addActionListener(wizardController);
+        navigationPanel.addActionListener(navigationListener);
 
         cardPanel = new JPanel();
-        headPanel = new HeaderPanel("", "");
+        headerPanel = new HeaderPanel("", "");
 
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
     }
 
     /**
-     * Creates UI. Should be called explicitly after all settings for wizard are finished.
+     * Creates UI. Must only be called explicitly after all settings for wizard are finished.
      */
     public void create()
     {
-        wizard.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-        wizard.getContentPane().add(headPanel, BorderLayout.NORTH);
+        getContentPane().add(headerPanel, BorderLayout.NORTH);
 
         cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
         cardPanel.setVisible(true);
 
+        getContentPane().add(cardPanel, BorderLayout.CENTER);
 
-        wizard.getContentPane().add(cardPanel, BorderLayout.CENTER);
+        getContentPane().add(navigationPanel, BorderLayout.SOUTH);
 
-        navigationPanel.create();
-        wizard.getContentPane().add(navigationPanel, BorderLayout.SOUTH);
+        wizardPageModel.setCurrentPositionIndex(0);
+        goToPage(wizardPageModel.getCurrentPage());
 
-
-        if (wizardPageModel.getSize() > 0)
-        {
-            wizardPageModel.setCurrentPositionIndex(0);
-            setCurrentPage(wizardPageModel.getCurrentPage());
-        }
-        else
-        {
-            navigationPanel.setPosition(NavigationPanel.Position.zero);
-        }
-
-        wizard.setVisible(true);
-
+        setVisible(true);
     }
 
     /**
      * Registers pages used in wizard.
-     * Should be added before using wizard.
+     * Must be added before calling create().
      *
      * @param page AbstractWizardPage
      */
@@ -140,101 +158,156 @@ public class Wizard
         wizardPageModel.registerPage(page.getId().toString(), page);
     }
 
-    /**
-     * Called by framework internally when user navigates wizard
-     *
-     * @param page AbstractWizardPage
-     */
-    protected void setCurrentPage(AbstractWizardPage page)
+    protected void goToPage(AbstractWizardPage page)
     {
         navigationPanel.setButtonsEnabled(false);
 
-        AbstractWizardPage oldPanel = wizardPageModel.getCurrentPage();
+        AbstractWizardPage oldPage = wizardPageModel.getCurrentPage();
 
-        if (oldPanel != null)
-        {
-            oldPanel.aboutToHidePanel();
-        }
+        if (oldPage != null)
+            oldPage.aboutToHidePanel();
 
         wizardPageModel.setCurrentPagePosition(page);
 
-        if (page != null)
+        if (page == null)
+            return;
+
+        navigationPanel.getNextButton().setText(page.getNextButtonTitle());
+
+        NavigationPanel.Position position = NavigationPanel.Position.middle;
+
+        if (wizardPageModel.getNextPage() == null)
         {
-            wizardPageModel.getCurrentPage().aboutToDisplayPanel();
-
-            if (wizardPageModel.getNextPage() == null)
-            {
-                navigationPanel.setPosition(NavigationPanel.Position.last);
-            }
-            else if (wizardPageModel.getBackPage() == null)
-            {
-                navigationPanel.setPosition(NavigationPanel.Position.first);
-            }
-            else
-            {
-                navigationPanel.setPosition(NavigationPanel.Position.middle);
-            }
-
-            if (page.getNextButtonTitle() != null)
-            {
-                navigationPanel.getNextButton().setText(page.getNextButtonTitle());
-            }
-            else
-            {
-                navigationPanel.getNextButton().setVisible(false);
-            }
-
-            cardLayout.show(cardPanel, page.getId().toString());
-
-            navigationPanel.setButtonsEnabled(true);
-
-            wizardPageModel.getCurrentPage().displayingPanel();
+            position = NavigationPanel.Position.last;
+        }
+        else if (wizardPageModel.getBackPage() == null)
+        {
+            position = NavigationPanel.Position.first;
         }
 
+        navigationPanel.setPosition(position, page.isBackButtonVisible(), page.isNextButtonVisible());
+
+        cardLayout.show(cardPanel, page.getId().toString());
     }
 
-    public HeaderPanel getHeadPanel()
+    public void setHeaderPanel(HeaderPanel headerPanel)
     {
-        return headPanel;
-    }
-
-    public WizardPageModel getWizardPageModel()
-    {
-        return wizardPageModel;
-    }
-
-    public void setWizardController(WizardController wizardController)
-    {
-        this.wizardController = wizardController;
-    }
-
-    public NavigationPanel getNavigationPanel()
-    {
-        return navigationPanel;
-    }
-
-    public void setNavigationPanel(NavigationPanel navigationPanel)
-    {
-        this.navigationPanel = navigationPanel;
-    }
-
-    public JDialog getWizard()
-    {
-        return wizard;
-    }
-
-    public void setWizard(JDialog wizard)
-    {
-        this.wizard = wizard;
-    }
-
-    public void setHeadPanel(HeaderPanel headPanel)
-    {
-        this.headPanel = headPanel;
+        this.headerPanel = headerPanel;
     }
 
     public void close()
     {
-        this.wizard.dispose();
+        dispose();
+    }
+
+    public void setNextPage(AbstractWizardPage page) {
+        wizardPageModel.setNextPage(page);
+    }
+
+    /**
+     * Default wizard model. Class keeps information about
+     * wizard position, acts as container for
+     */
+    private static class WizardPageModel
+    {
+        private Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();
+        private List<AbstractWizardPage> pageList = new ArrayList<AbstractWizardPage>();
+
+        private AbstractWizardPage backPage;
+        private AbstractWizardPage currentPage;
+        private AbstractWizardPage nextPage;
+
+        public void registerPage(Object id, AbstractWizardPage panel)
+        {
+            pageMap.put(id, panel);
+            pageList.add(panel);
+        }
+
+        /**
+         * Return panel
+         *
+         * @return AbstractWizardPage
+         */
+        public AbstractWizardPage getBackPage()
+        {
+            return backPage;
+        }
+
+        public AbstractWizardPage getCurrentPage()
+        {
+            return currentPage;
+        }
+
+        public AbstractWizardPage getNextPage()
+        {
+            return nextPage;
+        }
+
+        public AbstractWizardPage getPageByIndex(int index)
+        {
+            return pageList.get(index);
+        }
+
+        public void setNextPage(AbstractWizardPage page)
+        {
+               this.nextPage = page;
+        }
+
+        /**
+         * Back page
+         *
+         * @param backPage
+         */
+        public void setBackPage(AbstractWizardPage backPage)
+        {
+            this.backPage = backPage;
+        }
+
+        /**
+         * @param index
+         */
+        public void setCurrentPositionIndex(int index)
+        {
+            setCurrentPagePosition(getPageByIndex(index));
+        }
+
+        /**
+         * Called internally by framework to set current page
+         *
+         * @param page AbstractWizardPage
+         */
+        public void setCurrentPagePosition(AbstractWizardPage page)
+        {
+            currentPage = page;
+
+            if (currentPage == null)
+            {
+                return;
+            }
+
+            int index = pageList.indexOf(page);
+            if (index > 0)
+            {
+                this.backPage = pageList.get(index - 1);
+            }
+            else
+            {
+                this.backPage = null;
+            }
+
+            if (index < pageList.size() - 1)
+            {
+                this.nextPage = pageList.get(index + 1);
+            }
+            else
+            {
+                this.nextPage = null;
+            }
+        }
+
+        public int getSize()
+        {
+            return pageList.size();
+        }
     }
 }

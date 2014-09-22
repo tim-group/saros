@@ -33,10 +33,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 
 /**
- * Class presents default header panel for wizard framework
- *
+ * Class presents header panel for wizards.
  */
-
 public class HeaderPanel extends JPanel
 {
 
@@ -55,9 +53,7 @@ public class HeaderPanel extends JPanel
     public HeaderPanel(String title, String text)
     {
         create(title,text);
-
     }
-
 
     /**
      * Method creates header panel with given title and description
@@ -65,7 +61,7 @@ public class HeaderPanel extends JPanel
      * @param title header title
      * @param text  header description
      */
-    protected void create(String title, String text)
+    private void create(String title, String text)
     {
         setLayout(new FlowLayout());
 
@@ -98,11 +94,9 @@ public class HeaderPanel extends JPanel
 
         add(textPanel);
 
-
         JLabel lblIcon = new JLabel();
         lblIcon.setIcon(icon);
         add(lblIcon);
-
 
         setBackground(backColor);
     }

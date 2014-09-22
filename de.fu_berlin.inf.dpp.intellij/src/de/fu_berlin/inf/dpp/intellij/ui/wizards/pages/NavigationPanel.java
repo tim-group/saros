@@ -22,6 +22,8 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.wizards.pages;
 
+import de.fu_berlin.inf.dpp.intellij.ui.wizards.Wizard;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -34,14 +36,14 @@ import java.awt.event.ActionListener;
 
 /**
  * Default navigation panel creates panel with 3 default buttons
- * BACK, NEXT and CANCEL
+ * back, next and cancel.
  */
 
 public class NavigationPanel extends JPanel
 {
     public enum Position
     {
-        first, middle, last, zero
+        first, middle, last
     }
 
     public static final String NEXT_ACTION = "next";
@@ -57,34 +59,12 @@ public class NavigationPanel extends JPanel
     private JButton nextButton;
     private JButton cancelButton;
 
-    /**
-     * Constructor creates default buttons
-     */
     public NavigationPanel()
     {
         backButton = new JButton(TITLE_BACK);
         nextButton = new JButton(TITLE_NEXT);
         cancelButton = new JButton(TITLE_CANCEL);
-    }
-
-    public void setBackButton(JButton backButton)
-    {
-        this.backButton = backButton;
-    }
-
-    public void setNextButton(JButton nextButton)
-    {
-        this.nextButton = nextButton;
-    }
-
-    public void setCancelButton(JButton cancelButton)
-    {
-        this.cancelButton = cancelButton;
-    }
-
-    public JButton getBackButton()
-    {
-        return backButton;
+        create();
     }
 
     public JButton getNextButton()
@@ -92,41 +72,29 @@ public class NavigationPanel extends JPanel
         return nextButton;
     }
 
-    public JButton getCancelButton()
-    {
-        return cancelButton;
-    }
-
     /**
-     * Method creates panel UI. Should be triggered explicitly after all required buttons are set.
+     * Method creates panel UI.
      */
-    public void create()
+    private void create()
     {
         JPanel buttonPanel = this;
         Box buttonBox = new Box(BoxLayout.X_AXIS);
-
 
         buttonPanel.setLayout(new BorderLayout());
         buttonPanel.add(new JSeparator(), BorderLayout.NORTH);
 
         buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
 
-        if (backButton != null)
-        {
-            backButton.setActionCommand(BACK_ACTION);
-            buttonBox.add(backButton);
-            buttonBox.add(Box.createHorizontalStrut(10));
-        }
+        backButton.setActionCommand(BACK_ACTION);
+        buttonBox.add(backButton);
+        buttonBox.add(Box.createHorizontalStrut(10));
 
         nextButton.setActionCommand(NEXT_ACTION);
         buttonBox.add(nextButton);
 
-        if (cancelButton != null)
-        {
-            cancelButton.setActionCommand(CANCEL_ACTION);
-            buttonBox.add(Box.createHorizontalStrut(10));
-            buttonBox.add(cancelButton);
-        }
+        cancelButton.setActionCommand(CANCEL_ACTION);
+        buttonBox.add(Box.createHorizontalStrut(10));
+        buttonBox.add(cancelButton);
 
         buttonPanel.add(buttonBox, BorderLayout.EAST);
     }
@@ -138,20 +106,9 @@ public class NavigationPanel extends JPanel
      */
     public void addActionListener(ActionListener actionListener)
     {
-        if (backButton != null)
-        {
-            backButton.addActionListener(actionListener);
-        }
-
-        if (nextButton != null)
-        {
-            nextButton.addActionListener(actionListener);
-        }
-
-        if (cancelButton != null)
-        {
-            cancelButton.addActionListener(actionListener);
-        }
+        backButton.addActionListener(actionListener);
+        nextButton.addActionListener(actionListener);
+        cancelButton.addActionListener(actionListener);
     }
 
     /**
@@ -161,95 +118,48 @@ public class NavigationPanel extends JPanel
      */
     public void setButtonsEnabled(boolean enabled)
     {
-        if (backButton != null)
-        {
-            backButton.setEnabled(enabled);
-        }
-
-        if (nextButton != null)
-        {
-            nextButton.setEnabled(enabled);
-        }
+        backButton.setEnabled(enabled);
+        nextButton.setEnabled(enabled);
     }
 
     /**
-     * Next button visibility
+     * Methods changes enable status of back and next buttons according to
+     * position in the page list (see {@link Wizard.WizardPageModel}.
      *
-     * @param visible
+     * @param position page position in the page list
+     * @param backButtonVisible
+     * @param nextButtonVisible
      */
-    public void setVisibleNext(boolean visible)
+    public void setPosition(Position position, boolean backButtonVisible,
+        boolean nextButtonVisible)
     {
-        if (nextButton != null)
-        {
-            nextButton.setVisible(visible);
-        }
-    }
+        backButton.setVisible(false);
+        nextButton.setVisible(false);
 
-    /**
-     * Back button visibility
-     *
-     * @param visible
-     */
-    public void setVisibleBack(boolean visible)
-    {
-        if (backButton != null)
-        {
-            backButton.setVisible(visible);
-        }
-    }
-    /**
-     * Method  is called by framework to define wizard position
-     *
-     * @param position page position in the list
-     */
-    public void setPosition(Position position)
-    {
         switch (position)
         {
             case first:
-                if (backButton != null)
-                {
-                    backButton.setEnabled(false);
-                    backButton.setVisible(false);
-                }
-                if (nextButton != null)
-                {
-                    nextButton.setEnabled(true);
-                }
+                backButton.setEnabled(false);
+
+                nextButton.setEnabled(true && nextButtonVisible);
+                nextButton.setVisible(nextButtonVisible);
                 break;
             case middle:
-                if (backButton != null)
-                {
-                    backButton.setVisible(true);
-                    backButton.setEnabled(true);
-                }
-                if (nextButton != null)
-                {
-                    nextButton.setEnabled(true);
-                }
+                backButton.setEnabled(true && backButtonVisible);
+                backButton.setVisible(backButtonVisible);
+
+                nextButton.setEnabled(true && nextButtonVisible);
+                nextButton.setVisible(nextButtonVisible);
                 break;
             case last:
-                if (backButton != null)
-                {
-                    backButton.setVisible(true);
-                    backButton.setEnabled(true);
-                }
-                if (nextButton != null)
-                {
-                    nextButton.setEnabled(true);
-                    nextButton.setText(TITLE_FINISH);
-                    nextButton.repaint();
-                }
+                nextButton.setEnabled(true && nextButtonVisible);
+                nextButton.setVisible(nextButtonVisible);
+                nextButton.setText(TITLE_FINISH);
+                nextButton.repaint();
                 break;
             default:
-                if (backButton != null)
-                {
-                    backButton.setEnabled(false);
-                }
-                if (nextButton != null)
-                {
-                    nextButton.setEnabled(false);
-                }
+                backButton.setEnabled(false);
+                nextButton.setEnabled(false);
         }
     }
 }
