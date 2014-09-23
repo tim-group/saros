@@ -22,6 +22,7 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileCopyEvent;
 import com.intellij.openapi.vfs.VirtualFileEvent;
 import com.intellij.openapi.vfs.VirtualFileListener;
@@ -42,6 +43,10 @@ import java.util.List;
 public class FileContentChangedNotifierBridge
         implements IFileContentChangedNotifier, VirtualFileListener {
     private List<IFileContentChangedListener> list = new ArrayList<IFileContentChangedListener>();
+
+    public FileContentChangedNotifierBridge() {
+        LocalFileSystem.getInstance().addVirtualFileListener(this);
+    }
 
     @Override
     public void addFileContentChangedListener(
