@@ -22,12 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.util;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import org.apache.log4j.Logger;
 
-/**
- * Class should use IntelliJ API to show notifications
- */
-//todo: make implementation
 public class NotificationPanel {
     private static final Logger LOG = Logger.getLogger(NotificationPanel.class);
 
@@ -42,7 +41,8 @@ public class NotificationPanel {
      * @param title
      */
     public static void showNotification(String message, String title) {
-        DialogUtils.showInfo(message, title);
+        Notifications.Bus.notify(new Notification("Saros", title, message,
+            NotificationType.INFORMATION));
     }
 
     /**
