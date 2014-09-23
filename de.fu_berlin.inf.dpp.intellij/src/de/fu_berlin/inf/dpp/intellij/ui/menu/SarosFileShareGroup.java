@@ -39,6 +39,7 @@ import de.fu_berlin.inf.dpp.filesystem.IPath;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FileImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.FolderImp;
+import de.fu_berlin.inf.dpp.intellij.project.fs.GitIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.resource.IconManager;
 import de.fu_berlin.inf.dpp.intellij.project.fs.VcsIgnore;
@@ -119,7 +120,7 @@ public class SarosFileShareGroup extends ActionGroup {
             File file = new File(virtFile.getPath());
             try {
                 Module module = ProjectFileIndex.SERVICE.getInstance(e.getProject()).getModuleForFile(virtFile);
-                ProjectImp project = new ProjectImp(e.getProject(), module.getName(), file, VcsIgnore.NOTHING_IS_IGNORED);
+                ProjectImp project = new ProjectImp(e.getProject(), module.getName(), file, new GitIgnore());
 
                 List<IResource> resources = new ArrayList<IResource>();
 

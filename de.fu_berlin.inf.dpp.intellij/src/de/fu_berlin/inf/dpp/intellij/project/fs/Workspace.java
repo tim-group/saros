@@ -41,6 +41,7 @@ public class Workspace implements IWorkspace {
     private LocalFileSystem fileSystem;
 
     private Project project;
+    private final VcsIgnore vcsIgnore = new GitIgnore();
 
     public Workspace(Project project) {
         this.project = project;
@@ -54,7 +55,7 @@ public class Workspace implements IWorkspace {
 
     @Override
     public IProject getProject(String projectName) {
-        return new ProjectImp(project, projectName, VcsIgnore.NOTHING_IS_IGNORED);
+        return new ProjectImp(project, projectName, vcsIgnore);
     }
 
     /**
@@ -74,7 +75,7 @@ public class Workspace implements IWorkspace {
         }
 
         String projectName = new PathImp(relativePath).segment(0);
-        return new ProjectImp(project, projectName, VcsIgnore.NOTHING_IS_IGNORED);
+        return new ProjectImp(project, projectName, vcsIgnore);
     }
 
     @Override

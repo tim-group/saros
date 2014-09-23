@@ -39,7 +39,6 @@ public abstract class ResourceImp implements IResource {
     protected ProjectImp project;
     protected File file;
     private IResourceAttributes attributes;
-    private boolean isDerived = false;
 
     protected ResourceImp(ProjectImp project, File file) {
         this.project = project;
@@ -136,10 +135,6 @@ public abstract class ResourceImp implements IResource {
     @Override
     public boolean isDerived() {
         return project.isMemberDerived(this);
-    }
-
-    public void setDerived(boolean derived) {
-        isDerived = derived;
     }
 
     public File toFile() {

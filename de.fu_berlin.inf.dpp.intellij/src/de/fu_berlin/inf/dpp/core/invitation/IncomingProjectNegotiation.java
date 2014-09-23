@@ -18,6 +18,7 @@ import de.fu_berlin.inf.dpp.filesystem.IProject;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspace;
 import de.fu_berlin.inf.dpp.filesystem.IWorkspaceRunnable;
+import de.fu_berlin.inf.dpp.intellij.project.fs.GitIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.PathImp;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import de.fu_berlin.inf.dpp.intellij.ui.wizards.AddProjectToSessionWizard;
@@ -91,6 +92,8 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
     // TODO pull up, when this class is in core
     @Inject
     private ISarosSessionManager sessionManager;
+
+    private final VcsIgnore vcsIgnore = new GitIgnore();
 
     public IncomingProjectNegotiation(ISarosSession sarosSession, JID peer,
         String processID, List<ProjectNegotiationData> projectInfos,
@@ -300,7 +303,7 @@ public class IncomingProjectNegotiation extends ProjectNegotiation {
             }
 
             IProject project = new ProjectImp(saros.getProject(), projectName,
-                projectFolder, VcsIgnore.NOTHING_IS_IGNORED);
+                projectFolder, vcsIgnore);
             localProjects.put(projectID, project);
         }
     }
