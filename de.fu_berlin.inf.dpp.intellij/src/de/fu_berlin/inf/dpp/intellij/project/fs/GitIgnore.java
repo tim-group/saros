@@ -39,6 +39,11 @@ import static org.eclipse.jgit.ignore.IgnoreNode.MatchResult.NOT_IGNORED;
 public final class GitIgnore implements VcsIgnore {
 
     @Override public boolean isIgnored(IResource resource) {
+
+        if (isInDotGitDirectory(resource)) {
+            return true;
+        }
+
         IResource directoryContainingFileToCheck;
         switch (resource.getType()) {
         case IResource.FILE:
@@ -55,6 +60,10 @@ public final class GitIgnore implements VcsIgnore {
         return descendInSearchOfGitIgnoreFile(
             resource,
             createPathSegmentsFromRootTo(directoryContainingFileToCheck));
+    }
+
+    private boolean isInDotGitDirectory(IResource resource) {
+        return resource.getProjectRelativePath().toPortableString().startsWith(Constants.DOT_GIT);
     }
 
     private Iterator<IResource> createPathSegmentsFromRootTo(IResource resource) {

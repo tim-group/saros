@@ -74,6 +74,20 @@ public class GitIgnoreTest {
         assertThat("not-a-git-project/some-file.txt", is(not(ignoredBy(gitIgnores, new ProjectImp(null, "Test-Project", projectFolder, gitIgnores)))));
     }
 
+    @Test public void ignoresTheDotGitDirectory() throws Exception {
+        folder.create();
+        File rootDir = folder.getRoot();
+        initGitRepoIn(rootDir);
+
+        VcsIgnore gitIgnores = new GitIgnore();
+
+        VcsIgnoredMatcher ignoredBy = ignoredBy(gitIgnores,
+            new ProjectImp(null, "Test-Project", folder.getRoot(), gitIgnores));
+
+        assertThat(".git/", is(ignoredBy));
+        assertThat(".git/config", is(ignoredBy));
+    }
+
     private void assertExpectedIgnores(Matcher<String> ignored) {
         assertThat("ignored.txt", is(ignored));
         assertThat("not-ignored.txt", is(not(ignored)));
