@@ -93,7 +93,7 @@ public class ProgressPageWithInfo extends AbstractWizardPage
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        progressInfo = new JLabel("Starting");
+        progressInfo = new JLabel(title);
         titlePanel.add(progressInfo);
 
         progressPanel.add(titlePanel);
@@ -146,7 +146,7 @@ public class ProgressPageWithInfo extends AbstractWizardPage
             MonitorProgressBar progress = new MonitorProgressBar(progressBar, progressInfo);
             if (indeterminate)
             {
-                progress.beginTask("starting", IProgressMonitor.UNKNOWN);
+                progress.beginTask("", IProgressMonitor.UNKNOWN);
             }
 
 
@@ -175,6 +175,6 @@ public class ProgressPageWithInfo extends AbstractWizardPage
 
     @Override
     public boolean isNextButtonVisible() {
-        return false;
+        return true;
     }
 }

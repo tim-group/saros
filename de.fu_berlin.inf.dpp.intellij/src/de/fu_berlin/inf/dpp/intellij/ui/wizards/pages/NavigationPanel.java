@@ -43,7 +43,7 @@ public class NavigationPanel extends JPanel
 {
     public enum Position
     {
-        first, middle, last
+        FIRST, MIDDLE, LAST
     }
 
     public static final String NEXT_ACTION = "next";
@@ -100,7 +100,7 @@ public class NavigationPanel extends JPanel
     }
 
     /**
-     * Adds action listener
+     * Adds action listener to all buttons.
      *
      * @param actionListener action listener
      */
@@ -109,17 +109,6 @@ public class NavigationPanel extends JPanel
         backButton.addActionListener(actionListener);
         nextButton.addActionListener(actionListener);
         cancelButton.addActionListener(actionListener);
-    }
-
-    /**
-     * Method manages buttons' visibility
-     *
-     * @param enabled
-     */
-    public void setButtonsEnabled(boolean enabled)
-    {
-        backButton.setEnabled(enabled);
-        nextButton.setEnabled(enabled);
     }
 
     /**
@@ -138,20 +127,20 @@ public class NavigationPanel extends JPanel
 
         switch (position)
         {
-            case first:
+            case FIRST:
                 backButton.setEnabled(false);
 
                 nextButton.setEnabled(true && nextButtonVisible);
                 nextButton.setVisible(nextButtonVisible);
                 break;
-            case middle:
+            case MIDDLE:
                 backButton.setEnabled(true && backButtonVisible);
                 backButton.setVisible(backButtonVisible);
 
                 nextButton.setEnabled(true && nextButtonVisible);
                 nextButton.setVisible(nextButtonVisible);
                 break;
-            case last:
+            case LAST:
                 nextButton.setEnabled(true && nextButtonVisible);
                 nextButton.setVisible(nextButtonVisible);
                 nextButton.setText(TITLE_FINISH);

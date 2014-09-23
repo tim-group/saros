@@ -91,22 +91,24 @@ public class Wizard extends JDialog
         }
     };
 
-    private JPanel cardPanel;
-    private HeaderPanel headerPanel;
+    private final JPanel cardPanel;
+    private final HeaderPanel headerPanel;
 
-    private CardLayout cardLayout;
+    private final CardLayout cardLayout;
 
-    private NavigationPanel navigationPanel;
+    private final NavigationPanel navigationPanel;
 
     /**
      * Constructor creates wizard structure.
      *
      * @param title window title
+     * @param headerPanel
      */
-    public Wizard(String title)
+    public Wizard(String title, HeaderPanel headerPanel)
     {
         super(new JFrame(), title);
 
+        this.headerPanel = headerPanel;
         wizardPageModel = new WizardPageModel();
 
         setSize(600, 400);
@@ -116,7 +118,6 @@ public class Wizard extends JDialog
         navigationPanel.addActionListener(navigationListener);
 
         cardPanel = new JPanel();
-        headerPanel = new HeaderPanel("", "");
 
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
@@ -155,13 +156,11 @@ public class Wizard extends JDialog
         page.setWizard(this);
         cardPanel.add(page, page.getId());
         cardLayout.addLayoutComponent(page, page.getId());
-        wizardPageModel.registerPage(page.getId().toString(), page);
+        wizardPageModel.registerPage(page.getId(), page);
     }
 
     protected void goToPage(AbstractWizardPage page)
     {
-        navigationPanel.setButtonsEnabled(false);
-
         AbstractWizardPage oldPage = wizardPageModel.getCurrentPage();
 
         if (oldPage != null)
@@ -174,25 +173,20 @@ public class Wizard extends JDialog
 
         navigationPanel.getNextButton().setText(page.getNextButtonTitle());
 
-        NavigationPanel.Position position = NavigationPanel.Position.middle;
+        NavigationPanel.Position position = NavigationPanel.Position.MIDDLE;
 
         if (wizardPageModel.getNextPage() == null)
         {
-            position = NavigationPanel.Position.last;
+            position = NavigationPanel.Position.LAST;
         }
         else if (wizardPageModel.getBackPage() == null)
         {
-            position = NavigationPanel.Position.first;
+            position = NavigationPanel.Position.FIRST;
         }
 
         navigationPanel.setPosition(position, page.isBackButtonVisible(), page.isNextButtonVisible());
 
-        cardLayout.show(cardPanel, page.getId().toString());
-    }
-
-    public void setHeaderPanel(HeaderPanel headerPanel)
-    {
-        this.headerPanel = headerPanel;
+        cardLayout.show(cardPanel, page.getId());
     }
 
     public void close()
@@ -207,11 +201,14 @@ public class Wizard extends JDialog
     /**
      * Default wizard model. Class keeps information about
      * wizard position, acts as container for
+     *
+     * FIXME: Replace back, current and next page by index of current page
+     * and calculation
      */
     private static class WizardPageModel
     {
-        private Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();
-        private List<AbstractWizardPage> pageList = new ArrayList<AbstractWizardPage>();
+        private final Map<Object, AbstractWizardPage> pageMap = new HashMap<Object, AbstractWizardPage>();
+        private final List<AbstractWizardPage> pageList = new ArrayList<AbstractWizardPage>();
 
         private AbstractWizardPage backPage;
         private AbstractWizardPage currentPage;
@@ -250,7 +247,7 @@ public class Wizard extends JDialog
 
         public void setNextPage(AbstractWizardPage page)
         {
-               this.nextPage = page;
+            nextPage = page;
         }
 
         /**
@@ -288,20 +285,20 @@ public class Wizard extends JDialog
             int index = pageList.indexOf(page);
             if (index > 0)
             {
-                this.backPage = pageList.get(index - 1);
+                backPage = pageList.get(index - 1);
             }
             else
             {
-                this.backPage = null;
+                backPage = null;
             }
 
             if (index < pageList.size() - 1)
             {
-                this.nextPage = pageList.get(index + 1);
+                nextPage = pageList.get(index + 1);
             }
             else
             {
-                this.nextPage = null;
+                nextPage = null;
             }
         }
 

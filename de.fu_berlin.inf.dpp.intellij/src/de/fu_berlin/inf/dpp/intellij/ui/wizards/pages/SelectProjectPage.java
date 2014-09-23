@@ -259,6 +259,10 @@ public class SelectProjectPage extends AbstractWizardPage
         return true;
     }
 
+    public boolean isNewProjectSelected() {
+        return rdbCreateNewProject.isSelected();
+    }
+
     public String getNewProjectName()
     {
         return fldNewProjectName.isEnabled() ? fldNewProjectName.getText() : "";

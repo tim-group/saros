@@ -57,21 +57,21 @@ public class JoinSessionWizard {
 
     private static final Logger LOG = Logger.getLogger(JoinSessionWizard.class);
 
-    private Container parent;
+    private final Container parent;
 
     @Inject
     private Saros saros;
 
     private boolean accepted = false;
 
-    private IncomingSessionNegotiation process;
+    private final IncomingSessionNegotiation process;
 
     private SessionNegotiation.Status invitationStatus;
 
-    private ProgressPage progressPage;
-    private Wizard wizard;
+    private final ProgressPage progressPage;
+    private final Wizard wizard;
 
-    private PageActionListener actionListener = new PageActionListener() {
+    private final PageActionListener actionListener = new PageActionListener() {
         @Override
         public void back() {
 
@@ -98,16 +98,12 @@ public class JoinSessionWizard {
         SarosPluginContext.initComponent(this);
         parent = saros.getMainPanel();
 
-        wizard = new Wizard(Messages.JoinSessionWizard_title);
-        wizard.setHeaderPanel(
-            new HeaderPanel(Messages.ShowDescriptionPage_title2,
-                Messages.ShowDescriptionPage_description));
+        InfoPage infoPage = createInfoPage(process);
 
-        InfoPage infoPage = new InfoPage(PAGE_INFO_ID, Messages.JoinSessionWizard_accept);
-        infoPage.addText(process.getPeer().getName() + " "
-            + Messages.JoinSessionWizard_info);
-        infoPage.addText(process.getDescription());
-        infoPage.addPageListener(actionListener);
+        HeaderPanel headerPanel = new HeaderPanel(Messages.ShowDescriptionPage_title2,
+            Messages.ShowDescriptionPage_description);
+
+        wizard = new Wizard(Messages.JoinSessionWizard_title, headerPanel);
 
         wizard.registerPage(infoPage);
 
@@ -118,12 +114,20 @@ public class JoinSessionWizard {
 
     }
 
+    private InfoPage createInfoPage(IncomingSessionNegotiation process) {
+        InfoPage infoPage = new InfoPage(PAGE_INFO_ID, Messages.JoinSessionWizard_accept);
+        infoPage.addText(process.getPeer().getName() + " "
+            + Messages.JoinSessionWizard_info);
+        infoPage.addText(process.getDescription());
+        infoPage.addPageListener(actionListener);
+        return infoPage;
+    }
+
     public boolean performFinish() {
 
         accepted = true;
 
         try {
-
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
@@ -177,38 +181,6 @@ public class JoinSessionWizard {
         return true;
     }
 
-    /**
-     * Get rid of this method, use a listener !
-     */
-    public void cancelWizard(final JID jid, final String errorMsg,
-        final CancelLocation cancelLocation) {
-
-        ThreadUtils.runSafeSync(LOG, new Runnable() {
-            @Override
-            public void run() {
-
-                /*
-                 * do NOT CLOSE the wizard if it performs async operations
-                 *
-                 * see performFinish() -> getContainer().run(boolean, boolean,
-                 * IRunnableWithProgress)
-                 */
-                if (accepted) {
-                    return;
-                }
-
-                //todo
-                /* Shell shell = JoinSessionWizard.this.getShell();
-               if (shell == null || shell.isDisposed())
-                   return;
-
-               ((WizardDialog) JoinSessionWizard.this.getContainer()).close();*/
-
-                asyncShowCancelMessage(jid, errorMsg, cancelLocation);
-            }
-        });
-    }
-
     private void asyncShowCancelMessage(final JID jid, final String errorMsg,
         final CancelLocation cancelLocation) {
         ThreadUtils.runSafeAsync(LOG, new Runnable() {
@@ -224,20 +196,17 @@ public class JoinSessionWizard {
 
         String peer = jid.getBase();
 
-        Container shell = parent;
-
         if (errorMsg != null) {
             switch (cancelLocation) {
             case LOCAL:
                 DialogUtils
-                    .showError(shell, Messages.JoinSessionWizard_inv_cancelled,
+                    .showError(parent, Messages.JoinSessionWizard_inv_cancelled,
                         Messages.JoinSessionWizard_inv_cancelled_text
                             + Messages.JoinSessionWizard_8 + errorMsg
                     );
                 break;
             case REMOTE:
-                DialogUtils.showError(shell,
-
+                DialogUtils.showError(parent,
                     Messages.JoinSessionWizard_inv_cancelled, MessageFormat
                         .format(Messages.JoinSessionWizard_inv_cancelled_text2,
                             peer, errorMsg)
@@ -249,7 +218,7 @@ public class JoinSessionWizard {
                 break;
             case REMOTE:
                 DialogUtils
-                    .showInfo(shell, Messages.JoinSessionWizard_inv_cancelled,
+                    .showInfo(parent, Messages.JoinSessionWizard_inv_cancelled,
                         MessageFormat.format(
                             Messages.JoinSessionWizard_inv_cancelled_text3,
                             peer)
