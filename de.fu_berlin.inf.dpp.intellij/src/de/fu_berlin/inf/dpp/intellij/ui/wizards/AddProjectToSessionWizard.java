@@ -62,6 +62,7 @@ import java.util.Map;
 
 /**
  * Wizard for adding projects to a session.
+ * FIXME: Add facility for more than one project.
  */
 public class AddProjectToSessionWizard {
     private static final Logger LOG = Logger
@@ -71,7 +72,8 @@ public class AddProjectToSessionWizard {
     public static final String FILE_LIST_PAGE_ID = "fileListPage";
     public static final String PROGRESS_PAGE_ID = "progressPage";
 
-    private final Map<String, String> remoteProjectNames;
+    private final String remoteProjectID;
+    private final String remoteProjectName;
 
     private IncomingProjectNegotiation process;
     private JID peer;
@@ -80,7 +82,7 @@ public class AddProjectToSessionWizard {
     /**
      * projectID => Project
      */
-    private Map<String, IProject> remoteProjects;
+    private Map<String, IProject> localProjects;
 
     @Inject
     private IChecksumCache checksumCache;
@@ -116,25 +118,25 @@ public class AddProjectToSessionWizard {
 
         @Override
         public void next() {
-            //FIXME: Add support for different name
-            if (selectProjectPage.isNewProjectSelected())
-                wizard.setNextPage(progressPage);
+            //FIXME: Only projects with the same name are supported,
+            //because the project name is connected to the name of the .iml file
+            //and it is unclear how that resolves.
+            final String newProjectName = selectProjectPage.getLocalProjectName();
+            IProject project = saros.getWorkspace().getProject(newProjectName);
 
-            for (Map.Entry<String, String> entry : remoteProjectNames.entrySet()) {
-                final String projectID = entry.getKey();
-                final String projectName = entry.getValue();
-                IProject project = saros.getWorkspace().getProject(projectName);
+            localProjects.put(remoteProjectID, project);
 
-                remoteProjects.put(projectID, project);
+            if (localProjects.isEmpty()) {
+                return;
             }
-
             ThreadUtils.runSafeAsync(LOG, new Runnable() {
                 @Override
                 public void run() {
-                    createAndOpenProjects(remoteProjects);
+                    createAndOpenProjects(localProjects);
                     if (!selectProjectPage.isNewProjectSelected()) {
-                        showFilesChangedPage(remoteProjects);
+                        fillFilesChangedPage(localProjects);
                     } else {
+                        wizard.setNextPage(progressPage);
                         triggerProjectNegotiation();
                     }
                 }
@@ -189,10 +191,10 @@ public class AddProjectToSessionWizard {
         this.process = process;
         this.peer = peer;
         this.fileLists = fileLists;
-        remoteProjectNames = projectNames;
-        remoteProjects = new HashMap<String, IProject>();
+        localProjects = new HashMap<String, IProject>();
 
-        String prjName = projectNames.values().iterator().next();
+        remoteProjectID = projectNames.keySet().iterator().next();
+        remoteProjectName = projectNames.values().iterator().next();
 
         HeaderPanel headerPanel = new HeaderPanel(
             Messages.EnterProjectNamePage_title2, "");
@@ -200,7 +202,7 @@ public class AddProjectToSessionWizard {
             headerPanel);
 
         selectProjectPage = new SelectProjectPage(SELECT_PROJECT_PAGE_ID,
-            prjName, prjName, workspace.getLocation().toOSString());
+            remoteProjectName, remoteProjectName, workspace.getLocation().toOSString());
         selectProjectPage.addPageListener(selectProjectsPageListener);
         wizard.registerPage(selectProjectPage);
 
@@ -229,7 +231,7 @@ public class AddProjectToSessionWizard {
     private void triggerProjectNegotiation() {
         final IProgressMonitor monitor = progressPage
                 .getProgressMonitor(true, true);
-        ProjectNegotiation.Status status =  process.run(remoteProjects, monitor, false);
+        ProjectNegotiation.Status status =  process.run(localProjects, monitor, false);
 
         if (status != ProjectNegotiation.Status.OK) {
             DialogUtils.showError(wizard, "Error during project negotiation", "The project could not be shared");
@@ -238,7 +240,7 @@ public class AddProjectToSessionWizard {
         }
     }
 
-    private void showFilesChangedPage(Map<String, IProject> projectMapping) {
+    private void fillFilesChangedPage(Map<String, IProject> projectMapping) {
 
         IProgressMonitor monitor = fileListPage.getProgressMonitor(true, false);
         final Map<String, FileListDiff> modifiedResources = getModifiedResourcesFromMofifiableProjects(projectMapping, monitor);
@@ -377,10 +379,12 @@ public class AddProjectToSessionWizard {
                     subMonitor.worked(1);
                 }
 
-                diff = FileListDiff.diff(FileListFactory
-                        .createFileList(project, null, checksumCache, null,
-                            new SubProgressMonitor(monitor, 1,
-                                SubProgressMonitor.SUPPRESS_SETTASKNAME)),
+                FileList localFileList = FileListFactory
+                    .createFileList(project, null, checksumCache, null,
+                        new SubProgressMonitor(monitor, 1,
+                            SubProgressMonitor.SUPPRESS_SETTASKNAME)
+                    );
+                diff = FileListDiff.diff(localFileList,
                     remoteFileList);
 
                 if (process.isPartialRemoteProject(projectID)) {

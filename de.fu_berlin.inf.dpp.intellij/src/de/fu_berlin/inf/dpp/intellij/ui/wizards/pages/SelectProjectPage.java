@@ -32,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,11 +42,34 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
- * Selects local project
+ * Selects local project.
+ * FIXME: Add facility for multiple projects at once.
  */
-
 public class SelectProjectPage extends AbstractWizardPage
 {
+
+    private DocumentListener projectNameListener = new DocumentListener() {
+        @Override public void insertUpdate(DocumentEvent documentEvent) {
+            checkForNewSameNameAsOld();
+        }
+
+        @Override public void removeUpdate(DocumentEvent documentEvent) {
+            checkForNewSameNameAsOld();
+        }
+
+        @Override public void changedUpdate(DocumentEvent documentEvent) {
+            checkForNewSameNameAsOld();
+        }
+    };
+
+    private void checkForNewSameNameAsOld() {
+        String newName = getLocalProjectName();
+        if (!newName.equals(projectName)) {
+            wizard.disableNextButton();
+        } else {
+           wizard.enableNextButtion();
+        }
+    }
 
     private enum ProjectOptions
     {
@@ -62,8 +87,6 @@ public class SelectProjectPage extends AbstractWizardPage
     private JButton browseButton;
 
     private String projectName;
-    private String newProjectName;
-    private String projectBase;
 
     private JLabel lblNewProject;
     private JLabel lblExistingProject;
@@ -82,12 +105,10 @@ public class SelectProjectPage extends AbstractWizardPage
     {
         super(id);
         this.projectName = projectName;
-        this.newProjectName = newProjectName;
-        this.projectBase = projectBase;
-        create();
+        create(newProjectName, projectBase);
     }
 
-    private void create()
+    private void create(String newProjectName, String projectBase)
     {
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -118,6 +139,7 @@ public class SelectProjectPage extends AbstractWizardPage
 
         fldNewProjectName = new JTextField();
         fldNewProjectName.setText(newProjectName);
+        fldNewProjectName.getDocument().addDocumentListener(projectNameListener);
 
         c.gridx = 1;
         c.gridy = 1;
@@ -141,6 +163,8 @@ public class SelectProjectPage extends AbstractWizardPage
         pnlProject.add(lblExistingProject, c);
 
         fldExistingProjectName = new JTextField();
+        fldExistingProjectName.getDocument().addDocumentListener(
+            projectNameListener);
 
         c.gridx = 1;
         c.gridy = 3;
@@ -263,18 +287,13 @@ public class SelectProjectPage extends AbstractWizardPage
         return rdbCreateNewProject.isSelected();
     }
 
-    public String getNewProjectName()
-    {
-        return fldNewProjectName.isEnabled() ? fldNewProjectName.getText() : "";
-    }
-
     public String getExistingProjectPath()
     {
         return fldExistingProjectName.isEnabled() ? fldExistingProjectName.getText() : "";
     }
 
-    public String getExistingProjectName()
+    public String getLocalProjectName()
     {
-        return fldExistingProjectName.isEnabled() ? new File(getExistingProjectPath()).getName() : "";
+        return fldExistingProjectName.isEnabled() ? new File(getExistingProjectPath()).getName() : fldNewProjectName.getText();
     }
 }

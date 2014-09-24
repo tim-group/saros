@@ -65,17 +65,18 @@ public class HeaderPanel extends JPanel
     {
         setLayout(new FlowLayout());
 
-        this.icon = IconManager.getIcon("/icons/wizban/invitation.png","invitation");
-        this.textMain = new JTextArea();
-        this.textMain.setEditable(false);
+        icon = IconManager.getIcon("/icons/wizban/invitation.png","invitation");
+        textMain = new JTextArea();
+        textMain.setEditable(false);
 
-        this.textTitle = new JLabel();
+        textTitle = new JLabel();
+        String textConvertedToJLabelHTML = convertTextToJLabelHTML(title);
 
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setBackground(backColor);
 
-        textTitle.setText(title);
+        textTitle.setText(textConvertedToJLabelHTML);
         titlePanel.add(textTitle);
 
         textMain.setText(text);
@@ -99,6 +100,10 @@ public class HeaderPanel extends JPanel
         add(lblIcon);
 
         setBackground(backColor);
+    }
+
+    private String convertTextToJLabelHTML(String text) {
+        return "<html>" + text.replace("\n", "<br>") + "</html>";
     }
 
     public String getTitle()

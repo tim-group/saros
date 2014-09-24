@@ -171,7 +171,7 @@ public class Wizard extends JDialog
         if (page == null)
             return;
 
-        navigationPanel.getNextButton().setText(page.getNextButtonTitle());
+        navigationPanel.setNextButtonText(page.getNextButtonTitle());
 
         NavigationPanel.Position position = NavigationPanel.Position.MIDDLE;
 
@@ -196,6 +196,14 @@ public class Wizard extends JDialog
 
     public void setNextPage(AbstractWizardPage page) {
         wizardPageModel.setNextPage(page);
+    }
+
+    public void enableNextButtion() {
+        navigationPanel.enableNextButton();
+    }
+
+    public void disableNextButton() {
+        navigationPanel.disableNextButton();
     }
 
     /**

@@ -67,11 +67,6 @@ public class NavigationPanel extends JPanel
         create();
     }
 
-    public JButton getNextButton()
-    {
-        return nextButton;
-    }
-
     /**
      * Method creates panel UI.
      */
@@ -150,5 +145,17 @@ public class NavigationPanel extends JPanel
                 backButton.setEnabled(false);
                 nextButton.setEnabled(false);
         }
+    }
+
+    public void disableNextButton() {
+        nextButton.setEnabled(false);
+    }
+
+    public void enableNextButton() {
+        nextButton.setEnabled(true);
+    }
+
+    public void setNextButtonText(String nextButtonTitle) {
+        nextButton.setText(nextButtonTitle);
     }
 }
