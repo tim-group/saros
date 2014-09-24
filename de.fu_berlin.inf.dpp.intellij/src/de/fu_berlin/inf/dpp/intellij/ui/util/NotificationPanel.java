@@ -25,30 +25,14 @@ package de.fu_berlin.inf.dpp.intellij.ui.util;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import org.apache.log4j.Logger;
 
 public class NotificationPanel {
-    private static final Logger LOG = Logger.getLogger(NotificationPanel.class);
 
     private NotificationPanel() {
     }
 
-    /**
-     * Dispaly the Notification.
-     * TODO: Implement
-     *
-     * @param message
-     * @param title
-     */
     public static void showNotification(String message, String title) {
         Notifications.Bus.notify(new Notification("Saros", title, message,
             NotificationType.INFORMATION));
-    }
-
-    /**
-     * Clears all notifications.
-     */
-    public static void clearNotifications() {
-        //todo: implement it
     }
 }
