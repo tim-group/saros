@@ -22,7 +22,6 @@
 
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -31,7 +30,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import de.fu_berlin.inf.dpp.core.Saros;
 import de.fu_berlin.inf.dpp.filesystem.IContainer;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IFolder;
@@ -152,7 +150,6 @@ public class ProjectImp implements IProject {
 
     protected void addResource(IFile file) {
         addResource((IResource) file);
-        //String key = file.getProjectRelativePath().toString();
         String key = file.getFullPath().toString();
 
         fileMap.put(key, file);
@@ -160,7 +157,6 @@ public class ProjectImp implements IProject {
 
     protected void addResource(IFolder folder) {
         addResource((IResource) folder);
-        // String key = folder.getProjectRelativePath().toString();
         String key = folder.getFullPath().toString();
         folderMap.put(key, folder);
     }
@@ -227,9 +223,7 @@ public class ProjectImp implements IProject {
 
     @Override
     public boolean isOpen() {
-        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
-
-        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
+        if (ModuleManager.getInstance(project) != null) {
             return ApplicationManager.getApplication().runReadAction(
                 new Computable<Boolean>() {
 
@@ -246,9 +240,7 @@ public class ProjectImp implements IProject {
 
     @Override
     public void open() throws IOException {
-        String IDEAVersion = ApplicationInfo.getInstance().getVersionName();
-
-        if (IDEAVersion.equals(Saros.INTELLI_J_IDEA)) {
+        if (ModuleManager.getInstance(project) != null) {
 
             //this is only called when the .iml file already exists on disk (after IPN)
             //TODO: Does not work with projects shared from Eclipse, would need
@@ -264,7 +256,7 @@ public class ProjectImp implements IProject {
                 LOG.error("Could not open project: " + getName());
                 throw new IOException("Could not open project");
             }
-            this.isOpen = true;
+            isOpen = true;
         }
     }
 
