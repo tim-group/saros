@@ -68,7 +68,6 @@ public class Wizard extends JDialog
                 AbstractWizardPage nextPage = wizardPageModel.getNextPage();
                 if (nextPage == null)
                 {
-                    wizardPageModel.getCurrentPage().aboutToHidePanel();
                     close();
                 }
                 else
@@ -112,7 +111,7 @@ public class Wizard extends JDialog
         wizardPageModel = new WizardPageModel();
 
         setSize(600, 400);
-        setResizable(false);
+        setResizable(true);
 
         navigationPanel = new NavigationPanel();
         navigationPanel.addActionListener(navigationListener);
@@ -139,8 +138,7 @@ public class Wizard extends JDialog
 
         getContentPane().add(navigationPanel, BorderLayout.SOUTH);
 
-        wizardPageModel.setCurrentPositionIndex(0);
-        goToPage(wizardPageModel.getCurrentPage());
+        wizardPageModel.goToFirstPage();
 
         setVisible(true);
     }
@@ -163,13 +161,10 @@ public class Wizard extends JDialog
     {
         AbstractWizardPage oldPage = wizardPageModel.getCurrentPage();
 
-        if (oldPage != null)
-            oldPage.aboutToHidePanel();
-
-        wizardPageModel.setCurrentPagePosition(page);
-
         if (page == null)
             return;
+
+        wizardPageModel.setCurrentPagePosition(page);
 
         navigationPanel.setNextButtonText(page.getNextButtonTitle());
 
@@ -248,11 +243,6 @@ public class Wizard extends JDialog
             return nextPage;
         }
 
-        public AbstractWizardPage getPageByIndex(int index)
-        {
-            return pageList.get(index);
-        }
-
         public void setNextPage(AbstractWizardPage page)
         {
             nextPage = page;
@@ -268,12 +258,8 @@ public class Wizard extends JDialog
             this.backPage = backPage;
         }
 
-        /**
-         * @param index
-         */
-        public void setCurrentPositionIndex(int index)
-        {
-            setCurrentPagePosition(getPageByIndex(index));
+        public void goToFirstPage() {
+            setCurrentPagePosition(pageList.get(0));
         }
 
         /**
@@ -283,31 +269,23 @@ public class Wizard extends JDialog
          */
         public void setCurrentPagePosition(AbstractWizardPage page)
         {
+            if (page == null)
+                return;
             currentPage = page;
 
-            if (currentPage == null)
-            {
-                return;
-            }
-
-            int index = pageList.indexOf(page);
+            int index = pageList.indexOf(currentPage);
+            if (index < 0)
+                throw new IllegalArgumentException("WizardPageModel called with " +
+                    "illegal page it does not contain.");
             if (index > 0)
-            {
                 backPage = pageList.get(index - 1);
-            }
             else
-            {
                 backPage = null;
-            }
 
             if (index < pageList.size() - 1)
-            {
                 nextPage = pageList.get(index + 1);
-            }
             else
-            {
                 nextPage = null;
-            }
         }
 
         public int getSize()

@@ -57,14 +57,6 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Method called before hiding panel
-     */
-    public void aboutToHidePanel()
-    {
-
-    }
-
-    /**
      * TItle of the next button for this page (e.g. next or accept).
      *
      * @return {@link NavigationPanel#TITLE_NEXT}.

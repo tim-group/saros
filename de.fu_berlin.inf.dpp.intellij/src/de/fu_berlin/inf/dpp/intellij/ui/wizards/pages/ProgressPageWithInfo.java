@@ -103,18 +103,6 @@ public class ProgressPageWithInfo extends AbstractWizardPage
         add(progressPanel, BorderLayout.SOUTH);
     }
 
-    @Override
-    public void aboutToHidePanel()
-    {
-        display.setText("");
-
-        if (progressMonitor != null)
-        {
-            progressMonitor.done();
-            progressMonitor = null;
-        }
-    }
-
     /**
      * Adds text paragraph
      *
@@ -135,7 +123,7 @@ public class ProgressPageWithInfo extends AbstractWizardPage
     /**
      * Creates Progress monitor.
      *
-     * @param indeterminate use indeterminate
+     * @param indeterminate us5e indeterminate
      * @param closeOnFinish close wizard when finished
      * @return IProgressMonitor
      */
