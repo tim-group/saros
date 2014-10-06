@@ -40,18 +40,14 @@ import javax.swing.JToolBar;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Saros toolbar.
+ * FIXME: Replace by IDEA toolbar class.
  */
 public class SarosToolbar extends JToolBar {
     public static final String ADD_CONTACT_ICON_PATH = "icons/elcl16/buddy_add_tsk.png";
     public static final String OPEN_REFS_ICON_PATH = "icons/etool16/test_con.gif";
-
-    //Convenience field for accessing buttons by action name.
-    private final Map<String, JButton> toolbarButtons = new HashMap<String, JButton>();
 
     private final SarosTreeView sarosTree;
 
@@ -82,16 +78,11 @@ public class SarosToolbar extends JToolBar {
         addToolbarButtons();
     }
 
-
-
     private void addToolbarButtons() {
 
         ConnectButton connectionButton = new ConnectButton();
         connectionButton.addActionListenerToActions(treeActionListener);
         addButton(connectionButton);
-        toolbarButtons
-            .put(DisconnectServerAction.NAME,
-                connectionButton);
 
         addButton(
             new SimpleButton(new NotImplementedAction("addContact"), "Add contact to list",
@@ -113,7 +104,6 @@ public class SarosToolbar extends JToolBar {
      * Adds a button to the jToolBar and to the toolbarButtons.
      */
     private void addButton(JButton button) {
-        toolbarButtons.put(button.getActionCommand(), button);
         add(button);
     }
 }

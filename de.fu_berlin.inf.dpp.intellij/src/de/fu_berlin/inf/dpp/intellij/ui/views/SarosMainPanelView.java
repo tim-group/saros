@@ -46,8 +46,6 @@ public class SarosMainPanelView extends JPanel {
     protected static final Logger LOG = Logger
         .getLogger(SarosMainPanelView.class);
 
-    private SarosTreeView sarosTree;
-
     @Inject
     private Saros saros;
 
@@ -63,16 +61,14 @@ public class SarosMainPanelView extends JPanel {
 
     public SarosMainPanelView() throws HeadlessException {
         super(new BorderLayout());
-
         SarosPluginContext.initComponent(this);
         saros.setMainPanel(this);
-
         createPanel();
     }
 
     private void createPanel() {
 
-        sarosTree = new SarosTreeView();
+        SarosTreeView sarosTree = new SarosTreeView();
         SarosToolbar sarosToolbar = new SarosToolbar(sarosTree);
 
         JScrollPane treeScrollPane = new JBScrollPane(sarosTree);
@@ -97,9 +93,4 @@ public class SarosMainPanelView extends JPanel {
         add(splitPane, BorderLayout.CENTER);
         add(sarosToolbar, BorderLayout.NORTH);
     }
-
-    public SarosTreeView getSarosTree() {
-        return sarosTree;
-    }
-
 }

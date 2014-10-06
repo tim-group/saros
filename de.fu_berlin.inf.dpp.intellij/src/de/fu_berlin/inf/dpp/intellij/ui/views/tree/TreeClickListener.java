@@ -22,6 +22,11 @@
 
 package de.fu_berlin.inf.dpp.intellij.ui.views.tree;
 
+import de.fu_berlin.inf.dpp.core.context.SarosPluginContext;
+import de.fu_berlin.inf.dpp.core.project.ISarosSessionManager;
+import de.fu_berlin.inf.dpp.session.User;
+import org.picocontainer.annotations.Inject;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -35,8 +40,12 @@ public class TreeClickListener extends MouseAdapter
 {
     private JTree tree;
 
+    @Inject
+    private ISarosSessionManager sessionManager;
+
     public TreeClickListener(SarosTreeView treeView)
     {
+        SarosPluginContext.initComponent(this);
         tree = treeView;
     }
 
@@ -67,23 +76,24 @@ public class TreeClickListener extends MouseAdapter
         if (selPath.getLastPathComponent() instanceof DefaultMutableTreeNode)
         {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-                if (node.getUserObject() instanceof ContactTreeRootNode.ContactInfo)
+            if (node.getUserObject() instanceof ContactTreeRootNode.ContactInfo)
+            {
+                ContactTreeRootNode.ContactInfo contactInfo = (ContactTreeRootNode.ContactInfo) node.getUserObject();
+                if (contactInfo.isOnline())
                 {
-                    ContactTreeRootNode.ContactInfo contactInfo = (ContactTreeRootNode.ContactInfo) node.getUserObject();
-                    if (contactInfo.isOnline())
-                    {
-                        ContactPopMenu menu = new ContactPopMenu(contactInfo);
-                        menu.show(e.getComponent(), e.getX(), e.getY());
-                    }
-                }
-
-                if (node.getUserObject() instanceof SessionTreeRootNode.SessionInfo)
-                {
-                    SessionTreeRootNode.SessionInfo sessionInfo = (SessionTreeRootNode.SessionInfo) node.getUserObject();
-                    SessionPopMenu menu = new SessionPopMenu(sessionInfo);
+                    ContactPopMenu menu = new ContactPopMenu(contactInfo);
                     menu.show(e.getComponent(), e.getX(), e.getY());
                 }
-
+            } else if (node.getUserObject() instanceof SessionTreeRootNode.UserInfo
+                || node.getUserObject() instanceof SessionTreeRootNode.SessionInfo)
+            {
+                SessionTreeRootNode.UserInfo userInfo = (SessionTreeRootNode.UserInfo) node.getUserObject();
+                User user = userInfo.getUser();
+                if (!user.equals(sessionManager.getSarosSession().getLocalUser())) {
+                    SessionPopMenu menu = new SessionPopMenu(user);
+                    menu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
         }
     }
 }

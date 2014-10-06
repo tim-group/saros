@@ -166,7 +166,7 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
 
     private void addProjectNode(String projectID) {
 
-        //iterate projects in sessions
+        //find session this projectID belongs to
         for (DefaultMutableTreeNode nSession : sessionNodeList.values()) {
             ISarosSession session = ((SessionInfo) nSession.getUserObject())
                 .getSession();
@@ -223,25 +223,6 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
 
         userNodeList.clear();
     }
-
-    protected class SessionInfo extends LeafInfo {
-        private final ISarosSession session;
-
-        private SessionInfo(ISarosSession session) {
-            super(session.getHost().getNickname(), IconManager.CONTACT_ONLINE_ICON);
-            this.session = session;
-        }
-
-        public ISarosSession getSession() {
-            return session;
-        }
-
-        public String toString() {
-            return "Host " + title;
-        }
-
-    }
-
     protected class UserInfo extends LeafInfo {
         private final User user;
 
@@ -254,6 +235,24 @@ public class SessionTreeRootNode extends DefaultMutableTreeNode {
             return user;
         }
     }
+
+    protected class SessionInfo extends UserInfo {
+        private final ISarosSession session;
+
+        private SessionInfo(ISarosSession session) {
+            super(session.getHost());
+            this.session = session;
+        }
+
+        public ISarosSession getSession() {
+            return session;
+        }
+
+        public String toString() {
+            return "Host " + title;
+        }
+    }
+
 
     protected class ProjectInfo extends LeafInfo {
         private final IProject project;
