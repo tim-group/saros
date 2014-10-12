@@ -25,8 +25,6 @@ package de.fu_berlin.inf.dpp.intellij.project.fs;
 import de.fu_berlin.inf.dpp.filesystem.IFile;
 import de.fu_berlin.inf.dpp.filesystem.IResource;
 import de.fu_berlin.inf.dpp.filesystem.IVcsIgnore;
-import org.eclipse.jgit.ignore.IgnoreNode;
-import org.eclipse.jgit.lib.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,10 +32,11 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import static org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
-import static org.eclipse.jgit.ignore.IgnoreNode.MatchResult.NOT_IGNORED;
 
 public final class GitIgnore implements IVcsIgnore {
+
+    public static final String GITIGNORE_FILENAME = ".gitignore";
+    private static final String GIT_DIR = ".git";
 
     @Override public boolean isIgnored(IResource resource) {
 
@@ -65,7 +64,7 @@ public final class GitIgnore implements IVcsIgnore {
 
     private boolean isInDotGitDirectory(IResource resource) {
         return resource.getProjectRelativePath().toPortableString()
-            .startsWith(Constants.DOT_GIT);
+            .startsWith(GIT_DIR);
     }
 
     private Iterator<IResource> createPathSegmentsFromRootTo(IResource resource) {
@@ -92,7 +91,7 @@ public final class GitIgnore implements IVcsIgnore {
     private boolean checkAgainstCurrentGitIgnoreAndDescendIfNecessary(IResource fileToCheck, Iterator<IResource> pathSegments) {
         IFile currentGitIgnore = new FileImp(
             ((ProjectImp)fileToCheck.getProject()),
-            new File(pathSegments.next().getProjectRelativePath().toFile(), Constants.GITIGNORE_FILENAME));
+            new File(pathSegments.next().getProjectRelativePath().toFile(), GITIGNORE_FILENAME));
 
         if (currentGitIgnore.exists()) {
             switch (getMatchResult(fileToCheck, currentGitIgnore)) {
@@ -112,14 +111,12 @@ public final class GitIgnore implements IVcsIgnore {
     private MatchResult getMatchResult(IResource fileToCheck, IFile currentGitIgnore) {
         try {
             InputStream in = currentGitIgnore.getContents();
-            IgnoreNode ignoreNode = new IgnoreNode();
-            //FIXME: If this is slow, consider caching here
-            ignoreNode.parse(in);
+            IgnorePattern ignoreNode = IgnorePattern.parse(in);
             String path = fileToCheck.getProjectRelativePath().toPortableString();
             boolean isDirectory = fileToCheck.getType() == IResource.FOLDER;
             return ignoreNode.isIgnored(path, isDirectory);
         } catch (IOException e) {
-            return NOT_IGNORED;
+            return MatchResult.NOT_IGNORED;
         }
     }
 

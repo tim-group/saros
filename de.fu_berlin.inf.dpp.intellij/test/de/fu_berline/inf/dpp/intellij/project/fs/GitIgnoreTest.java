@@ -31,11 +31,6 @@ import de.fu_berlin.inf.dpp.intellij.project.fs.GitIgnore;
 import de.fu_berlin.inf.dpp.intellij.project.fs.ProjectImp;
 import org.apache.commons.codec.Charsets;
 import org.easymock.EasyMock;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -156,15 +151,11 @@ public class GitIgnoreTest {
     private void writeGitignoreIn(File projectDir, String gitignoreContent)
         throws IOException {
         Files.append(gitignoreContent,
-            new File(projectDir, Constants.GITIGNORE_FILENAME), Charsets.UTF_8);
+            new File(projectDir, GitIgnore.GITIGNORE_FILENAME), Charsets.UTF_8);
     }
 
-    private void initGitRepoIn(File projectDir)
-        throws GitAPIException, IOException {
-        Git.init().setDirectory(projectDir).setBare(false).call();
-        Repository repository = FileRepositoryBuilder
-            .create(new File(projectDir.getAbsolutePath(), ".git"));
-        repository.close();
+    private void initGitRepoIn(File projectDir) throws IOException {
+        new File(projectDir.getAbsolutePath(), ".git").mkdirs();
     }
 
     private void mkFileIn(File projectDir, String file) throws IOException {
