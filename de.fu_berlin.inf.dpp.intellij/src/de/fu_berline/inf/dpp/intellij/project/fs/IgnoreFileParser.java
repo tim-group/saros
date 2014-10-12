@@ -44,7 +44,7 @@ public class IgnoreFileParser {
         String patternText;
         while ((patternText = reader.readLine()) != null) {
             if (!patternText.isEmpty() && !patternText.startsWith("#")) {
-                patterns.add(new IgnorePattern());
+                patterns.add(new IgnorePattern(patternText));
             }
         }
         return patterns;

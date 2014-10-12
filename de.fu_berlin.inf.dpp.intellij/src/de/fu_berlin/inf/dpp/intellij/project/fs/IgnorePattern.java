@@ -23,14 +23,41 @@
 package de.fu_berlin.inf.dpp.intellij.project.fs;
 
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 
 public final class IgnorePattern {
 
+    private final String pattern;
+
+    public IgnorePattern(String pattern) {
+        this.pattern = pattern;
+    }
+
     public static IgnorePattern parse(InputStream in) {
-        return new IgnorePattern();
+        return null;
     }
 
     public MatchResult isIgnored(String path, boolean isDirectory) {
-        return MatchResult.NOT_IGNORED;
+        String patternLeadingSlashRemoved = removeLeadingSlash(pattern);
+        String pathLeadingSlashRemoved = removeLeadingSlash(path);
+
+
+        PathMatcher pathMatcher = FileSystems.getDefault()
+            .getPathMatcher("glob:" + patternLeadingSlashRemoved);
+
+        if (pathMatcher.matches(Paths.get(pathLeadingSlashRemoved))) {
+            return MatchResult.IGNORED;
+        } else {
+            return MatchResult.NOT_IGNORED;
+        }
+
     }
+
+    private String removeLeadingSlash(String string) {
+        return string.startsWith("/") ? string.substring(1) : string;
+    }
+
 }
