@@ -23,21 +23,20 @@
 package de.fu_berline.inf.dpp.intellij.project.fs;
 
 import de.fu_berlin.inf.dpp.intellij.project.fs.IgnorePattern;
-import org.apache.commons.codec.Charsets;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
-import static org.apache.commons.codec.Charsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
 public class IgnoreFileParserTest {
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     @Test public void doesNotCreatePatternsFromEmptyLines() throws IOException {
         InputStream lines = fromString("\n\n\n");
